@@ -12,7 +12,7 @@ pub struct ListConnectionsOptions<'a> {
     pub after: &'a Option<String>,
 
     /// The order in which Connections should be paginated.
-    pub order: &'a Option<PaginationOrder>,
+    pub order: &'a PaginationOrder,
 }
 
 impl<'a> Default for ListConnectionsOptions<'a> {
@@ -21,7 +21,7 @@ impl<'a> Default for ListConnectionsOptions<'a> {
             r#type: &None,
             before: &None,
             after: &None,
-            order: &Some(PaginationOrder::DEFAULT),
+            order: &PaginationOrder::DEFAULT,
         }
     }
 }
