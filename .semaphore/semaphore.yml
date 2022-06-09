@@ -1,5 +1,5 @@
 version: v1.0
-name: workos-rust Pipeline
+name: workos-rust pipeline
 
 execution_time_limit:
   minutes: 10
@@ -20,9 +20,7 @@ blocks:
   - name: Test
     task:
       jobs:
-        - name: cargo build
+        - name: cargo build + cargo test
           commands:
             - cargo build --verbose
-        - name: cargo test
-          commands:
             - cargo test --verbose
