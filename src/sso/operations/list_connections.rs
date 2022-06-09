@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::Serialize;
 
 use crate::sso::{Connection, ConnectionType, Sso};
-use crate::{KnownOrUnknown, PaginatedList, WorkOsResult};
+use crate::{KnownOrUnknown, PaginatedList, PaginationOrder, WorkOsResult};
 
 #[derive(Debug, Serialize)]
 pub struct ListConnectionsOptions<'a> {
@@ -10,6 +10,9 @@ pub struct ListConnectionsOptions<'a> {
     pub r#type: &'a Option<KnownOrUnknown<ConnectionType, String>>,
     pub before: &'a Option<String>,
     pub after: &'a Option<String>,
+
+    /// The order in which Connections should be paginated.
+    pub order: &'a Option<PaginationOrder>,
 }
 
 impl<'a> Default for ListConnectionsOptions<'a> {
@@ -18,6 +21,7 @@ impl<'a> Default for ListConnectionsOptions<'a> {
             r#type: &None,
             before: &None,
             after: &None,
+            order: &Some(PaginationOrder::DEFAULT),
         }
     }
 }
@@ -72,6 +76,7 @@ mod test {
             .build();
 
         let _mock = mock("GET", "/connections")
+            .match_query(Matcher::UrlEncoded("order".to_string(), "desc".to_string()))
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
