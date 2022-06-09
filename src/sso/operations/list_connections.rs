@@ -2,26 +2,24 @@ use async_trait::async_trait;
 use serde::Serialize;
 
 use crate::sso::{Connection, ConnectionType, Sso};
-use crate::{KnownOrUnknown, PaginatedList, PaginationOrder, WorkOsResult};
+use crate::{KnownOrUnknown, PaginatedList, PaginationOptions, WorkOsResult};
 
 #[derive(Debug, Serialize)]
 pub struct ListConnectionsOptions<'a> {
+    /// The pagination options to use when listing Connections.
+    #[serde(flatten)]
+    pub pagination: PaginationOptions<'a>,
+
+    /// The type of Connections to list.
     #[serde(rename = "connection_type")]
     pub r#type: &'a Option<KnownOrUnknown<ConnectionType, String>>,
-    pub before: &'a Option<String>,
-    pub after: &'a Option<String>,
-
-    /// The order in which Connections should be paginated.
-    pub order: &'a PaginationOrder,
 }
 
 impl<'a> Default for ListConnectionsOptions<'a> {
     fn default() -> Self {
         Self {
+            pagination: PaginationOptions::default(),
             r#type: &None,
-            before: &None,
-            after: &None,
-            order: &PaginationOrder::DEFAULT,
         }
     }
 }

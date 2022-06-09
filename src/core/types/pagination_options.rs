@@ -1,5 +1,28 @@
 use serde::Serialize;
 
+/// The options used to control pagination for a given paginated endpoint.
+#[derive(Debug, Serialize)]
+pub struct PaginationOptions<'a> {
+    /// The order in which records should be paginated.
+    pub order: &'a PaginationOrder,
+
+    /// The cursor after which records should be retrived.
+    pub after: &'a Option<String>,
+
+    /// The cursor before which records should be retrieved.
+    pub before: &'a Option<String>,
+}
+
+impl<'a> Default for PaginationOptions<'a> {
+    fn default() -> Self {
+        Self {
+            order: &PaginationOrder::DEFAULT,
+            before: &None,
+            after: &None,
+        }
+    }
+}
+
 /// The order in which records should be returned when paginating.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -20,10 +43,10 @@ impl PaginationOrder {
 mod test {
     use serde_json::json;
 
-    use super::PaginationOrder;
+    use crate::PaginationOrder;
 
     #[test]
-    fn it_properly_serializes_asc() {
+    fn pagination_order_properly_serializes_asc() {
         assert_eq!(
             serde_json::to_string(&PaginationOrder::Asc).unwrap(),
             json!("asc").to_string()
@@ -31,7 +54,7 @@ mod test {
     }
 
     #[test]
-    fn it_properly_serializes_desc() {
+    fn pagination_order_properly_serializes_desc() {
         assert_eq!(
             serde_json::to_string(&PaginationOrder::Desc).unwrap(),
             json!("desc").to_string()
