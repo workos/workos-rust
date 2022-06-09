@@ -102,8 +102,8 @@ mod test {
                     }
                   ],
                   "list_metadata": {
-                    "before": "conn_01E2NPPCT7XQ2MVVYDHWGK1WN4",
-                    "after": null
+                    "after": "conn_01E2NPPCT7XQ2MVVYDHWGK1WN4",
+                    "before": null
                   }
                 })
                 .to_string(),
@@ -117,7 +117,7 @@ mod test {
             .unwrap();
 
         assert_eq!(
-            paginated_list.metadata.before,
+            paginated_list.metadata.after,
             Some("conn_01E2NPPCT7XQ2MVVYDHWGK1WN4".to_string())
         )
     }
@@ -151,8 +151,8 @@ mod test {
                     }
                   ],
                   "list_metadata": {
-                    "before": "conn_01E2NPPCT7XQ2MVVYDHWGK1WN4",
-                    "after": null
+                    "after": "conn_01E2NPPCT7XQ2MVVYDHWGK1WN4",
+                    "before": null
                   }
                 })
                 .to_string(),
