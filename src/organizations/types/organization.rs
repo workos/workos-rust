@@ -34,7 +34,7 @@ pub struct Organization {
     pub allow_profiles_outside_organization: bool,
     pub domains: Vec<OrganizationDomain>,
 
-    /// The timestamps for the connection.
+    /// The timestamps for the organization.
     #[serde(flatten)]
     pub timestamps: Timestamps,
 }
