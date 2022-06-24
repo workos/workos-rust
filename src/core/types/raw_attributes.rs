@@ -5,7 +5,7 @@ use serde_json::Value;
 
 /// The raw attributes returned from the Identity or Directory Provider.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct RawAttributes(HashMap<String, Value>);
+pub struct RawAttributes(pub HashMap<String, Value>);
 
 #[cfg(test)]
 mod test {
