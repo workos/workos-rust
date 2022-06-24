@@ -34,13 +34,13 @@ pub struct Profile {
     /// The ID of the profile.
     pub id: ProfileId,
 
-    /// The ID of the [`Connection`] to which the profile belongs.
+    /// The ID of the connection to which the profile belongs.
     pub connection_id: ConnectionId,
 
-    /// The ID of the [`Organization`] in which the [`Connection`] resides.
+    /// The ID of the organization in which the connection resides.
     pub organization_id: Option<OrganizationId>,
 
-    /// The type of [`Connection`] used to authenticate the user.
+    /// The type of connection used to authenticate the user.
     pub connection_type: KnownOrUnknown<ConnectionType, String>,
 
     /// The unique identifier of the user assigned by the Identity Provider.
