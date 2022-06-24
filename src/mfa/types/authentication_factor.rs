@@ -75,9 +75,9 @@ mod test {
             "updated_at": "2022-02-15T15:14:19.392Z",
             "type": "totp",
             "totp": {
-              "qr_code": "data:image/png;base64,{base64EncodedPng}",
-              "secret": "NAGCCFS3EYRB422HNAKAKY3XDUORMSRF",
-              "uri": "otpauth://totp/FooCorp:alan.turing@foo-corp.com?secret=NAGCCFS3EYRB422HNAKAKY3XDUORMSRF&issuer=FooCorp"
+                "qr_code": "data:image/png;base64,{base64EncodedPng}",
+                "secret": "NAGCCFS3EYRB422HNAKAKY3XDUORMSRF",
+                "uri": "otpauth://totp/FooCorp:alan.turing@foo-corp.com?secret=NAGCCFS3EYRB422HNAKAKY3XDUORMSRF&issuer=FooCorp"
             }
           }).to_string()).unwrap();
 
@@ -89,6 +89,34 @@ mod test {
                     qr_code: "data:image/png;base64,{base64EncodedPng}".to_string(),
                     secret: "NAGCCFS3EYRB422HNAKAKY3XDUORMSRF".to_string(),
                     uri: "otpauth://totp/FooCorp:alan.turing@foo-corp.com?secret=NAGCCFS3EYRB422HNAKAKY3XDUORMSRF&issuer=FooCorp".to_string()
+                }
+            }
+        )
+    }
+
+    #[test]
+    fn it_deserializes_an_sms_factor() {
+        let factor: AuthenticationFactor = serde_json::from_str(
+            &json!({
+              "object": "authentication_factor",
+              "id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
+              "created_at": "2022-02-15T15:14:19.392Z",
+              "updated_at": "2022-02-15T15:14:19.392Z",
+              "type": "sms",
+              "sms": {
+                  "phone_number": "+15005550006"
+              }
+            })
+            .to_string(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            factor,
+            AuthenticationFactor {
+                id: AuthenticationFactorId::from("auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"),
+                r#type: AuthenticationFactorType::Sms {
+                    phone_number: "+15005550006".to_string()
                 }
             }
         )
