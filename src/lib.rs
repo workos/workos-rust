@@ -6,6 +6,7 @@ mod core;
 mod known_or_unknown;
 mod workos;
 
+pub mod mfa;
 pub mod organizations;
 pub mod sso;
 
