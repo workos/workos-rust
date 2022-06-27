@@ -25,7 +25,7 @@ impl From<DeleteOrganizationError> for WorkOsError<DeleteOrganizationError> {
 pub trait DeleteOrganization {
     /// Creates an [`Organization`].
     ///
-    /// [WorkOS Docs: Create an Organization](https://workos.com/docs/reference/organization/create)
+    /// [WorkOS Docs: Delete an Organization](https://workos.com/docs/reference/organization/delete)
     async fn delete_organization(
         &self,
         options: &DeleteOrganizationOptions<'_>,
