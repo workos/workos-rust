@@ -20,6 +20,9 @@ blocks:
   - name: Test
     task:
       jobs:
+        - name: cargo fmt
+          commands:
+            - cargo fmt --check
         - name: cargo build + cargo test
           commands:
             - cargo build --verbose

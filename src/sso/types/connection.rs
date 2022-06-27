@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::organizations::OrganizationId;
 use crate::sso::ConnectionType;
-use crate::KnownOrUnknown;
+use crate::{KnownOrUnknown, Timestamps};
 
 /// The ID of a [`Connection`].
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -57,15 +57,20 @@ pub struct Connection {
 
     /// The state of the connection.
     pub state: ConnectionState,
+
+    /// The timestamps for the connection.
+    #[serde(flatten)]
+    pub timestamps: Timestamps,
 }
 
 #[cfg(test)]
 mod test {
+    use chrono::DateTime;
     use serde_json::json;
 
-    use crate::organizations::OrganizationId;
     use crate::sso::ConnectionType;
     use crate::KnownOrUnknown;
+    use crate::{organizations::OrganizationId, Timestamps};
 
     use super::{Connection, ConnectionId, ConnectionState};
 
@@ -94,6 +99,10 @@ mod test {
                 r#type: KnownOrUnknown::Known(ConnectionType::GoogleOauth),
                 name: "Foo Corp".to_string(),
                 state: ConnectionState::Active,
+                timestamps: Timestamps {
+                    created_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
+                    updated_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
+                }
             }
         )
     }
