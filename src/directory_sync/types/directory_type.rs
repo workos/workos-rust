@@ -63,13 +63,13 @@ pub enum DirectoryType {
     #[serde(rename = "okta scim v1.1")]
     OktaScimV1_1,
 
-    /// Okta SCIM v2.0
+    /// Okta SCIM v2.0.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/okta-scim-v2-0)
     #[serde(rename = "okta scim v2.0")]
     OktaScimV2_0,
 
-    /// OneLogin SCIM v2.0
+    /// OneLogin SCIM v2.0.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/onelogin-scim)
     #[serde(rename = "onelogin scim v2.0")]
