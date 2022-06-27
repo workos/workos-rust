@@ -8,6 +8,7 @@ mod workos;
 
 pub mod organizations;
 pub mod sso;
+pub mod directory_sync;
 
 pub use crate::core::*;
 pub use crate::workos::*;
