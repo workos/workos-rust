@@ -1,6 +1,10 @@
 use url::{ParseError, Url};
 
-use crate::{mfa::Mfa, organizations::Organizations, sso::Sso, ApiKey};
+use crate::admin_portal::AdminPortal;
+use crate::mfa::Mfa;
+use crate::organizations::Organizations;
+use crate::sso::Sso;
+use crate::ApiKey;
 
 /// The WorkOS client.
 pub struct WorkOs {
@@ -30,6 +34,10 @@ impl WorkOs {
 
     pub(crate) fn client(&self) -> &reqwest::Client {
         &self.client
+    }
+
+    pub fn admin_portal(&self) -> AdminPortal {
+        AdminPortal::new(self)
     }
 
     pub fn mfa(&self) -> Mfa {
