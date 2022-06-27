@@ -1,7 +1,11 @@
 [package]
 name = "workos"
 version = "0.1.0"
+description = "Official Rust SDK for interacting with the WorkOS API."
+repository = "https://github.com/workos/workos-rust"
+documentation = "https://docs.rs/workos/"
 authors = ["WorkOS"]
+license = "MIT"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

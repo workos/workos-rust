@@ -41,6 +41,7 @@ mod test {
     use serde_json::json;
     use tokio;
 
+    use crate::sso::ProfileId;
     use crate::{ApiKey, WorkOs};
 
     use super::*;
@@ -77,6 +78,9 @@ mod test {
             .await
             .unwrap();
 
-        assert_eq!(profile.id, "prof_01DMC79VCBZ0NY2099737PSVF1")
+        assert_eq!(
+            profile.id,
+            ProfileId::from("prof_01DMC79VCBZ0NY2099737PSVF1")
+        )
     }
 }
