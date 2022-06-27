@@ -54,7 +54,7 @@ pub struct DirectoryUser<TCustomAttributes = HashMap<String, Value>> {
     /// The last name of the directory user.
     pub last_name: Option<String>,
 
-    /// The state of the directory user.i
+    /// The state of the directory user.
     pub state: KnownOrUnknown<DirectoryUserState, String>,
 
     /// The custom attributes mapped from the Directory Provider.
