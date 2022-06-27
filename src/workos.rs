@@ -1,6 +1,6 @@
 use url::{ParseError, Url};
 
-use crate::{organizations::Organizations, sso::Sso, ApiKey};
+use crate::{admin_portal::AdminPortal, organizations::Organizations, sso::Sso, ApiKey};
 
 /// The WorkOS client.
 pub struct WorkOs {
@@ -30,6 +30,10 @@ impl WorkOs {
 
     pub(crate) fn client(&self) -> &reqwest::Client {
         &self.client
+    }
+
+    pub fn admin_portal(&self) -> AdminPortal {
+        AdminPortal::new(self)
     }
 
     pub fn organizations(&self) -> Organizations {
