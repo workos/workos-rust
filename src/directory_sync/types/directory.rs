@@ -2,8 +2,8 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::organizations::OrganizationId;
 use crate::directory_sync::DirectoryType;
+use crate::organizations::OrganizationId;
 use crate::KnownOrUnknown;
 
 /// The ID of a [`Directory`].
@@ -45,7 +45,7 @@ pub enum DirectoryState {
     Deleting,
 
     /// The directory was unable to link due to invalid credentials.
-    InvalidCredentials
+    InvalidCredentials,
 }
 
 /// [WorkOS Docs: Directory](https://workos.com/docs/reference/directory-sync/directory)
@@ -66,16 +66,16 @@ pub struct Directory {
     /// The name of the directory.
     pub name: String,
 
-    /// The URL associated with an Enterprise Client. 
-    pub domain: Option<String>,   
+    /// The URL associated with an Enterprise Client.
+    pub domain: Option<String>,
 }
 
 #[cfg(test)]
 mod test {
     use serde_json::json;
 
-    use crate::organizations::OrganizationId;
     use crate::directory_sync::DirectoryType;
+    use crate::organizations::OrganizationId;
     use crate::KnownOrUnknown;
 
     use super::{Directory, DirectoryId, DirectoryState};
@@ -84,15 +84,15 @@ mod test {
     fn it_deserializes_a_directory() {
         let directory: Directory = serde_json::from_str(
             &json!({
-                "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
-                "domain": "foo-corp.com",
-                "name": "Foo Corp",
-                "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-                "state": "unlinked",
-                "type": "bamboohr",
-                "created_at": "2021-06-25T19:07:33.155Z",
-                "updated_at": "2021-06-25T19:07:33.155Z"
-              })
+              "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+              "domain": "foo-corp.com",
+              "name": "Foo Corp",
+              "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+              "state": "unlinked",
+              "type": "bamboohr",
+              "created_at": "2021-06-25T19:07:33.155Z",
+              "updated_at": "2021-06-25T19:07:33.155Z"
+            })
             .to_string(),
         )
         .unwrap();
@@ -114,15 +114,15 @@ mod test {
     fn it_deserializes_unknown_directory_types() {
         let directory: Directory = serde_json::from_str(
             &json!({
-                "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
-                "domain": "foo-corp.com",
-                "name": "Foo Corp",
-                "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-                "state": "unlinked",
-                "type": "UnknownType",
-                "created_at": "2021-06-25T19:07:33.155Z",
-                "updated_at": "2021-06-25T19:07:33.155Z"
-              })
+              "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+              "domain": "foo-corp.com",
+              "name": "Foo Corp",
+              "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+              "state": "unlinked",
+              "type": "UnknownType",
+              "created_at": "2021-06-25T19:07:33.155Z",
+              "updated_at": "2021-06-25T19:07:33.155Z"
+            })
             .to_string(),
         )
         .unwrap();

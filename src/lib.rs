@@ -6,9 +6,9 @@ mod core;
 mod known_or_unknown;
 mod workos;
 
+pub mod directory_sync;
 pub mod organizations;
 pub mod sso;
-pub mod directory_sync;
 
 pub use crate::core::*;
 pub use crate::workos::*;
