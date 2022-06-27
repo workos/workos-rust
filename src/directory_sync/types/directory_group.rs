@@ -26,7 +26,7 @@ impl From<&str> for DirectoryGroupId {
     }
 }
 
-/// [WorkOS Docs: Directory](https://workos.com/docs/reference/directory-sync/directory)
+/// [WorkOS Docs: Directory Group](https://workos.com/docs/reference/directory-sync/directory-group)
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DirectoryGroup {
     /// Unique identifier for the Directory Group.
