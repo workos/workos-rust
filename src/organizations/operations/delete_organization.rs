@@ -8,7 +8,7 @@ use crate::{WorkOsError, WorkOsResult};
 
 #[derive(Debug, Serialize)]
 pub struct DeleteOrganizationOptions<'a> {
-    /// The name of the organization.
+    /// The ID of the organization.
     pub organization_id: &'a OrganizationId,
 }
 
