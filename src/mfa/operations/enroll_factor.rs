@@ -6,8 +6,10 @@ use thiserror::Error;
 use crate::mfa::{AuthenticationFactor, Mfa};
 use crate::{WorkOsError, WorkOsResult};
 
+/// The options for [`EnrollFactor`].
 #[derive(Debug, Serialize)]
 pub enum EnrollFactorOptions<'a> {
+    /// Enroll a time-based one-time password (TOTP) factor.
     Totp {
         /// The identifier for the user for whom the factor is being enrolled.
         ///
@@ -19,13 +21,14 @@ pub enum EnrollFactorOptions<'a> {
         /// This should be the name of your application or company.
         issuer: &'a str,
     },
+    /// Enroll an SMS factor.
     Sms {
         /// The phone number for an SMS-enabled device that will receive MFA codes.
         phone_number: &'a str,
     },
 }
 
-/// An error returned from the [`EnrollFactor`].
+/// An error returned from [`EnrollFactor`].
 #[derive(Debug, Error)]
 pub enum EnrollFactorError {
     /// The provided phone number was invalid.
