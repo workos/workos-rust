@@ -3,6 +3,7 @@ use url::{ParseError, Url};
 use crate::admin_portal::AdminPortal;
 use crate::mfa::Mfa;
 use crate::organizations::Organizations;
+use crate::passwordless::Passwordless;
 use crate::sso::Sso;
 use crate::ApiKey;
 
@@ -46,6 +47,10 @@ impl WorkOs {
 
     pub fn organizations(&self) -> Organizations {
         Organizations::new(self)
+    }
+
+    pub fn passwordless(&self) -> Passwordless {
+        Passwordless::new(self)
     }
 
     pub fn sso(&self) -> Sso {
