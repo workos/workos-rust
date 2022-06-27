@@ -81,7 +81,7 @@ pub enum DirectoryType {
     #[serde(rename = "people hr")]
     PeopleHr,
 
-    /// PingFederate SCIM v2.0
+    /// PingFederate SCIM v2.0.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/pingfederate-scim)
     #[serde(rename = "pingfederate scim v2.0")]
