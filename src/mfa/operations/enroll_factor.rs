@@ -8,17 +8,20 @@ use crate::{WorkOsError, WorkOsResult};
 
 /// The options for [`EnrollFactor`].
 #[derive(Debug, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum EnrollFactorOptions<'a> {
     /// Enroll a time-based one-time password (TOTP) factor.
     Totp {
         /// The identifier for the user for whom the factor is being enrolled.
         ///
         /// This is used by authenticator apps to label connections.
+        #[serde(rename = "totp_user")]
         user: &'a str,
 
         /// The identifier for the organization issuing the challenge.
         ///
         /// This should be the name of your application or company.
+        #[serde(rename = "totp_issuer")]
         issuer: &'a str,
     },
     /// Enroll an SMS factor.
@@ -122,6 +125,7 @@ mod test {
 
         let _mock = mock("POST", "/auth/factors/enroll")
             .match_header("Authorization", "Bearer sk_example_123456789")
+            .match_body(r#"{"type":"totp","totp_user":"alan.turing@foo-corp.com","totp_issuer":"Foo Corp"}"#)
             .with_status(201)
             .with_body(
                 json!({
@@ -144,7 +148,7 @@ mod test {
             .mfa()
             .enroll_factor(&EnrollFactorOptions::Totp {
                 user: "alan.turing@foo-corp.com",
-                issuer: "FooCorp",
+                issuer: "Foo Corp",
             })
             .await
             .unwrap();
@@ -164,6 +168,7 @@ mod test {
 
         let _mock = mock("POST", "/auth/factors/enroll")
             .match_header("Authorization", "Bearer sk_example_123456789")
+            .match_body(r#"{"type":"sms","phone_number":"73"}"#)
             .with_status(422)
             .with_body(
                 json!({
@@ -176,9 +181,8 @@ mod test {
 
         let result = workos
             .mfa()
-            .enroll_factor(&EnrollFactorOptions::Totp {
-                user: "alan.turing@foo-corp.com",
-                issuer: "FooCorp",
+            .enroll_factor(&EnrollFactorOptions::Sms {
+                phone_number: "73",
             })
             .await;
 
