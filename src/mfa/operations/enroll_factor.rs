@@ -181,9 +181,7 @@ mod test {
 
         let result = workos
             .mfa()
-            .enroll_factor(&EnrollFactorOptions::Sms {
-                phone_number: "73",
-            })
+            .enroll_factor(&EnrollFactorOptions::Sms { phone_number: "73" })
             .await;
 
         assert_matches!(
