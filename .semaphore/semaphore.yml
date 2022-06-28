@@ -29,5 +29,6 @@ blocks:
             - cache restore cargo-index-$(checksum Cargo.toml)
             - cargo build --verbose
             - cargo test --verbose
+            - ls -a /usr/local/cargo
             - cache store cargo-registry-$(checksum Cargo.toml) /usr/local/cargo/registry
             - cache store cargo-index-$(checksum Cargo.toml) /usr/local/cargo/git
