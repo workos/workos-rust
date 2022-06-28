@@ -21,23 +21,35 @@
 <span id="16">16</span>
 <span id="17">17</span>
 <span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
+<span class="doccomment">/// A WorkOS SDK error.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WorkOsError</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// An error occurred with the current operation.</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;operational error&quot;</span>)]</span>
     <span class="ident">Operation</span>(<span class="ident">E</span>),
 
+    <span class="doccomment">/// An unauthorized response was received from the WorkOS API.</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;unauthorized&quot;</span>)]</span>
     <span class="ident">Unauthorized</span>,
 
+    <span class="doccomment">/// An error occurred while parsing a URL.</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;URL parse error&quot;</span>)]</span>
     <span class="ident">UrlParseError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">url::ParseError</span>),
 
+    <span class="doccomment">/// An unhandled error occurred with the API request.</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;request error&quot;</span>)]</span>
     <span class="ident">RequestError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">reqwest::Error</span>),
 }
 
+<span class="doccomment">/// A WorkOS SDK result.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">WorkOsError</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="workos" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>

@@ -161,6 +161,12 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">url</span>::{<span class="ident">ParseError</span>, <span class="ident">Url</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::admin_portal::AdminPortal</span>;
@@ -201,26 +207,32 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client</span>
     }
 
+    <span class="doccomment">/// Returns an [`AdminPortal`] instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">admin_portal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">AdminPortal</span> {
         <span class="ident">AdminPortal::new</span>(<span class="self">self</span>)
     }
 
+    <span class="doccomment">/// Returns a [`DirectorySync`] instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">directory_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DirectorySync</span> {
         <span class="ident">DirectorySync::new</span>(<span class="self">self</span>)
     }
 
+    <span class="doccomment">/// Returns an [`Mfa`] instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mfa</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Mfa</span> {
         <span class="ident">Mfa::new</span>(<span class="self">self</span>)
     }
 
+    <span class="doccomment">/// Returns an [`Organizations`] instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">organizations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Organizations</span> {
         <span class="ident">Organizations::new</span>(<span class="self">self</span>)
     }
 
+    <span class="doccomment">/// Returns a [`Passwordless`] instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">passwordless</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Passwordless</span> {
         <span class="ident">Passwordless::new</span>(<span class="self">self</span>)
     }
 
+    <span class="doccomment">/// Returns an [`Sso`] instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sso</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Sso</span> {
         <span class="ident">Sso::new</span>(<span class="self">self</span>)
     }
