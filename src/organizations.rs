@@ -1,3 +1,5 @@
+//! A module for interacting with organizations within WorkOS.
+
 mod operations;
 mod types;
 
@@ -6,6 +8,7 @@ pub use types::*;
 
 use crate::WorkOs;
 
+/// Organizations.
 pub struct Organizations<'a> {
     workos: &'a WorkOs,
 }

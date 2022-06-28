@@ -1,3 +1,7 @@
+//! A module for interacting with the WorkOS Admin Portal.
+//!
+//! [WorkOS Docs: Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
+
 mod operations;
 mod types;
 

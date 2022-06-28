@@ -1,3 +1,7 @@
+//! A module for interacting with the WorkOS Directory Sync API.
+//!
+//! [WorkOS Docs: Directory Sync Guide](https://workos.com/docs/directory-sync/guide)
+
 mod operations;
 mod types;
 

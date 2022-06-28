@@ -38,26 +38,32 @@ impl WorkOs {
         &self.client
     }
 
+    /// Returns an [`AdminPortal`] instance.
     pub fn admin_portal(&self) -> AdminPortal {
         AdminPortal::new(self)
     }
 
+    /// Returns a [`DirectorySync`] instance.
     pub fn directory_sync(&self) -> DirectorySync {
         DirectorySync::new(self)
     }
 
+    /// Returns an [`Mfa`] instance.
     pub fn mfa(&self) -> Mfa {
         Mfa::new(self)
     }
 
+    /// Returns an [`Organizations`] instance.
     pub fn organizations(&self) -> Organizations {
         Organizations::new(self)
     }
 
+    /// Returns a [`Passwordless`] instance.
     pub fn passwordless(&self) -> Passwordless {
         Passwordless::new(self)
     }
 
+    /// Returns an [`Sso`] instance.
     pub fn sso(&self) -> Sso {
         Sso::new(self)
     }

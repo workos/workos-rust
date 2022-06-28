@@ -1,3 +1,7 @@
+//! A module for interacting with the WorkOS Multi-factor Authentication (MFA) API.
+//!
+//! [WorkOS Docs: MFA Guide](https://workos.com/docs/mfa/guide)
+
 mod operations;
 mod types;
 

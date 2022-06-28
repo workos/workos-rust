@@ -1,3 +1,7 @@
+//! A module for working with passwordless authentication, namely Magic Link.
+//!
+//! [WorkOS Docs: Magic Link Guide](https://workos.com/docs/magic-link/guide)
+
 mod operations;
 mod types;
 
@@ -6,6 +10,9 @@ pub use types::*;
 
 use crate::WorkOs;
 
+/// Passwordless (Magic Link).
+///
+/// [WorkOS Docs: Magic Link Guide](https://workos.com/docs/magic-link/guide)
 pub struct Passwordless<'a> {
     workos: &'a WorkOs,
 }

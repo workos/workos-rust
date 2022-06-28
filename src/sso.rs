@@ -1,3 +1,7 @@
+//! A module for interacting with the WorkOS Single Sign-On (SSO) API.
+//!
+//! [WorkOS Docs: SSO Guide](https://workos.com/docs/sso/guide)
+
 mod operations;
 mod types;
 
