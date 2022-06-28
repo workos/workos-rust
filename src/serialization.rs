@@ -1,9 +1,10 @@
 use std::fmt::Write;
 
 use serde::ser;
-use serde::{Serialize, Serializer};
+use serde::Serializer;
 
-pub(crate) fn serialize_vec<
+/// Serializes a `Vec<T>` for use within a query string.
+pub(crate) fn serialize_vec_to_query<
     T: std::fmt::Debug + std::fmt::Display + Into<String>,
     S: Serializer,
 >(
@@ -15,10 +16,12 @@ pub(crate) fn serialize_vec<
     let mut serialized = String::new();
 
     for (index, item) in value.iter().enumerate() {
-        write!(&mut serialized, "{}", item).expect(&format!("failed to write '{}'", item));
+        write!(&mut serialized, "{}", item)
+            .map_err(|err| ser::Error::custom(format!("failed to write '{}': {}", item, err)))?;
 
         if index < value.len() - 1 {
-            write!(&mut serialized, ",").expect("failed to write separator")
+            write!(&mut serialized, ",")
+                .map_err(|err| ser::Error::custom(format!("failed to write separator: {}", err)))?
         }
     }
 
@@ -35,7 +38,7 @@ mod test {
     async fn it_serializes_a_vec_in_the_query_string() {
         #[derive(Debug, Serialize)]
         struct List<'a> {
-            #[serde(rename = "items[]", serialize_with = "super::serialize_vec")]
+            #[serde(rename = "items[]", serialize_with = "super::serialize_vec_to_query")]
             pub items: Vec<&'a str>,
         }
 
