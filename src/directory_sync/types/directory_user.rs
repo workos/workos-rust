@@ -58,7 +58,7 @@ pub struct DirectoryUser<TCustomAttributes = HashMap<String, Value>> {
     pub state: KnownOrUnknown<DirectoryUserState, String>,
 
     /// The custom attributes mapped from the Directory Provider.
-    pub custom_attributes2: TCustomAttributes,
+    pub custom_attributes: TCustomAttributes,
 
     /// The raw attributes received from the Directory Provider.
     pub raw_attributes: RawAttributes,
