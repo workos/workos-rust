@@ -4,6 +4,16 @@ use serde::ser;
 use serde::Serializer;
 
 /// Serializes a `Vec<T>` for use within a query string.
+///
+/// # Examples
+///
+/// ```
+/// #[derive(Debug, Serialize)]
+/// struct List<'a> {
+///     #[serde(rename = "items[]", serialize_with = "super::serialize_vec_to_query")]
+///     pub items: Vec<&'a str>,
+/// }
+/// ```
 pub(crate) fn serialize_vec_to_query<
     T: std::fmt::Debug + std::fmt::Display + Into<String>,
     S: Serializer,
