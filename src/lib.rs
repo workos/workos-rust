@@ -4,7 +4,6 @@
 
 mod core;
 mod known_or_unknown;
-mod serialization;
 mod workos;
 
 pub mod admin_portal;
@@ -15,6 +14,5 @@ pub mod passwordless;
 pub mod sso;
 
 pub use crate::core::*;
-pub(crate) use crate::serialization::*;
 pub use crate::workos::*;
 pub use known_or_unknown::*;
