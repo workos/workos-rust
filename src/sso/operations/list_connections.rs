@@ -1,9 +1,11 @@
 use async_trait::async_trait;
+use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::sso::{Connection, ConnectionType, Sso};
-use crate::{KnownOrUnknown, PaginatedList, PaginationOptions, WorkOsResult};
+use crate::{KnownOrUnknown, PaginatedList, PaginationOptions, WorkOsError, WorkOsResult};
 
+/// The options for [`ListConnections`].
 #[derive(Debug, Serialize)]
 pub struct ListConnectionsOptions<'a> {
     /// The pagination options to use when listing Connections.
@@ -24,6 +26,7 @@ impl<'a> Default for ListConnectionsOptions<'a> {
     }
 }
 
+/// [WorkOS Docs: List Connections](https://workos.com/docs/reference/sso/connection/list)
 #[async_trait]
 pub trait ListConnections {
     /// Retrieves a list of [`Connection`]s.
@@ -50,9 +53,19 @@ impl<'a> ListConnections for Sso<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?;
-        let list_connections_response = response.json::<PaginatedList<Connection>>().await?;
 
-        Ok(list_connections_response)
+        match response.error_for_status_ref() {
+            Ok(_) => {
+                let list_connections_response =
+                    response.json::<PaginatedList<Connection>>().await?;
+
+                Ok(list_connections_response)
+            }
+            Err(err) => match err.status() {
+                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
+                _ => Err(WorkOsError::RequestError(err)),
+            },
+        }
     }
 }
 
