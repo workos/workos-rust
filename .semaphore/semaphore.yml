@@ -28,7 +28,6 @@ blocks:
             - cache restore cargo-registry-$(checksum Cargo.toml)
             - cache restore cargo-index-$(checksum Cargo.toml)
             - cache restore cargo-build-target-$(checksum Cargo.toml)
-            - echo "Hi"
             - cargo build --verbose
             - cargo test --verbose
             - cache store cargo-registry-$(checksum Cargo.toml) /usr/local/cargo/registry
