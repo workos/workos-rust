@@ -53,7 +53,7 @@ pub struct GeneratePortalLinkResponse {
     pub link: String,
 }
 
-/// An error from [`GeneratePortalLink`].
+/// An error returned from [`GeneratePortalLink`].
 #[derive(Debug)]
 pub enum GeneratePortalLinkError {}
 

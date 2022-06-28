@@ -5,6 +5,7 @@ use thiserror::Error;
 use crate::sso::{Connection, ConnectionId, Sso};
 use crate::{WorkOsError, WorkOsResult};
 
+/// An error returned from [`GetConnection`].
 #[derive(Debug, Error)]
 pub enum GetConnectionError {}
 
@@ -14,6 +15,7 @@ impl From<GetConnectionError> for WorkOsError<GetConnectionError> {
     }
 }
 
+/// [WorkOS Docs: Get a Connection](https://workos.com/docs/reference/sso/connection/get)
 #[async_trait]
 pub trait GetConnection {
     /// Retrieves a [`Connection`] by its ID.

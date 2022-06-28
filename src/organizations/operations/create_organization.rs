@@ -8,6 +8,7 @@ use thiserror::Error;
 use crate::organizations::{Organization, Organizations};
 use crate::{WorkOsError, WorkOsResult};
 
+/// The options for [`CreateOrganization`].
 #[derive(Debug, Serialize)]
 pub struct CreateOrganizationOptions<'a> {
     /// The name of the organization.
@@ -28,6 +29,7 @@ pub struct CreateOrganizationOptions<'a> {
     pub domains: HashSet<&'a str>,
 }
 
+/// An error returned from [`CreateOrganization`].
 #[derive(Debug, Error)]
 pub enum CreateOrganizationError {}
 
@@ -37,6 +39,7 @@ impl From<CreateOrganizationError> for WorkOsError<CreateOrganizationError> {
     }
 }
 
+/// [WorkOS Docs: Create an Organization](https://workos.com/docs/reference/organization/create)
 #[async_trait]
 pub trait CreateOrganization {
     /// Creates an [`Organization`].
