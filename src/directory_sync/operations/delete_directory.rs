@@ -75,7 +75,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn it_calls_the_delete_connection_endpoint() {
+    async fn it_calls_the_delete_directory_endpoint() {
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&mockito::server_url())
             .unwrap()
