@@ -16,7 +16,7 @@ pub struct UpdateOrganizationOptions<'a> {
     pub organization_id: &'a OrganizationId,
 
     /// The name of the organization.
-    pub name: &'a str,
+    pub name: Option<&'a str>,
 
     /// Whether the connections within this organization should allow profiles
     /// that do not have a domain that is present in the set of the organization's
@@ -30,7 +30,7 @@ pub struct UpdateOrganizationOptions<'a> {
     ///
     /// At least one domain is required unless
     /// [`allow_profiles_outside_organization`] is `true`.
-    pub domains: HashSet<&'a str>,
+    pub domains: Option<HashSet<&'a str>>,
 }
 
 /// An error returned from [`UpdateOrganization`].
@@ -43,12 +43,12 @@ impl From<UpdateOrganizationError> for WorkOsError<UpdateOrganizationError> {
     }
 }
 
-/// [WorkOS Docs: Create an Organization](https://workos.com/docs/reference/organization/create)
+/// [WorkOS Docs: Update an Organization](https://workos.com/docs/reference/organization/update)
 #[async_trait]
 pub trait UpdateOrganization {
-    /// Creates an [`Organization`].
+    /// Update an [`Organization`].
     ///
-    /// [WorkOS Docs: Create an Organization](https://workos.com/docs/reference/organization/create)
+    /// [WorkOS Docs: Update an Organization](https://workos.com/docs/reference/organization/update)
     async fn update_organization(
         &self,
         options: &UpdateOrganizationOptions<'_>,
