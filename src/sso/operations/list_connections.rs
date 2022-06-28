@@ -1,16 +1,21 @@
 use async_trait::async_trait;
 use serde::Serialize;
 
+use crate::organizations::OrganizationId;
 use crate::sso::{Connection, ConnectionType, Sso};
 use crate::{KnownOrUnknown, PaginatedList, PaginationOptions, WorkOsResult};
 
+/// The options for [`ListConnections`].
 #[derive(Debug, Serialize)]
 pub struct ListConnectionsOptions<'a> {
-    /// The pagination options to use when listing Connections.
+    /// The pagination options to use when listing connections.
     #[serde(flatten)]
     pub pagination: PaginationOptions<'a>,
 
-    /// The type of Connections to list.
+    /// The ID of the organization to list connections for.
+    pub organization_id: Option<&'a OrganizationId>,
+
+    /// The type of connections to list.
     #[serde(rename = "connection_type")]
     pub r#type: &'a Option<KnownOrUnknown<ConnectionType, String>>,
 }
@@ -19,11 +24,13 @@ impl<'a> Default for ListConnectionsOptions<'a> {
     fn default() -> Self {
         Self {
             pagination: PaginationOptions::default(),
+            organization_id: None,
             r#type: &None,
         }
     }
 }
 
+/// [WorkOS Docs: List Connections](https://workos.com/docs/reference/sso/connection/list)
 #[async_trait]
 pub trait ListConnections {
     /// Retrieves a list of [`Connection`]s.
