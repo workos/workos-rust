@@ -6,9 +6,9 @@ use serde::{ser, Serializer};
 
 /// A [`Vec`] that can be URL-encoded.
 #[derive(Debug)]
-pub(crate) struct UrlEncodedVec<T: Display>(Vec<T>);
+pub(crate) struct UrlEncodableVec<T: Display>(Vec<T>);
 
-impl<T> Serialize for UrlEncodedVec<T>
+impl<T> Serialize for UrlEncodableVec<T>
 where
     T: Display,
 {
@@ -34,7 +34,7 @@ where
     }
 }
 
-impl<T> From<Vec<T>> for UrlEncodedVec<T>
+impl<T> From<Vec<T>> for UrlEncodableVec<T>
 where
     T: Display,
 {
@@ -56,7 +56,7 @@ mod test {
         #[derive(Debug, Serialize)]
         struct List<'a> {
             #[serde(rename = "items[]")]
-            pub items: UrlEncodedVec<&'a str>,
+            pub items: UrlEncodableVec<&'a str>,
         }
 
         let _mock = mock("GET", "/")
@@ -72,7 +72,7 @@ mod test {
         let response = client
             .get(&mockito::server_url())
             .query(&List {
-                items: UrlEncodedVec(vec!["one", "two", "three"]),
+                items: UrlEncodableVec(vec!["one", "two", "three"]),
             })
             .send()
             .await
@@ -86,7 +86,7 @@ mod test {
         #[derive(Debug, Serialize)]
         struct List<'a> {
             #[serde(rename = "items[]")]
-            pub items: Option<UrlEncodedVec<&'a str>>,
+            pub items: Option<UrlEncodableVec<&'a str>>,
         }
 
         let _mock = mock("GET", "/")
@@ -102,7 +102,7 @@ mod test {
         let response = client
             .get(&mockito::server_url())
             .query(&List {
-                items: Some(UrlEncodedVec(vec!["one", "two", "three"])),
+                items: Some(UrlEncodableVec(vec!["one", "two", "three"])),
             })
             .send()
             .await
