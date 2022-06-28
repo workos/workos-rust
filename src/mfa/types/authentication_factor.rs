@@ -71,9 +71,9 @@ mod test {
     use chrono::DateTime;
     use serde_json::json;
 
-    use crate::Timestamps;
+    use crate::{Timestamp, Timestamps};
 
-    use super::{AuthenticationFactor, AuthenticationFactorId, AuthenticationFactorType};
+    use super::*;
 
     #[test]
     fn it_deserializes_a_totp_factor() {
@@ -100,8 +100,8 @@ mod test {
                     uri: "otpauth://totp/FooCorp:alan.turing@foo-corp.com?secret=NAGCCFS3EYRB422HNAKAKY3XDUORMSRF&issuer=FooCorp".to_string()
                 },
                 timestamps: Timestamps {
-                    created_at: DateTime::parse_from_rfc3339("2022-02-15T15:14:19.392Z").unwrap(),
-                    updated_at: DateTime::parse_from_rfc3339("2022-02-15T15:14:19.392Z").unwrap(),
+                    created_at: Timestamp::try_from("2022-02-15T15:14:19.392Z").unwrap(),
+                    updated_at: Timestamp::try_from("2022-02-15T15:14:19.392Z").unwrap(),
                 },
             }
         )
@@ -132,8 +132,8 @@ mod test {
                     phone_number: "+15005550006".to_string()
                 },
                 timestamps: Timestamps {
-                    created_at: DateTime::parse_from_rfc3339("2022-02-15T15:14:19.392Z").unwrap(),
-                    updated_at: DateTime::parse_from_rfc3339("2022-02-15T15:14:19.392Z").unwrap(),
+                    created_at: Timestamp::try_from("2022-02-15T15:14:19.392Z").unwrap(),
+                    updated_at: Timestamp::try_from("2022-02-15T15:14:19.392Z").unwrap(),
                 },
             }
         )
