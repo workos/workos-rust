@@ -15,5 +15,6 @@ pub mod passwordless;
 pub mod sso;
 
 pub use crate::core::*;
+pub(crate) use crate::serialization::*;
 pub use crate::workos::*;
 pub use known_or_unknown::*;

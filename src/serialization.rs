@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::fmt::Write;
 
 use serde::ser;
@@ -7,22 +8,19 @@ use serde::Serializer;
 ///
 /// # Examples
 ///
-/// ```
+/// ```ignore
+/// use serde::Serialize;
+///
 /// #[derive(Debug, Serialize)]
 /// struct List<'a> {
-///     #[serde(rename = "items[]", serialize_with = "super::serialize_vec_to_query")]
+///     #[serde(rename = "items[]", serialize_with = "crate::serialize_vec_to_query")]
 ///     pub items: Vec<&'a str>,
 /// }
 /// ```
-pub(crate) fn serialize_vec_to_query<
-    T: std::fmt::Debug + std::fmt::Display + Into<String>,
-    S: Serializer,
->(
+pub(crate) fn serialize_vec_to_query<T: Display + Into<String>, S: Serializer>(
     value: &Vec<T>,
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
-    let value = dbg!(value);
-
     let mut serialized = String::new();
 
     for (index, item) in value.iter().enumerate() {
@@ -48,7 +46,7 @@ mod test {
     async fn it_serializes_a_vec_in_the_query_string() {
         #[derive(Debug, Serialize)]
         struct List<'a> {
-            #[serde(rename = "items[]", serialize_with = "super::serialize_vec_to_query")]
+            #[serde(rename = "items[]", serialize_with = "crate::serialize_vec_to_query")]
             pub items: Vec<&'a str>,
         }
 
