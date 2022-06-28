@@ -1,6 +1,12 @@
 use url::{ParseError, Url};
 
-use crate::{organizations::Organizations, sso::Sso, ApiKey};
+use crate::admin_portal::AdminPortal;
+use crate::directory_sync::DirectorySync;
+use crate::mfa::Mfa;
+use crate::organizations::Organizations;
+use crate::passwordless::Passwordless;
+use crate::sso::Sso;
+use crate::ApiKey;
 
 /// The WorkOS client.
 pub struct WorkOs {
@@ -32,8 +38,24 @@ impl WorkOs {
         &self.client
     }
 
+    pub fn admin_portal(&self) -> AdminPortal {
+        AdminPortal::new(self)
+    }
+
+    pub fn directory_sync(&self) -> DirectorySync {
+        DirectorySync::new(self)
+    }
+
+    pub fn mfa(&self) -> Mfa {
+        Mfa::new(self)
+    }
+
     pub fn organizations(&self) -> Organizations {
         Organizations::new(self)
+    }
+
+    pub fn passwordless(&self) -> Passwordless {
+        Passwordless::new(self)
     }
 
     pub fn sso(&self) -> Sso {

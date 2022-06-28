@@ -90,6 +90,7 @@ mod test {
     use serde_json::json;
     use tokio;
 
+    use crate::sso::ProfileId;
     use crate::{ApiKey, WorkOs, WorkOsError};
 
     use super::*;
@@ -144,7 +145,10 @@ mod test {
             response.access_token,
             AccessToken::from("01DMEK0J53CVMC32CK5SE0KZ8Q")
         );
-        assert_eq!(response.profile.id, "prof_01DMC79VCBZ0NY2099737PSVF1")
+        assert_eq!(
+            response.profile.id,
+            ProfileId::from("prof_01DMC79VCBZ0NY2099737PSVF1")
+        )
     }
 
     #[tokio::test]

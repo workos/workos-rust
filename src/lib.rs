@@ -6,7 +6,11 @@ mod core;
 mod known_or_unknown;
 mod workos;
 
+pub mod admin_portal;
+pub mod directory_sync;
+pub mod mfa;
 pub mod organizations;
+pub mod passwordless;
 pub mod sso;
 
 pub use crate::core::*;

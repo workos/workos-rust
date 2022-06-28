@@ -2,6 +2,8 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
+use crate::Timestamps;
+
 /// The ID of an [`Organization`].
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct OrganizationId(String);
@@ -31,6 +33,10 @@ pub struct Organization {
     pub name: String,
     pub allow_profiles_outside_organization: bool,
     pub domains: Vec<OrganizationDomain>,
+
+    /// The timestamps for the organization.
+    #[serde(flatten)]
+    pub timestamps: Timestamps,
 }
 
 /// The ID of an [`OrganizationDomain`].
