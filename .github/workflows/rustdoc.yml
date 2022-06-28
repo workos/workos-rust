@@ -28,6 +28,10 @@ jobs:
           command: doc
           args: --no-deps
 
+      - name: Add index.html
+        run: echo "<meta http-equiv=\"refresh\" content=\"0; url=workos\">" > ./target/doc/index.html
+        shell: bash
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         # if: ${{ github.ref == 'refs/heads/main' }}
