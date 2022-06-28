@@ -1,14 +1,28 @@
+use std::fmt::Write;
+
 use serde::ser;
 use serde::{Serialize, Serializer};
 
-pub(crate) fn serialize_vec<T: ?Sized + Serialize, S: Serializer>(
-    value: &T,
+pub(crate) fn serialize_vec<
+    T: std::fmt::Debug + std::fmt::Display + Into<String>,
+    S: Serializer,
+>(
+    value: &Vec<T>,
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
-    match serde_json::to_string(value) {
-        Ok(json) => serializer.serialize_str(&json),
-        Err(_) => Err(ser::Error::custom("Failed to serialize &T to JSON")),
+    let value = dbg!(value);
+
+    let mut serialized = String::new();
+
+    for (index, item) in value.iter().enumerate() {
+        write!(&mut serialized, "{}", item).expect(&format!("failed to write '{}'", item));
+
+        if index < value.len() - 1 {
+            write!(&mut serialized, ",").expect("failed to write separator")
+        }
     }
+
+    serializer.serialize_str(&serialized)
 }
 
 #[cfg(test)]
@@ -21,20 +35,17 @@ mod test {
     async fn it_serializes_a_vec_in_the_query_string() {
         #[derive(Debug, Serialize)]
         struct List<'a> {
-            #[serde(serialize_with = "super::serialize_vec")]
+            #[serde(rename = "items[]", serialize_with = "super::serialize_vec")]
             pub items: Vec<&'a str>,
         }
 
-        let x = dbg!(serde_json::to_string(&List {
-            items: vec!["one", "two", "three"],
-        }));
-
         let _mock = mock("GET", "/")
             .match_query(Matcher::UrlEncoded(
-                "items".to_string(),
-                r#""["one","two","three"]"#.to_string(),
+                "items[]".to_string(),
+                "one,two,three".to_string(),
             ))
-            .with_status(200);
+            .with_status(200)
+            .create();
 
         let client = reqwest::Client::new();
 
