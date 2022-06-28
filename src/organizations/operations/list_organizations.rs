@@ -23,7 +23,7 @@ pub struct ListOrganizationsOptions<'a> {
     #[serde(flatten)]
     pub pagination: PaginationOptions<'a>,
 
-    /// The domains of an Organization.
+    /// The domains of Organizations to be listed.
     #[serde(rename = "domains[]")]
     pub domains: Option<DomainFilters<'a>>,
 }
