@@ -5,6 +5,7 @@ use thiserror::Error;
 use crate::directory_sync::{Directory, DirectoryId, DirectorySync};
 use crate::{WorkOsError, WorkOsResult};
 
+/// An error returned from [`GetDirectory`].
 #[derive(Debug, Error)]
 pub enum GetDirectoryError {}
 
@@ -14,6 +15,7 @@ impl From<GetDirectoryError> for WorkOsError<GetDirectoryError> {
     }
 }
 
+/// [WorkOS Docs: Get a Directory](https://workos.com/docs/reference/directory-sync/directory/get)
 #[async_trait]
 pub trait GetDirectory {
     /// Retrieves a [`Directory`] by its ID.

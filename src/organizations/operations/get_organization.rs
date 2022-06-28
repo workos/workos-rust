@@ -4,6 +4,7 @@ use thiserror::Error;
 use crate::organizations::{Organization, OrganizationId, Organizations};
 use crate::{WorkOsError, WorkOsResult};
 
+/// An error returned from [`GetOrganization`].
 #[derive(Debug, Error)]
 pub enum GetOrganizationError {}
 
@@ -13,6 +14,7 @@ impl From<GetOrganizationError> for WorkOsError<GetOrganizationError> {
     }
 }
 
+/// [WorkOS Docs: Get an Organization](https://workos.com/docs/reference/sso/organization/get)
 #[async_trait]
 pub trait GetOrganization {
     /// Retrieves an [`Organization`] by its ID.

@@ -3,27 +3,45 @@ use url::{ParseError, Url};
 use crate::organizations::OrganizationId;
 use crate::sso::{ClientId, ConnectionId, Sso};
 
+/// An OAuth provider to use for Single Sign-On (SSO).
 #[derive(Debug)]
 pub enum Provider {
+    /// Sign in with Google OAuth.
     GoogleOauth,
+
+    /// Sign in with Microsoft OAuth.
     MicrosoftOauth,
 }
 
+/// The selector to use to determine which connection to use for SSO.
 #[derive(Debug)]
 pub enum ConnectionSelector<'a> {
+    /// Initiate SSO for the connection with the specified ID.
     Connection(&'a ConnectionId),
+
+    /// Initiate SSO for the organization with the specified ID.
     Organization(&'a OrganizationId),
+
+    /// Initiate SSO for the specified OAuth provider.
     Provider(&'a Provider),
 }
 
+/// The options for [`GetAuthorizationUrl`].
 #[derive(Debug)]
 pub struct GetAuthorizationUrlOptions<'a> {
     pub client_id: &'a ClientId,
+
+    ///
     pub redirect_uri: &'a str,
+
+    /// The connection selector to use to initiate SSO.
     pub connection_selector: ConnectionSelector<'a>,
+
+    /// The state parameter that will be passed back to the redirect URI.
     pub state: Option<&'a str>,
 }
 
+/// [WorkOS Docs: Get Authorization URL](https://workos.com/docs/reference/sso/authorize/get)
 pub trait GetAuthorizationUrl {
     /// Returns an authorization URL to use to initiate SSO.
     ///

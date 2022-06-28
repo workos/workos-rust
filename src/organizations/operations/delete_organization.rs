@@ -6,12 +6,14 @@ use thiserror::Error;
 use crate::organizations::{OrganizationId, Organizations};
 use crate::{WorkOsError, WorkOsResult};
 
+/// The options for [`DeleteOrganization`].
 #[derive(Debug, Serialize)]
 pub struct DeleteOrganizationOptions<'a> {
     /// The ID of the organization.
     pub organization_id: &'a OrganizationId,
 }
 
+/// An error returned from [`DeleteOrganization`].
 #[derive(Debug, Error)]
 pub enum DeleteOrganizationError {}
 
@@ -21,6 +23,7 @@ impl From<DeleteOrganizationError> for WorkOsError<DeleteOrganizationError> {
     }
 }
 
+/// [WorkOS Docs: Delete an Organization](https://workos.com/docs/reference/organization/delete)
 #[async_trait]
 pub trait DeleteOrganization {
     /// Creates an [`Organization`].

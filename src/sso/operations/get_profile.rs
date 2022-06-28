@@ -4,11 +4,14 @@ use thiserror::Error;
 use crate::sso::{AccessToken, Profile, Sso};
 use crate::WorkOsResult;
 
+/// An error returned from [`GetProfile`].
 #[derive(Debug, Error)]
 pub enum GetProfileError {}
 
+/// [WorkOS Docs: Get a User Profile](https://workos.com/docs/reference/sso/profile/user)
 #[async_trait]
 pub trait GetProfile {
+    /// [WorkOS Docs: Get a User Profile](https://workos.com/docs/reference/sso/profile/user)
     async fn get_profile(
         &self,
         access_token: &AccessToken,

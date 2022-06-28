@@ -6,6 +6,7 @@ use thiserror::Error;
 use crate::sso::{AccessToken, AuthorizationCode, ClientId, Profile, Sso};
 use crate::{WorkOsError, WorkOsResult};
 
+/// The options for [`GetProfileAndToken`].
 #[derive(Debug)]
 pub struct GetProfileAndTokenOptions<'a> {
     /// The client ID corresponding to the environment that SSO was initiated
@@ -16,8 +17,10 @@ pub struct GetProfileAndTokenOptions<'a> {
     pub code: &'a AuthorizationCode,
 }
 
+/// The response for [`GetProfileAndToken`].
 #[derive(Debug, Deserialize)]
 pub struct GetProfileAndTokenResponse {
+    /// An access token that can be exchanged for the user profile.
     pub access_token: AccessToken,
 
     /// The user profile.
@@ -35,6 +38,7 @@ pub struct GetProfileAndTokenError {
     pub error_description: String,
 }
 
+/// [WorkOS Docs: Get a Profile and Token](https://workos.com/docs/reference/sso/profile/token)
 #[async_trait]
 pub trait GetProfileAndToken {
     /// [WorkOS Docs: Get a Profile and Token](https://workos.com/docs/reference/sso/profile/token)

@@ -1,11 +1,12 @@
 use async_trait::async_trait;
-use reqwest::{StatusCode, Url};
+use reqwest::StatusCode;
 use serde::Serialize;
 use thiserror::Error;
 
 use crate::organizations::{Organization, Organizations};
 use crate::{PaginatedList, PaginationOptions, UrlEncodableVec, WorkOsError, WorkOsResult};
 
+/// The domains to filter the organizations by.
 #[derive(Debug, Serialize)]
 pub struct DomainFilters<'a>(UrlEncodableVec<&'a str>);
 
@@ -36,6 +37,7 @@ impl<'a> Default for ListOrganizationsOptions<'a> {
     }
 }
 
+/// An error returned from [`ListOrganizations`].
 #[derive(Debug, Error)]
 pub enum ListOrganizationsError {}
 
@@ -45,6 +47,7 @@ impl From<ListOrganizationsError> for WorkOsError<ListOrganizationsError> {
     }
 }
 
+/// [WorkOS Docs: List Organizations](https://workos.com/docs/reference/organization/list)
 #[async_trait]
 pub trait ListOrganizations {
     /// Retrieves a list of [`Organization`]s.
