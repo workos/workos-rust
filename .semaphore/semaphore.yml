@@ -25,10 +25,9 @@ blocks:
             - cargo fmt --check
         - name: cargo build + cargo test
           commands:
-            - pwd
-            - ls /usr/local/cargo
-            - pushd ~
-            - pwd
-            - popd
+            - cache restore cargo-registry-$(checksum Cargo.toml)
+            - cache restore cargo-index-$(checksum Cargo.toml)
             - cargo build --verbose
             - cargo test --verbose
+            - cache store cargo-registry-$(checksum Cargo.toml) /usr/local/cargo/registry
+            - cache store cargo-index-$(checksum Cargo.toml) /usr/local/cargo/git
