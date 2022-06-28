@@ -251,6 +251,10 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
@@ -259,6 +263,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sso</span>::{<span class="ident">AccessToken</span>, <span class="ident">AuthorizationCode</span>, <span class="ident">ClientId</span>, <span class="ident">Profile</span>, <span class="ident">Sso</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
+<span class="doccomment">/// The options for [`GetProfileAndToken`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GetProfileAndTokenOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The client ID corresponding to the environment that SSO was initiated</span>
@@ -269,8 +274,10 @@
     <span class="kw">pub</span> <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AuthorizationCode</span>,
 }
 
+<span class="doccomment">/// The response for [`GetProfileAndToken`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GetProfileAndTokenResponse</span> {
+    <span class="doccomment">/// An access token that can be exchanged for the user profile.</span>
     <span class="kw">pub</span> <span class="ident">access_token</span>: <span class="ident">AccessToken</span>,
 
     <span class="doccomment">/// The user profile.</span>
@@ -288,6 +295,7 @@
     <span class="kw">pub</span> <span class="ident">error_description</span>: <span class="ident">String</span>,
 }
 
+<span class="doccomment">/// [WorkOS Docs: Get a Profile and Token](https://workos.com/docs/reference/sso/profile/token)</span>
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GetProfileAndToken</span> {
     <span class="doccomment">/// [WorkOS Docs: Get a Profile and Token](https://workos.com/docs/reference/sso/profile/token)</span>

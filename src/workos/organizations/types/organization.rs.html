@@ -71,6 +71,22 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -102,9 +118,21 @@
 <span class="doccomment">/// [WorkOS Docs: Organization](https://workos.com/docs/reference/organization)</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Organization</span> {
+    <span class="doccomment">/// The ID of the organization.</span>
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">OrganizationId</span>,
+
+    <span class="doccomment">/// The name of the organization.</span>
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+
+    <span class="doccomment">/// Whether the connections within this organization should allow profiles</span>
+    <span class="doccomment">/// that do not have a domain that is present in the set of the organization&#39;s</span>
+    <span class="doccomment">/// user email domains.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [here](https://workos.com/docs/sso/guide/frequently-asked-questions#allow-profiles-outside-organization)</span>
+    <span class="doccomment">/// for more details.</span>
     <span class="kw">pub</span> <span class="ident">allow_profiles_outside_organization</span>: <span class="ident">bool</span>,
+
+    <span class="doccomment">/// The list of user email domains for the organization.</span>
     <span class="kw">pub</span> <span class="ident">domains</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrganizationDomain</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The timestamps for the organization.</span>
@@ -134,9 +162,13 @@
     }
 }
 
+<span class="doccomment">/// [WorkOS Docs: Organization Domain](https://workos.com/docs/reference/organization-domain)</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OrganizationDomain</span> {
+    <span class="doccomment">/// The ID of the organization domain.</span>
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">OrganizationDomainId</span>,
+
+    <span class="doccomment">/// The domain.</span>
     <span class="kw">pub</span> <span class="ident">domain</span>: <span class="ident">String</span>,
 }
 </code></pre></div>

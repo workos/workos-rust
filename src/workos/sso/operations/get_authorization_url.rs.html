@@ -168,32 +168,74 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">url</span>::{<span class="ident">ParseError</span>, <span class="ident">Url</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sso</span>::{<span class="ident">ClientId</span>, <span class="ident">ConnectionId</span>, <span class="ident">Sso</span>};
 
+<span class="doccomment">/// An OAuth provider to use for Single Sign-On (SSO).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Provider</span> {
+    <span class="doccomment">/// Sign in with Google OAuth.</span>
     <span class="ident">GoogleOauth</span>,
+
+    <span class="doccomment">/// Sign in with Microsoft OAuth.</span>
     <span class="ident">MicrosoftOauth</span>,
 }
 
+<span class="doccomment">/// The selector to use to determine which connection to use for SSO.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ConnectionSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Initiate SSO for the connection with the specified ID.</span>
     <span class="ident">Connection</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConnectionId</span>),
+
+    <span class="doccomment">/// Initiate SSO for the organization with the specified ID.</span>
     <span class="ident">Organization</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">OrganizationId</span>),
+
+    <span class="doccomment">/// Initiate SSO for the specified OAuth provider.</span>
     <span class="ident">Provider</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Provider</span>),
 }
 
+<span class="doccomment">/// The options for [`GetAuthorizationUrl`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GetAuthorizationUrlOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The client ID for the environment in which SSO is being initiated.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This value can be obtained from the &quot;Configuration&quot; page in the WorkOS Dashboard.</span>
     <span class="kw">pub</span> <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ClientId</span>,
+
+    <span class="doccomment">/// The redirect URI the user will be redirected to after successfully signing in.</span>
     <span class="kw">pub</span> <span class="ident">redirect_uri</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+
+    <span class="doccomment">/// The connection selector to use to initiate SSO.</span>
     <span class="kw">pub</span> <span class="ident">connection_selector</span>: <span class="ident">ConnectionSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+
+    <span class="doccomment">/// The state parameter that will be passed back to the redirect URI.</span>
     <span class="kw">pub</span> <span class="ident">state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
 }
 
+<span class="doccomment">/// [WorkOS Docs: Get Authorization URL](https://workos.com/docs/reference/sso/authorize/get)</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GetAuthorizationUrl</span> {
     <span class="doccomment">/// Returns an authorization URL to use to initiate SSO.</span>
     <span class="doccomment">///</span>

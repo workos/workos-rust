@@ -130,6 +130,8 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -137,6 +139,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">Directory</span>, <span class="ident">DirectoryId</span>, <span class="ident">DirectorySync</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
+<span class="doccomment">/// An error returned from [`GetDirectory`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GetDirectoryError</span> {}
 
@@ -146,6 +149,7 @@
     }
 }
 
+<span class="doccomment">/// [WorkOS Docs: Get a Directory](https://workos.com/docs/reference/directory-sync/directory/get)</span>
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GetDirectory</span> {
     <span class="doccomment">/// Retrieves a [`Directory`] by its ID.</span>

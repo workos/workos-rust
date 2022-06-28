@@ -145,6 +145,8 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -152,6 +154,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectoryGroup</span>, <span class="ident">DirectoryGroupId</span>, <span class="ident">DirectorySync</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
+<span class="doccomment">/// An error returned from [`GetDirectoryGroup`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GetDirectoryGroupError</span> {}
 
@@ -161,6 +164,7 @@
     }
 }
 
+<span class="doccomment">/// [WorkOS Docs: Get a Directory Group](https://workos.com/docs/reference/directory-sync/group/get)</span>
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GetDirectoryGroup</span> {
     <span class="doccomment">/// Retrieves a [`DirectoryGroup`] by its ID.</span>

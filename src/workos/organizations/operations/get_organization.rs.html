@@ -109,12 +109,15 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations</span>::{<span class="ident">Organization</span>, <span class="ident">OrganizationId</span>, <span class="ident">Organizations</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
+<span class="doccomment">/// An error returned from [`GetOrganization`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GetOrganizationError</span> {}
 
@@ -124,6 +127,7 @@
     }
 }
 
+<span class="doccomment">/// [WorkOS Docs: Get an Organization](https://workos.com/docs/reference/sso/organization/get)</span>
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GetOrganization</span> {
     <span class="doccomment">/// Retrieves an [`Organization`] by its ID.</span>

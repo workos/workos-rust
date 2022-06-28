@@ -139,6 +139,9 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
@@ -149,6 +152,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations</span>::{<span class="ident">Organization</span>, <span class="ident">Organizations</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
+<span class="doccomment">/// The options for [`CreateOrganization`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CreateOrganizationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The name of the organization.</span>
@@ -169,6 +173,7 @@
     <span class="kw">pub</span> <span class="ident">domains</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
 }
 
+<span class="doccomment">/// An error returned from [`CreateOrganization`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CreateOrganizationError</span> {}
 
@@ -178,6 +183,7 @@
     }
 }
 
+<span class="doccomment">/// [WorkOS Docs: Create an Organization](https://workos.com/docs/reference/organization/create)</span>
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CreateOrganization</span> {
     <span class="doccomment">/// Creates an [`Organization`].</span>

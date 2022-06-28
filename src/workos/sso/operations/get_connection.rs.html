@@ -143,6 +143,8 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -150,6 +152,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sso</span>::{<span class="ident">Connection</span>, <span class="ident">ConnectionId</span>, <span class="ident">Sso</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
+<span class="doccomment">/// An error returned from [`GetConnection`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GetConnectionError</span> {}
 
@@ -159,6 +162,7 @@
     }
 }
 
+<span class="doccomment">/// [WorkOS Docs: Get a Connection](https://workos.com/docs/reference/sso/connection/get)</span>
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GetConnection</span> {
     <span class="doccomment">/// Retrieves a [`Connection`] by its ID.</span>
