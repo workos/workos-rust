@@ -34,7 +34,7 @@ pub enum VerifyFactorError {}
 /// [WorkOS Docs: Verify Factor](https://workos.com/docs/reference/mfa/verify-factor)
 #[async_trait]
 pub trait VerifyFactor {
-    /// Attempts a verification for an authentication verify.
+    /// Attempts a verification for an authentication challenge.
     ///
     /// [WorkOS Docs: Verify Factor](https://workos.com/docs/reference/mfa/verify-factor)
     async fn verify_factor(
