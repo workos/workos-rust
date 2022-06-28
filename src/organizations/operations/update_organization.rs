@@ -131,10 +131,10 @@ mod test {
         let organization = workos
             .organizations()
             .update_organization(&UpdateOrganizationOptions {
-                organization_id: "org_01EHZNVPK3SFK441A1RGBFSHRT",
-                name: "Foo Corp",
+                organization_id: &OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"),
+                name: Some("Foo Corp"),
                 allow_profiles_outside_organization: Some(&false),
-                domains: HashSet::from(["foo-corp.com"]),
+                domains: Some(HashSet::from(["foo-corp.com"])),
             })
             .await
             .unwrap();
