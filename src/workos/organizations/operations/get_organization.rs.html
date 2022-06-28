@@ -111,7 +111,17 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+<span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations</span>::{<span class="ident">Organization</span>, <span class="ident">OrganizationId</span>, <span class="ident">Organizations</span>};
@@ -156,9 +166,17 @@
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">organization</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">match</span> <span class="ident">response</span>.<span class="ident">error_for_status_ref</span>() {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">get_organization_response</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">organization</span>)
+                <span class="prelude-val">Ok</span>(<span class="ident">get_organization_response</span>)
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">match</span> <span class="ident">err</span>.<span class="ident">status</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">StatusCode::UNAUTHORIZED</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::Unauthorized</span>),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::RequestError</span>(<span class="ident">err</span>)),
+            },
+        }
     }
 }
 
