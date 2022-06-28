@@ -56,7 +56,7 @@ mod test {
 
     #[test]
     fn it_deserializes_an_authentication_challenge() {
-        let factor: AuthenticationChallenge = serde_json::from_str(
+        let challenge: AuthenticationChallenge = serde_json::from_str(
             &json!({
               "object": "authentication_challenge",
               "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
@@ -70,7 +70,7 @@ mod test {
         .unwrap();
 
         assert_eq!(
-            factor,
+            challenge,
             AuthenticationChallenge {
                 id: AuthenticationChallengeId::from("auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5"),
                 authentication_factor_id: AuthenticationFactorId::from(
