@@ -19,7 +19,7 @@ pub trait GetDirectoryGroup {
     /// Retrieves a [`DirectoryGroup`] by its ID.
     ///
     /// [WorkOS Docs: Get a Directory Group](https://workos.com/docs/reference/directory-sync/group/get)
-    async fn get_directory(
+    async fn get_directory_group(
         &self,
         id: &DirectoryGroupId,
     ) -> WorkOsResult<DirectoryGroup, GetDirectoryGroupError>;
@@ -27,7 +27,7 @@ pub trait GetDirectoryGroup {
 
 #[async_trait]
 impl<'a> GetDirectoryGroup for DirectorySync<'a> {
-    async fn get_directory(
+    async fn get_directory_group(
         &self,
         id: &DirectoryGroupId,
     ) -> WorkOsResult<DirectoryGroup, GetDirectoryGroupError> {
@@ -97,7 +97,7 @@ mod test {
 
         let directory = workos
             .directory_sync()
-            .get_directory(&DirectoryGroupId::from(
+            .get_directory_group(&DirectoryGroupId::from(
                 "directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT",
             ))
             .await
@@ -132,7 +132,7 @@ mod test {
 
         let result = workos
             .directory_sync()
-            .get_directory(&DirectoryGroupId::from(
+            .get_directory_group(&DirectoryGroupId::from(
                 "directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT",
             ))
             .await;
