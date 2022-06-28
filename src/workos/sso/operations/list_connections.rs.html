@@ -196,21 +196,30 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sso</span>::{<span class="ident">Connection</span>, <span class="ident">ConnectionType</span>, <span class="ident">Sso</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">PaginatedList</span>, <span class="ident">PaginationOptions</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
 <span class="doccomment">/// The options for [`ListConnections`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListConnectionsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The pagination options to use when listing Connections.</span>
+    <span class="doccomment">/// The pagination options to use when listing connections.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
     <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
-    <span class="doccomment">/// The type of Connections to list.</span>
+    <span class="doccomment">/// The ID of the organization to list connections for.</span>
+    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">OrganizationId</span><span class="op">&gt;</span>,
+
+    <span class="doccomment">/// The type of connections to list.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;connection_type&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">KnownOrUnknown</span><span class="op">&lt;</span><span class="ident">ConnectionType</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
@@ -219,6 +228,7 @@
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">pagination</span>: <span class="ident">PaginationOptions::default</span>(),
+            <span class="ident">organization_id</span>: <span class="prelude-val">None</span>,
             <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="prelude-val">None</span>,
         }
     }
