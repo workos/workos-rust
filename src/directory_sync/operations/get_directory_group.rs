@@ -6,10 +6,10 @@ use crate::directory_sync::{DirectoryGroup, DirectoryGroupId, DirectorySync};
 use crate::{WorkOsError, WorkOsResult};
 
 #[derive(Debug, Error)]
-pub enum GetDirectoryError {}
+pub enum GetDirectoryGroupError {}
 
-impl From<GetDirectoryError> for WorkOsError<GetDirectoryError> {
-    fn from(err: GetDirectoryError) -> Self {
+impl From<GetDirectoryGroupError> for WorkOsError<GetDirectoryGroupError> {
+    fn from(err: GetDirectoryGroupError) -> Self {
         Self::Operation(err)
     }
 }
@@ -22,7 +22,7 @@ pub trait GetDirectoryGroup {
     async fn get_directory(
         &self,
         id: &DirectoryGroupId,
-    ) -> WorkOsResult<DirectoryGroup, GetDirectoryError>;
+    ) -> WorkOsResult<DirectoryGroup, GetDirectoryGroupError>;
 }
 
 #[async_trait]
@@ -30,7 +30,7 @@ impl<'a> GetDirectoryGroup for DirectorySync<'a> {
     async fn get_directory(
         &self,
         id: &DirectoryGroupId,
-    ) -> WorkOsResult<DirectoryGroup, GetDirectoryError> {
+    ) -> WorkOsResult<DirectoryGroup, GetDirectoryGroupError> {
         let url = self
             .workos
             .base_url()
