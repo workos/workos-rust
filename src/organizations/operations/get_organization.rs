@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use reqwest::StatusCode;
 use thiserror::Error;
 
 use crate::organizations::{Organization, OrganizationId, Organizations};
@@ -43,9 +44,17 @@ impl<'a> GetOrganization for Organizations<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?;
-        let organization = response.json::<Organization>().await?;
+        match response.error_for_status_ref() {
+            Ok(_) => {
+                let get_organization_response = response.json::<Organization>().await?;
 
-        Ok(organization)
+                Ok(get_organization_response)
+            }
+            Err(err) => match err.status() {
+                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
+                _ => Err(WorkOsError::RequestError(err)),
+            },
+        }
     }
 }
 

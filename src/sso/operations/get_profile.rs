@@ -1,8 +1,9 @@
 use async_trait::async_trait;
+use reqwest::StatusCode;
 use thiserror::Error;
 
 use crate::sso::{AccessToken, Profile, Sso};
-use crate::WorkOsResult;
+use crate::{WorkOsError, WorkOsResult};
 
 /// An error returned from [`GetProfile`].
 #[derive(Debug, Error)]
@@ -32,9 +33,17 @@ impl<'a> GetProfile for Sso<'a> {
             .bearer_auth(access_token)
             .send()
             .await?;
-        let profile = response.json::<Profile>().await?;
+        match response.error_for_status_ref() {
+            Ok(_) => {
+                let get_profile_response = response.json::<Profile>().await?;
 
-        Ok(profile)
+                Ok(get_profile_response)
+            }
+            Err(err) => match err.status() {
+                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
+                _ => Err(WorkOsError::RequestError(err)),
+            },
+        }
     }
 }
 
