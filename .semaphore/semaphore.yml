@@ -25,5 +25,10 @@ blocks:
             - cargo fmt --check
         - name: cargo build + cargo test
           commands:
+            - pwd
+            - ls /usr/local/cargo
+            - pushd ~
+            - pwd
+            - popd
             - cargo build --verbose
             - cargo test --verbose
