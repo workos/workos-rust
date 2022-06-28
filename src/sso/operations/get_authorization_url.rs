@@ -29,9 +29,12 @@ pub enum ConnectionSelector<'a> {
 /// The options for [`GetAuthorizationUrl`].
 #[derive(Debug)]
 pub struct GetAuthorizationUrlOptions<'a> {
+    /// The client ID for the environment in which SSO is being initiated.
+    ///
+    /// This value can be obtained from the "Configuration" page in the WorkOS Dashboard.
     pub client_id: &'a ClientId,
 
-    ///
+    /// The redirect URI the user will be redirected to after successfully signing in.
     pub redirect_uri: &'a str,
 
     /// The connection selector to use to initiate SSO.
