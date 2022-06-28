@@ -80,9 +80,7 @@ mod test {
 
     use crate::directory_sync::DirectoryType;
     use crate::organizations::OrganizationId;
-    use crate::KnownOrUnknown;
-    use crate::Timestamps;
-    use chrono::DateTime;
+    use crate::{KnownOrUnknown, Timestamp, Timestamps};
 
     use super::{Directory, DirectoryId, DirectoryState};
 
@@ -113,8 +111,8 @@ mod test {
                 name: "Foo Corp".to_string(),
                 state: DirectoryState::Unlinked,
                 timestamps: Timestamps {
-                    created_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
-                    updated_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
+                    created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                    updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                 }
             }
         )

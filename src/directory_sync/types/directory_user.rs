@@ -99,14 +99,14 @@ pub struct DirectoryUserEmail {
 mod test {
     use std::collections::HashMap;
 
-    use chrono::DateTime;
     use serde::Deserialize;
     use serde_json::{json, Value};
+
+    use crate::{KnownOrUnknown, RawAttributes, Timestamp, Timestamps};
 
     use super::{
         DirectoryId, DirectoryUser, DirectoryUserEmail, DirectoryUserId, DirectoryUserState,
     };
-    use crate::{KnownOrUnknown, RawAttributes, Timestamps};
 
     #[test]
     fn it_deserializes_a_directory_user() {
@@ -175,8 +175,8 @@ mod test {
                 custom_attributes: expected_custom_attributes,
                 raw_attributes: RawAttributes(expected_raw_attributes),
                 timestamps: Timestamps {
-                    created_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
-                    updated_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
+                    created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                    updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                 }
             }
         )

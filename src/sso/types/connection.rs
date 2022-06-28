@@ -65,12 +65,11 @@ pub struct Connection {
 
 #[cfg(test)]
 mod test {
-    use chrono::DateTime;
     use serde_json::json;
 
+    use crate::organizations::OrganizationId;
     use crate::sso::ConnectionType;
-    use crate::KnownOrUnknown;
-    use crate::{organizations::OrganizationId, Timestamps};
+    use crate::{KnownOrUnknown, Timestamp, Timestamps};
 
     use super::{Connection, ConnectionId, ConnectionState};
 
@@ -100,8 +99,8 @@ mod test {
                 name: "Foo Corp".to_string(),
                 state: ConnectionState::Active,
                 timestamps: Timestamps {
-                    created_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
-                    updated_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
+                    created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                    updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                 }
             }
         )

@@ -52,11 +52,13 @@ pub struct DirectoryGroup {
 
 #[cfg(test)]
 mod test {
-    use super::{DirectoryGroup, DirectoryGroupId, DirectoryId};
-    use crate::{RawAttributes, Timestamps};
-    use chrono::DateTime;
-    use serde_json::{json, Value};
     use std::collections::HashMap;
+
+    use serde_json::{json, Value};
+
+    use crate::{RawAttributes, Timestamp, Timestamps};
+
+    use super::{DirectoryGroup, DirectoryGroupId, DirectoryId};
 
     #[test]
     fn it_deserializes_a_directory_group() {
@@ -86,8 +88,8 @@ mod test {
                 directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
                 name: "Developers".to_string(),
                 timestamps: Timestamps {
-                    created_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
-                    updated_at: DateTime::parse_from_rfc3339("2021-06-25T19:07:33.155Z").unwrap(),
+                    created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                    updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                 },
                 raw_attributes: RawAttributes(expected_raw_attributes)
             }
