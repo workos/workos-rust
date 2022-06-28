@@ -4,19 +4,22 @@ use serde::Serialize;
 use crate::organizations::{Organization, Organizations};
 use crate::{PaginatedList, PaginationOptions, WorkOsResult};
 
+//pub struct domainFilters()
+
 #[derive(Debug, Serialize)]
+
 pub struct ListOrganizationsOptions<'a> {
     /// The pagination options to use when listing organizations.
     #[serde(flatten)]
     pub pagination: PaginationOptions<'a>,
-    pub domains: Option<Vec<&'a str>>
+    pub domains: Option<Vec<&'a str>>,
 }
 
 impl<'a> Default for ListOrganizationsOptions<'a> {
     fn default() -> Self {
         Self {
             pagination: PaginationOptions::default(),
-            domains: None
+            domains: None,
         }
     }
 }
@@ -76,33 +79,33 @@ mod test {
             .with_status(200)
             .with_body(
                 json!({
-                    "data": [
-                      {
-                        "id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-                        "object": "organization",
-                        "name": "Foo Corp",
-                        "allow_profiles_outside_organization": false,
-                        "created_at": "2021-06-25T19:07:33.155Z",
-                        "updated_at": "2021-06-25T19:07:33.155Z",
-                        "domains": [
-                          {
-                            "domain": "foo-corp.com",
-                            "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
-                            "object": "organization_domain"
-                          },
-                          {
-                            "domain": "another-foo-corp-domain.com",
-                            "id": "org_domain_01EHZNS0H9W90A90FV79GAB6AB",
-                            "object": "organization_domain"
-                          }
-                        ]
-                      }
-                    ],
-                    "list_metadata": {
-                      "before": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-                      "after": "org_01EJBGJT2PC6638TN5Y380M40Z",
+                  "data": [
+                    {
+                      "id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                      "object": "organization",
+                      "name": "Foo Corp",
+                      "allow_profiles_outside_organization": false,
+                      "created_at": "2021-06-25T19:07:33.155Z",
+                      "updated_at": "2021-06-25T19:07:33.155Z",
+                      "domains": [
+                        {
+                          "domain": "foo-corp.com",
+                          "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
+                          "object": "organization_domain"
+                        },
+                        {
+                          "domain": "another-foo-corp-domain.com",
+                          "id": "org_domain_01EHZNS0H9W90A90FV79GAB6AB",
+                          "object": "organization_domain"
+                        }
+                      ]
                     }
-                  })
+                  ],
+                  "list_metadata": {
+                    "before": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                    "after": "org_01EJBGJT2PC6638TN5Y380M40Z",
+                  }
+                })
                 .to_string(),
             )
             .create();
@@ -135,20 +138,20 @@ mod test {
             .with_status(200)
             .with_body(
                 json!({
-                    "id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-                    "object": "organization",
-                    "name": "Foo Corporation",
-                    "allow_profiles_outside_organization": false,
-                    "created_at": "2021-06-25T19:07:33.155Z",
-                    "updated_at": "2021-06-25T19:07:33.155Z",
-                    "domains": [
-                      {
-                        "domain": "foo-corp.com",
-                        "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
-                        "object": "organization_domain"
-                      }
-                    ]
-                  })
+                  "id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                  "object": "organization",
+                  "name": "Foo Corporation",
+                  "allow_profiles_outside_organization": false,
+                  "created_at": "2021-06-25T19:07:33.155Z",
+                  "updated_at": "2021-06-25T19:07:33.155Z",
+                  "domains": [
+                    {
+                      "domain": "foo-corp.com",
+                      "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
+                      "object": "organization_domain"
+                    }
+                  ]
+                })
                 .to_string(),
             )
             .create();
