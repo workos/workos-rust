@@ -1,10 +1,9 @@
 use std::fmt::Display;
 
-use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
 use crate::mfa::AuthenticationFactorId;
-use crate::Timestamps;
+use crate::{Timestamp, Timestamps};
 
 /// The ID of an [`AuthenticationChallenge`].
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -40,7 +39,7 @@ pub struct AuthenticationChallenge {
     /// The timestamp when the authentication challenge will expire.
     ///
     /// This will always be [`None`] for time-based one-time password (TOTP) factors.
-    pub expires_at: Option<DateTime<FixedOffset>>,
+    pub expires_at: Option<Timestamp>,
 
     /// The timestamps for the authentication challenge.
     #[serde(flatten)]
@@ -49,11 +48,11 @@ pub struct AuthenticationChallenge {
 
 #[cfg(test)]
 mod test {
-    use chrono::DateTime;
     use serde_json::json;
 
-    use super::{AuthenticationChallenge, AuthenticationChallengeId, AuthenticationFactorId};
     use crate::Timestamps;
+
+    use super::*;
 
     #[test]
     fn it_deserializes_an_authentication_challenge() {
@@ -77,10 +76,10 @@ mod test {
                 authentication_factor_id: AuthenticationFactorId::from(
                     "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
                 ),
-                expires_at: DateTime::parse_from_rfc3339("2022-02-15T15:36:53.279Z").ok(),
+                expires_at: Timestamp::try_from("2022-02-15T15:36:53.279Z").ok(),
                 timestamps: Timestamps {
-                    created_at: DateTime::parse_from_rfc3339("2022-02-15T15:26:53.274Z").unwrap(),
-                    updated_at: DateTime::parse_from_rfc3339("2022-02-15T15:26:53.274Z").unwrap(),
+                    created_at: Timestamp::try_from("2022-02-15T15:26:53.274Z").unwrap(),
+                    updated_at: Timestamp::try_from("2022-02-15T15:26:53.274Z").unwrap(),
                 }
             }
         )
