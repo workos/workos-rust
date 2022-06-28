@@ -4,6 +4,7 @@
 
 mod core;
 mod known_or_unknown;
+mod serialization;
 mod workos;
 
 pub mod admin_portal;
