@@ -45,9 +45,9 @@ impl<'a> GetDirectoryGroup for DirectorySync<'a> {
 
         match response.error_for_status_ref() {
             Ok(_) => {
-                let directory = response.json::<DirectoryGroup>().await?;
+                let directory_group = response.json::<DirectoryGroup>().await?;
 
-                Ok(directory)
+                Ok(directory_group)
             }
             Err(err) => match err.status() {
                 Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
