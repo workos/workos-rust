@@ -1,7 +1,8 @@
 use std::fmt::Display;
 
-use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
+
+use crate::Timestamp;
 
 /// The ID of an [`PasswordlessSession`].
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -50,13 +51,14 @@ pub struct PasswordlessSession {
     pub r#type: PasswordlessSessionType,
 
     /// The timestamp indicating when the passwordless session will expire.
-    pub expires_at: DateTime<FixedOffset>,
+    pub expires_at: Timestamp,
 }
 
 #[cfg(test)]
 mod test {
-    use chrono::DateTime;
     use serde_json::json;
+
+    use crate::Timestamp;
 
     use super::{PasswordlessSession, PasswordlessSessionId, PasswordlessSessionType};
 
@@ -83,7 +85,7 @@ mod test {
                     link: "https://auth.workos.com/passwordless/4TeRexuejWCKs9rrFOIuLRYEr/confirm"
                         .to_string(),
                 },
-                expires_at: DateTime::parse_from_rfc3339("2020-08-13T05:50:00.000Z").unwrap()
+                expires_at: Timestamp::try_from("2020-08-13T05:50:00.000Z").unwrap()
             }
         )
     }
