@@ -1,18 +1,31 @@
 use async_trait::async_trait;
+use reqwest::{StatusCode, Url};
 use serde::Serialize;
+use thiserror::Error;
 
 use crate::organizations::{Organization, Organizations};
-use crate::{PaginatedList, PaginationOptions, WorkOsResult};
+use crate::{PaginatedList, PaginationOptions, UrlEncodableVec, WorkOsError, WorkOsResult};
 
-//pub struct domainFilters()
+#[derive(Debug, Serialize)]
+pub struct DomainFilters<'a>(UrlEncodableVec<&'a str>);
+
+impl<'a> From<Vec<&'a str>> for DomainFilters<'a> {
+    fn from(domains: Vec<&'a str>) -> Self {
+        Self(domains.into())
+    }
+}
 
 #[derive(Debug, Serialize)]
 
+/// Parameters for the [`ListOrganizations`] function.
 pub struct ListOrganizationsOptions<'a> {
     /// The pagination options to use when listing organizations.
     #[serde(flatten)]
     pub pagination: PaginationOptions<'a>,
-    pub domains: Option<Vec<&'a str>>,
+
+    /// The domains of an Organization.
+    #[serde(rename = "domains[]")]
+    pub domains: Option<DomainFilters<'a>>,
 }
 
 impl<'a> Default for ListOrganizationsOptions<'a> {
@@ -21,6 +34,15 @@ impl<'a> Default for ListOrganizationsOptions<'a> {
             pagination: PaginationOptions::default(),
             domains: None,
         }
+    }
+}
+
+#[derive(Debug, Error)]
+pub enum ListOrganizationsError {}
+
+impl From<ListOrganizationsError> for WorkOsError<ListOrganizationsError> {
+    fn from(err: ListOrganizationsError) -> Self {
+        Self::Operation(err)
     }
 }
 
@@ -50,9 +72,19 @@ impl<'a> ListOrganizations for Organizations<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?;
-        let list_organizations_response = response.json::<PaginatedList<Organization>>().await?;
 
-        Ok(list_organizations_response)
+        match response.error_for_status_ref() {
+            Ok(_) => {
+                let list_organizations_response =
+                    response.json::<PaginatedList<Organization>>().await?;
+
+                Ok(list_organizations_response)
+            }
+            Err(err) => match err.status() {
+                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
+                _ => Err(WorkOsError::RequestError(err)),
+            },
+        }
     }
 }
 
@@ -130,27 +162,40 @@ mod test {
             .build();
 
         let _mock = mock("GET", "/organizations")
-            .match_query(Matcher::UrlEncoded(
-                "domains".to_string(),
-                "OktaSAML".to_string(),
-            ))
+            .match_query(Matcher::AllOf(vec![
+                Matcher::UrlEncoded("order".to_string(), "desc".to_string()),
+                Matcher::UrlEncoded("domains[]".to_string(), "foo-corp.com".to_string()),
+            ]))
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
                 json!({
-                  "id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-                  "object": "organization",
-                  "name": "Foo Corporation",
-                  "allow_profiles_outside_organization": false,
-                  "created_at": "2021-06-25T19:07:33.155Z",
-                  "updated_at": "2021-06-25T19:07:33.155Z",
-                  "domains": [
+                  "data": [
                     {
-                      "domain": "foo-corp.com",
-                      "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
-                      "object": "organization_domain"
+                      "id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                      "object": "organization",
+                      "name": "Foo Corp",
+                      "allow_profiles_outside_organization": false,
+                      "created_at": "2021-06-25T19:07:33.155Z",
+                      "updated_at": "2021-06-25T19:07:33.155Z",
+                      "domains": [
+                        {
+                          "domain": "foo-corp.com",
+                          "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
+                          "object": "organization_domain"
+                        },
+                        {
+                          "domain": "another-foo-corp-domain.com",
+                          "id": "org_domain_01EHZNS0H9W90A90FV79GAB6AB",
+                          "object": "organization_domain"
+                        }
+                      ]
                     }
-                  ]
+                  ],
+                  "list_metadata": {
+                    "before": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                    "after": "org_01EJBGJT2PC6638TN5Y380M40Z",
+                  }
                 })
                 .to_string(),
             )
@@ -159,7 +204,7 @@ mod test {
         let paginated_list = workos
             .organizations()
             .list_organizations(&ListOrganizationsOptions {
-                domains: Some(vec!["foo-corp.com"]),
+                domains: Some(vec!["foo-corp.com"].into()),
                 ..Default::default()
             })
             .await
