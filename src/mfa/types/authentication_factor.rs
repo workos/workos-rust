@@ -2,6 +2,8 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
+use crate::Timestamps;
+
 /// The ID of an [`AuthenticationFactor`].
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct AuthenticationFactorId(String);
@@ -33,6 +35,10 @@ pub struct AuthenticationFactor {
     /// The type of the authentication factor.
     #[serde(flatten)]
     pub r#type: AuthenticationFactorType,
+
+    /// The timestamps for the authentication factor.
+    #[serde(flatten)]
+    pub timestamps: Timestamps,
 }
 
 /// The type of an [`AuthenticationFactor`].
@@ -62,7 +68,10 @@ pub enum AuthenticationFactorType {
 
 #[cfg(test)]
 mod test {
+    use chrono::DateTime;
     use serde_json::json;
+
+    use crate::Timestamps;
 
     use super::{AuthenticationFactor, AuthenticationFactorId, AuthenticationFactorType};
 
@@ -89,7 +98,11 @@ mod test {
                     qr_code: "data:image/png;base64,{base64EncodedPng}".to_string(),
                     secret: "NAGCCFS3EYRB422HNAKAKY3XDUORMSRF".to_string(),
                     uri: "otpauth://totp/FooCorp:alan.turing@foo-corp.com?secret=NAGCCFS3EYRB422HNAKAKY3XDUORMSRF&issuer=FooCorp".to_string()
-                }
+                },
+                timestamps: Timestamps {
+                    created_at: DateTime::parse_from_rfc3339("2022-02-15T15:14:19.392Z").unwrap(),
+                    updated_at: DateTime::parse_from_rfc3339("2022-02-15T15:14:19.392Z").unwrap(),
+                },
             }
         )
     }
@@ -117,7 +130,11 @@ mod test {
                 id: AuthenticationFactorId::from("auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"),
                 r#type: AuthenticationFactorType::Sms {
                     phone_number: "+15005550006".to_string()
-                }
+                },
+                timestamps: Timestamps {
+                    created_at: DateTime::parse_from_rfc3339("2022-02-15T15:14:19.392Z").unwrap(),
+                    updated_at: DateTime::parse_from_rfc3339("2022-02-15T15:14:19.392Z").unwrap(),
+                },
             }
         )
     }
