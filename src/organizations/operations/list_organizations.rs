@@ -15,9 +15,8 @@ impl<'a> From<Vec<&'a str>> for DomainFilters<'a> {
     }
 }
 
-#[derive(Debug, Serialize)]
-
 /// Parameters for the [`ListOrganizations`] function.
+#[derive(Debug, Serialize)]
 pub struct ListOrganizationsOptions<'a> {
     /// The pagination options to use when listing organizations.
     #[serde(flatten)]
@@ -182,11 +181,6 @@ mod test {
                         {
                           "domain": "foo-corp.com",
                           "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
-                          "object": "organization_domain"
-                        },
-                        {
-                          "domain": "another-foo-corp-domain.com",
-                          "id": "org_domain_01EHZNS0H9W90A90FV79GAB6AB",
                           "object": "organization_domain"
                         }
                       ]
