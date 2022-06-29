@@ -21,4 +21,8 @@ pub enum WebhookEvent {
     /// [WorkOS Docs: `dsync.user.created` Webhook](https://workos.com/docs/reference/webhooks/directory-user#webhooks-dsync.user.created)
     #[serde(rename = "dsync.user.created")]
     DirectoryUserCreated(DirectoryUserCreatedWebhook),
+
+    /// [WorkOS Docs: `dsync.user.created` Webhook](https://workos.com/docs/reference/webhooks/directory-user#webhooks-dsync.user.deleted)
+    #[serde(rename = "dsync.user.deleted")]
+    DirectoryUserDeleted(DirectoryUserDeletedWebhook),
 }
