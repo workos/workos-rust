@@ -27,7 +27,7 @@ impl From<&str> for WebhookId {
 }
 
 /// A WorkOS webhook.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Webhook {
     /// The ID of the webhook.
     pub id: WebhookId,
