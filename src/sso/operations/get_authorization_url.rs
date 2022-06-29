@@ -49,6 +49,31 @@ pub trait GetAuthorizationUrl {
     /// Returns an authorization URL to use to initiate SSO.
     ///
     /// [WorkOS Docs: Get Authorization URL](https://workos.com/docs/reference/sso/authorize/get)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use url::ParseError;
+    /// use workos::{ApiKey, WorkOs};
+    /// # use workos::sso::*;
+    ///
+    /// # fn run() -> Result<(), ParseError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let authorization_url = workos
+    ///     .sso()
+    ///     .get_authorization_url(&GetAuthorizationUrlParams {
+    ///         client_id: &ClientId::from("client_123456789"),
+    ///         redirect_uri: "https://your-app.com/callback",
+    ///         connection_selector: ConnectionSelector::Connection(
+    ///             &ConnectionId::from("conn_01E4ZCR3C56J083X43JQXF3JK5")
+    ///         ),
+    ///         state: None,
+    ///     })?;
+    /// # Ok(())
+    /// # }
+    /// # run().unwrap();
+    /// ```
     fn get_authorization_url(&self, params: &GetAuthorizationUrlParams) -> Result<Url, ParseError>;
 }
 
@@ -108,9 +133,9 @@ mod test {
     #[test]
     fn it_builds_an_authorization_url_when_given_a_connection_id() {
         let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
-        let workos_sso = Sso::new(&workos);
 
-        let authorization_url = workos_sso
+        let authorization_url = workos
+            .sso()
             .get_authorization_url(&GetAuthorizationUrlParams {
                 client_id: &ClientId::from("client_123456789"),
                 redirect_uri: "https://your-app.com/callback",
