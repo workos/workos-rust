@@ -9,7 +9,7 @@ use crate::{KnownOrUnknown, PaginatedList, PaginationOptions, WorkOsError, WorkO
 /// The options for [`ListDirectories`].
 #[derive(Debug, Serialize)]
 pub struct ListDirectoriesOptions<'a> {
-    /// The domain of a directory
+    /// The domain of a directory.
     pub domain: Option<&'a String>,
 
     /// Searchable text to match against Directory names.
@@ -42,7 +42,7 @@ impl<'a> Default for ListDirectoriesOptions<'a> {
 /// [WorkOS Docs: List Directories](https://workos.com/docs/reference/directory-sync/directory/list)
 #[async_trait]
 pub trait ListDirectories {
-    /// Retrieves a list of [`Directories`]s.
+    /// Retrieves a list of [`Directory`]s.
     ///
     /// [WorkOS Docs: List Directories](https://workos.com/docs/reference/directory-sync/directory/list)
     async fn list_directories(
@@ -164,22 +164,22 @@ mod test {
             .with_status(200)
             .with_body(
                 json!({
-                                "data": [{
-                                    "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
-                                    "domain": "foo-corp.com",
-                                    "name": "Foo Corp",
-                                    "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-                                    "object": "directory",
-                                    "state": "unlinked",
-                                    "type": "gsuite directory",
-                                    "created_at": "2021-06-25T19:07:33.155Z",
-                                    "updated_at": "2021-06-25T19:08:33.155Z"
-                                  },
-                                 ],
-                                  "list_metadata" : {
-                                    "after" : "directory_01E1JJS84MFPPQ3G655FHTKX6Z",
-                                    "before" : "directory_01E1JJS84MFPPQ3G655FHTKX6Z"
-                                  }
+                    "data": [{
+                        "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+                        "domain": "foo-corp.com",
+                        "name": "Foo Corp",
+                        "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                        "object": "directory",
+                        "state": "unlinked",
+                        "type": "gsuite directory",
+                        "created_at": "2021-06-25T19:07:33.155Z",
+                        "updated_at": "2021-06-25T19:08:33.155Z"
+                        },
+                        ],
+                        "list_metadata" : {
+                        "after" : "directory_01E1JJS84MFPPQ3G655FHTKX6Z",
+                        "before" : "directory_01E1JJS84MFPPQ3G655FHTKX6Z"
+                        }
                 })
                 .to_string(),
             )
