@@ -183,6 +183,31 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">url</span>::{<span class="ident">ParseError</span>, <span class="ident">Url</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
@@ -234,6 +259,31 @@
     <span class="doccomment">/// Returns an authorization URL to use to initiate SSO.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [WorkOS Docs: Get Authorization URL](https://workos.com/docs/reference/sso/authorize/get)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use url::ParseError;</span>
+    <span class="doccomment">/// use workos::{ApiKey, WorkOs};</span>
+    <span class="doccomment">/// # use workos::sso::*;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), ParseError&gt; {</span>
+    <span class="doccomment">/// let workos = WorkOs::new(&amp;ApiKey::from(&quot;sk_example_123456789&quot;));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let authorization_url = workos</span>
+    <span class="doccomment">///     .sso()</span>
+    <span class="doccomment">///     .get_authorization_url(&amp;GetAuthorizationUrlParams {</span>
+    <span class="doccomment">///         client_id: &amp;ClientId::from(&quot;client_123456789&quot;),</span>
+    <span class="doccomment">///         redirect_uri: &quot;https://your-app.com/callback&quot;,</span>
+    <span class="doccomment">///         connection_selector: ConnectionSelector::Connection(</span>
+    <span class="doccomment">///             &amp;ConnectionId::from(&quot;conn_01E4ZCR3C56J083X43JQXF3JK5&quot;)</span>
+    <span class="doccomment">///         ),</span>
+    <span class="doccomment">///         state: None,</span>
+    <span class="doccomment">///     })?;</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// # run().unwrap();</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">get_authorization_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">GetAuthorizationUrlParams</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Url</span>, <span class="ident">ParseError</span><span class="op">&gt;</span>;
 }
 
@@ -293,9 +343,9 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_builds_an_authorization_url_when_given_a_connection_id</span>() {
         <span class="kw">let</span> <span class="ident">workos</span> <span class="op">=</span> <span class="ident">WorkOs::new</span>(<span class="kw-2">&amp;</span><span class="ident">ApiKey::from</span>(<span class="string">&quot;sk_example_123456789&quot;</span>));
-        <span class="kw">let</span> <span class="ident">workos_sso</span> <span class="op">=</span> <span class="ident">Sso::new</span>(<span class="kw-2">&amp;</span><span class="ident">workos</span>);
 
-        <span class="kw">let</span> <span class="ident">authorization_url</span> <span class="op">=</span> <span class="ident">workos_sso</span>
+        <span class="kw">let</span> <span class="ident">authorization_url</span> <span class="op">=</span> <span class="ident">workos</span>
+            .<span class="ident">sso</span>()
             .<span class="ident">get_authorization_url</span>(<span class="kw-2">&amp;</span><span class="ident">GetAuthorizationUrlParams</span> {
                 <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="ident">ClientId::from</span>(<span class="string">&quot;client_123456789&quot;</span>),
                 <span class="ident">redirect_uri</span>: <span class="string">&quot;https://your-app.com/callback&quot;</span>,
