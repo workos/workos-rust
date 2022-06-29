@@ -12,6 +12,7 @@ pub mod mfa;
 pub mod organizations;
 pub mod passwordless;
 pub mod sso;
+pub mod webhooks;
 
 pub use crate::core::*;
 pub use crate::workos::*;
