@@ -19,11 +19,11 @@ pub enum WebhookEvent {
     DirectoryActivated(DirectoryActivatedWebhook),
 
     /// [WorkOS Docs: `dsync.activated` Webhook](https://workos.com/docs/reference/webhooks/directory#webhooks-dsync.deactivated)
-    #[serde(rename = "dsync.activated")]
+    #[serde(rename = "dsync.deactivated")]
     DirectoryDeactivated(DirectoryDeactivatedWebhook),
 
     /// [WorkOS Docs: `dsync.activated` Webhook](https://workos.com/docs/reference/webhooks/directory#webhooks-dsync.deleted)
-    #[serde(rename = "dsync.activated")]
+    #[serde(rename = "dsync.deleted")]
     DirectoryDeleted(DirectoryDeletedWebhook),
 
     /// [WorkOS Docs: `connection.deleted` Webhook](https://workos.com/docs/reference/webhooks/connection#webhooks-sso.connection.deleted)

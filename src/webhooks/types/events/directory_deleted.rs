@@ -41,7 +41,7 @@ mod test {
         assert_eq!(
             webhook,
             Webhook {
-                id: WebhookId::from("wh_01FKJ843CVE8F7BXQSPFH0M53V"),
+                id: WebhookId::from("wh_03FKJ843CVE8F7BXQSPFH0M53V"),
                 event: WebhookEvent::DirectoryDeleted(DirectoryDeletedWebhook(Directory {
                     id: DirectoryId::from("directory_01EHWNC0FCBHZ3BJ7EGKYXK0E6"),
                     organization_id: Some(OrganizationId::from("org_01EZTR6WYX1A0DSE2CYMGXQ24Y")),

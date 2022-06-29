@@ -32,7 +32,7 @@ mod test {
                 "created_at": "2021-06-25T19:07:33.155Z",
                 "updated_at": "2021-06-25T19:07:33.155Z",
               },
-              "event": "dsync.activated"
+              "event": "dsync.deactivated"
             })
             .to_string(),
         )
