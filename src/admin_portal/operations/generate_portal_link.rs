@@ -33,9 +33,9 @@ pub enum AdminPortalTarget {
     },
 }
 
-/// The options for [`GeneratePortalLink`].
+/// The parameters for [`GeneratePortalLink`].
 #[derive(Debug, Serialize)]
-pub struct GeneratePortalLinkOptions<'a> {
+pub struct GeneratePortalLinkParams<'a> {
     /// The target of the Admin Portal.
     #[serde(flatten)]
     pub target: &'a AdminPortalTarget,
@@ -65,7 +65,7 @@ pub trait GeneratePortalLink {
     /// [WorkOS Docs: Generate a Portal Link](https://workos.com/docs/reference/admin-portal/portal-link/generate)
     async fn generate_portal_link(
         &self,
-        options: &GeneratePortalLinkOptions<'_>,
+        params: &GeneratePortalLinkParams<'_>,
     ) -> WorkOsResult<GeneratePortalLinkResponse, GeneratePortalLinkError>;
 }
 
@@ -73,7 +73,7 @@ pub trait GeneratePortalLink {
 impl<'a> GeneratePortalLink for AdminPortal<'a> {
     async fn generate_portal_link(
         &self,
-        options: &GeneratePortalLinkOptions<'_>,
+        params: &GeneratePortalLinkParams<'_>,
     ) -> WorkOsResult<GeneratePortalLinkResponse, GeneratePortalLinkError> {
         let url = self.workos.base_url().join("/portal/generate_link")?;
         let response = self
@@ -81,7 +81,7 @@ impl<'a> GeneratePortalLink for AdminPortal<'a> {
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
-            .json(&options)
+            .json(&params)
             .send()
             .await?;
 
@@ -130,7 +130,7 @@ mod test {
 
         let GeneratePortalLinkResponse { link } = workos
             .admin_portal()
-            .generate_portal_link(&GeneratePortalLinkOptions {
+            .generate_portal_link(&GeneratePortalLinkParams {
                 target: &AdminPortalTarget::Organization {
                     organization_id: OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"),
                     intent: AdminPortalIntent::Sso,

@@ -6,9 +6,9 @@ use thiserror::Error;
 use crate::organizations::{OrganizationId, Organizations};
 use crate::{WorkOsError, WorkOsResult};
 
-/// The options for [`DeleteOrganization`].
+/// The parameters for [`DeleteOrganization`].
 #[derive(Debug, Serialize)]
-pub struct DeleteOrganizationOptions<'a> {
+pub struct DeleteOrganizationParams<'a> {
     /// The ID of the organization.
     pub organization_id: &'a OrganizationId,
 }
@@ -31,7 +31,7 @@ pub trait DeleteOrganization {
     /// [WorkOS Docs: Delete an Organization](https://workos.com/docs/reference/organization/delete)
     async fn delete_organization(
         &self,
-        options: &DeleteOrganizationOptions<'_>,
+        params: &DeleteOrganizationParams<'_>,
     ) -> WorkOsResult<(), DeleteOrganizationError>;
 }
 
@@ -39,12 +39,12 @@ pub trait DeleteOrganization {
 impl<'a> DeleteOrganization for Organizations<'a> {
     async fn delete_organization(
         &self,
-        options: &DeleteOrganizationOptions<'_>,
+        params: &DeleteOrganizationParams<'_>,
     ) -> WorkOsResult<(), DeleteOrganizationError> {
-        let url = self.workos.base_url().join(&format!(
-            "/organizations/{id}",
-            id = options.organization_id
-        ))?;
+        let url = self
+            .workos
+            .base_url()
+            .join(&format!("/organizations/{id}", id = params.organization_id))?;
         let response = self
             .workos
             .client()
@@ -86,7 +86,7 @@ mod test {
 
         let result = workos
             .organizations()
-            .delete_organization(&DeleteOrganizationOptions {
+            .delete_organization(&DeleteOrganizationParams {
                 organization_id: &OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"),
             })
             .await;

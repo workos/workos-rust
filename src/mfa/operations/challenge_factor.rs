@@ -24,9 +24,9 @@ pub enum ChallengeAuthenticationFactorType<'a> {
     },
 }
 
-/// The options for [`ChallengeFactor`].
+/// The parameters for [`ChallengeFactor`].
 #[derive(Debug, Serialize)]
-pub struct ChallengeFactorOptions<'a> {
+pub struct ChallengeFactorParams<'a> {
     /// The ID of the authentication factor to challenge.
     pub authentication_factor_id: &'a AuthenticationFactorId,
 
@@ -47,7 +47,7 @@ pub trait ChallengeFactor {
     /// [WorkOS Docs: Challenge Factor](https://workos.com/docs/reference/mfa/challenge-factor)
     async fn challenge_factor(
         &self,
-        options: &ChallengeFactorOptions<'_>,
+        params: &ChallengeFactorParams<'_>,
     ) -> WorkOsResult<AuthenticationChallenge, ChallengeFactorError>;
 }
 
@@ -55,7 +55,7 @@ pub trait ChallengeFactor {
 impl<'a> ChallengeFactor for Mfa<'a> {
     async fn challenge_factor(
         &self,
-        options: &ChallengeFactorOptions<'_>,
+        params: &ChallengeFactorParams<'_>,
     ) -> WorkOsResult<AuthenticationChallenge, ChallengeFactorError> {
         let url = self.workos.base_url().join("/auth/factors/challenge")?;
         let response = self
@@ -63,7 +63,7 @@ impl<'a> ChallengeFactor for Mfa<'a> {
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
-            .json(&options)
+            .json(&params)
             .send()
             .await?;
 
@@ -120,7 +120,7 @@ mod test {
 
         let challenge = workos
             .mfa()
-            .challenge_factor(&ChallengeFactorOptions {
+            .challenge_factor(&ChallengeFactorParams {
                 authentication_factor_id: &AuthenticationFactorId::from(
                     "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
                 ),
@@ -161,7 +161,7 @@ mod test {
 
         let challenge = workos
             .mfa()
-            .challenge_factor(&ChallengeFactorOptions {
+            .challenge_factor(&ChallengeFactorParams {
                 authentication_factor_id: &AuthenticationFactorId::from(
                     "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
                 ),

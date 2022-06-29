@@ -8,9 +8,9 @@ use thiserror::Error;
 use crate::organizations::{Organization, Organizations};
 use crate::{WorkOsError, WorkOsResult};
 
-/// The options for [`CreateOrganization`].
+/// The parameters for [`CreateOrganization`].
 #[derive(Debug, Serialize)]
-pub struct CreateOrganizationOptions<'a> {
+pub struct CreateOrganizationParams<'a> {
     /// The name of the organization.
     pub name: &'a str,
 
@@ -46,7 +46,7 @@ pub trait CreateOrganization {
     /// [WorkOS Docs: Create an Organization](https://workos.com/docs/reference/organization/create)
     async fn create_organization(
         &self,
-        options: &CreateOrganizationOptions<'_>,
+        params: &CreateOrganizationParams<'_>,
     ) -> WorkOsResult<Organization, CreateOrganizationError>;
 }
 
@@ -54,7 +54,7 @@ pub trait CreateOrganization {
 impl<'a> CreateOrganization for Organizations<'a> {
     async fn create_organization(
         &self,
-        options: &CreateOrganizationOptions<'_>,
+        params: &CreateOrganizationParams<'_>,
     ) -> WorkOsResult<Organization, CreateOrganizationError> {
         let url = self.workos.base_url().join("/organizations")?;
         let response = self
@@ -62,7 +62,7 @@ impl<'a> CreateOrganization for Organizations<'a> {
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
-            .json(&options)
+            .json(&params)
             .send()
             .await?;
 
@@ -122,7 +122,7 @@ mod test {
 
         let organization = workos
             .organizations()
-            .create_organization(&CreateOrganizationOptions {
+            .create_organization(&CreateOrganizationParams {
                 name: "Foo Corp",
                 allow_profiles_outside_organization: Some(&false),
                 domains: HashSet::from(["foo-corp.com"]),
