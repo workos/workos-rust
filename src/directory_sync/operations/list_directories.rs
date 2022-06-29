@@ -4,20 +4,20 @@ use serde::Serialize;
 
 use crate::directory_sync::{Directory, DirectorySync, DirectoryType};
 use crate::organizations::OrganizationId;
-use crate::{KnownOrUnknown, PaginatedList, PaginationOptions, WorkOsError, WorkOsResult};
+use crate::{KnownOrUnknown, PaginatedList, PaginationParams, WorkOsError, WorkOsResult};
 
-/// The options for [`ListDirectories`].
+/// The parameters for [`ListDirectories`].
 #[derive(Debug, Serialize)]
-pub struct ListDirectoriesOptions<'a> {
+pub struct ListDirectoriesParams<'a> {
     /// The domain of a directory.
     pub domain: Option<&'a String>,
 
     /// Searchable text to match against Directory names.
     pub search: Option<&'a String>,
 
-    /// The pagination options to use when listing directories.
+    /// The pagination parameters to use when listing directories.
     #[serde(flatten)]
-    pub pagination: PaginationOptions<'a>,
+    pub pagination: PaginationParams<'a>,
 
     /// The ID of the organization to list directories for.
     pub organization_id: Option<&'a OrganizationId>,
@@ -27,10 +27,10 @@ pub struct ListDirectoriesOptions<'a> {
     pub r#type: &'a Option<KnownOrUnknown<DirectoryType, String>>,
 }
 
-impl<'a> Default for ListDirectoriesOptions<'a> {
+impl<'a> Default for ListDirectoriesParams<'a> {
     fn default() -> Self {
         Self {
-            pagination: PaginationOptions::default(),
+            pagination: PaginationParams::default(),
             organization_id: None,
             r#type: &None,
             domain: None,
@@ -47,7 +47,7 @@ pub trait ListDirectories {
     /// [WorkOS Docs: List Directories](https://workos.com/docs/reference/directory-sync/directory/list)
     async fn list_directories(
         &self,
-        options: &ListDirectoriesOptions<'_>,
+        params: &ListDirectoriesParams<'_>,
     ) -> WorkOsResult<PaginatedList<Directory>, ()>;
 }
 
@@ -55,14 +55,14 @@ pub trait ListDirectories {
 impl<'a> ListDirectories for DirectorySync<'a> {
     async fn list_directories(
         &self,
-        options: &ListDirectoriesOptions<'_>,
+        params: &ListDirectoriesParams<'_>,
     ) -> WorkOsResult<PaginatedList<Directory>, ()> {
         let url = self.workos.base_url().join("/directories")?;
         let response = self
             .workos
             .client()
             .get(url)
-            .query(&options)
+            .query(&params)
             .bearer_auth(self.workos.key())
             .send()
             .await?;
@@ -187,7 +187,7 @@ mod test {
 
         let paginated_list = workos
             .directory_sync()
-            .list_directories(&ListDirectoriesOptions {
+            .list_directories(&ListDirectoriesParams {
                 r#type: &Some(KnownOrUnknown::Known(DirectoryType::GoogleWorkspace)),
                 ..Default::default()
             })

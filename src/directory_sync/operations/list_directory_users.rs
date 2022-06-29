@@ -3,7 +3,7 @@ use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::directory_sync::{DirectoryGroupId, DirectoryId, DirectorySync, DirectoryUser};
-use crate::{PaginatedList, PaginationOptions, WorkOsError, WorkOsResult};
+use crate::{PaginatedList, PaginationParams, WorkOsError, WorkOsResult};
 
 /// A filter for [`ListDirectoryUsers`].
 #[derive(Debug, Serialize)]
@@ -22,12 +22,12 @@ pub enum DirectoryUsersFilter<'a> {
     },
 }
 
-/// The options for [`ListDirectoryUsers`].
+/// The parameters for [`ListDirectoryUsers`].
 #[derive(Debug, Serialize)]
-pub struct ListDirectoryUsersOptions<'a> {
-    /// The pagination options to use when listing directory users.
+pub struct ListDirectoryUsersParams<'a> {
+    /// The pagination parameters to use when listing directory users.
     #[serde(flatten)]
-    pub pagination: PaginationOptions<'a>,
+    pub pagination: PaginationParams<'a>,
 
     /// The filter to use when listing directory users.
     #[serde(flatten)]
@@ -42,7 +42,7 @@ pub trait ListDirectoryUsers {
     /// [WorkOS Docs: List Directory Users](https://workos.com/docs/reference/directory-sync/user/list)
     async fn list_directory_users(
         &self,
-        options: &ListDirectoryUsersOptions<'_>,
+        params: &ListDirectoryUsersParams<'_>,
     ) -> WorkOsResult<PaginatedList<DirectoryUser>, ()>;
 }
 
@@ -50,14 +50,14 @@ pub trait ListDirectoryUsers {
 impl<'a> ListDirectoryUsers for DirectorySync<'a> {
     async fn list_directory_users(
         &self,
-        options: &ListDirectoryUsersOptions<'_>,
+        params: &ListDirectoryUsersParams<'_>,
     ) -> WorkOsResult<PaginatedList<DirectoryUser>, ()> {
         let url = self.workos.base_url().join("/directory_users")?;
         let response = self
             .workos
             .client()
             .get(url)
-            .query(&options)
+            .query(&params)
             .bearer_auth(self.workos.key())
             .send()
             .await?;
@@ -184,7 +184,7 @@ mod test {
 
         let paginated_list = workos
             .directory_sync()
-            .list_directory_users(&ListDirectoryUsersOptions {
+            .list_directory_users(&ListDirectoryUsersParams {
                 pagination: Default::default(),
                 filter: DirectoryUsersFilter::Directory {
                     directory: &DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
@@ -302,7 +302,7 @@ mod test {
 
         let paginated_list = workos
             .directory_sync()
-            .list_directory_users(&ListDirectoryUsersOptions {
+            .list_directory_users(&ListDirectoryUsersParams {
                 pagination: Default::default(),
                 filter: DirectoryUsersFilter::Group {
                     group: &DirectoryGroupId::from("directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT"),

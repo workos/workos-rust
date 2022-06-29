@@ -4,14 +4,14 @@ use serde::Serialize;
 
 use crate::organizations::OrganizationId;
 use crate::sso::{Connection, ConnectionType, Sso};
-use crate::{KnownOrUnknown, PaginatedList, PaginationOptions, WorkOsError, WorkOsResult};
+use crate::{KnownOrUnknown, PaginatedList, PaginationParams, WorkOsError, WorkOsResult};
 
-/// The options for [`ListConnections`].
+/// The parameters for [`ListConnections`].
 #[derive(Debug, Serialize)]
-pub struct ListConnectionsOptions<'a> {
-    /// The pagination options to use when listing connections.
+pub struct ListConnectionsParams<'a> {
+    /// The pagination parameters to use when listing connections.
     #[serde(flatten)]
-    pub pagination: PaginationOptions<'a>,
+    pub pagination: PaginationParams<'a>,
 
     /// The ID of the organization to list connections for.
     pub organization_id: Option<&'a OrganizationId>,
@@ -21,10 +21,10 @@ pub struct ListConnectionsOptions<'a> {
     pub r#type: &'a Option<KnownOrUnknown<ConnectionType, String>>,
 }
 
-impl<'a> Default for ListConnectionsOptions<'a> {
+impl<'a> Default for ListConnectionsParams<'a> {
     fn default() -> Self {
         Self {
-            pagination: PaginationOptions::default(),
+            pagination: PaginationParams::default(),
             organization_id: None,
             r#type: &None,
         }
@@ -39,7 +39,7 @@ pub trait ListConnections {
     /// [WorkOS Docs: List Connections](https://workos.com/docs/reference/sso/connection/list)
     async fn list_connections(
         &self,
-        options: &ListConnectionsOptions<'_>,
+        params: &ListConnectionsParams<'_>,
     ) -> WorkOsResult<PaginatedList<Connection>, ()>;
 }
 
@@ -47,14 +47,14 @@ pub trait ListConnections {
 impl<'a> ListConnections for Sso<'a> {
     async fn list_connections(
         &self,
-        options: &ListConnectionsOptions<'_>,
+        params: &ListConnectionsParams<'_>,
     ) -> WorkOsResult<PaginatedList<Connection>, ()> {
         let url = self.workos.base_url().join("/connections")?;
         let response = self
             .workos
             .client()
             .get(url)
-            .query(&options)
+            .query(&params)
             .bearer_auth(self.workos.key())
             .send()
             .await?;
@@ -179,7 +179,7 @@ mod test {
 
         let paginated_list = workos
             .sso()
-            .list_connections(&ListConnectionsOptions {
+            .list_connections(&ListConnectionsParams {
                 r#type: &Some(KnownOrUnknown::Known(ConnectionType::OktaSaml)),
                 ..Default::default()
             })

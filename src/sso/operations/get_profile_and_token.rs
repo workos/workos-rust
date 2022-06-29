@@ -6,9 +6,9 @@ use thiserror::Error;
 use crate::sso::{AccessToken, AuthorizationCode, ClientId, Profile, Sso};
 use crate::{WorkOsError, WorkOsResult};
 
-/// The options for [`GetProfileAndToken`].
+/// The parameters for [`GetProfileAndToken`].
 #[derive(Debug)]
-pub struct GetProfileAndTokenOptions<'a> {
+pub struct GetProfileAndTokenParams<'a> {
     /// The client ID corresponding to the environment that SSO was initiated
     /// from.
     pub client_id: &'a ClientId,
@@ -44,7 +44,7 @@ pub trait GetProfileAndToken {
     /// [WorkOS Docs: Get a Profile and Token](https://workos.com/docs/reference/sso/profile/token)
     async fn get_profile_and_token(
         &self,
-        options: &GetProfileAndTokenOptions<'_>,
+        params: &GetProfileAndTokenParams<'_>,
     ) -> WorkOsResult<GetProfileAndTokenResponse, GetProfileAndTokenError>;
 }
 
@@ -52,9 +52,9 @@ pub trait GetProfileAndToken {
 impl<'a> GetProfileAndToken for Sso<'a> {
     async fn get_profile_and_token(
         &self,
-        options: &GetProfileAndTokenOptions<'_>,
+        params: &GetProfileAndTokenParams<'_>,
     ) -> WorkOsResult<GetProfileAndTokenResponse, GetProfileAndTokenError> {
-        let &GetProfileAndTokenOptions { client_id, code } = options;
+        let &GetProfileAndTokenParams { client_id, code } = params;
 
         let url = self.workos.base_url().join("/sso/token")?;
         let params = [
@@ -138,7 +138,7 @@ mod test {
 
         let response = workos
             .sso()
-            .get_profile_and_token(&GetProfileAndTokenOptions {
+            .get_profile_and_token(&GetProfileAndTokenParams {
                 client_id: &ClientId::from("client_1234"),
                 code: &AuthorizationCode::from("abc123"),
             })
@@ -175,7 +175,7 @@ mod test {
 
         let result = workos
             .sso()
-            .get_profile_and_token(&GetProfileAndTokenOptions {
+            .get_profile_and_token(&GetProfileAndTokenParams {
                 client_id: &ClientId::from("client_1234"),
                 code: &AuthorizationCode::from("abc123"),
             })
@@ -204,7 +204,7 @@ mod test {
 
         let result = workos
             .sso()
-            .get_profile_and_token(&GetProfileAndTokenOptions {
+            .get_profile_and_token(&GetProfileAndTokenParams {
                 client_id: &ClientId::from("client_1234"),
                 code: &AuthorizationCode::from("abc123"),
             })
@@ -233,7 +233,7 @@ mod test {
 
         let result = workos
             .sso()
-            .get_profile_and_token(&GetProfileAndTokenOptions {
+            .get_profile_and_token(&GetProfileAndTokenParams {
                 client_id: &ClientId::from("client_1234"),
                 code: &AuthorizationCode::from("abc123"),
             })

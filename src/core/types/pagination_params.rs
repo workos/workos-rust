@@ -1,8 +1,8 @@
 use serde::Serialize;
 
-/// The options used to control pagination for a given paginated endpoint.
+/// The parameters used to control pagination for a given paginated endpoint.
 #[derive(Debug, Serialize)]
-pub struct PaginationOptions<'a> {
+pub struct PaginationParams<'a> {
     /// The order in which records should be paginated.
     pub order: &'a PaginationOrder,
 
@@ -13,7 +13,7 @@ pub struct PaginationOptions<'a> {
     pub before: &'a Option<String>,
 }
 
-impl<'a> Default for PaginationOptions<'a> {
+impl<'a> Default for PaginationParams<'a> {
     fn default() -> Self {
         Self {
             order: &PaginationOrder::DEFAULT,

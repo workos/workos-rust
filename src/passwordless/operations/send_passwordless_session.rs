@@ -5,9 +5,9 @@ use serde::Serialize;
 use crate::passwordless::{Passwordless, PasswordlessSessionId};
 use crate::{WorkOsError, WorkOsResult};
 
-/// The options for [`SendPasswordlessSession`].
+/// The parameters for [`SendPasswordlessSession`].
 #[derive(Debug, Serialize)]
-pub struct SendPasswordlessSessionOptions<'a> {
+pub struct SendPasswordlessSessionParams<'a> {
     /// The ID of the passwordless session to send an email for.
     pub id: &'a PasswordlessSessionId,
 }
@@ -24,7 +24,7 @@ pub trait SendPasswordlessSession {
     /// [WorkOS Docs: Send a Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session/send-email)
     async fn send_passwordless_session(
         &self,
-        options: &SendPasswordlessSessionOptions<'_>,
+        params: &SendPasswordlessSessionParams<'_>,
     ) -> WorkOsResult<(), SendPasswordlessSessionError>;
 }
 
@@ -32,18 +32,18 @@ pub trait SendPasswordlessSession {
 impl<'a> SendPasswordlessSession for Passwordless<'a> {
     async fn send_passwordless_session(
         &self,
-        options: &SendPasswordlessSessionOptions<'_>,
+        params: &SendPasswordlessSessionParams<'_>,
     ) -> WorkOsResult<(), SendPasswordlessSessionError> {
-        let url = self.workos.base_url().join(&format!(
-            "/passwordless/sessions/{id}/send",
-            id = options.id
-        ))?;
+        let url = self
+            .workos
+            .base_url()
+            .join(&format!("/passwordless/sessions/{id}/send", id = params.id))?;
         let response = self
             .workos
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
-            .json(&options)
+            .json(&params)
             .send()
             .await?;
 
@@ -87,7 +87,7 @@ mod test {
 
         let result = workos
             .passwordless()
-            .send_passwordless_session(&SendPasswordlessSessionOptions {
+            .send_passwordless_session(&SendPasswordlessSessionParams {
                 id: &PasswordlessSessionId::from("passwordless_session_01EG1BHJMVYMFBQYZTTC0N73CR"),
             })
             .await;

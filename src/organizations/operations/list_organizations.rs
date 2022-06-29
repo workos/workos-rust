@@ -4,7 +4,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::organizations::{Organization, Organizations};
-use crate::{PaginatedList, PaginationOptions, UrlEncodableVec, WorkOsError, WorkOsResult};
+use crate::{PaginatedList, PaginationParams, UrlEncodableVec, WorkOsError, WorkOsResult};
 
 /// The domains to filter the organizations by.
 #[derive(Debug, Serialize)]
@@ -18,20 +18,20 @@ impl<'a> From<Vec<&'a str>> for DomainFilters<'a> {
 
 /// Parameters for the [`ListOrganizations`] function.
 #[derive(Debug, Serialize)]
-pub struct ListOrganizationsOptions<'a> {
-    /// The pagination options to use when listing organizations.
+pub struct ListOrganizationsParams<'a> {
+    /// The pagination parameters to use when listing organizations.
     #[serde(flatten)]
-    pub pagination: PaginationOptions<'a>,
+    pub pagination: PaginationParams<'a>,
 
     /// The domains of Organizations to be listed.
     #[serde(rename = "domains[]")]
     pub domains: Option<DomainFilters<'a>>,
 }
 
-impl<'a> Default for ListOrganizationsOptions<'a> {
+impl<'a> Default for ListOrganizationsParams<'a> {
     fn default() -> Self {
         Self {
-            pagination: PaginationOptions::default(),
+            pagination: PaginationParams::default(),
             domains: None,
         }
     }
@@ -55,7 +55,7 @@ pub trait ListOrganizations {
     /// [WorkOS Docs: List Organizations](https://workos.com/docs/reference/organization/list)
     async fn list_organizations(
         &self,
-        options: &ListOrganizationsOptions<'_>,
+        params: &ListOrganizationsParams<'_>,
     ) -> WorkOsResult<PaginatedList<Organization>, ()>;
 }
 
@@ -63,14 +63,14 @@ pub trait ListOrganizations {
 impl<'a> ListOrganizations for Organizations<'a> {
     async fn list_organizations(
         &self,
-        options: &ListOrganizationsOptions<'_>,
+        params: &ListOrganizationsParams<'_>,
     ) -> WorkOsResult<PaginatedList<Organization>, ()> {
         let url = self.workos.base_url().join("/organizations")?;
         let response = self
             .workos
             .client()
             .get(url)
-            .query(&options)
+            .query(&params)
             .bearer_auth(self.workos.key())
             .send()
             .await?;
@@ -200,7 +200,7 @@ mod test {
 
         let paginated_list = workos
             .organizations()
-            .list_organizations(&ListOrganizationsOptions {
+            .list_organizations(&ListOrganizationsParams {
                 domains: Some(vec!["foo-corp.com"].into()),
                 ..Default::default()
             })

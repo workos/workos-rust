@@ -26,9 +26,9 @@ pub enum ConnectionSelector<'a> {
     Provider(&'a Provider),
 }
 
-/// The options for [`GetAuthorizationUrl`].
+/// The parameters for [`GetAuthorizationUrl`].
 #[derive(Debug)]
-pub struct GetAuthorizationUrlOptions<'a> {
+pub struct GetAuthorizationUrlParams<'a> {
     /// The client ID for the environment in which SSO is being initiated.
     ///
     /// This value can be obtained from the "Configuration" page in the WorkOS Dashboard.
@@ -49,23 +49,17 @@ pub trait GetAuthorizationUrl {
     /// Returns an authorization URL to use to initiate SSO.
     ///
     /// [WorkOS Docs: Get Authorization URL](https://workos.com/docs/reference/sso/authorize/get)
-    fn get_authorization_url(
-        &self,
-        options: &GetAuthorizationUrlOptions,
-    ) -> Result<Url, ParseError>;
+    fn get_authorization_url(&self, params: &GetAuthorizationUrlParams) -> Result<Url, ParseError>;
 }
 
 impl<'a> GetAuthorizationUrl for Sso<'a> {
-    fn get_authorization_url(
-        &self,
-        options: &GetAuthorizationUrlOptions,
-    ) -> Result<Url, ParseError> {
-        let GetAuthorizationUrlOptions {
+    fn get_authorization_url(&self, params: &GetAuthorizationUrlParams) -> Result<Url, ParseError> {
+        let GetAuthorizationUrlParams {
             connection_selector,
             client_id,
             redirect_uri,
             state,
-        } = options;
+        } = params;
 
         let query = {
             let client_id = client_id.to_string();
@@ -117,7 +111,7 @@ mod test {
         let workos_sso = Sso::new(&workos);
 
         let authorization_url = workos_sso
-            .get_authorization_url(&GetAuthorizationUrlOptions {
+            .get_authorization_url(&GetAuthorizationUrlParams {
                 client_id: &ClientId::from("client_123456789"),
                 redirect_uri: "https://your-app.com/callback",
                 connection_selector: ConnectionSelector::Connection(&ConnectionId::from(
@@ -142,7 +136,7 @@ mod test {
         let workos_sso = Sso::new(&workos);
 
         let authorization_url = workos_sso
-            .get_authorization_url(&GetAuthorizationUrlOptions {
+            .get_authorization_url(&GetAuthorizationUrlParams {
                 client_id: &ClientId::from("client_123456789"),
                 redirect_uri: "https://your-app.com/callback",
                 connection_selector: ConnectionSelector::Organization(&OrganizationId::from(
@@ -167,7 +161,7 @@ mod test {
         let workos_sso = Sso::new(&workos);
 
         let authorization_url = workos_sso
-            .get_authorization_url(&GetAuthorizationUrlOptions {
+            .get_authorization_url(&GetAuthorizationUrlParams {
                 client_id: &ClientId::from("client_123456789"),
                 redirect_uri: "https://your-app.com/callback",
                 connection_selector: ConnectionSelector::Provider(&Provider::GoogleOauth),

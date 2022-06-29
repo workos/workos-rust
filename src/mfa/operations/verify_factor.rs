@@ -17,9 +17,9 @@ pub struct VerifyFactorResponse {
     pub is_valid: bool,
 }
 
-/// The options for [`VerifyFactor`].
+/// The parameters for [`VerifyFactor`].
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
-pub struct VerifyFactorOptions<'a> {
+pub struct VerifyFactorParams<'a> {
     /// The ID of the authentication factor to verify.
     pub authentication_challenge_id: &'a AuthenticationChallengeId,
 
@@ -39,7 +39,7 @@ pub trait VerifyFactor {
     /// [WorkOS Docs: Verify Factor](https://workos.com/docs/reference/mfa/verify-factor)
     async fn verify_factor(
         &self,
-        options: &VerifyFactorOptions<'_>,
+        params: &VerifyFactorParams<'_>,
     ) -> WorkOsResult<VerifyFactorResponse, VerifyFactorError>;
 }
 
@@ -47,7 +47,7 @@ pub trait VerifyFactor {
 impl<'a> VerifyFactor for Mfa<'a> {
     async fn verify_factor(
         &self,
-        options: &VerifyFactorOptions<'_>,
+        params: &VerifyFactorParams<'_>,
     ) -> WorkOsResult<VerifyFactorResponse, VerifyFactorError> {
         let url = self.workos.base_url().join("/auth/factors/verify")?;
         let response = self
@@ -55,7 +55,7 @@ impl<'a> VerifyFactor for Mfa<'a> {
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
-            .json(&options)
+            .json(&params)
             .send()
             .await?;
 
@@ -117,7 +117,7 @@ mod test {
 
         let verify = workos
             .mfa()
-            .verify_factor(&VerifyFactorOptions {
+            .verify_factor(&VerifyFactorParams {
                 authentication_challenge_id: &AuthenticationChallengeId::from(
                     "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
                 ),

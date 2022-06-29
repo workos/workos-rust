@@ -8,9 +8,9 @@ use thiserror::Error;
 use crate::organizations::{Organization, OrganizationId, Organizations};
 use crate::{WorkOsError, WorkOsResult};
 
-/// The options for [`UpdateOrganization`].
+/// The parameters for [`UpdateOrganization`].
 #[derive(Debug, Serialize)]
-pub struct UpdateOrganizationOptions<'a> {
+pub struct UpdateOrganizationParams<'a> {
     /// The ID of the organization passed in the URL.
     #[serde(skip_serializing)]
     pub organization_id: &'a OrganizationId,
@@ -50,7 +50,7 @@ pub trait UpdateOrganization {
     /// [WorkOS Docs: Update an Organization](https://workos.com/docs/reference/organization/update)
     async fn update_organization(
         &self,
-        options: &UpdateOrganizationOptions<'_>,
+        params: &UpdateOrganizationParams<'_>,
     ) -> WorkOsResult<Organization, UpdateOrganizationError>;
 }
 
@@ -58,18 +58,18 @@ pub trait UpdateOrganization {
 impl<'a> UpdateOrganization for Organizations<'a> {
     async fn update_organization(
         &self,
-        options: &UpdateOrganizationOptions<'_>,
+        params: &UpdateOrganizationParams<'_>,
     ) -> WorkOsResult<Organization, UpdateOrganizationError> {
-        let url = self.workos.base_url().join(&format!(
-            "/organizations/{id}",
-            id = options.organization_id
-        ))?;
+        let url = self
+            .workos
+            .base_url()
+            .join(&format!("/organizations/{id}", id = params.organization_id))?;
         let response = self
             .workos
             .client()
             .put(url)
             .bearer_auth(self.workos.key())
-            .json(&options)
+            .json(&params)
             .send()
             .await?;
 
@@ -129,7 +129,7 @@ mod test {
 
         let organization = workos
             .organizations()
-            .update_organization(&UpdateOrganizationOptions {
+            .update_organization(&UpdateOrganizationParams {
                 organization_id: &OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"),
                 name: Some("Foo Corp"),
                 allow_profiles_outside_organization: Some(&false),

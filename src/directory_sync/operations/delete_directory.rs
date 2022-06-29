@@ -6,9 +6,9 @@ use thiserror::Error;
 use crate::directory_sync::{DirectoryId, DirectorySync};
 use crate::{WorkOsError, WorkOsResult};
 
-/// The options for [`DeleteDirectory`].
+/// The parameters for [`DeleteDirectory`].
 #[derive(Debug, Serialize)]
-pub struct DeleteDirectoryOptions<'a> {
+pub struct DeleteDirectoryParams<'a> {
     /// The ID of the directory to delete.
     pub directory_id: &'a DirectoryId,
 }
@@ -31,7 +31,7 @@ pub trait DeleteDirectory {
     /// [WorkOS Docs: Delete a Directory](https://workos.com/docs/reference/directory-sync/directory/delete)
     async fn delete_directory(
         &self,
-        options: &DeleteDirectoryOptions<'_>,
+        params: &DeleteDirectoryParams<'_>,
     ) -> WorkOsResult<(), DeleteDirectoryError>;
 }
 
@@ -39,12 +39,12 @@ pub trait DeleteDirectory {
 impl<'a> DeleteDirectory for DirectorySync<'a> {
     async fn delete_directory(
         &self,
-        options: &DeleteDirectoryOptions<'_>,
+        params: &DeleteDirectoryParams<'_>,
     ) -> WorkOsResult<(), DeleteDirectoryError> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/directories/{id}", id = options.directory_id))?;
+            .join(&format!("/directories/{id}", id = params.directory_id))?;
         let response = self
             .workos
             .client()
@@ -91,7 +91,7 @@ mod test {
 
         let result = workos
             .directory_sync()
-            .delete_directory(&DeleteDirectoryOptions {
+            .delete_directory(&DeleteDirectoryParams {
                 directory_id: &DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
             })
             .await;

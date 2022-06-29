@@ -6,9 +6,9 @@ use thiserror::Error;
 use crate::sso::{ConnectionId, Sso};
 use crate::{WorkOsError, WorkOsResult};
 
-/// The options for [`DeleteConnection`].
+/// The parameters for [`DeleteConnection`].
 #[derive(Debug, Serialize)]
-pub struct DeleteConnectionOptions<'a> {
+pub struct DeleteConnectionParams<'a> {
     /// The ID of the connection to delete.
     pub connection_id: &'a ConnectionId,
 }
@@ -31,7 +31,7 @@ pub trait DeleteConnection {
     /// [WorkOS Docs: Delete a Connection](https://workos.com/docs/reference/sso/connection/delete)
     async fn delete_connection(
         &self,
-        options: &DeleteConnectionOptions<'_>,
+        params: &DeleteConnectionParams<'_>,
     ) -> WorkOsResult<(), DeleteConnectionError>;
 }
 
@@ -39,12 +39,12 @@ pub trait DeleteConnection {
 impl<'a> DeleteConnection for Sso<'a> {
     async fn delete_connection(
         &self,
-        options: &DeleteConnectionOptions<'_>,
+        params: &DeleteConnectionParams<'_>,
     ) -> WorkOsResult<(), DeleteConnectionError> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/connections/{id}", id = options.connection_id))?;
+            .join(&format!("/connections/{id}", id = params.connection_id))?;
         let response = self
             .workos
             .client()
@@ -88,7 +88,7 @@ mod test {
 
         let result = workos
             .sso()
-            .delete_connection(&DeleteConnectionOptions {
+            .delete_connection(&DeleteConnectionParams {
                 connection_id: &ConnectionId::from("conn_01E2NPPCT7XQ2MVVYDHWGK1WN4"),
             })
             .await;

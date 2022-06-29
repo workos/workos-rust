@@ -6,10 +6,10 @@ use thiserror::Error;
 use crate::mfa::{AuthenticationFactor, Mfa};
 use crate::{WorkOsError, WorkOsResult};
 
-/// The options for [`EnrollFactor`].
+/// The parameters for [`EnrollFactor`].
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum EnrollFactorOptions<'a> {
+pub enum EnrollFactorParams<'a> {
     /// Enroll a time-based one-time password (TOTP) factor.
     Totp {
         /// The identifier for the user for whom the factor is being enrolled.
@@ -61,7 +61,7 @@ pub trait EnrollFactor {
     /// [WorkOS Docs: Enroll Factor](https://workos.com/docs/reference/mfa/enroll-factor)
     async fn enroll_factor(
         &self,
-        options: &EnrollFactorOptions<'_>,
+        params: &EnrollFactorParams<'_>,
     ) -> WorkOsResult<AuthenticationFactor, EnrollFactorError>;
 }
 
@@ -69,7 +69,7 @@ pub trait EnrollFactor {
 impl<'a> EnrollFactor for Mfa<'a> {
     async fn enroll_factor(
         &self,
-        options: &EnrollFactorOptions<'_>,
+        params: &EnrollFactorParams<'_>,
     ) -> WorkOsResult<AuthenticationFactor, EnrollFactorError> {
         let url = self.workos.base_url().join("/auth/factors/enroll")?;
         let response = self
@@ -77,7 +77,7 @@ impl<'a> EnrollFactor for Mfa<'a> {
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
-            .json(&options)
+            .json(&params)
             .send()
             .await?;
 
@@ -146,7 +146,7 @@ mod test {
 
         let factor = workos
             .mfa()
-            .enroll_factor(&EnrollFactorOptions::Totp {
+            .enroll_factor(&EnrollFactorParams::Totp {
                 user: "alan.turing@foo-corp.com",
                 issuer: "Foo Corp",
             })
@@ -181,7 +181,7 @@ mod test {
 
         let result = workos
             .mfa()
-            .enroll_factor(&EnrollFactorOptions::Sms { phone_number: "73" })
+            .enroll_factor(&EnrollFactorParams::Sms { phone_number: "73" })
             .await;
 
         assert_matches!(

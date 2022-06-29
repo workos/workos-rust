@@ -17,9 +17,9 @@ pub enum CreatePasswordlessSessionType<'a> {
     },
 }
 
-/// The options for [`CreatePasswordlessSession`].
+/// The parameters for [`CreatePasswordlessSession`].
 #[derive(Debug, Serialize)]
-pub struct CreatePasswordlessSessionOptions<'a> {
+pub struct CreatePasswordlessSessionParams<'a> {
     /// The type of passwordless session to create.
     #[serde(flatten)]
     pub r#type: CreatePasswordlessSessionType<'a>,
@@ -47,7 +47,7 @@ pub trait CreatePasswordlessSession {
     /// [WorkOS Docs: Create a Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session/create-session)
     async fn create_passwordless_session(
         &self,
-        options: &CreatePasswordlessSessionOptions<'_>,
+        params: &CreatePasswordlessSessionParams<'_>,
     ) -> WorkOsResult<PasswordlessSession, CreatePasswordlessSessionError>;
 }
 
@@ -55,7 +55,7 @@ pub trait CreatePasswordlessSession {
 impl<'a> CreatePasswordlessSession for Passwordless<'a> {
     async fn create_passwordless_session(
         &self,
-        options: &CreatePasswordlessSessionOptions<'_>,
+        params: &CreatePasswordlessSessionParams<'_>,
     ) -> WorkOsResult<PasswordlessSession, CreatePasswordlessSessionError> {
         let url = self.workos.base_url().join("/passwordless/sessions")?;
         let response = self
@@ -63,7 +63,7 @@ impl<'a> CreatePasswordlessSession for Passwordless<'a> {
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
-            .json(&options)
+            .json(&params)
             .send()
             .await?;
 
@@ -117,7 +117,7 @@ mod test {
 
         let passwordless_session = workos
             .passwordless()
-            .create_passwordless_session(&CreatePasswordlessSessionOptions {
+            .create_passwordless_session(&CreatePasswordlessSessionParams {
                 r#type: CreatePasswordlessSessionType::MagicLink {
                     email: "marcelina@foo-corp.com",
                 },
