@@ -10,11 +10,10 @@ pub struct DirectoryActivatedWebhook(pub Directory);
 mod test {
     use serde_json::json;
 
-    use crate::directory_sync::DirectoryType;
+    use crate::directory_sync::{DirectoryState, DirectoryType};
     use crate::organizations::OrganizationId;
     use crate::webhooks::{
-        Directory, DirectoryActivatedWebhook, DirectoryId, DirectoryState, Webhook, WebhookEvent,
-        WebhookId,
+        Directory, DirectoryActivatedWebhook, DirectoryId, Webhook, WebhookEvent, WebhookId,
     };
     use crate::{KnownOrUnknown, Timestamp, Timestamps};
 

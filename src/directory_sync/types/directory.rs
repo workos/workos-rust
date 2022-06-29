@@ -32,20 +32,22 @@ impl From<&str> for DirectoryId {
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DirectoryState {
-    /// The directory is linked.
-    Linked,
+    /// The directory is inactve.
+    #[serde(alias = "unlinked")]
+    Inactive,
 
-    /// The directory is unlinked.
-    Unlinked,
-
-    /// The directory is attemping to link.
+    /// The directory is being validated.
     Validating,
+
+    /// The directory is active.
+    #[serde(alias = "linked")]
+    Active,
+
+    /// The directory encountered an issue with invalid credentials.
+    InvalidCredentials,
 
     /// The directory is being deleted.
     Deleting,
-
-    /// The directory was unable to link due to invalid credentials.
-    InvalidCredentials,
 }
 
 /// [WorkOS Docs: Directory](https://workos.com/docs/reference/directory-sync/directory)
@@ -109,7 +111,7 @@ mod test {
                 organization_id: Some(OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT")),
                 r#type: KnownOrUnknown::Known(DirectoryType::BambooHr),
                 name: "Foo Corp".to_string(),
-                state: KnownOrUnknown::Known(DirectoryState::Unlinked),
+                state: KnownOrUnknown::Known(DirectoryState::Inactive),
                 timestamps: Timestamps {
                     created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                     updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
