@@ -338,7 +338,7 @@
 <span class="doccomment">/// A filter for [`ListDirectoryUsers`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DirectoryUserFilter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DirectoryUsersFilter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Retrieve directory users within the specified directory.</span>
     <span class="ident">Directory</span> {
         <span class="doccomment">/// The ID of the directory to retrieve directory users in.</span>
@@ -361,7 +361,7 @@
 
     <span class="doccomment">/// The filter to use when listing directory users.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">filter</span>: <span class="ident">DirectoryUserFilter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">filter</span>: <span class="ident">DirectoryUsersFilter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// [WorkOS Docs: List Directory Users](https://workos.com/docs/reference/directory-sync/user/list)</span>
@@ -516,7 +516,7 @@
             .<span class="ident">directory_sync</span>()
             .<span class="ident">list_directory_users</span>(<span class="kw-2">&amp;</span><span class="ident">ListDirectoryUsersOptions</span> {
                 <span class="ident">pagination</span>: <span class="ident">Default::default</span>(),
-                <span class="ident">filter</span>: <span class="ident">DirectoryUserFilter::Directory</span> {
+                <span class="ident">filter</span>: <span class="ident">DirectoryUsersFilter::Directory</span> {
                     <span class="ident">directory</span>: <span class="kw-2">&amp;</span><span class="ident">DirectoryId::from</span>(<span class="string">&quot;directory_01ECAZ4NV9QMV47GW873HDCX74&quot;</span>),
                 },
             })
@@ -634,7 +634,7 @@
             .<span class="ident">directory_sync</span>()
             .<span class="ident">list_directory_users</span>(<span class="kw-2">&amp;</span><span class="ident">ListDirectoryUsersOptions</span> {
                 <span class="ident">pagination</span>: <span class="ident">Default::default</span>(),
-                <span class="ident">filter</span>: <span class="ident">DirectoryUserFilter::Group</span> {
+                <span class="ident">filter</span>: <span class="ident">DirectoryUsersFilter::Group</span> {
                     <span class="ident">group</span>: <span class="kw-2">&amp;</span><span class="ident">DirectoryGroupId::from</span>(<span class="string">&quot;directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT&quot;</span>),
                 },
             })
