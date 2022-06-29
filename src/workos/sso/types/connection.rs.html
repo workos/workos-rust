@@ -192,7 +192,7 @@
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
 
     <span class="doccomment">/// The state of the connection.</span>
-    <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">ConnectionState</span>,
+    <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">KnownOrUnknown</span><span class="op">&lt;</span><span class="ident">ConnectionState</span>, <span class="ident">String</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The timestamps for the connection.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
@@ -233,7 +233,7 @@
                 <span class="ident">organization_id</span>: <span class="prelude-val">Some</span>(<span class="ident">OrganizationId::from</span>(<span class="string">&quot;org_01EHWNCE74X7JSDV0X3SZ3KJNY&quot;</span>)),
                 <span class="ident">r#type</span>: <span class="ident">KnownOrUnknown::Known</span>(<span class="ident">ConnectionType::GoogleOauth</span>),
                 <span class="ident">name</span>: <span class="string">&quot;Foo Corp&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">state</span>: <span class="ident">ConnectionState::Active</span>,
+                <span class="ident">state</span>: <span class="ident">KnownOrUnknown::Known</span>(<span class="ident">ConnectionState::Active</span>),
                 <span class="ident">timestamps</span>: <span class="ident">Timestamps</span> {
                     <span class="ident">created_at</span>: <span class="ident">Timestamp::try_from</span>(<span class="string">&quot;2021-06-25T19:07:33.155Z&quot;</span>).<span class="ident">unwrap</span>(),
                     <span class="ident">updated_at</span>: <span class="ident">Timestamp::try_from</span>(<span class="string">&quot;2021-06-25T19:07:33.155Z&quot;</span>).<span class="ident">unwrap</span>(),
