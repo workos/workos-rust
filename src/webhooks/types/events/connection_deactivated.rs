@@ -19,7 +19,7 @@ mod test {
 
     #[test]
     fn it_deserializes_a_connection_deactivated_webhook() {
-        let webhook = Webhook::from_str(
+        let webhook: Webhook = serde_json::from_str(
             &json!({
               "id": "wh_01G69A99BZ7X4T4XZ809A630Y7",
               "event": "connection.deactivated",
