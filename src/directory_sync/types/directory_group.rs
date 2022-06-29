@@ -36,7 +36,7 @@ pub struct DirectoryGroup {
     /// Different Directory Providers use different ID formats.
     pub idp_id: String,
 
-    /// The identifier of the [`Directory`] the Directory Group belongs to.
+    /// The identifier of the [`Directory`](crate::directory_sync::Directory) the Directory Group belongs to.
     pub directory_id: DirectoryId,
 
     /// The name of the Directory Group.

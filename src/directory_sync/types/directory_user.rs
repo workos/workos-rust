@@ -39,7 +39,7 @@ pub struct DirectoryUser<TCustomAttributes = HashMap<String, Value>> {
     /// Different Directory Providers use different ID formats.
     pub idp_id: String,
 
-    /// The identifier of the [`Directory`] the directory user belongs to.
+    /// The identifier of the [`Directory`](crate::directory_sync::Directory) the directory user belongs to.
     pub directory_id: DirectoryId,
 
     /// The username of the directory user.

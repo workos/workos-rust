@@ -60,7 +60,7 @@ pub enum GeneratePortalLinkError {}
 /// [WorkOS Docs: Generate a Portal Link](https://workos.com/docs/reference/admin-portal/portal-link/generate)
 #[async_trait]
 pub trait GeneratePortalLink {
-    /// Creates an [`Organization`].
+    /// Generates an Admin Portal link.
     ///
     /// [WorkOS Docs: Generate a Portal Link](https://workos.com/docs/reference/admin-portal/portal-link/generate)
     async fn generate_portal_link(

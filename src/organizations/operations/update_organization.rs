@@ -28,8 +28,7 @@ pub struct UpdateOrganizationOptions<'a> {
 
     /// The domains of the organization.
     ///
-    /// At least one domain is required unless
-    /// [`allow_profiles_outside_organization`] is `true`.
+    /// At least one domain is required unless `allow_profiles_outside_organization` is `true`.
     pub domains: Option<HashSet<&'a str>>,
 }
 

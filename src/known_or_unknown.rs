@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-/// `KnownOrUnknown` is a type that respresents either a known value ([`Known`])
-/// or an unknown value ([`Unknown`]).
+/// `KnownOrUnknown` is a type that respresents either a known value ([`Known`](KnownOrUnknown::Known))
+/// or an unknown value ([`Unknown`](KnownOrUnknown::Unknown)).
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum KnownOrUnknown<K, U> {

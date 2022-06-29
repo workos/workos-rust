@@ -26,7 +26,7 @@ impl From<DeleteDirectoryError> for WorkOsError<DeleteDirectoryError> {
 /// [WorkOS Docs: Delete a Directory](https://workos.com/docs/reference/directory-sync/directory/delete)
 #[async_trait]
 pub trait DeleteDirectory {
-    /// Deletes a [`Directory`].
+    /// Deletes a [`Directory`](crate::directory_sync::Directory).
     ///
     /// [WorkOS Docs: Delete a Directory](https://workos.com/docs/reference/directory-sync/directory/delete)
     async fn delete_directory(

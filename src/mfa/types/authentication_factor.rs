@@ -53,10 +53,10 @@ pub enum AuthenticationFactorType {
 
         /// The TOTP secret.
         ///
-        /// This can be manually entered into some authenticator apps in place of scanning the [`qr_code`].
+        /// This can be manually entered into some authenticator apps in place of scanning the `qr_code`.
         secret: String,
 
-        /// The `otpauth://` URI that is encoded in the [`qr_code`].
+        /// The `otpauth://` URI that is encoded in the `qr_code`.
         uri: String,
     },
     ///
@@ -68,7 +68,6 @@ pub enum AuthenticationFactorType {
 
 #[cfg(test)]
 mod test {
-    use chrono::DateTime;
     use serde_json::json;
 
     use crate::{Timestamp, Timestamps};

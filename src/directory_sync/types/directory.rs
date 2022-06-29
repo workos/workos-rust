@@ -54,7 +54,7 @@ pub struct Directory {
     /// The ID of the directory.
     pub id: DirectoryId,
 
-    /// The ID of the associated [`Organization`] for this directory.
+    /// The ID of the associated [`Organization`](crate::organizations::Organization) for this directory.
     pub organization_id: Option<OrganizationId>,
 
     /// The type of the directory.

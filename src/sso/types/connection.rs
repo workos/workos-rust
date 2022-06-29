@@ -45,7 +45,7 @@ pub struct Connection {
     /// The ID of the connection.
     pub id: ConnectionId,
 
-    /// The ID of the associated [`Organization`] for this connection.
+    /// The ID of the associated [`Organization`](crate::organizations::Organization) for this connection.
     pub organization_id: Option<OrganizationId>,
 
     /// The type of the connection.
