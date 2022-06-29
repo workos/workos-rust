@@ -7,12 +7,16 @@ use super::events::*;
 pub enum WebhookEvent {
     /// [WorkOS Docs: `connection.activated` Webhook](https://workos.com/docs/reference/webhooks/connection#webhooks-sso.connection.activated)
     ConnectionActivated(ConnectionActivatedWebhook),
+
+    /// [WorkOS Docs: `connection.deactivated` Webhook](https://workos.com/docs/reference/webhooks/connection#webhooks-sso.connection.deactivated)
+    ConnectionDeactivated(ConnectionDeactivatedWebhook),
 }
 
 impl From<WebhookEventDto> for WebhookEvent {
     fn from(event: WebhookEventDto) -> Self {
         match event {
             WebhookEventDto::ConnectionActivated(payload) => Self::ConnectionActivated(payload),
+            WebhookEventDto::ConnectionDeactivated(payload) => Self::ConnectionDeactivated(payload),
         }
     }
 }
@@ -23,4 +27,7 @@ impl From<WebhookEventDto> for WebhookEvent {
 pub(crate) enum WebhookEventDto {
     #[serde(rename = "connection.activated")]
     ConnectionActivated(ConnectionActivatedWebhook),
+
+    #[serde(rename = "connection.deactivated")]
+    ConnectionDeactivated(ConnectionDeactivatedWebhook),
 }
