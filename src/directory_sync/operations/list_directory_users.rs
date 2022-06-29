@@ -25,7 +25,7 @@ pub enum DirectoryUsersFilter<'a> {
 /// The parameters for [`ListDirectoryUsers`].
 #[derive(Debug, Serialize)]
 pub struct ListDirectoryUsersParams<'a> {
-    /// The pagination options to use when listing directory users.
+    /// The pagination parameters to use when listing directory users.
     #[serde(flatten)]
     pub pagination: PaginationParams<'a>,
 

@@ -15,7 +15,7 @@ pub struct ListDirectoriesParams<'a> {
     /// Searchable text to match against Directory names.
     pub search: Option<&'a String>,
 
-    /// The pagination options to use when listing directories.
+    /// The pagination parameters to use when listing directories.
     #[serde(flatten)]
     pub pagination: PaginationParams<'a>,
 

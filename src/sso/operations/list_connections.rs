@@ -9,7 +9,7 @@ use crate::{KnownOrUnknown, PaginatedList, PaginationParams, WorkOsError, WorkOs
 /// The parameters for [`ListConnections`].
 #[derive(Debug, Serialize)]
 pub struct ListConnectionsParams<'a> {
-    /// The pagination options to use when listing connections.
+    /// The pagination parameters to use when listing connections.
     #[serde(flatten)]
     pub pagination: PaginationParams<'a>,
 

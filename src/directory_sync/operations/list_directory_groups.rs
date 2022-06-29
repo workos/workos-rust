@@ -25,7 +25,7 @@ pub enum DirectoryGroupsFilter<'a> {
 /// The parameters for [`ListDirectoryGroups`].
 #[derive(Debug, Serialize)]
 pub struct ListDirectoryGroupsParams<'a> {
-    /// The pagination options to use when listing directory groups.
+    /// The pagination parameters to use when listing directory groups.
     #[serde(flatten)]
     pub pagination: PaginationParams<'a>,
 

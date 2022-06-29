@@ -19,7 +19,7 @@ impl<'a> From<Vec<&'a str>> for DomainFilters<'a> {
 /// Parameters for the [`ListOrganizations`] function.
 #[derive(Debug, Serialize)]
 pub struct ListOrganizationsParams<'a> {
-    /// The pagination options to use when listing organizations.
+    /// The pagination parameters to use when listing organizations.
     #[serde(flatten)]
     pub pagination: PaginationParams<'a>,
 
