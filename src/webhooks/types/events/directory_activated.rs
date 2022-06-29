@@ -19,7 +19,7 @@ mod test {
     use crate::{KnownOrUnknown, Timestamp, Timestamps};
 
     #[test]
-    fn it_deserializes_a_directory_deleted_webhook() {
+    fn it_deserializes_a_directory_activated_webhook() {
         let webhook: Webhook = serde_json::from_str(
             &json!({
               "id": "wh_01FKJ843CVE8F7BXQSPFH0M53V",
@@ -28,7 +28,7 @@ mod test {
                 "name": "Foo Corp's Directory",
                 "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
                 "id": "directory_01EHWNC0FCBHZ3BJ7EGKYXK0E6",
-                "state": "linked",
+                "state": "active",
                 "type": "generic scim v2.0",
                 "created_at": "2021-06-25T19:07:33.155Z",
                 "updated_at": "2021-06-25T19:07:33.155Z",
@@ -48,7 +48,7 @@ mod test {
                     organization_id: Some(OrganizationId::from("org_01EZTR6WYX1A0DSE2CYMGXQ24Y")),
                     r#type: KnownOrUnknown::Known(DirectoryType::GenericScimV2_0),
                     name: "Foo Corp's Directory".to_string(),
-                    state: DirectoryState::Linked,
+                    state: KnownOrUnknown::Known(DirectoryState::Active),
                     timestamps: Timestamps {
                         created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                         updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap()

@@ -33,19 +33,10 @@ impl From<&str> for DirectoryId {
 #[serde(rename_all = "snake_case")]
 pub enum DirectoryState {
     /// The directory is linked.
-    Linked,
+    Active,
 
     /// The directory is unlinked.
-    Unlinked,
-
-    /// The directory is attemping to link.
-    Validating,
-
-    /// The directory is being deleted.
-    Deleting,
-
-    /// The directory was unable to link due to invalid credentials.
-    InvalidCredentials,
+    Inactive,
 }
 
 /// [WorkOS Docs: Directory](https://workos.com/docs/reference/directory-sync/directory)
@@ -61,7 +52,7 @@ pub struct Directory {
     pub r#type: KnownOrUnknown<DirectoryType, String>,
 
     /// The state of the directory.
-    pub state: DirectoryState,
+    pub state: KnownOrUnknown<DirectoryState, String>,
 
     /// The name of the directory.
     pub name: String,
@@ -88,7 +79,7 @@ mod test {
               "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
               "name": "Foo Corp",
               "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-              "state": "unlinked",
+              "state": "inactive",
               "type": "bamboohr",
               "created_at": "2021-06-25T19:07:33.155Z",
               "updated_at": "2021-06-25T19:07:33.155Z"
@@ -104,7 +95,7 @@ mod test {
                 organization_id: Some(OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT")),
                 r#type: KnownOrUnknown::Known(DirectoryType::BambooHr),
                 name: "Foo Corp".to_string(),
-                state: DirectoryState::Unlinked,
+                state: KnownOrUnknown::Known(DirectoryState::Inactive),
                 timestamps: Timestamps {
                     created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                     updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
@@ -120,7 +111,7 @@ mod test {
               "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
               "name": "Foo Corp",
               "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-              "state": "unlinked",
+              "state": "inactive",
               "type": "UnknownType",
               "created_at": "2021-06-25T19:07:33.155Z",
               "updated_at": "2021-06-25T19:07:33.155Z"
