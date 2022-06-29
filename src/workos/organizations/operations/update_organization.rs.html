@@ -149,7 +149,6 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
-<span id="147">147</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
@@ -180,8 +179,7 @@
 
     <span class="doccomment">/// The domains of the organization.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// At least one domain is required unless</span>
-    <span class="doccomment">/// [`allow_profiles_outside_organization`] is `true`.</span>
+    <span class="doccomment">/// At least one domain is required unless `allow_profiles_outside_organization` is `true`.</span>
     <span class="kw">pub</span> <span class="ident">domains</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 

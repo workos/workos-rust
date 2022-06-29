@@ -143,7 +143,6 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
-<span id="141">141</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -199,10 +198,10 @@
 
         <span class="doccomment">/// The TOTP secret.</span>
         <span class="doccomment">///</span>
-        <span class="doccomment">/// This can be manually entered into some authenticator apps in place of scanning the [`qr_code`].</span>
+        <span class="doccomment">/// This can be manually entered into some authenticator apps in place of scanning the `qr_code`.</span>
         <span class="ident">secret</span>: <span class="ident">String</span>,
 
-        <span class="doccomment">/// The `otpauth://` URI that is encoded in the [`qr_code`].</span>
+        <span class="doccomment">/// The `otpauth://` URI that is encoded in the `qr_code`.</span>
         <span class="ident">uri</span>: <span class="ident">String</span>,
     },
     <span class="doccomment">///</span>
@@ -214,7 +213,6 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">chrono::DateTime</span>;
     <span class="kw">use</span> <span class="ident">serde_json::json</span>;
 
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Timestamp</span>, <span class="ident">Timestamps</span>};
