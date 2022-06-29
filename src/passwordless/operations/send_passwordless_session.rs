@@ -19,7 +19,7 @@ pub enum SendPasswordlessSessionError {}
 /// [WorkOS Docs: Send a Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session/send-email)
 #[async_trait]
 pub trait SendPasswordlessSession {
-    /// Sends a [`PasswordlessSession`].
+    /// Sends a [`PasswordlessSession`](crate::passwordless::PasswordlessSession).
     ///
     /// [WorkOS Docs: Send a Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session/send-email)
     async fn send_passwordless_session(

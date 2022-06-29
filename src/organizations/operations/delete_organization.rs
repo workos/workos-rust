@@ -26,7 +26,7 @@ impl From<DeleteOrganizationError> for WorkOsError<DeleteOrganizationError> {
 /// [WorkOS Docs: Delete an Organization](https://workos.com/docs/reference/organization/delete)
 #[async_trait]
 pub trait DeleteOrganization {
-    /// Creates an [`Organization`].
+    /// Creates an [`Organization`](crate::organizations::Organization).
     ///
     /// [WorkOS Docs: Delete an Organization](https://workos.com/docs/reference/organization/delete)
     async fn delete_organization(

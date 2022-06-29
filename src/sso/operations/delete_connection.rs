@@ -26,7 +26,7 @@ impl From<DeleteConnectionError> for WorkOsError<DeleteConnectionError> {
 /// [WorkOS Docs: Delete a Connection](https://workos.com/docs/reference/sso/connection/delete)
 #[async_trait]
 pub trait DeleteConnection {
-    /// Deletes a [`Connection`].
+    /// Deletes a [`Connection`](crate::sso::Connection).
     ///
     /// [WorkOS Docs: Delete a Connection](https://workos.com/docs/reference/sso/connection/delete)
     async fn delete_connection(

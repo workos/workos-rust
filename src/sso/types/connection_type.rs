@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-/// The type of a [`Connection`].
+/// The type of a [`Connection`](crate::sso::Connection).
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConnectionType {
     /// AD FS SAML.
