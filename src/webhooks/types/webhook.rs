@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::webhooks::{WebhookEvent, WebhookEventDto};
+use crate::webhooks::WebhookEvent;
 
 /// The ID of a [`Webhook`].
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -48,11 +48,11 @@ impl Webhook {
         // combining both `struct` and `enum` semantics in the same type is a bit
         // of a headache.
         let webhook: WebhookDto = serde_json::from_str(payload)?;
-        let event: WebhookEventDto = serde_json::from_str(payload)?;
+        let event: WebhookEvent = serde_json::from_str(payload)?;
 
         Ok(Self {
             id: webhook.id,
-            event: event.into(),
+            event,
         })
     }
 }
