@@ -8,7 +8,7 @@ use crate::{PaginatedList, PaginationOptions, WorkOsError, WorkOsResult};
 /// A filter for [`ListDirectoryUsers`].
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
-pub enum DirectoryUserFilter<'a> {
+pub enum DirectoryUsersFilter<'a> {
     /// Retrieve directory users within the specified directory.
     Directory {
         /// The ID of the directory to retrieve directory users in.
@@ -31,7 +31,7 @@ pub struct ListDirectoryUsersOptions<'a> {
 
     /// The filter to use when listing directory users.
     #[serde(flatten)]
-    pub filter: DirectoryUserFilter<'a>,
+    pub filter: DirectoryUsersFilter<'a>,
 }
 
 /// [WorkOS Docs: List Directory Users](https://workos.com/docs/reference/directory-sync/user/list)
@@ -186,7 +186,7 @@ mod test {
             .directory_sync()
             .list_directory_users(&ListDirectoryUsersOptions {
                 pagination: Default::default(),
-                filter: DirectoryUserFilter::Directory {
+                filter: DirectoryUsersFilter::Directory {
                     directory: &DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
                 },
             })
@@ -304,7 +304,7 @@ mod test {
             .directory_sync()
             .list_directory_users(&ListDirectoryUsersOptions {
                 pagination: Default::default(),
-                filter: DirectoryUserFilter::Group {
+                filter: DirectoryUsersFilter::Group {
                     group: &DirectoryGroupId::from("directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT"),
                 },
             })
