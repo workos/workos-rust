@@ -68,7 +68,6 @@ pub enum AuthenticationFactorType {
 
 #[cfg(test)]
 mod test {
-    use chrono::DateTime;
     use serde_json::json;
 
     use crate::{Timestamp, Timestamps};
