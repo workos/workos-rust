@@ -61,7 +61,7 @@ pub struct Directory {
     pub r#type: KnownOrUnknown<DirectoryType, String>,
 
     /// The state of the directory.
-    pub state: DirectoryState,
+    pub state: KnownOrUnknown<DirectoryState, String>,
 
     /// The name of the directory.
     pub name: String,
@@ -109,7 +109,7 @@ mod test {
                 organization_id: Some(OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT")),
                 r#type: KnownOrUnknown::Known(DirectoryType::BambooHr),
                 name: "Foo Corp".to_string(),
-                state: DirectoryState::Unlinked,
+                state: KnownOrUnknown::Known(DirectoryState::Unlinked),
                 timestamps: Timestamps {
                     created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                     updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),

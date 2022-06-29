@@ -56,7 +56,7 @@ mod test {
                     organization_id: Some(OrganizationId::from("org_01EHWNCE74X7JSDV0X3SZ3KJNY")),
                     r#type: KnownOrUnknown::Known(ConnectionType::OktaSaml),
                     name: "Foo Corp's Connection".to_string(),
-                    state: ConnectionState::Active,
+                    state: KnownOrUnknown::Known(ConnectionState::Active),
                     timestamps: Timestamps {
                         created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                         updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap()

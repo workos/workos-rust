@@ -56,7 +56,7 @@ pub struct Connection {
     pub name: String,
 
     /// The state of the connection.
-    pub state: ConnectionState,
+    pub state: KnownOrUnknown<ConnectionState, String>,
 
     /// The timestamps for the connection.
     #[serde(flatten)]
@@ -97,7 +97,7 @@ mod test {
                 organization_id: Some(OrganizationId::from("org_01EHWNCE74X7JSDV0X3SZ3KJNY")),
                 r#type: KnownOrUnknown::Known(ConnectionType::GoogleOauth),
                 name: "Foo Corp".to_string(),
-                state: ConnectionState::Active,
+                state: KnownOrUnknown::Known(ConnectionState::Active),
                 timestamps: Timestamps {
                     created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
                     updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
