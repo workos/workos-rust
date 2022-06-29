@@ -11,7 +11,7 @@ use crate::{PaginatedList, PaginationOptions, WorkOsError, WorkOsResult};
 pub enum DirectoryGroupsFilter<'a> {
     /// Retrieve directory groups within the specified directory.
     Directory {
-        /// The ID of the directory to retrieve directory users in.
+        /// The ID of the directory to retrieve directory groups in.
         directory: &'a DirectoryId,
     },
 
@@ -25,21 +25,21 @@ pub enum DirectoryGroupsFilter<'a> {
 /// The options for [`ListDirectoryGroups`].
 #[derive(Debug, Serialize)]
 pub struct ListDirectoryGroupsOptions<'a> {
-    /// The pagination options to use when listing directory users.
+    /// The pagination options to use when listing directory groups.
     #[serde(flatten)]
     pub pagination: PaginationOptions<'a>,
 
-    /// The filter to use when listing directory users.
+    /// The filter to use when listing directory groupss.
     #[serde(flatten)]
     pub filter: DirectoryGroupsFilter<'a>,
 }
 
-/// [WorkOS Docs: List Directory Users](https://workos.com/docs/reference/directory-sync/group/list)
+/// [WorkOS Docs: List Directory Groups](https://workos.com/docs/reference/directory-sync/group/list)
 #[async_trait]
 pub trait ListDirectoryGroups {
     /// Retrieves a list of [`DirectoryGroup`]s.
     ///
-    /// [WorkOS Docs: List Directory Users](https://workos.com/docs/reference/directory-sync/group/list)
+    /// [WorkOS Docs: List Directory Groups](https://workos.com/docs/reference/directory-sync/group/list)
     async fn list_directory_groups(
         &self,
         options: &ListDirectoryGroupsOptions<'_>,
