@@ -10,12 +10,10 @@ pub struct ConnectionActivatedWebhook(pub Connection);
 mod test {
     use serde_json::json;
 
-    use crate::{
-        organizations::OrganizationId,
-        sso::{ConnectionId, ConnectionState, ConnectionType},
-        webhooks::{Webhook, WebhookEvent, WebhookId},
-        KnownOrUnknown, Timestamp, Timestamps,
-    };
+    use crate::organizations::OrganizationId;
+    use crate::sso::{ConnectionId, ConnectionState, ConnectionType};
+    use crate::webhooks::{Webhook, WebhookEvent, WebhookId};
+    use crate::{KnownOrUnknown, Timestamp, Timestamps};
 
     use super::*;
 
