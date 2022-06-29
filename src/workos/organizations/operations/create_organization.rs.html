@@ -151,9 +151,9 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations</span>::{<span class="ident">Organization</span>, <span class="ident">Organizations</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
-<span class="doccomment">/// The options for [`CreateOrganization`].</span>
+<span class="doccomment">/// The parameters for [`CreateOrganization`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CreateOrganizationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CreateOrganizationParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The name of the organization.</span>
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
 
@@ -189,7 +189,7 @@
     <span class="doccomment">/// [WorkOS Docs: Create an Organization](https://workos.com/docs/reference/organization/create)</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_organization</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">CreateOrganizationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CreateOrganizationParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">Organization</span>, <span class="ident">CreateOrganizationError</span><span class="op">&gt;</span>;
 }
 
@@ -197,7 +197,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CreateOrganization</span> <span class="kw">for</span> <span class="ident">Organizations</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_organization</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">CreateOrganizationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CreateOrganizationParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">Organization</span>, <span class="ident">CreateOrganizationError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">base_url</span>().<span class="ident">join</span>(<span class="string">&quot;/organizations&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
@@ -205,7 +205,7 @@
             .<span class="ident">client</span>()
             .<span class="ident">post</span>(<span class="ident">url</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
-            .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>)
+            .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -265,7 +265,7 @@
 
         <span class="kw">let</span> <span class="ident">organization</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">organizations</span>()
-            .<span class="ident">create_organization</span>(<span class="kw-2">&amp;</span><span class="ident">CreateOrganizationOptions</span> {
+            .<span class="ident">create_organization</span>(<span class="kw-2">&amp;</span><span class="ident">CreateOrganizationParams</span> {
                 <span class="ident">name</span>: <span class="string">&quot;Foo Corp&quot;</span>,
                 <span class="ident">allow_profiles_outside_organization</span>: <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="bool-val">false</span>),
                 <span class="ident">domains</span>: <span class="ident">HashSet::from</span>([<span class="string">&quot;foo-corp.com&quot;</span>]),

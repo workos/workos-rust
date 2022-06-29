@@ -230,7 +230,7 @@
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectoryGroup</span>, <span class="ident">DirectoryId</span>, <span class="ident">DirectorySync</span>, <span class="ident">DirectoryUserId</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PaginatedList</span>, <span class="ident">PaginationOptions</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PaginatedList</span>, <span class="ident">PaginationParams</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
 <span class="doccomment">/// A filter for [`ListDirectoryGroups`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
@@ -249,12 +249,12 @@
     },
 }
 
-<span class="doccomment">/// The options for [`ListDirectoryGroups`].</span>
+<span class="doccomment">/// The parameters for [`ListDirectoryGroups`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListDirectoryGroupsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The pagination options to use when listing directory groups.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListDirectoryGroupsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The pagination parameters to use when listing directory groups.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The filter to use when listing directory groupss.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
@@ -269,7 +269,7 @@
     <span class="doccomment">/// [WorkOS Docs: List Directory Groups](https://workos.com/docs/reference/directory-sync/group/list)</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_directory_groups</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">DirectoryGroup</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span>;
 }
 
@@ -277,14 +277,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ListDirectoryGroups</span> <span class="kw">for</span> <span class="ident">DirectorySync</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_directory_groups</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">DirectoryGroup</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">base_url</span>().<span class="ident">join</span>(<span class="string">&quot;/directory_groups&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">workos</span>
             .<span class="ident">client</span>()
             .<span class="ident">get</span>(<span class="ident">url</span>)
-            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>)
+            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -354,7 +354,7 @@
 
         <span class="kw">let</span> <span class="ident">paginated_list</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">directory_sync</span>()
-            .<span class="ident">list_directory_groups</span>(<span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsOptions</span> {
+            .<span class="ident">list_directory_groups</span>(<span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsParams</span> {
                 <span class="ident">pagination</span>: <span class="ident">Default::default</span>(),
                 <span class="ident">filter</span>: <span class="ident">DirectoryGroupsFilter::Directory</span> {
                     <span class="ident">directory</span>: <span class="kw-2">&amp;</span><span class="ident">DirectoryId::from</span>(<span class="string">&quot;directory_01ECAZ4NV9QMV47GW873HDCX74&quot;</span>),
@@ -426,7 +426,7 @@
 
         <span class="kw">let</span> <span class="ident">paginated_list</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">directory_sync</span>()
-            .<span class="ident">list_directory_groups</span>(<span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsOptions</span> {
+            .<span class="ident">list_directory_groups</span>(<span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsParams</span> {
                 <span class="ident">pagination</span>: <span class="ident">Default::default</span>(),
                 <span class="ident">filter</span>: <span class="ident">DirectoryGroupsFilter::User</span> {
                     <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">DirectoryUserId::from</span>(<span class="string">&quot;directory_user_01FYVX377G1S69ASY580WK6WVN&quot;</span>),

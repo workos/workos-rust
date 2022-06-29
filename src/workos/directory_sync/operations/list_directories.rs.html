@@ -215,20 +215,20 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">Directory</span>, <span class="ident">DirectorySync</span>, <span class="ident">DirectoryType</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">PaginatedList</span>, <span class="ident">PaginationOptions</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">PaginatedList</span>, <span class="ident">PaginationParams</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
-<span class="doccomment">/// The options for [`ListDirectories`].</span>
+<span class="doccomment">/// The parameters for [`ListDirectories`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListDirectoriesOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListDirectoriesParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The domain of a directory.</span>
     <span class="kw">pub</span> <span class="ident">domain</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">String</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Searchable text to match against Directory names.</span>
     <span class="kw">pub</span> <span class="ident">search</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">String</span><span class="op">&gt;</span>,
 
-    <span class="doccomment">/// The pagination options to use when listing directories.</span>
+    <span class="doccomment">/// The pagination parameters to use when listing directories.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The ID of the organization to list directories for.</span>
     <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">OrganizationId</span><span class="op">&gt;</span>,
@@ -238,10 +238,10 @@
     <span class="kw">pub</span> <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">KnownOrUnknown</span><span class="op">&lt;</span><span class="ident">DirectoryType</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ListDirectoriesOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ListDirectoriesParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">pagination</span>: <span class="ident">PaginationOptions::default</span>(),
+            <span class="ident">pagination</span>: <span class="ident">PaginationParams::default</span>(),
             <span class="ident">organization_id</span>: <span class="prelude-val">None</span>,
             <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="prelude-val">None</span>,
             <span class="ident">domain</span>: <span class="prelude-val">None</span>,
@@ -258,7 +258,7 @@
     <span class="doccomment">/// [WorkOS Docs: List Directories](https://workos.com/docs/reference/directory-sync/directory/list)</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_directories</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoriesOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoriesParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">Directory</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span>;
 }
 
@@ -266,14 +266,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ListDirectories</span> <span class="kw">for</span> <span class="ident">DirectorySync</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_directories</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoriesOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoriesParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">Directory</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">base_url</span>().<span class="ident">join</span>(<span class="string">&quot;/directories&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">workos</span>
             .<span class="ident">client</span>()
             .<span class="ident">get</span>(<span class="ident">url</span>)
-            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>)
+            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -398,7 +398,7 @@
 
         <span class="kw">let</span> <span class="ident">paginated_list</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">directory_sync</span>()
-            .<span class="ident">list_directories</span>(<span class="kw-2">&amp;</span><span class="ident">ListDirectoriesOptions</span> {
+            .<span class="ident">list_directories</span>(<span class="kw-2">&amp;</span><span class="ident">ListDirectoriesParams</span> {
                 <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">KnownOrUnknown::Known</span>(<span class="ident">DirectoryType::GoogleWorkspace</span>)),
                 ..<span class="ident">Default::default</span>()
             })

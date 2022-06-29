@@ -207,14 +207,14 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sso</span>::{<span class="ident">Connection</span>, <span class="ident">ConnectionType</span>, <span class="ident">Sso</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">PaginatedList</span>, <span class="ident">PaginationOptions</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">PaginatedList</span>, <span class="ident">PaginationParams</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
-<span class="doccomment">/// The options for [`ListConnections`].</span>
+<span class="doccomment">/// The parameters for [`ListConnections`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListConnectionsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The pagination options to use when listing connections.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListConnectionsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The pagination parameters to use when listing connections.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The ID of the organization to list connections for.</span>
     <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">OrganizationId</span><span class="op">&gt;</span>,
@@ -224,10 +224,10 @@
     <span class="kw">pub</span> <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">KnownOrUnknown</span><span class="op">&lt;</span><span class="ident">ConnectionType</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ListConnectionsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ListConnectionsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">pagination</span>: <span class="ident">PaginationOptions::default</span>(),
+            <span class="ident">pagination</span>: <span class="ident">PaginationParams::default</span>(),
             <span class="ident">organization_id</span>: <span class="prelude-val">None</span>,
             <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="prelude-val">None</span>,
         }
@@ -242,7 +242,7 @@
     <span class="doccomment">/// [WorkOS Docs: List Connections](https://workos.com/docs/reference/sso/connection/list)</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_connections</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ListConnectionsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListConnectionsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span>;
 }
 
@@ -250,14 +250,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ListConnections</span> <span class="kw">for</span> <span class="ident">Sso</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_connections</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ListConnectionsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListConnectionsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">base_url</span>().<span class="ident">join</span>(<span class="string">&quot;/connections&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">workos</span>
             .<span class="ident">client</span>()
             .<span class="ident">get</span>(<span class="ident">url</span>)
-            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>)
+            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -382,7 +382,7 @@
 
         <span class="kw">let</span> <span class="ident">paginated_list</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">sso</span>()
-            .<span class="ident">list_connections</span>(<span class="kw-2">&amp;</span><span class="ident">ListConnectionsOptions</span> {
+            .<span class="ident">list_connections</span>(<span class="kw-2">&amp;</span><span class="ident">ListConnectionsParams</span> {
                 <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">KnownOrUnknown::Known</span>(<span class="ident">ConnectionType::OktaSaml</span>)),
                 ..<span class="ident">Default::default</span>()
             })

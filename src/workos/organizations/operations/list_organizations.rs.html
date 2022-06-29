@@ -228,7 +228,7 @@
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations</span>::{<span class="ident">Organization</span>, <span class="ident">Organizations</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PaginatedList</span>, <span class="ident">PaginationOptions</span>, <span class="ident">UrlEncodableVec</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PaginatedList</span>, <span class="ident">PaginationParams</span>, <span class="ident">UrlEncodableVec</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
 <span class="doccomment">/// The domains to filter the organizations by.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
@@ -242,20 +242,20 @@
 
 <span class="doccomment">/// Parameters for the [`ListOrganizations`] function.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListOrganizationsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The pagination options to use when listing organizations.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListOrganizationsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The pagination parameters to use when listing organizations.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">pagination</span>: <span class="ident">PaginationParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The domains of Organizations to be listed.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;domains[]&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">domains</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DomainFilters</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ListOrganizationsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ListOrganizationsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">pagination</span>: <span class="ident">PaginationOptions::default</span>(),
+            <span class="ident">pagination</span>: <span class="ident">PaginationParams::default</span>(),
             <span class="ident">domains</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -279,7 +279,7 @@
     <span class="doccomment">/// [WorkOS Docs: List Organizations](https://workos.com/docs/reference/organization/list)</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_organizations</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ListOrganizationsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListOrganizationsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span>;
 }
 
@@ -287,14 +287,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ListOrganizations</span> <span class="kw">for</span> <span class="ident">Organizations</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_organizations</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ListOrganizationsOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListOrganizationsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">base_url</span>().<span class="ident">join</span>(<span class="string">&quot;/organizations&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">workos</span>
             .<span class="ident">client</span>()
             .<span class="ident">get</span>(<span class="ident">url</span>)
-            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>)
+            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -424,7 +424,7 @@
 
         <span class="kw">let</span> <span class="ident">paginated_list</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">organizations</span>()
-            .<span class="ident">list_organizations</span>(<span class="kw-2">&amp;</span><span class="ident">ListOrganizationsOptions</span> {
+            .<span class="ident">list_organizations</span>(<span class="kw-2">&amp;</span><span class="ident">ListOrganizationsParams</span> {
                 <span class="ident">domains</span>: <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="string">&quot;foo-corp.com&quot;</span>].<span class="ident">into</span>()),
                 ..<span class="ident">Default::default</span>()
             })

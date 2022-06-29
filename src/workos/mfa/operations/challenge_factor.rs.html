@@ -209,9 +209,9 @@
     },
 }
 
-<span class="doccomment">/// The options for [`ChallengeFactor`].</span>
+<span class="doccomment">/// The parameters for [`ChallengeFactor`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChallengeFactorOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChallengeFactorParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The ID of the authentication factor to challenge.</span>
     <span class="kw">pub</span> <span class="ident">authentication_factor_id</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AuthenticationFactorId</span>,
 
@@ -232,7 +232,7 @@
     <span class="doccomment">/// [WorkOS Docs: Challenge Factor](https://workos.com/docs/reference/mfa/challenge-factor)</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">challenge_factor</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ChallengeFactorOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ChallengeFactorParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">AuthenticationChallenge</span>, <span class="ident">ChallengeFactorError</span><span class="op">&gt;</span>;
 }
 
@@ -240,7 +240,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ChallengeFactor</span> <span class="kw">for</span> <span class="ident">Mfa</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">challenge_factor</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">ChallengeFactorOptions</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ChallengeFactorParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">AuthenticationChallenge</span>, <span class="ident">ChallengeFactorError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">base_url</span>().<span class="ident">join</span>(<span class="string">&quot;/auth/factors/challenge&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
@@ -248,7 +248,7 @@
             .<span class="ident">client</span>()
             .<span class="ident">post</span>(<span class="ident">url</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
-            .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>)
+            .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -305,7 +305,7 @@
 
         <span class="kw">let</span> <span class="ident">challenge</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">mfa</span>()
-            .<span class="ident">challenge_factor</span>(<span class="kw-2">&amp;</span><span class="ident">ChallengeFactorOptions</span> {
+            .<span class="ident">challenge_factor</span>(<span class="kw-2">&amp;</span><span class="ident">ChallengeFactorParams</span> {
                 <span class="ident">authentication_factor_id</span>: <span class="kw-2">&amp;</span><span class="ident">AuthenticationFactorId::from</span>(
                     <span class="string">&quot;auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ&quot;</span>,
                 ),
@@ -346,7 +346,7 @@
 
         <span class="kw">let</span> <span class="ident">challenge</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">mfa</span>()
-            .<span class="ident">challenge_factor</span>(<span class="kw-2">&amp;</span><span class="ident">ChallengeFactorOptions</span> {
+            .<span class="ident">challenge_factor</span>(<span class="kw-2">&amp;</span><span class="ident">ChallengeFactorParams</span> {
                 <span class="ident">authentication_factor_id</span>: <span class="kw-2">&amp;</span><span class="ident">AuthenticationFactorId::from</span>(
                     <span class="string">&quot;auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ&quot;</span>,
                 ),
