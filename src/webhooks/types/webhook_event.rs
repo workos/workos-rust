@@ -13,4 +13,8 @@ pub enum WebhookEvent {
     /// [WorkOS Docs: `connection.deactivated` Webhook](https://workos.com/docs/reference/webhooks/connection#webhooks-sso.connection.deactivated)
     #[serde(rename = "connection.deactivated")]
     ConnectionDeactivated(ConnectionDeactivatedWebhook),
+
+    /// [WorkOS Docs: `dsync.activated` Webhook](https://workos.com/docs/reference/webhooks/directory#webhooks-dsync.activated)
+    #[serde(rename = "dsync.activated")]
+    DirectoryActivated(DirectoryActivatedWebhook),
 }
