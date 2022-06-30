@@ -28,6 +28,25 @@ pub trait DeleteDirectory {
     /// Deletes a [`Directory`](crate::directory_sync::Directory).
     ///
     /// [WorkOS Docs: Delete a Directory](https://workos.com/docs/reference/directory-sync/directory/delete)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::directory_sync::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), DeleteDirectoryError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// workos
+    ///     .directory_sync()
+    ///     .delete_directory(&DeleteDirectoryParams {
+    ///         directory_id: &DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
     async fn delete_directory(
         &self,
         params: &DeleteDirectoryParams<'_>,
