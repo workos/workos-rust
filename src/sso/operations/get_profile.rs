@@ -12,6 +12,24 @@ pub enum GetProfileError {}
 #[async_trait]
 pub trait GetProfile {
     /// [WorkOS Docs: Get a User Profile](https://workos.com/docs/reference/sso/profile/user)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::sso::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), GetProfileError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let profile = workos
+    ///     .sso()
+    ///     .get_profile(&AccessToken::from("01DMEK0J53CVMC32CK5SE0KZ8Q"))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn get_profile(
         &self,
         access_token: &AccessToken,

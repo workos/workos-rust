@@ -33,7 +33,7 @@ pub trait GetConnection {
     ///
     /// let connection = workos
     ///     .sso()
-    ///     .get_connection(&ConnectionId::from("conn_01E2NPPCT7XQ2MVVYDHWGK1WN4"))
+    ///     .get_connection(&ConnectionId::from("conn_01E4ZCR3C56J083X43JQXF3JK5"))
     ///     .await?;
     /// # Ok(())
     /// # }
