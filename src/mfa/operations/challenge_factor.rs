@@ -3,7 +3,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::mfa::{AuthenticationChallenge, AuthenticationFactorId, Mfa};
-use crate::{ResponseExtensions, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// The type of authentication factor to challenge.
 #[derive(Debug, Serialize)]

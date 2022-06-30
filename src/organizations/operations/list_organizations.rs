@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::organizations::{Organization, Organizations};
 use crate::{
-    PaginatedList, PaginationParams, ResponseExtensions, UrlEncodableVec, WorkOsError, WorkOsResult,
+    PaginatedList, PaginationParams, ResponseExt, UrlEncodableVec, WorkOsError, WorkOsResult,
 };
 
 /// The domains to filter the organizations by.

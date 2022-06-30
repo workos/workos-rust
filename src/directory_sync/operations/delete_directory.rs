@@ -4,7 +4,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::directory_sync::{DirectoryId, DirectorySync};
-use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// The parameters for [`DeleteDirectory`].
 #[derive(Debug, Serialize)]

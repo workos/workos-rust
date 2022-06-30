@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use thiserror::Error;
 
 use crate::directory_sync::{Directory, DirectoryId, DirectorySync};
-use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// An error returned from [`GetDirectory`].
 #[derive(Debug, Error)]

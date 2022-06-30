@@ -2,7 +2,7 @@ use reqwest::{Response, StatusCode};
 
 use crate::{WorkOsError, WorkOsResult};
 
-pub trait ResponseExtensions
+pub trait ResponseExt
 where
     Self: Sized,
 {
@@ -18,7 +18,7 @@ where
     fn handle_unauthorized_or_generic_error<E>(self) -> WorkOsResult<Self, E>;
 }
 
-impl ResponseExtensions for Response {
+impl ResponseExt for Response {
     fn handle_unauthorized_error<E>(self) -> WorkOsResult<Self, E> {
         if self.status() == StatusCode::UNAUTHORIZED {
             Err(WorkOsError::Unauthorized)

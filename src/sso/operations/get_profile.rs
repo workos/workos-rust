@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use thiserror::Error;
 
 use crate::sso::{AccessToken, Profile, Sso};
-use crate::{ResponseExtensions, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// An error returned from [`GetProfile`].
 #[derive(Debug, Error)]

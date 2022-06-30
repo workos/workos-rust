@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use serde::Serialize;
 
 use crate::directory_sync::{DirectoryGroupId, DirectoryId, DirectorySync, DirectoryUser};
-use crate::{PaginatedList, PaginationParams, ResponseExtensions, WorkOsResult};
+use crate::{PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// A filter for [`ListDirectoryUsers`].
 #[derive(Debug, Serialize)]

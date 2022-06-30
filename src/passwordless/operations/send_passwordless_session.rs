@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::Serialize;
 
 use crate::passwordless::{Passwordless, PasswordlessSessionId};
-use crate::{ResponseExtensions, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// The parameters for [`SendPasswordlessSession`].
 #[derive(Debug, Serialize)]

@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use thiserror::Error;
 
 use crate::organizations::{Organization, OrganizationId, Organizations};
-use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// An error returned from [`GetOrganization`].
 #[derive(Debug, Error)]

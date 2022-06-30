@@ -4,7 +4,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::organizations::{OrganizationId, Organizations};
-use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// The parameters for [`DeleteOrganization`].
 #[derive(Debug, Serialize)]

@@ -6,7 +6,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::organizations::{Organization, Organizations};
-use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// The parameters for [`CreateOrganization`].
 #[derive(Debug, Serialize)]

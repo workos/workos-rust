@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::Serialize;
 
 use crate::passwordless::{Passwordless, PasswordlessSession};
-use crate::{ResponseExtensions, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// The type of passwordless session to create.
 #[derive(Debug, Serialize)]

@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::directory_sync::{Directory, DirectorySync, DirectoryType};
 use crate::organizations::OrganizationId;
-use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExtensions, WorkOsResult};
+use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// The parameters for [`ListDirectories`].
 #[derive(Debug, Serialize)]

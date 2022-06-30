@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::admin_portal::AdminPortal;
 use crate::organizations::OrganizationId;
-use crate::{ResponseExtensions, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// The intent of an Admin Portal session.
 #[derive(Debug, Serialize)]

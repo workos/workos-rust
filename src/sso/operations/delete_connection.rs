@@ -3,7 +3,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::sso::{ConnectionId, Sso};
-use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// The parameters for [`DeleteConnection`].
 #[derive(Debug, Serialize)]

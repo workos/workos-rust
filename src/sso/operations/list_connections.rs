@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::organizations::OrganizationId;
 use crate::sso::{Connection, ConnectionType, Sso};
-use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExtensions, WorkOsResult};
+use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// The parameters for [`ListConnections`].
 #[derive(Debug, Serialize)]

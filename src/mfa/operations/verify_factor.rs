@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::mfa::{AuthenticationChallenge, AuthenticationChallengeId, Mfa, MfaCode};
-use crate::{ResponseExtensions, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// Payload returned from [`VerifyFactor`] including Authentication Factor and Valid status.
 #[derive(Debug, Serialize, Deserialize)]
