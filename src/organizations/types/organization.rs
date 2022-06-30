@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::Timestamps;
 
 /// The ID of an [`Organization`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct OrganizationId(String);
 
 impl Display for OrganizationId {
@@ -27,7 +27,7 @@ impl From<&str> for OrganizationId {
 }
 
 /// [WorkOS Docs: Organization](https://workos.com/docs/reference/organization)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Organization {
     /// The ID of the organization.
     pub id: OrganizationId,
@@ -52,7 +52,7 @@ pub struct Organization {
 }
 
 /// The ID of an [`OrganizationDomain`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct OrganizationDomainId(String);
 
 impl Display for OrganizationDomainId {
@@ -74,7 +74,7 @@ impl From<&str> for OrganizationDomainId {
 }
 
 /// [WorkOS Docs: Organization Domain](https://workos.com/docs/reference/organization-domain)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OrganizationDomain {
     /// The ID of the organization domain.
     pub id: OrganizationDomainId,

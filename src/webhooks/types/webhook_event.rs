@@ -3,7 +3,7 @@ use serde::Deserialize;
 use super::events::*;
 
 /// The event of a [`Webhook`](crate::webhooks::Webhook).
-#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(tag = "event", content = "data")]
 pub enum WebhookEvent {
     /// [WorkOS Docs: `connection.activated` Webhook](https://workos.com/docs/reference/webhooks/connection#webhooks-sso.connection.activated)

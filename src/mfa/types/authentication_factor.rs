@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::Timestamps;
 
 /// The ID of an [`AuthenticationFactor`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct AuthenticationFactorId(String);
 
 impl Display for AuthenticationFactorId {
@@ -27,7 +27,7 @@ impl From<&str> for AuthenticationFactorId {
 }
 
 /// [WorkOS Docs: Authentication Factor](https://workos.com/docs/reference/mfa/authentication-factor)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthenticationFactor {
     /// The ID of the authentication factor.
     pub id: AuthenticationFactorId,
@@ -42,7 +42,7 @@ pub struct AuthenticationFactor {
 }
 
 /// The type of an [`AuthenticationFactor`].
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AuthenticationFactorType {
     /// Time-based one-time password (TOTP).

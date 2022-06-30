@@ -3,10 +3,8 @@
 //! [WorkOS Docs: Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
 
 mod operations;
-mod types;
 
 pub use operations::*;
-pub use types::*;
 
 use crate::WorkOs;
 

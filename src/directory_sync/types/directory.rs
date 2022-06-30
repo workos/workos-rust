@@ -7,7 +7,7 @@ use crate::{
 };
 
 /// The ID of a [`Directory`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct DirectoryId(String);
 
 impl Display for DirectoryId {

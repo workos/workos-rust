@@ -6,7 +6,7 @@ use crate::mfa::AuthenticationFactorId;
 use crate::{Timestamp, Timestamps};
 
 /// The ID of an [`AuthenticationChallenge`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct AuthenticationChallengeId(String);
 
 impl Display for AuthenticationChallengeId {
@@ -28,7 +28,7 @@ impl From<&str> for AuthenticationChallengeId {
 }
 
 /// [WorkOS Docs: Authentication Challenge](https://workos.com/docs/reference/mfa/authentication-challenge)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthenticationChallenge {
     /// The ID of the authentication challenge.
     pub id: AuthenticationChallengeId,

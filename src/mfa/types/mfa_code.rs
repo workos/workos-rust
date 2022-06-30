@@ -2,8 +2,8 @@ use std::fmt::Display;
 
 use serde::Serialize;
 
-/// The 6 digit code to be verified in Verify Factor.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+/// A multi-factor authentication (MFA) code.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub struct MfaCode(String);
 
 impl Display for MfaCode {

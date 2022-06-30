@@ -3,7 +3,7 @@ use serde::Deserialize;
 use crate::directory_sync::DirectoryGroup;
 
 /// [WorkOS Docs: `dsync.group.deleted` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.deleted)
-#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct DirectoryGroupDeletedWebhook(pub DirectoryGroup);
 
 #[cfg(test)]

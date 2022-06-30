@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::webhooks::WebhookEvent;
 
 /// The ID of a [`Webhook`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct WebhookId(String);
 
 impl Display for WebhookId {
@@ -27,7 +27,7 @@ impl From<&str> for WebhookId {
 }
 
 /// A WorkOS webhook.
-#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct Webhook {
     /// The ID of the webhook.
     pub id: WebhookId,

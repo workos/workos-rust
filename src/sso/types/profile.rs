@@ -7,7 +7,7 @@ use crate::{organizations::OrganizationId, KnownOrUnknown, RawAttributes};
 use super::{ConnectionId, ConnectionType};
 
 /// The ID of a [`Profile`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct ProfileId(String);
 
 impl Display for ProfileId {
@@ -29,7 +29,7 @@ impl From<&str> for ProfileId {
 }
 
 /// [WorkOS Docs: Profile](https://workos.com/docs/reference/sso/profile)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Profile {
     /// The ID of the profile.
     pub id: ProfileId,

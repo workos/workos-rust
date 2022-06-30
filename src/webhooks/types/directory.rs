@@ -7,7 +7,7 @@ use crate::{
 };
 
 /// The state of a [`Directory`].
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DirectoryState {
     /// The directory is linked.
@@ -21,7 +21,7 @@ pub enum DirectoryState {
 }
 
 /// [WorkOS Docs: Directory](https://workos.com/docs/reference/directory-sync/directory)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Directory {
     /// The ID of the directory.
     pub id: DirectoryId,

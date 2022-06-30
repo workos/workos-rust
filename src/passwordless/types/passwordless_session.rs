@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::Timestamp;
 
 /// The ID of an [`PasswordlessSession`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct PasswordlessSessionId(String);
 
 impl Display for PasswordlessSessionId {
@@ -27,7 +27,7 @@ impl From<&str> for PasswordlessSessionId {
 }
 
 /// The type of a [`PasswordlessSession`].
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PasswordlessSessionType {
     /// Magic Link.
@@ -41,7 +41,7 @@ pub enum PasswordlessSessionType {
 }
 
 /// [WorkOS Docs: Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PasswordlessSession {
     /// The ID of the passwordless session.
     pub id: PasswordlessSessionId,

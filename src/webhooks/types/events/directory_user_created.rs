@@ -3,7 +3,7 @@ use serde::Deserialize;
 use crate::directory_sync::DirectoryUser;
 
 /// [WorkOS Docs: `dsync.user.created` Webhook](https://workos.com/docs/reference/webhooks/directory-user#webhooks-dsync.user.created)
-#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserCreatedWebhook(pub DirectoryUser);
 
 #[cfg(test)]

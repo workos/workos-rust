@@ -7,7 +7,7 @@ use crate::sso::ConnectionType;
 use crate::{KnownOrUnknown, Timestamps};
 
 /// The ID of a [`Connection`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct ConnectionId(String);
 
 impl Display for ConnectionId {
@@ -29,7 +29,7 @@ impl From<&str> for ConnectionId {
 }
 
 /// The state of a [`Connection`].
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ConnectionState {
     /// The connection is active.
@@ -40,7 +40,7 @@ pub enum ConnectionState {
 }
 
 /// [WorkOS Docs: Connection](https://workos.com/docs/reference/sso/connection)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Connection {
     /// The ID of the connection.
     pub id: ConnectionId,

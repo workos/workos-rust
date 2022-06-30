@@ -8,7 +8,7 @@ use crate::directory_sync::DirectoryId;
 use crate::{KnownOrUnknown, RawAttributes, Timestamps};
 
 /// The ID of a [`DirectoryUser`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct DirectoryUserId(String);
 
 impl Display for DirectoryUserId {
@@ -30,7 +30,7 @@ impl From<&str> for DirectoryUserId {
 }
 
 /// [WorkOS Docs: Directory User](https://workos.com/docs/reference/directory-sync/directory-user)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DirectoryUser<TCustomAttributes = HashMap<String, Value>> {
     /// The ID of the directory user.
     pub id: DirectoryUserId,
@@ -69,7 +69,7 @@ pub struct DirectoryUser<TCustomAttributes = HashMap<String, Value>> {
 }
 
 /// The state of a [`DirectoryUser`].
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DirectoryUserState {
     /// The directory user is active.
@@ -83,7 +83,7 @@ pub enum DirectoryUserState {
 }
 
 /// An email address for a [`DirectoryUser`].
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DirectoryUserEmail {
     /// Whether this is the directory user's primary email address.
     pub primary: Option<bool>,

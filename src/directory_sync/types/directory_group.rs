@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::{directory_sync::DirectoryId, RawAttributes, Timestamps};
 
 /// The ID of a [`DirectoryGroup`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct DirectoryGroupId(String);
 
 impl Display for DirectoryGroupId {
@@ -27,7 +27,7 @@ impl From<&str> for DirectoryGroupId {
 }
 
 /// [WorkOS Docs: Directory Group](https://workos.com/docs/reference/directory-sync/directory-group)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DirectoryGroup {
     /// Unique identifier for the Directory Group.
     pub id: DirectoryGroupId,
