@@ -212,6 +212,11 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">reqwest</span>::{<span class="ident">Response</span>, <span class="ident">StatusCode</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -251,8 +256,11 @@
     <span class="doccomment">/// The provided phone number was invalid.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This can only occur when enrolling an SMS factor.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;invalid phone number&quot;</span>)]</span>
-    <span class="ident">InvalidPhoneNumber</span>,
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;invalid phone number: {message}&quot;</span>)]</span>
+    <span class="ident">InvalidPhoneNumber</span> {
+        <span class="doccomment">/// The error message returned from the API.</span>
+        <span class="ident">message</span>: <span class="ident">String</span>,
+    },
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">EnrollFactorError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">WorkOsError</span><span class="op">&lt;</span><span class="ident">EnrollFactorError</span><span class="op">&gt;</span> {
@@ -286,7 +294,9 @@
 
                     <span class="prelude-val">Err</span>(<span class="kw">match</span> <span class="ident">error</span>.<span class="ident">code</span>.<span class="ident">as_str</span>() {
                         <span class="string">&quot;invalid_phone_number&quot;</span> =&gt; {
-                            <span class="ident">WorkOsError::Operation</span>(<span class="ident">EnrollFactorError::InvalidPhoneNumber</span>)
+                            <span class="ident">WorkOsError::Operation</span>(<span class="ident">EnrollFactorError::InvalidPhoneNumber</span> {
+                                <span class="ident">message</span>: <span class="ident">error</span>.<span class="ident">message</span>,
+                            })
                         }
                         <span class="kw">_</span> =&gt; <span class="ident">WorkOsError::RequestError</span>(<span class="ident">err</span>),
                     })
@@ -416,7 +426,7 @@
         <span class="macro">assert_matches!</span>(
             <span class="ident">result</span>,
             <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::Operation</span>(
-                <span class="ident">EnrollFactorError::InvalidPhoneNumber</span>
+                <span class="ident">EnrollFactorError::InvalidPhoneNumber</span> { <span class="ident">message</span>: <span class="kw">_</span> }
             ))
         )
     }
