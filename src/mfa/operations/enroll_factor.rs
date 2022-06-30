@@ -105,7 +105,7 @@ pub trait EnrollFactor {
     /// # async fn run() -> WorkOsResult<(), EnrollFactorError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
-    /// let challenge = workos
+    /// let factor = workos
     ///     .mfa()
     ///     .enroll_factor(&EnrollFactorParams::Totp {
     ///         issuer: "Foo Corp",

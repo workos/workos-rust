@@ -36,6 +36,29 @@ pub trait VerifyChallenge {
     /// Attempts a verification for an authentication challenge.
     ///
     /// [WorkOS Docs: Verify Challenge](https://workos.com/docs/reference/mfa/verify-factor)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::mfa::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), VerifyChallengeError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let response = workos
+    ///     .mfa()
+    ///     .verify_challenge(&VerifyChallengeParams {
+    ///         authentication_challenge_id: &AuthenticationChallengeId::from(
+    ///             "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
+    ///         ),
+    ///         code: &MfaCode::from("123456"),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn verify_challenge(
         &self,
         params: &VerifyChallengeParams<'_>,
