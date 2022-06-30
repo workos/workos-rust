@@ -44,6 +44,29 @@ pub trait ChallengeFactor {
     /// Creates a challenge for an authentication factor.
     ///
     /// [WorkOS Docs: Challenge Factor](https://workos.com/docs/reference/mfa/challenge-factor)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::mfa::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), ChallengeFactorError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let challenge = workos
+    ///     .mfa()
+    ///     .challenge_factor(&ChallengeFactorParams {
+    ///         authentication_factor_id: &AuthenticationFactorId::from(
+    ///             "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
+    ///         ),
+    ///         r#type: ChallengeAuthenticationFactorType::Totp,
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn challenge_factor(
         &self,
         params: &ChallengeFactorParams<'_>,
