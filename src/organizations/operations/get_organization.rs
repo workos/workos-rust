@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-
 use thiserror::Error;
 
 use crate::organizations::{Organization, OrganizationId, Organizations};

@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-
 use thiserror::Error;
 
 use crate::directory_sync::{DirectoryGroup, DirectoryGroupId, DirectorySync};
