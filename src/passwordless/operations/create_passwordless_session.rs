@@ -45,7 +45,6 @@ pub trait CreatePasswordlessSession {
     ///
     /// [WorkOS Docs: Create a Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session/create-session)
     ///
-    ///
     /// # Examples
     ///
     /// ```
