@@ -114,40 +114,28 @@
 <span id="109">109</span>
 <span id="110">110</span>
 <span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectoryState</span>, <span class="ident">DirectoryType</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">Timestamps</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">directory_sync</span>::{<span class="ident">DirectoryId</span>, <span class="ident">DirectoryType</span>},
+    <span class="ident">organizations::OrganizationId</span>,
+    <span class="ident">KnownOrUnknown</span>, <span class="ident">Timestamps</span>,
+};
 
-<span class="doccomment">/// The ID of a [`Directory`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DirectoryId</span>(<span class="ident">String</span>);
+<span class="doccomment">/// The state of a [`Directory`].</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DirectoryState</span> {
+    <span class="doccomment">/// The directory is linked.</span>
+    <span class="ident">Active</span>,
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DirectoryId</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
-    }
-}
+    <span class="doccomment">/// The directory is unlinked.</span>
+    <span class="ident">Inactive</span>,
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DirectoryId</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">value</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DirectoryId</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">value</span>.<span class="ident">to_string</span>())
-    }
+    <span class="doccomment">/// The directory is being deleted.</span>
+    <span class="ident">Deleting</span>,
 }
 
 <span class="doccomment">/// [WorkOS Docs: Directory](https://workos.com/docs/reference/directory-sync/directory)</span>

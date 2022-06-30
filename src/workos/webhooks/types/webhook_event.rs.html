@@ -35,6 +35,14 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::events</span>::<span class="kw-2">*</span>;
@@ -54,6 +62,14 @@
     <span class="doccomment">/// [WorkOS Docs: `dsync.activated` Webhook](https://workos.com/docs/reference/webhooks/directory#webhooks-dsync.activated)</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;dsync.activated&quot;</span>)]</span>
     <span class="ident">DirectoryActivated</span>(<span class="ident">DirectoryActivatedWebhook</span>),
+
+    <span class="doccomment">/// [WorkOS Docs: `dsync.deactivated` Webhook](https://workos.com/docs/reference/webhooks/directory#webhooks-dsync.deactivated)</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;dsync.deactivated&quot;</span>)]</span>
+    <span class="ident">DirectoryDeactivated</span>(<span class="ident">DirectoryDeactivatedWebhook</span>),
+
+    <span class="doccomment">/// [WorkOS Docs: `dsync.deleted` Webhook](https://workos.com/docs/reference/webhooks/directory#webhooks-dsync.deleted)</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;dsync.deleted&quot;</span>)]</span>
+    <span class="ident">DirectoryDeleted</span>(<span class="ident">DirectoryDeletedWebhook</span>),
 
     <span class="doccomment">/// [WorkOS Docs: `connection.deleted` Webhook](https://workos.com/docs/reference/webhooks/connection#webhooks-sso.connection.deleted)</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;connection.deleted&quot;</span>)]</span>
