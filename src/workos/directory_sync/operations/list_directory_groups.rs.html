@@ -216,21 +216,11 @@
 <span id="211">211</span>
 <span id="212">212</span>
 <span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectoryGroup</span>, <span class="ident">DirectoryId</span>, <span class="ident">DirectorySync</span>, <span class="ident">DirectoryUserId</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PaginatedList</span>, <span class="ident">PaginationParams</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PaginatedList</span>, <span class="ident">PaginationParams</span>, <span class="ident">ResponseExt</span>, <span class="ident">WorkOsResult</span>};
 
 <span class="doccomment">/// A filter for [`ListDirectoryGroups`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
@@ -280,27 +270,19 @@
         <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListDirectoryGroupsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">DirectoryGroup</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">base_url</span>().<span class="ident">join</span>(<span class="string">&quot;/directory_groups&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
+        <span class="kw">let</span> <span class="ident">directory_groups</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">workos</span>
             .<span class="ident">client</span>()
             .<span class="ident">get</span>(<span class="ident">url</span>)
             .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
             .<span class="ident">send</span>()
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">handle_unauthorized_or_generic_error</span>()<span class="question-mark">?</span>
+            .<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">DirectoryGroup</span><span class="op">&gt;</span><span class="op">&gt;</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">match</span> <span class="ident">response</span>.<span class="ident">error_for_status_ref</span>() {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">list_directory_groups_response</span> <span class="op">=</span>
-                    <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">PaginatedList</span><span class="op">&lt;</span><span class="ident">DirectoryGroup</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
-                <span class="prelude-val">Ok</span>(<span class="ident">list_directory_groups_response</span>)
-            }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">match</span> <span class="ident">err</span>.<span class="ident">status</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">StatusCode::UNAUTHORIZED</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::Unauthorized</span>),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::RequestError</span>(<span class="ident">err</span>)),
-            },
-        }
+        <span class="prelude-val">Ok</span>(<span class="ident">directory_groups</span>)
     }
 }
 

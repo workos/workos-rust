@@ -152,20 +152,11 @@
 <span id="147">147</span>
 <span id="148">148</span>
 <span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectorySync</span>, <span class="ident">DirectoryUser</span>, <span class="ident">DirectoryUserId</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ResponseExt</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
 <span class="doccomment">/// An error returned from [`GetDirectoryUser`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
@@ -199,25 +190,18 @@
             .<span class="ident">workos</span>
             .<span class="ident">base_url</span>()
             .<span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;/directory_users/{id}&quot;</span>, <span class="ident">id</span> <span class="op">=</span> <span class="ident">id</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
+        <span class="kw">let</span> <span class="ident">directory_user</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">workos</span>
             .<span class="ident">client</span>()
             .<span class="ident">get</span>(<span class="ident">url</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
             .<span class="ident">send</span>()
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">handle_unauthorized_or_generic_error</span>()<span class="question-mark">?</span>
+            .<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">DirectoryUser</span><span class="op">&gt;</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">match</span> <span class="ident">response</span>.<span class="ident">error_for_status_ref</span>() {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">directory_user</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">DirectoryUser</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
-                <span class="prelude-val">Ok</span>(<span class="ident">directory_user</span>)
-            }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">match</span> <span class="ident">err</span>.<span class="ident">status</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">StatusCode::UNAUTHORIZED</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::Unauthorized</span>),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::RequestError</span>(<span class="ident">err</span>)),
-            },
-        }
+        <span class="prelude-val">Ok</span>(<span class="ident">directory_user</span>)
     }
 }
 

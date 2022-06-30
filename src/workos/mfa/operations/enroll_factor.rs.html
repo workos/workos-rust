@@ -197,13 +197,28 @@
 <span id="192">192</span>
 <span id="193">193</span>
 <span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
+<span class="kw">use</span> <span class="ident">reqwest</span>::{<span class="ident">Response</span>, <span class="ident">StatusCode</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mfa</span>::{<span class="ident">AuthenticationFactor</span>, <span class="ident">Mfa</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ResponseExt</span>, <span class="ident">WorkOsError</span>, <span class="ident">WorkOsResult</span>};
 
 <span class="doccomment">/// The parameters for [`EnrollFactor`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
@@ -252,6 +267,36 @@
     <span class="kw">pub</span> <span class="ident">message</span>: <span class="ident">String</span>,
 }
 
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
+<span class="kw">trait</span> <span class="ident">HandleEnrollFactorError</span>
+<span class="kw">where</span>
+    <span class="self">Self</span>: <span class="ident">Sized</span>,
+{
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_enroll_factor_error</span>(<span class="self">self</span>) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">EnrollFactorError</span><span class="op">&gt;</span>;
+}
+
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
+<span class="kw">impl</span> <span class="ident">HandleEnrollFactorError</span> <span class="kw">for</span> <span class="ident">Response</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_enroll_factor_error</span>(<span class="self">self</span>) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">EnrollFactorError</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">error_for_status_ref</span>() {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">match</span> <span class="ident">err</span>.<span class="ident">status</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">StatusCode::UNPROCESSABLE_ENTITY</span>) =&gt; {
+                    <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">WorkOsApiError</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+                    <span class="prelude-val">Err</span>(<span class="kw">match</span> <span class="ident">error</span>.<span class="ident">code</span>.<span class="ident">as_str</span>() {
+                        <span class="string">&quot;invalid_phone_number&quot;</span> =&gt; {
+                            <span class="ident">WorkOsError::Operation</span>(<span class="ident">EnrollFactorError::InvalidPhoneNumber</span>)
+                        }
+                        <span class="kw">_</span> =&gt; <span class="ident">WorkOsError::RequestError</span>(<span class="ident">err</span>),
+                    })
+                }
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::RequestError</span>(<span class="ident">err</span>)),
+            },
+        }
+    }
+}
+
 <span class="doccomment">/// [WorkOS Docs: Enroll Factor](https://workos.com/docs/reference/mfa/enroll-factor)</span>
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">EnrollFactor</span> {
@@ -271,36 +316,21 @@
         <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">EnrollFactorParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">WorkOsResult</span><span class="op">&lt;</span><span class="ident">AuthenticationFactor</span>, <span class="ident">EnrollFactorError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">base_url</span>().<span class="ident">join</span>(<span class="string">&quot;/auth/factors/enroll&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
+        <span class="kw">let</span> <span class="ident">factor</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">workos</span>
             .<span class="ident">client</span>()
             .<span class="ident">post</span>(<span class="ident">url</span>)
             .<span class="ident">bearer_auth</span>(<span class="self">self</span>.<span class="ident">workos</span>.<span class="ident">key</span>())
             .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>)
             .<span class="ident">send</span>()
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">handle_unauthorized_error</span>()<span class="question-mark">?</span>
+            .<span class="ident">handle_enroll_factor_error</span>()
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">AuthenticationFactor</span><span class="op">&gt;</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">match</span> <span class="ident">response</span>.<span class="ident">error_for_status_ref</span>() {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">factor</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">AuthenticationFactor</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
-                <span class="prelude-val">Ok</span>(<span class="ident">factor</span>)
-            }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">match</span> <span class="ident">err</span>.<span class="ident">status</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">StatusCode::UNPROCESSABLE_ENTITY</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">WorkOsApiError</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
-                    <span class="prelude-val">Err</span>(<span class="kw">match</span> <span class="ident">error</span>.<span class="ident">code</span>.<span class="ident">as_str</span>() {
-                        <span class="string">&quot;invalid_phone_number&quot;</span> =&gt; {
-                            <span class="ident">WorkOsError::Operation</span>(<span class="ident">EnrollFactorError::InvalidPhoneNumber</span>)
-                        }
-                        <span class="kw">_</span> =&gt; <span class="ident">WorkOsError::RequestError</span>(<span class="ident">err</span>),
-                    })
-                }
-                <span class="prelude-val">Some</span>(<span class="ident">StatusCode::UNAUTHORIZED</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::Unauthorized</span>),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">WorkOsError::RequestError</span>(<span class="ident">err</span>)),
-            },
-        }
+        <span class="prelude-val">Ok</span>(<span class="ident">factor</span>)
     }
 }
 
