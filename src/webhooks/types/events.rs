@@ -4,6 +4,8 @@ mod connection_deleted;
 mod directory_activated;
 mod directory_deactivated;
 mod directory_deleted;
+mod directory_group_user_added;
+mod directory_group_user_removed;
 mod directory_user_created;
 mod directory_user_deleted;
 
@@ -13,5 +15,7 @@ pub use connection_deleted::*;
 pub use directory_activated::*;
 pub use directory_deactivated::*;
 pub use directory_deleted::*;
+pub use directory_group_user_added::*;
+pub use directory_group_user_removed::*;
 pub use directory_user_created::*;
 pub use directory_user_deleted::*;
