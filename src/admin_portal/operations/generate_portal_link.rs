@@ -62,6 +62,30 @@ pub trait GeneratePortalLink {
     /// Generates an Admin Portal link.
     ///
     /// [WorkOS Docs: Generate a Portal Link](https://workos.com/docs/reference/admin-portal/portal-link/generate)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::admin_portal::*;
+    /// # use workos::organizations::OrganizationId;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), GeneratePortalLinkError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let GeneratePortalLinkResponse { link } = workos
+    ///     .admin_portal()
+    ///     .generate_portal_link(&GeneratePortalLinkParams {
+    ///         target: &AdminPortalTarget::Organization {
+    ///             organization_id: OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"),
+    ///             intent: AdminPortalIntent::Sso,
+    ///         },
+    ///         return_url: None,
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
     async fn generate_portal_link(
         &self,
         params: &GeneratePortalLinkParams<'_>,

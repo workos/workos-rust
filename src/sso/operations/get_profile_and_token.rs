@@ -78,7 +78,6 @@ pub trait GetProfileAndToken {
     /// # Examples
     ///
     /// ```
-    /// # use url::ParseError;
     /// # use workos::WorkOsResult;
     /// # use workos::sso::*;
     /// use workos::{ApiKey, WorkOs};
