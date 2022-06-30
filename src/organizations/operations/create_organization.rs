@@ -43,6 +43,30 @@ pub trait CreateOrganization {
     /// Creates an [`Organization`].
     ///
     /// [WorkOS Docs: Create an Organization](https://workos.com/docs/reference/organization/create)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::collections::HashSet;
+    /// 
+    /// # use workos::WorkOsResult;
+    /// # use workos::organizations::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), CreateOrganizationError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let organization = workos
+    ///     .organizations()
+    ///     .create_organization(&CreateOrganizationParams {
+    ///         name: "Foo Corp",
+    ///         allow_profiles_outside_organization: None,
+    ///         domains: HashSet::from(["foo-corp.com"]),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn create_organization(
         &self,
         params: &CreateOrganizationParams<'_>,
