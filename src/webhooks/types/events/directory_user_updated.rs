@@ -8,8 +8,8 @@ use crate::directory_sync::DirectoryUser;
 /// Type for a [`DirectoryUser`] with previous attributes object returned in a [`dsync.user.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-user#webhooks-dsync.user.updated)
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserWithPreviousAttributes {
-    #[serde(flatten)]
     /// [`DirectoryUser`] that will be included in the [`DirectoryUserWithPreviousAttributes`]
+    #[serde(flatten)]
     pub directory_user: DirectoryUser,
 
     /// Type for previous attributes that were updated in a [`dsync.user.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-user#webhooks-dsync.user.updated)
