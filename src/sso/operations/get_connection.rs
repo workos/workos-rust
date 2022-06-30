@@ -27,7 +27,7 @@ pub trait GetConnection {
     /// # use workos::sso::*;
     /// use workos::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), DeleteConnectionError> {
+    /// # async fn run() -> WorkOsResult<(), GetConnectionError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// workos
