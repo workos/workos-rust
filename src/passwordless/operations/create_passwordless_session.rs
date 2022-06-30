@@ -44,6 +44,31 @@ pub trait CreatePasswordlessSession {
     /// Creates a [`PasswordlessSession`].
     ///
     /// [WorkOS Docs: Create a Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session/create-session)
+    ///
+    ///    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::passwordless::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), CreatePasswordlessSessionError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let passwordless_session = workos
+    ///     .passwordless()
+    ///     .create_passwordless_session(&CreatePasswordlessSessionParams{
+    ///         r#type: CreatePasswordlessSessionType::MagicLink {
+    ///         email: "marcelina@foo-corp.com",
+    ///      },
+    ///      redirect_uri: None,
+    ///      state: None,
+    /// })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn create_passwordless_session(
         &self,
         params: &CreatePasswordlessSessionParams<'_>,

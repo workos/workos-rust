@@ -21,6 +21,24 @@ pub trait SendPasswordlessSession {
     /// Sends a [`PasswordlessSession`](crate::passwordless::PasswordlessSession).
     ///
     /// [WorkOS Docs: Send a Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session/send-email)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::passwordless::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), SendPasswordlessSessionError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let directory = workos
+    ///     .passwordless()
+    ///     .send_passwordless_session(&SendPasswordlessSessionParams{id: &PasswordlessSessionId::from("passwordless_session_01EHDAK2BFGWCSZXP9HGZ3VK8C")})
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn send_passwordless_session(
         &self,
         params: &SendPasswordlessSessionParams<'_>,
