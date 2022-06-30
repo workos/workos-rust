@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
+use reqwest::{Response, StatusCode};
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -38,6 +38,38 @@ pub struct GetProfileAndTokenError {
     pub error_description: String,
 }
 
+#[async_trait]
+trait HandleGetProfileAndTokenError
+where
+    Self: Sized,
+{
+    async fn handle_get_profile_and_token_error(
+        self,
+    ) -> WorkOsResult<Self, GetProfileAndTokenError>;
+}
+
+#[async_trait]
+impl HandleGetProfileAndTokenError for Response {
+    async fn handle_get_profile_and_token_error(
+        self,
+    ) -> WorkOsResult<Self, GetProfileAndTokenError> {
+        match self.error_for_status_ref() {
+            Ok(_) => Ok(self),
+            Err(err) => match err.status() {
+                Some(StatusCode::BAD_REQUEST) => {
+                    let error = self.json::<GetProfileAndTokenError>().await?;
+
+                    Err(match error.error.as_str() {
+                        "invalid_client" | "unauthorized_client" => WorkOsError::Unauthorized,
+                        _ => WorkOsError::Operation(error),
+                    })
+                }
+                _ => Err(WorkOsError::RequestError(err)),
+            },
+        }
+    }
+}
+
 /// [WorkOS Docs: Get a Profile and Token](https://workos.com/docs/reference/sso/profile/token)
 #[async_trait]
 pub trait GetProfileAndToken {
@@ -63,27 +95,19 @@ impl<'a> GetProfileAndToken for Sso<'a> {
             ("grant_type", &"authorization_code".to_string()),
             ("code", &code.to_string()),
         ];
-        let response = self.workos.client().post(url).form(&params).send().await?;
+        let get_profile_and_token_response = self
+            .workos
+            .client()
+            .post(url)
+            .form(&params)
+            .send()
+            .await?
+            .handle_get_profile_and_token_error()
+            .await?
+            .json::<GetProfileAndTokenResponse>()
+            .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let get_profile_and_token_response =
-                    response.json::<GetProfileAndTokenResponse>().await?;
-
-                Ok(get_profile_and_token_response)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::BAD_REQUEST) => {
-                    let error = response.json::<GetProfileAndTokenError>().await?;
-
-                    Err(match error.error.as_str() {
-                        "invalid_client" | "unauthorized_client" => WorkOsError::Unauthorized,
-                        _ => WorkOsError::Operation(error),
-                    })
-                }
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(get_profile_and_token_response)
     }
 }
 
