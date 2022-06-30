@@ -20,7 +20,7 @@ pub trait GetProfile {
     /// # use workos::sso::*;
     /// use workos::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), GetProfileAndTokenError> {
+    /// # async fn run() -> WorkOsResult<(), GetProfileError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// let GetProfile = workos
