@@ -2,16 +2,16 @@ use serde::Deserialize;
 
 use crate::directory_sync::{DirectoryGroup, DirectoryId, DirectoryUser};
 
-///Payload Structure for [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
+/// [WorkOS Docs: `dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserRemovedFromGroupWebhook {
-    /// [`DirectoryId`] in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
+    /// The directory ID.
     pub directory_id: DirectoryId,
 
-    /// [`DirectoryUser`] (appears as "user") in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
+    /// The directory user that was removed from the group.
     pub user: DirectoryUser,
 
-    /// [`DirectoryGroup`] (appears as "group") in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
+    /// The directory group that the user was removed from.
     pub group: DirectoryGroup,
 }
 

@@ -2,16 +2,16 @@ use serde::Deserialize;
 
 use crate::directory_sync::{DirectoryGroup, DirectoryId, DirectoryUser};
 
-///Payload Structure for [dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)
+/// [WorkOS Docs: `dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserAddedToGroupWebhook {
-    /// [`DirectoryId`] in [dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)
+    /// The directory ID.
     pub directory_id: DirectoryId,
 
-    /// [`DirectoryUser`] (appears as "user") in [dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)
+    /// The directory user that was added to the group.
     pub user: DirectoryUser,
 
-    /// [`DirectoryGroup`] (appears as "group") in [dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)
+    /// The directory group that the user was added to.
     pub group: DirectoryGroup,
 }
 

@@ -5,14 +5,14 @@ use serde_json::Value;
 
 use crate::directory_sync::DirectoryUser;
 
-/// Type for a [`DirectoryUser`] with previous attributes object returned in a [`dsync.user.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-user#webhooks-dsync.user.updated)
+/// A [`DirectoryUser`] with their previous attributes.
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserWithPreviousAttributes {
-    /// [`DirectoryUser`] that will be included in the [`DirectoryUserWithPreviousAttributes`]
+    /// The directory user.
     #[serde(flatten)]
     pub directory_user: DirectoryUser,
 
-    /// Type for previous attributes that were updated in a [`dsync.user.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-user#webhooks-dsync.user.updated)
+    /// The previous values for any attributes that were updated.
     pub previous_attributes: HashMap<String, Value>,
 }
 
