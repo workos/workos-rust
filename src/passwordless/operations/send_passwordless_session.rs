@@ -32,7 +32,7 @@ pub trait SendPasswordlessSession {
     /// # async fn run() -> WorkOsResult<(), SendPasswordlessSessionError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
-    /// let directory = workos
+    /// workos
     ///     .passwordless()
     ///     .send_passwordless_session(&SendPasswordlessSessionParams {
     ///         id: &PasswordlessSessionId::from("passwordless_session_01EHDAK2BFGWCSZXP9HGZ3VK8C"),
