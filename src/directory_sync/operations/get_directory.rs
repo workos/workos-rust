@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
+
 use thiserror::Error;
 
 use crate::directory_sync::{Directory, DirectoryId, DirectorySync};

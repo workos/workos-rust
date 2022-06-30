@@ -1,4 +1,4 @@
-use reqwest::StatusCode;
+
 use url::{ParseError, Url};
 
 use crate::admin_portal::AdminPortal;
@@ -7,7 +7,7 @@ use crate::mfa::Mfa;
 use crate::organizations::Organizations;
 use crate::passwordless::Passwordless;
 use crate::sso::Sso;
-use crate::{ApiKey, WorkOsError, WorkOsResult};
+use crate::{ApiKey};
 
 /// The WorkOS client.
 pub struct WorkOs {

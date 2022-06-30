@@ -1,9 +1,9 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
+
 use serde::Serialize;
 
 use crate::directory_sync::{DirectoryGroup, DirectoryId, DirectorySync, DirectoryUserId};
-use crate::{PaginatedList, PaginationParams, ResponseExtensions, WorkOsError, WorkOsResult};
+use crate::{PaginatedList, PaginationParams, ResponseExtensions, WorkOsResult};
 
 /// A filter for [`ListDirectoryGroups`].
 #[derive(Debug, Serialize)]

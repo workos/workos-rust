@@ -1,10 +1,10 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
+
 use serde::{Deserialize, Serialize};
 
 use crate::admin_portal::AdminPortal;
 use crate::organizations::OrganizationId;
-use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
+use crate::{ResponseExtensions, WorkOsResult};
 
 /// The intent of an Admin Portal session.
 #[derive(Debug, Serialize)]

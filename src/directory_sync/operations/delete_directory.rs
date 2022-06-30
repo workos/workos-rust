@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
+
 use serde::Serialize;
 use thiserror::Error;
 
