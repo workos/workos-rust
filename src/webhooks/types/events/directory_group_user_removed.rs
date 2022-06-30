@@ -15,10 +15,6 @@ pub struct DirectoryUserRemovedFromGroupWebhook {
     pub group: DirectoryGroup,
 }
 
-/// [WorkOS Docs: `dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed
-#[derive(Debug, PartialEq, Eq, Deserialize)]
-pub struct DirectoryGroupUserRemovedWebhook(pub DirectoryUserRemovedFromGroupWebhook);
-
 #[cfg(test)]
 mod test {
     use std::collections::HashMap;
@@ -97,7 +93,7 @@ mod test {
             webhook,
             Webhook {
                 id: WebhookId::from("wh_04FKJ843CVE8F7BXQSPFH0M53V"),
-                event: WebhookEvent::DirectoryGroupUserRemoved(DirectoryGroupUserRemovedWebhook(
+                event: WebhookEvent::DirectoryUserRemovedFromGroup(
                     DirectoryUserRemovedFromGroupWebhook {
                         directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
                         user: DirectoryUser {
@@ -138,7 +134,7 @@ mod test {
                             raw_attributes: RawAttributes(expected_group_raw_attributes)
                         }
                     }
-                ))
+                )
             }
         )
     }

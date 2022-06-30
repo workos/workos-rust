@@ -15,10 +15,6 @@ pub struct DirectoryUserAddedToGroupWebhook {
     pub group: DirectoryGroup,
 }
 
-/// [WorkOS Docs: `dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)
-#[derive(Debug, PartialEq, Eq, Deserialize)]
-pub struct DirectoryGroupUserAddedWebhook(pub DirectoryUserAddedToGroupWebhook);
-
 #[cfg(test)]
 mod test {
     use std::collections::HashMap;
@@ -98,48 +94,40 @@ mod test {
             webhook,
             Webhook {
                 id: WebhookId::from("wh_04FKJ843CVE8F7BXQSPFH0M53V"),
-                event: WebhookEvent::DirectoryGroupUserAdded(DirectoryGroupUserAddedWebhook(
-                    DirectoryUserAddedToGroupWebhook {
-                        directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
-                        user: DirectoryUser {
-                            id: DirectoryUserId::from("directory_user_01E1X56GH84T3FB41SD6PZGDBX"),
-                            state: KnownOrUnknown::Known(DirectoryUserState::Active),
-                            timestamps: Timestamps {
-                                created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z")
-                                    .unwrap(),
-                                updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z")
-                                    .unwrap()
-                            },
-                            idp_id: "1a2b3c4d5e".to_string(),
-                            directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
-                            username: Some("eric@foo-corp.com".to_string()),
-                            emails: vec![DirectoryUserEmail {
-                                primary: Some(true),
-                                r#type: Some("work".to_string()),
-                                value: Some("eric@foo-corp.com".to_string())
-                            }],
-                            first_name: Some("Eric".to_string()),
-                            last_name: Some("Schneider".to_string()),
-                            custom_attributes: expected_custom_attributes,
-                            raw_attributes: RawAttributes(expected_user_raw_attributes),
+                event: WebhookEvent::DirectoryUserAddedToGroup(DirectoryUserAddedToGroupWebhook {
+                    directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+                    user: DirectoryUser {
+                        id: DirectoryUserId::from("directory_user_01E1X56GH84T3FB41SD6PZGDBX"),
+                        state: KnownOrUnknown::Known(DirectoryUserState::Active),
+                        timestamps: Timestamps {
+                            created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                            updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap()
                         },
-                        group: DirectoryGroup {
-                            id: DirectoryGroupId::from(
-                                "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z"
-                            ),
-                            idp_id: "12345".to_string(),
-                            directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
-                            name: "Developers".to_string(),
-                            timestamps: Timestamps {
-                                created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z")
-                                    .unwrap(),
-                                updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z")
-                                    .unwrap(),
-                            },
-                            raw_attributes: RawAttributes(expected_group_raw_attributes)
-                        }
+                        idp_id: "1a2b3c4d5e".to_string(),
+                        directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+                        username: Some("eric@foo-corp.com".to_string()),
+                        emails: vec![DirectoryUserEmail {
+                            primary: Some(true),
+                            r#type: Some("work".to_string()),
+                            value: Some("eric@foo-corp.com".to_string())
+                        }],
+                        first_name: Some("Eric".to_string()),
+                        last_name: Some("Schneider".to_string()),
+                        custom_attributes: expected_custom_attributes,
+                        raw_attributes: RawAttributes(expected_user_raw_attributes),
+                    },
+                    group: DirectoryGroup {
+                        id: DirectoryGroupId::from("directory_group_01E1JJS84MFPPQ3G655FHTKX6Z"),
+                        idp_id: "12345".to_string(),
+                        directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+                        name: "Developers".to_string(),
+                        timestamps: Timestamps {
+                            created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                            updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                        },
+                        raw_attributes: RawAttributes(expected_group_raw_attributes)
                     }
-                ))
+                })
             }
         )
     }
