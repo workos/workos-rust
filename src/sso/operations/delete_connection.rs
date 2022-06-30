@@ -28,6 +28,26 @@ pub trait DeleteConnection {
     /// Deletes a [`Connection`](crate::sso::Connection).
     ///
     /// [WorkOS Docs: Delete a Connection](https://workos.com/docs/reference/sso/connection/delete)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::sso::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), DeleteConnectionError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// workos
+    ///     .sso()
+    ///     .delete_connection(&DeleteConnectionParams {
+    ///         connection_id: &ConnectionId::from("conn_01E2NPPCT7XQ2MVVYDHWGK1WN4"),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn delete_connection(
         &self,
         params: &DeleteConnectionParams<'_>,
