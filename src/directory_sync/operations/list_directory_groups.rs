@@ -39,6 +39,27 @@ pub trait ListDirectoryGroups {
     /// Retrieves a list of [`DirectoryGroup`]s.
     ///
     /// [WorkOS Docs: List Directory Groups](https://workos.com/docs/reference/directory-sync/group/list)
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::directory_sync::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), ()> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let paginated_groups = workos
+    ///     .directory_sync()
+    ///     .list_directory_groups(&ListDirectoryGroupsParams {
+    ///         filter: DirectoryGroupsFilter::Directory {
+    ///             directory: &DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+    ///         },
+    ///         pagination: Default::default(),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn list_directory_groups(
         &self,
         params: &ListDirectoryGroupsParams<'_>,
