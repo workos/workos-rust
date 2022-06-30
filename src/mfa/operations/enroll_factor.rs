@@ -1,10 +1,10 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
+use reqwest::{Response, StatusCode};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::mfa::{AuthenticationFactor, Mfa};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
 
 /// The parameters for [`EnrollFactor`].
 #[derive(Debug, Serialize)]
@@ -53,6 +53,38 @@ struct WorkOsApiError {
     pub message: String,
 }
 
+#[async_trait]
+trait HandleEnrollFactorError {
+    async fn handle_enroll_factor_error(self) -> WorkOsResult<Self, EnrollFactorError>
+    where
+        Self: Sized;
+}
+
+#[async_trait]
+impl HandleEnrollFactorError for Response {
+    async fn handle_enroll_factor_error(self) -> WorkOsResult<Self, EnrollFactorError>
+    where
+        Self: Sized,
+    {
+        match self.error_for_status_ref() {
+            Ok(_) => Ok(self),
+            Err(err) => match err.status() {
+                Some(StatusCode::UNPROCESSABLE_ENTITY) => {
+                    let error = self.json::<WorkOsApiError>().await?;
+
+                    Err(match error.code.as_str() {
+                        "invalid_phone_number" => {
+                            WorkOsError::Operation(EnrollFactorError::InvalidPhoneNumber)
+                        }
+                        _ => WorkOsError::RequestError(err),
+                    })
+                }
+                _ => Err(WorkOsError::RequestError(err)),
+            },
+        }
+    }
+}
+
 /// [WorkOS Docs: Enroll Factor](https://workos.com/docs/reference/mfa/enroll-factor)
 #[async_trait]
 pub trait EnrollFactor {
@@ -72,36 +104,21 @@ impl<'a> EnrollFactor for Mfa<'a> {
         params: &EnrollFactorParams<'_>,
     ) -> WorkOsResult<AuthenticationFactor, EnrollFactorError> {
         let url = self.workos.base_url().join("/auth/factors/enroll")?;
-        let response = self
+        let factor = self
             .workos
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
             .json(&params)
             .send()
+            .await?
+            .ensure_successful()?
+            .handle_enroll_factor_error()
+            .await?
+            .json::<AuthenticationFactor>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let factor = response.json::<AuthenticationFactor>().await?;
-
-                Ok(factor)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNPROCESSABLE_ENTITY) => {
-                    let error = response.json::<WorkOsApiError>().await?;
-
-                    Err(match error.code.as_str() {
-                        "invalid_phone_number" => {
-                            WorkOsError::Operation(EnrollFactorError::InvalidPhoneNumber)
-                        }
-                        _ => WorkOsError::RequestError(err),
-                    })
-                }
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(factor)
     }
 }
 

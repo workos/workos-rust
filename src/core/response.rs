@@ -13,12 +13,10 @@ impl ResponseExtensions for Response {
     where
         Self: Sized,
     {
-        match self.error_for_status() {
-            Ok(response) => Ok(response),
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
+        if self.status() == StatusCode::UNAUTHORIZED {
+            Err(WorkOsError::Unauthorized)
+        } else {
+            Ok(self)
         }
     }
 }
