@@ -18,7 +18,7 @@ impl<'a> From<Vec<&'a str>> for DomainFilters<'a> {
 }
 
 /// Parameters for the [`ListOrganizations`] function.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, Serialize)]
 pub struct ListOrganizationsParams<'a> {
     /// The pagination parameters to use when listing organizations.
     #[serde(flatten)]
@@ -27,15 +27,6 @@ pub struct ListOrganizationsParams<'a> {
     /// The domains of Organizations to be listed.
     #[serde(rename = "domains[]")]
     pub domains: Option<DomainFilters<'a>>,
-}
-
-impl<'a> Default for ListOrganizationsParams<'a> {
-    fn default() -> Self {
-        Self {
-            pagination: PaginationParams::default(),
-            domains: None,
-        }
-    }
 }
 
 /// An error returned from [`ListOrganizations`].

@@ -6,7 +6,7 @@ use crate::organizations::OrganizationId;
 use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// The parameters for [`ListDirectories`].
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, Serialize)]
 pub struct ListDirectoriesParams<'a> {
     /// The domain of a directory.
     pub domain: Option<&'a String>,
@@ -23,19 +23,7 @@ pub struct ListDirectoriesParams<'a> {
 
     /// The type of directories to list.
     #[serde(rename = "directory_type")]
-    pub r#type: &'a Option<KnownOrUnknown<DirectoryType, String>>,
-}
-
-impl<'a> Default for ListDirectoriesParams<'a> {
-    fn default() -> Self {
-        Self {
-            pagination: PaginationParams::default(),
-            organization_id: None,
-            r#type: &None,
-            domain: None,
-            search: None,
-        }
-    }
+    pub r#type: Option<KnownOrUnknown<&'a DirectoryType, &'a str>>,
 }
 
 /// [WorkOS Docs: List Directories](https://workos.com/docs/reference/directory-sync/directory/list)
@@ -180,7 +168,7 @@ mod test {
         let paginated_list = workos
             .directory_sync()
             .list_directories(&ListDirectoriesParams {
-                r#type: &Some(KnownOrUnknown::Known(DirectoryType::GoogleWorkspace)),
+                r#type: Some(KnownOrUnknown::Known(&DirectoryType::GoogleWorkspace)),
                 ..Default::default()
             })
             .await

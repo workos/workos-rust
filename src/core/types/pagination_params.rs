@@ -7,18 +7,18 @@ pub struct PaginationParams<'a> {
     pub order: &'a PaginationOrder,
 
     /// The cursor after which records should be retrived.
-    pub after: &'a Option<String>,
+    pub after: Option<&'a str>,
 
     /// The cursor before which records should be retrieved.
-    pub before: &'a Option<String>,
+    pub before: Option<&'a str>,
 }
 
 impl<'a> Default for PaginationParams<'a> {
     fn default() -> Self {
         Self {
             order: &PaginationOrder::DEFAULT,
-            before: &None,
-            after: &None,
+            before: None,
+            after: None,
         }
     }
 }

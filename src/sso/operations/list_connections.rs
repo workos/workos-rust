@@ -6,7 +6,7 @@ use crate::sso::{Connection, ConnectionType, Sso};
 use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// The parameters for [`ListConnections`].
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, Serialize)]
 pub struct ListConnectionsParams<'a> {
     /// The pagination parameters to use when listing connections.
     #[serde(flatten)]
@@ -17,17 +17,7 @@ pub struct ListConnectionsParams<'a> {
 
     /// The type of connections to list.
     #[serde(rename = "connection_type")]
-    pub r#type: &'a Option<KnownOrUnknown<ConnectionType, String>>,
-}
-
-impl<'a> Default for ListConnectionsParams<'a> {
-    fn default() -> Self {
-        Self {
-            pagination: PaginationParams::default(),
-            organization_id: None,
-            r#type: &None,
-        }
-    }
+    pub r#type: Option<KnownOrUnknown<&'a ConnectionType, &'a str>>,
 }
 
 /// [WorkOS Docs: List Connections](https://workos.com/docs/reference/sso/connection/list)
@@ -171,7 +161,7 @@ mod test {
         let paginated_list = workos
             .sso()
             .list_connections(&ListConnectionsParams {
-                r#type: &Some(KnownOrUnknown::Known(ConnectionType::OktaSaml)),
+                r#type: Some(KnownOrUnknown::Known(&ConnectionType::OktaSaml)),
                 ..Default::default()
             })
             .await
