@@ -65,7 +65,7 @@ impl<'a> CreateOrganization for Organizations<'a> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized()?
+            .handle_unauthorized_or_generic_error()?
             .json::<Organization>()
             .await?;
 

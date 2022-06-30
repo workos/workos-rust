@@ -65,7 +65,7 @@ impl<'a> CreatePasswordlessSession for Passwordless<'a> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized()?
+            .handle_unauthorized_or_generic_error()?
             .json::<PasswordlessSession>()
             .await?;
 

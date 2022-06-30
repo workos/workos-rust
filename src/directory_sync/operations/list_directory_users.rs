@@ -61,7 +61,7 @@ impl<'a> ListDirectoryUsers for DirectorySync<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .handle_unauthorized()?
+            .handle_unauthorized_or_generic_error()?
             .json::<PaginatedList<DirectoryUser>>()
             .await?;
 

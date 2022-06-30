@@ -32,7 +32,7 @@ impl<'a> GetProfile for Sso<'a> {
             .bearer_auth(access_token)
             .send()
             .await?
-            .handle_unauthorized()?
+            .handle_unauthorized_or_generic_error()?
             .json::<Profile>()
             .await?;
 

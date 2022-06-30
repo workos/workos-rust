@@ -65,7 +65,7 @@ impl<'a> ChallengeFactor for Mfa<'a> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized()?
+            .handle_unauthorized_or_generic_error()?
             .json::<AuthenticationChallenge>()
             .await?;
 

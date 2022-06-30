@@ -57,7 +57,7 @@ impl<'a> ListConnections for Sso<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .handle_unauthorized()?
+            .handle_unauthorized_or_generic_error()?
             .json::<PaginatedList<Connection>>()
             .await?;
 
