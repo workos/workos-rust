@@ -182,16 +182,6 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
@@ -200,7 +190,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">PaginatedList</span>, <span class="ident">PaginationParams</span>, <span class="ident">ResponseExt</span>, <span class="ident">WorkOsResult</span>};
 
 <span class="doccomment">/// The parameters for [`ListConnections`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListConnectionsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The pagination parameters to use when listing connections.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
@@ -211,17 +201,7 @@
 
     <span class="doccomment">/// The type of connections to list.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;connection_type&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">KnownOrUnknown</span><span class="op">&lt;</span><span class="ident">ConnectionType</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ListConnectionsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">pagination</span>: <span class="ident">PaginationParams::default</span>(),
-            <span class="ident">organization_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="prelude-val">None</span>,
-        }
-    }
+    <span class="kw">pub</span> <span class="ident">r#type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">KnownOrUnknown</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConnectionType</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// [WorkOS Docs: List Connections](https://workos.com/docs/reference/sso/connection/list)</span>
@@ -365,7 +345,7 @@
         <span class="kw">let</span> <span class="ident">paginated_list</span> <span class="op">=</span> <span class="ident">workos</span>
             .<span class="ident">sso</span>()
             .<span class="ident">list_connections</span>(<span class="kw-2">&amp;</span><span class="ident">ListConnectionsParams</span> {
-                <span class="ident">r#type</span>: <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">KnownOrUnknown::Known</span>(<span class="ident">ConnectionType::OktaSaml</span>)),
+                <span class="ident">r#type</span>: <span class="prelude-val">Some</span>(<span class="ident">KnownOrUnknown::Known</span>(<span class="kw-2">&amp;</span><span class="ident">ConnectionType::OktaSaml</span>)),
                 ..<span class="ident">Default::default</span>()
             })
             .<span class="kw">await</span>
