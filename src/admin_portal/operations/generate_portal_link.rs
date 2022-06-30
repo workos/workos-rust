@@ -84,7 +84,7 @@ impl<'a> GeneratePortalLink for AdminPortal<'a> {
             .json(&params)
             .send()
             .await?
-            .ensure_successful()?
+            .handle_unauthorized()?
             .json::<GeneratePortalLinkResponse>()
             .await?;
 

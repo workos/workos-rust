@@ -44,7 +44,7 @@ impl<'a> SendPasswordlessSession for Passwordless<'a> {
             .json(&params)
             .send()
             .await?
-            .ensure_successful()?;
+            .handle_unauthorized()?;
 
         Ok(())
     }

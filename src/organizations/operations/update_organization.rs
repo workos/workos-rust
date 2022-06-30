@@ -72,7 +72,7 @@ impl<'a> UpdateOrganization for Organizations<'a> {
             .json(&params)
             .send()
             .await?
-            .ensure_successful()?
+            .handle_unauthorized()?
             .json::<Organization>()
             .await?;
 

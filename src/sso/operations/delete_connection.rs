@@ -50,7 +50,7 @@ impl<'a> DeleteConnection for Sso<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .ensure_successful()?;
+            .handle_unauthorized()?;
 
         Ok(())
     }

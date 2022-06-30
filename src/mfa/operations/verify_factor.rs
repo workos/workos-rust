@@ -57,7 +57,7 @@ impl<'a> VerifyFactor for Mfa<'a> {
             .json(&params)
             .send()
             .await?
-            .ensure_successful()?
+            .handle_unauthorized()?
             .json::<VerifyFactorResponse>()
             .await?;
 

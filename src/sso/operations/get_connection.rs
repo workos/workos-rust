@@ -43,7 +43,7 @@ impl<'a> GetConnection for Sso<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .ensure_successful()?
+            .handle_unauthorized()?
             .json::<Connection>()
             .await?;
 

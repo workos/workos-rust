@@ -43,7 +43,7 @@ impl<'a> GetDirectoryUser for DirectorySync<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .ensure_successful()?
+            .handle_unauthorized()?
             .json::<DirectoryUser>()
             .await?;
 

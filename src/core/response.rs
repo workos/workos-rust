@@ -3,13 +3,13 @@ use reqwest::{Response, StatusCode};
 use crate::{WorkOsError, WorkOsResult};
 
 pub trait ResponseExtensions {
-    fn ensure_successful<E>(self) -> WorkOsResult<Self, E>
+    fn handle_unauthorized<E>(self) -> WorkOsResult<Self, E>
     where
         Self: Sized;
 }
 
 impl ResponseExtensions for Response {
-    fn ensure_successful<E>(self) -> WorkOsResult<Self, E>
+    fn handle_unauthorized<E>(self) -> WorkOsResult<Self, E>
     where
         Self: Sized,
     {

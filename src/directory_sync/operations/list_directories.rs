@@ -65,7 +65,7 @@ impl<'a> ListDirectories for DirectorySync<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .ensure_successful()?
+            .handle_unauthorized()?
             .json::<PaginatedList<Directory>>()
             .await?;
 

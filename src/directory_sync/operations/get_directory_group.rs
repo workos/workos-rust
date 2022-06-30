@@ -44,7 +44,7 @@ impl<'a> GetDirectoryGroup for DirectorySync<'a> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .ensure_successful()?
+            .handle_unauthorized()?
             .json::<DirectoryGroup>()
             .await?;
 
