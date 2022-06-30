@@ -5,49 +5,49 @@ use thiserror::Error;
 use crate::mfa::{AuthenticationChallenge, AuthenticationChallengeId, Mfa, MfaCode};
 use crate::{ResponseExt, WorkOsResult};
 
-/// Payload returned from [`VerifyFactor`] including Authentication Factor and Valid status.
+/// The response for [`VerifyChallenge`].
 #[derive(Debug, Serialize, Deserialize)]
-pub struct VerifyFactorResponse {
-    /// The Authentication Challenge being verified against.
+pub struct VerifyChallengeResponse {
+    /// The challenge that was verified.
     pub challenge: AuthenticationChallenge,
 
-    /// A valid boolean value to indicate if the code was correct.
+    /// Whether the challenge was verified successfully.
     #[serde(rename = "valid")]
     pub is_valid: bool,
 }
 
-/// The parameters for [`VerifyFactor`].
+/// The parameters for [`VerifyChallenge`].
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
-pub struct VerifyFactorParams<'a> {
-    /// The ID of the authentication factor to verify.
+pub struct VerifyChallengeParams<'a> {
+    /// The ID of the authentication challenge to verify.
     pub authentication_challenge_id: &'a AuthenticationChallengeId,
 
-    /// The 6 digit code to be verified.
+    /// The MFA code to verify.
     pub code: &'a MfaCode,
 }
 
-/// An error returned from [`VerifyFactor`].
+/// An error returned from [`VerifyChallenge`].
 #[derive(Debug, Error)]
-pub enum VerifyFactorError {}
+pub enum VerifyChallengeError {}
 
-/// [WorkOS Docs: Verify Factor](https://workos.com/docs/reference/mfa/verify-factor)
+/// [WorkOS Docs: Verify Challenge](https://workos.com/docs/reference/mfa/verify-factor)
 #[async_trait]
-pub trait VerifyFactor {
+pub trait VerifyChallenge {
     /// Attempts a verification for an authentication challenge.
     ///
-    /// [WorkOS Docs: Verify Factor](https://workos.com/docs/reference/mfa/verify-factor)
-    async fn verify_factor(
+    /// [WorkOS Docs: Verify Challenge](https://workos.com/docs/reference/mfa/verify-factor)
+    async fn verify_challenge(
         &self,
-        params: &VerifyFactorParams<'_>,
-    ) -> WorkOsResult<VerifyFactorResponse, VerifyFactorError>;
+        params: &VerifyChallengeParams<'_>,
+    ) -> WorkOsResult<VerifyChallengeResponse, VerifyChallengeError>;
 }
 
 #[async_trait]
-impl<'a> VerifyFactor for Mfa<'a> {
-    async fn verify_factor(
+impl<'a> VerifyChallenge for Mfa<'a> {
+    async fn verify_challenge(
         &self,
-        params: &VerifyFactorParams<'_>,
-    ) -> WorkOsResult<VerifyFactorResponse, VerifyFactorError> {
+        params: &VerifyChallengeParams<'_>,
+    ) -> WorkOsResult<VerifyChallengeResponse, VerifyChallengeError> {
         let url = self.workos.base_url().join("/auth/factors/verify")?;
         let verify_response = self
             .workos
@@ -58,7 +58,7 @@ impl<'a> VerifyFactor for Mfa<'a> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<VerifyFactorResponse>()
+            .json::<VerifyChallengeResponse>()
             .await?;
 
         Ok(verify_response)
@@ -79,7 +79,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn it_calls_the_verify_factor_endpoint() {
+    async fn it_calls_the_verify_challenge_endpoint() {
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&mockito::server_url())
             .unwrap()
@@ -109,7 +109,7 @@ mod test {
 
         let verify = workos
             .mfa()
-            .verify_factor(&VerifyFactorParams {
+            .verify_challenge(&VerifyChallengeParams {
                 authentication_challenge_id: &AuthenticationChallengeId::from(
                     "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
                 ),
