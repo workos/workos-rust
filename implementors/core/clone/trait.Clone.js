@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["workos"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.61.0/core/clone/trait.Clone.html\" title=\"trait core::clone::Clone\">Clone</a> for <a class=\"struct\" href=\"workos/struct.ApiKey.html\" title=\"struct workos::ApiKey\">ApiKey</a>","synthetic":false,"types":["workos::core::types::api_key::ApiKey"]}];
+implementors["workos"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.62.0/core/clone/trait.Clone.html\" title=\"trait core::clone::Clone\">Clone</a> for <a class=\"struct\" href=\"workos/struct.ApiKey.html\" title=\"struct workos::ApiKey\">ApiKey</a>","synthetic":false,"types":["workos::core::types::api_key::ApiKey"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
