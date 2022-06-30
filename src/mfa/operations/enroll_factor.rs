@@ -37,8 +37,11 @@ pub enum EnrollFactorError {
     /// The provided phone number was invalid.
     ///
     /// This can only occur when enrolling an SMS factor.
-    #[error("invalid phone number")]
-    InvalidPhoneNumber,
+    #[error("invalid phone number: {message}")]
+    InvalidPhoneNumber {
+        /// The error message returned from the API.
+        message: String,
+    },
 }
 
 impl From<EnrollFactorError> for WorkOsError<EnrollFactorError> {
@@ -72,7 +75,9 @@ impl HandleEnrollFactorError for Response {
 
                     Err(match error.code.as_str() {
                         "invalid_phone_number" => {
-                            WorkOsError::Operation(EnrollFactorError::InvalidPhoneNumber)
+                            WorkOsError::Operation(EnrollFactorError::InvalidPhoneNumber {
+                                message: error.message,
+                            })
                         }
                         _ => WorkOsError::RequestError(err),
                     })
@@ -202,7 +207,7 @@ mod test {
         assert_matches!(
             result,
             Err(WorkOsError::Operation(
-                EnrollFactorError::InvalidPhoneNumber
+                EnrollFactorError::InvalidPhoneNumber { message: _ }
             ))
         )
     }
