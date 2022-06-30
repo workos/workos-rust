@@ -34,7 +34,9 @@ pub trait SendPasswordlessSession {
     ///
     /// let directory = workos
     ///     .passwordless()
-    ///     .send_passwordless_session(&SendPasswordlessSessionParams{id: &PasswordlessSessionId::from("passwordless_session_01EHDAK2BFGWCSZXP9HGZ3VK8C")})
+    ///     .send_passwordless_session(&SendPasswordlessSessionParams {
+    ///         id: &PasswordlessSessionId::from("passwordless_session_01EHDAK2BFGWCSZXP9HGZ3VK8C"),
+    ///     })
     ///     .await?;
     /// # Ok(())
     /// # }

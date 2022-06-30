@@ -58,13 +58,13 @@ pub trait CreatePasswordlessSession {
     ///
     /// let passwordless_session = workos
     ///     .passwordless()
-    ///     .create_passwordless_session(&CreatePasswordlessSessionParams{
+    ///     .create_passwordless_session(&CreatePasswordlessSessionParams {
     ///         r#type: CreatePasswordlessSessionType::MagicLink {
-    ///         email: "marcelina@foo-corp.com",
-    ///      },
-    ///      redirect_uri: None,
-    ///      state: None,
-    /// })
+    ///             email: "marcelina@foo-corp.com",
+    ///         },
+    ///         redirect_uri: None,
+    ///         state: None,
+    ///     })
     ///     .await?;
     /// # Ok(())
     /// # }
