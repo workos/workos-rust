@@ -99,6 +99,7 @@ mod test {
                 id: WebhookId::from("wh_04FKJ843CVE8F7BXQSPFH0M53V"),
                 event: WebhookEvent::DirectoryGroupUserAdded(DirectoryGroupUserAddedWebhook(
                     DirectoryUserAddedToGroupWebhook {
+                        directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
                         user: DirectoryUser {
                             id: DirectoryUserId::from("directory_user_01E1X56GH84T3FB41SD6PZGDBX"),
                             state: KnownOrUnknown::Known(DirectoryUserState::Active),
@@ -135,8 +136,7 @@ mod test {
                                     .unwrap(),
                             },
                             raw_attributes: RawAttributes(expected_group_raw_attributes)
-                        },
-                        directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74")
+                        }
                     }
                 ))
             }
