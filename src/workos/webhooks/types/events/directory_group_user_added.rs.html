@@ -142,7 +142,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectoryGroup</span>, <span class="ident">DirectoryId</span>, <span class="ident">DirectoryUser</span>};
 
 <span class="doccomment">/// [WorkOS Docs: `dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DirectoryUserAddedToGroupWebhook</span> {
     <span class="doccomment">/// The directory ID.</span>
     <span class="kw">pub</span> <span class="ident">directory_id</span>: <span class="ident">DirectoryId</span>,

@@ -72,7 +72,7 @@
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ConnectionId</span>, <span class="ident">ConnectionType</span>};
 
 <span class="doccomment">/// The ID of a [`Profile`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProfileId</span>(<span class="ident">String</span>);
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">ProfileId</span> {
@@ -94,7 +94,7 @@
 }
 
 <span class="doccomment">/// [WorkOS Docs: Profile](https://workos.com/docs/reference/sso/profile)</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Profile</span> {
     <span class="doccomment">/// The ID of the profile.</span>
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">ProfileId</span>,

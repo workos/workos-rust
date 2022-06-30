@@ -20,7 +20,7 @@
 
 <span class="doccomment">/// `KnownOrUnknown` is a type that respresents either a known value ([`Known`](KnownOrUnknown::Known))</span>
 <span class="doccomment">/// or an unknown value ([`Unknown`](KnownOrUnknown::Unknown)).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">KnownOrUnknown</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">U</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A known value.</span>
