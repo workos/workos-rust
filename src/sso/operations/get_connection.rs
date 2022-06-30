@@ -20,6 +20,25 @@ pub trait GetConnection {
     /// Retrieves a [`Connection`] by its ID.
     ///
     /// [WorkOS Docs: Get a Connection](https://workos.com/docs/reference/sso/connection/get)
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::sso::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), DeleteConnectionError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// workos
+    ///     .sso()
+    ///     .get_connection(&GetConnectionParams {
+    ///         connection_id: &connectionId::from("connection_01ECAZ4NV9QMV47GW873HDCX74"),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn get_connection(
         &self,
         id: &ConnectionId,

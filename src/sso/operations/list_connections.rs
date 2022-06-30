@@ -26,6 +26,26 @@ pub trait ListConnections {
     /// Retrieves a list of [`Connection`]s.
     ///
     /// [WorkOS Docs: List Connections](https://workos.com/docs/reference/sso/connection/list)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::sso::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), ()> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let paginated_connections = workos
+    ///     .sso()
+    ///     .list_connections(&ListConnectionsParams {
+    ///         ..Default::default()
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn list_connections(
         &self,
         params: &ListConnectionsParams<'_>,
