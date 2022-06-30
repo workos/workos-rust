@@ -94,6 +94,27 @@ pub trait EnrollFactor {
     /// Enrolls an [`AuthenticationFactor`] to be used as an additional factor of authentication.
     ///
     /// [WorkOS Docs: Enroll Factor](https://workos.com/docs/reference/mfa/enroll-factor)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::mfa::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), EnrollFactorError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let challenge = workos
+    ///     .mfa()
+    ///     .enroll_factor(&EnrollFactorParams::Totp {
+    ///         issuer: "Foo Corp",
+    ///         user: "alan.turing@foo-corp.com",
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn enroll_factor(
         &self,
         params: &EnrollFactorParams<'_>,
