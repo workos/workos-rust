@@ -148,16 +148,16 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectoryGroup</span>, <span class="ident">DirectoryId</span>, <span class="ident">DirectoryUser</span>};
 
-<span class="doccomment">///Payload Structure for [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)</span>
+<span class="doccomment">/// [WorkOS Docs: `dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DirectoryUserRemovedFromGroupWebhook</span> {
-    <span class="doccomment">/// [`DirectoryId`] in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)</span>
+    <span class="doccomment">/// The directory ID.</span>
     <span class="kw">pub</span> <span class="ident">directory_id</span>: <span class="ident">DirectoryId</span>,
 
-    <span class="doccomment">/// [`DirectoryUser`] (appears as &quot;user&quot;) in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)</span>
+    <span class="doccomment">/// The directory user that was removed from the group.</span>
     <span class="kw">pub</span> <span class="ident">user</span>: <span class="ident">DirectoryUser</span>,
 
-    <span class="doccomment">/// [`DirectoryGroup`] (appears as &quot;group&quot;) in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)</span>
+    <span class="doccomment">/// The directory group that the user was removed from.</span>
     <span class="kw">pub</span> <span class="ident">group</span>: <span class="ident">DirectoryGroup</span>,
 }
 

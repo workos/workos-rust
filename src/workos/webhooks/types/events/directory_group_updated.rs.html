@@ -109,14 +109,14 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync::DirectoryGroup</span>;
 
-<span class="doccomment">/// Type for a [`DirectoryGroup`] with previous attributes object returned in a [`dsync.group.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.updated)</span>
+<span class="doccomment">/// A [`DirectoryGroup`] with its previous attributes.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DirectoryGroupWithPreviousAttributes</span> {
-    <span class="doccomment">/// [`DirectoryGroup`] that will be included in the [`DirectoryUserWithPreviousAttributes`]</span>
+    <span class="doccomment">/// The directory group.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
     <span class="kw">pub</span> <span class="ident">directory_group</span>: <span class="ident">DirectoryGroup</span>,
 
-    <span class="doccomment">/// Type for previous attributes that were updated in a [`dsync.group.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.updated)</span>
+    <span class="doccomment">/// The previous values for any attributes that were updated.</span>
     <span class="kw">pub</span> <span class="ident">previous_attributes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Value</span><span class="op">&gt;</span>,
 }
 
