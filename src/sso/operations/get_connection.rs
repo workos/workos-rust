@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use thiserror::Error;
 
 use crate::sso::{Connection, ConnectionId, Sso};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// An error returned from [`GetConnection`].
 #[derive(Debug, Error)]
@@ -37,25 +36,18 @@ impl<'a> GetConnection for Sso<'a> {
             .workos
             .base_url()
             .join(&format!("/connections/{id}", id = id))?;
-        let response = self
+        let connection = self
             .workos
             .client()
             .get(url)
             .bearer_auth(self.workos.key())
             .send()
+            .await?
+            .handle_unauthorized_or_generic_error()?
+            .json::<Connection>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let connection = response.json::<Connection>().await?;
-
-                Ok(connection)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(connection)
     }
 }
 

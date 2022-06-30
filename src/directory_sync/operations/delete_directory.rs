@@ -1,10 +1,9 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::Serialize;
 use thiserror::Error;
 
 use crate::directory_sync::{DirectoryId, DirectorySync};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// The parameters for [`DeleteDirectory`].
 #[derive(Debug, Serialize)]
@@ -45,21 +44,15 @@ impl<'a> DeleteDirectory for DirectorySync<'a> {
             .workos
             .base_url()
             .join(&format!("/directories/{id}", id = params.directory_id))?;
-        let response = self
-            .workos
+        self.workos
             .client()
             .delete(url)
             .bearer_auth(self.workos.key())
             .send()
-            .await?;
+            .await?
+            .handle_unauthorized_or_generic_error()?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => Ok(()),
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(())
     }
 }
 

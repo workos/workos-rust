@@ -3,48 +3,20 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    directory_sync::DirectoryType, organizations::OrganizationId, KnownOrUnknown, Timestamps,
+    directory_sync::{DirectoryId, DirectoryType},
+    organizations::OrganizationId,
+    KnownOrUnknown, Timestamps,
 };
-
-/// The ID of a [`Directory`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct DirectoryId(String);
-
-impl Display for DirectoryId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for DirectoryId {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<&str> for DirectoryId {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
 
 /// The state of a [`Directory`].
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DirectoryState {
-    /// The directory is inactve.
-    #[serde(alias = "unlinked")]
-    Inactive,
-
-    /// The directory is being validated.
-    Validating,
-
-    /// The directory is active.
-    #[serde(alias = "linked")]
+    /// The directory is linked.
     Active,
 
-    /// The directory encountered an issue with invalid credentials.
-    InvalidCredentials,
+    /// The directory is unlinked.
+    Inactive,
 
     /// The directory is being deleted.
     Deleting,
@@ -68,9 +40,6 @@ pub struct Directory {
     /// The name of the directory.
     pub name: String,
 
-    /// The URL associated with an Enterprise Client.
-    pub domain: Option<String>,
-
     /// The timestamps for the Directory.
     #[serde(flatten)]
     pub timestamps: Timestamps,
@@ -91,10 +60,9 @@ mod test {
         let directory: Directory = serde_json::from_str(
             &json!({
               "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
-              "domain": "foo-corp.com",
               "name": "Foo Corp",
               "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-              "state": "unlinked",
+              "state": "inactive",
               "type": "bamboohr",
               "created_at": "2021-06-25T19:07:33.155Z",
               "updated_at": "2021-06-25T19:07:33.155Z"
@@ -107,7 +75,6 @@ mod test {
             directory,
             Directory {
                 id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
-                domain: Some("foo-corp.com".to_string()),
                 organization_id: Some(OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT")),
                 r#type: KnownOrUnknown::Known(DirectoryType::BambooHr),
                 name: "Foo Corp".to_string(),
@@ -125,10 +92,9 @@ mod test {
         let directory: Directory = serde_json::from_str(
             &json!({
               "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
-              "domain": "foo-corp.com",
               "name": "Foo Corp",
               "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-              "state": "unlinked",
+              "state": "inactive",
               "type": "UnknownType",
               "created_at": "2021-06-25T19:07:33.155Z",
               "updated_at": "2021-06-25T19:07:33.155Z"

@@ -1,10 +1,9 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::Serialize;
 use thiserror::Error;
 
 use crate::mfa::{AuthenticationChallenge, AuthenticationFactorId, Mfa};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// The type of authentication factor to challenge.
 #[derive(Debug, Serialize)]
@@ -58,26 +57,19 @@ impl<'a> ChallengeFactor for Mfa<'a> {
         params: &ChallengeFactorParams<'_>,
     ) -> WorkOsResult<AuthenticationChallenge, ChallengeFactorError> {
         let url = self.workos.base_url().join("/auth/factors/challenge")?;
-        let response = self
+        let challenge = self
             .workos
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
             .json(&params)
             .send()
+            .await?
+            .handle_unauthorized_or_generic_error()?
+            .json::<AuthenticationChallenge>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let challenge = response.json::<AuthenticationChallenge>().await?;
-
-                Ok(challenge)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(challenge)
     }
 }
 

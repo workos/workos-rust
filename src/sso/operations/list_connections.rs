@@ -1,10 +1,9 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::organizations::OrganizationId;
 use crate::sso::{Connection, ConnectionType, Sso};
-use crate::{KnownOrUnknown, PaginatedList, PaginationParams, WorkOsError, WorkOsResult};
+use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// The parameters for [`ListConnections`].
 #[derive(Debug, Serialize)]
@@ -50,27 +49,19 @@ impl<'a> ListConnections for Sso<'a> {
         params: &ListConnectionsParams<'_>,
     ) -> WorkOsResult<PaginatedList<Connection>, ()> {
         let url = self.workos.base_url().join("/connections")?;
-        let response = self
+        let connections = self
             .workos
             .client()
             .get(url)
             .query(&params)
             .bearer_auth(self.workos.key())
             .send()
+            .await?
+            .handle_unauthorized_or_generic_error()?
+            .json::<PaginatedList<Connection>>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let list_connections_response =
-                    response.json::<PaginatedList<Connection>>().await?;
-
-                Ok(list_connections_response)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(connections)
     }
 }
 

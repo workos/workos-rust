@@ -1,10 +1,9 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
 use crate::admin_portal::AdminPortal;
 use crate::organizations::OrganizationId;
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// The intent of an Admin Portal session.
 #[derive(Debug, Serialize)]
@@ -76,26 +75,19 @@ impl<'a> GeneratePortalLink for AdminPortal<'a> {
         params: &GeneratePortalLinkParams<'_>,
     ) -> WorkOsResult<GeneratePortalLinkResponse, GeneratePortalLinkError> {
         let url = self.workos.base_url().join("/portal/generate_link")?;
-        let response = self
+        let generate_link_response = self
             .workos
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
             .json(&params)
             .send()
+            .await?
+            .handle_unauthorized_or_generic_error()?
+            .json::<GeneratePortalLinkResponse>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let generate_link_response = response.json::<GeneratePortalLinkResponse>().await?;
-
-                Ok(generate_link_response)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(generate_link_response)
     }
 }
 

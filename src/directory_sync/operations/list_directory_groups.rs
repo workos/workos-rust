@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::directory_sync::{DirectoryGroup, DirectoryId, DirectorySync, DirectoryUserId};
-use crate::{PaginatedList, PaginationParams, WorkOsError, WorkOsResult};
+use crate::{PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// A filter for [`ListDirectoryGroups`].
 #[derive(Debug, Serialize)]
@@ -53,27 +52,19 @@ impl<'a> ListDirectoryGroups for DirectorySync<'a> {
         params: &ListDirectoryGroupsParams<'_>,
     ) -> WorkOsResult<PaginatedList<DirectoryGroup>, ()> {
         let url = self.workos.base_url().join("/directory_groups")?;
-        let response = self
+        let directory_groups = self
             .workos
             .client()
             .get(url)
             .query(&params)
             .bearer_auth(self.workos.key())
             .send()
+            .await?
+            .handle_unauthorized_or_generic_error()?
+            .json::<PaginatedList<DirectoryGroup>>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let list_directory_groups_response =
-                    response.json::<PaginatedList<DirectoryGroup>>().await?;
-
-                Ok(list_directory_groups_response)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(directory_groups)
     }
 }
 
