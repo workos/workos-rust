@@ -4,7 +4,9 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::organizations::{Organization, Organizations};
-use crate::{PaginatedList, PaginationParams, UrlEncodableVec, WorkOsError, WorkOsResult};
+use crate::{
+    PaginatedList, PaginationParams, ResponseExtensions, UrlEncodableVec, WorkOsError, WorkOsResult,
+};
 
 /// The domains to filter the organizations by.
 #[derive(Debug, Serialize)]
@@ -66,27 +68,19 @@ impl<'a> ListOrganizations for Organizations<'a> {
         params: &ListOrganizationsParams<'_>,
     ) -> WorkOsResult<PaginatedList<Organization>, ()> {
         let url = self.workos.base_url().join("/organizations")?;
-        let response = self
+        let organizations = self
             .workos
             .client()
             .get(url)
             .query(&params)
             .bearer_auth(self.workos.key())
             .send()
+            .await?
+            .ensure_successful()?
+            .json::<PaginatedList<Organization>>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let list_organizations_response =
-                    response.json::<PaginatedList<Organization>>().await?;
-
-                Ok(list_organizations_response)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(organizations)
     }
 }
 

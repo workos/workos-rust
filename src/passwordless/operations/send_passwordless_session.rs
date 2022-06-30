@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::passwordless::{Passwordless, PasswordlessSessionId};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExtensions, WorkOsResult};
 
 /// The parameters for [`SendPasswordlessSession`].
 #[derive(Debug, Serialize)]
@@ -38,22 +37,16 @@ impl<'a> SendPasswordlessSession for Passwordless<'a> {
             .workos
             .base_url()
             .join(&format!("/passwordless/sessions/{id}/send", id = params.id))?;
-        let response = self
-            .workos
+        self.workos
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
             .json(&params)
             .send()
-            .await?;
+            .await?
+            .ensure_successful()?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => Ok(()),
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(())
     }
 }
 

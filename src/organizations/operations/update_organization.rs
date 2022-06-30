@@ -6,7 +6,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::organizations::{Organization, OrganizationId, Organizations};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
 
 /// The parameters for [`UpdateOrganization`].
 #[derive(Debug, Serialize)]
@@ -64,26 +64,19 @@ impl<'a> UpdateOrganization for Organizations<'a> {
             .workos
             .base_url()
             .join(&format!("/organizations/{id}", id = params.organization_id))?;
-        let response = self
+        let organization = self
             .workos
             .client()
             .put(url)
             .bearer_auth(self.workos.key())
             .json(&params)
             .send()
+            .await?
+            .ensure_successful()?
+            .json::<Organization>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let organization = response.json::<Organization>().await?;
-
-                Ok(organization)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(organization)
     }
 }
 

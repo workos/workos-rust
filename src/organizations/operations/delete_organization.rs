@@ -4,7 +4,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::organizations::{OrganizationId, Organizations};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
 
 /// The parameters for [`DeleteOrganization`].
 #[derive(Debug, Serialize)]
@@ -45,21 +45,15 @@ impl<'a> DeleteOrganization for Organizations<'a> {
             .workos
             .base_url()
             .join(&format!("/organizations/{id}", id = params.organization_id))?;
-        let response = self
-            .workos
+        self.workos
             .client()
             .delete(url)
             .bearer_auth(self.workos.key())
             .send()
-            .await?;
+            .await?
+            .ensure_successful()?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => Ok(()),
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(())
     }
 }
 

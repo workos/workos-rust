@@ -3,7 +3,7 @@ use reqwest::StatusCode;
 use thiserror::Error;
 
 use crate::organizations::{Organization, OrganizationId, Organizations};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
 
 /// An error returned from [`GetOrganization`].
 #[derive(Debug, Error)]
@@ -37,24 +37,18 @@ impl<'a> GetOrganization for Organizations<'a> {
             .workos
             .base_url()
             .join(&format!("/organizations/{id}", id = id))?;
-        let response = self
+        let organization = self
             .workos
             .client()
             .get(url)
             .bearer_auth(self.workos.key())
             .send()
+            .await?
+            .ensure_successful()?
+            .json::<Organization>()
             .await?;
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let get_organization_response = response.json::<Organization>().await?;
 
-                Ok(get_organization_response)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(organization)
     }
 }
 

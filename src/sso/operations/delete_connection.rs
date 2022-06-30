@@ -1,10 +1,9 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::Serialize;
 use thiserror::Error;
 
 use crate::sso::{ConnectionId, Sso};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
 
 /// The parameters for [`DeleteConnection`].
 #[derive(Debug, Serialize)]
@@ -45,21 +44,15 @@ impl<'a> DeleteConnection for Sso<'a> {
             .workos
             .base_url()
             .join(&format!("/connections/{id}", id = params.connection_id))?;
-        let response = self
-            .workos
+        self.workos
             .client()
             .delete(url)
             .bearer_auth(self.workos.key())
             .send()
-            .await?;
+            .await?
+            .ensure_successful()?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => Ok(()),
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(())
     }
 }
 

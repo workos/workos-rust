@@ -3,7 +3,7 @@ use reqwest::StatusCode;
 use thiserror::Error;
 
 use crate::directory_sync::{DirectoryGroup, DirectoryGroupId, DirectorySync};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExtensions, WorkOsError, WorkOsResult};
 
 /// An error returned from [`GetDirectoryGroup`].
 #[derive(Debug, Error)]
@@ -37,25 +37,18 @@ impl<'a> GetDirectoryGroup for DirectorySync<'a> {
             .workos
             .base_url()
             .join(&format!("/directory_groups/{id}", id = id))?;
-        let response = self
+        let directory_group = self
             .workos
             .client()
             .get(url)
             .bearer_auth(self.workos.key())
             .send()
+            .await?
+            .ensure_successful()?
+            .json::<DirectoryGroup>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let directory_group = response.json::<DirectoryGroup>().await?;
-
-                Ok(directory_group)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(directory_group)
     }
 }
 
