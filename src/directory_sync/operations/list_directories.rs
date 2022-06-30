@@ -32,6 +32,26 @@ pub trait ListDirectories {
     /// Retrieves a list of [`Directory`]s.
     ///
     /// [WorkOS Docs: List Directories](https://workos.com/docs/reference/directory-sync/directory/list)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::directory_sync::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), ()> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let paginated_directories = workos
+    ///     .directory_sync()
+    ///     .list_directories(&ListDirectoriesParams {
+    ///         ..Default::default()
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn list_directories(
         &self,
         params: &ListDirectoriesParams<'_>,
