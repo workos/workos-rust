@@ -39,6 +39,27 @@ pub trait ListDirectoryUsers {
     /// Retrieves a list of [`DirectoryUser`]s.
     ///
     /// [WorkOS Docs: List Directory Users](https://workos.com/docs/reference/directory-sync/user/list)
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::directory_sync::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), ()> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let paginated_users = workos
+    ///     .directory_sync()
+    ///     .list_directory_users(&ListDirectoryUsersParams {
+    ///         filter: DirectoryUsersFilter::Directory {
+    ///             directory: &DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+    ///         },
+    ///         pagination: Default::default(),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn list_directory_users(
         &self,
         params: &ListDirectoryUsersParams<'_>,
