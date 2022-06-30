@@ -48,4 +48,16 @@ pub enum WebhookEvent {
     /// [WorkOS Docs: `dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
     #[serde(rename = "dsync.group.user_removed")]
     DirectoryUserRemovedFromGroup(DirectoryUserRemovedFromGroupWebhook),
+
+    /// [WorkOS Docs: `dsync.group.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.updated)
+    #[serde(rename = "dsync.group.updated")]
+    DirectoryGroupUpdated(DirectoryGroupUpdatedWebhook),
+
+    /// [WorkOS Docs: `dsync.group.deleted` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.deleted)
+    #[serde(rename = "dsync.group.deleted")]
+    DirectoryGroupDeleted(DirectoryGroupDeletedWebhook),
+
+    /// [WorkOS Docs: `dsync.group.created` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.created)
+    #[serde(rename = "dsync.group.created")]
+    DirectoryGroupCreated(DirectoryGroupCreatedWebhook),
 }
