@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use thiserror::Error;
 
 use crate::directory_sync::{DirectorySync, DirectoryUser, DirectoryUserId};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// An error returned from [`GetDirectoryUser`].
 #[derive(Debug, Error)]
@@ -37,25 +36,18 @@ impl<'a> GetDirectoryUser for DirectorySync<'a> {
             .workos
             .base_url()
             .join(&format!("/directory_users/{id}", id = id))?;
-        let response = self
+        let directory_user = self
             .workos
             .client()
             .get(url)
             .bearer_auth(self.workos.key())
             .send()
+            .await?
+            .handle_unauthorized_or_generic_error()?
+            .json::<DirectoryUser>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let directory_user = response.json::<DirectoryUser>().await?;
-
-                Ok(directory_user)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(directory_user)
     }
 }
 

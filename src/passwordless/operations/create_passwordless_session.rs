@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::passwordless::{Passwordless, PasswordlessSession};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// The type of passwordless session to create.
 #[derive(Debug, Serialize)]
@@ -58,26 +57,19 @@ impl<'a> CreatePasswordlessSession for Passwordless<'a> {
         params: &CreatePasswordlessSessionParams<'_>,
     ) -> WorkOsResult<PasswordlessSession, CreatePasswordlessSessionError> {
         let url = self.workos.base_url().join("/passwordless/sessions")?;
-        let response = self
+        let passwordless_session = self
             .workos
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
             .json(&params)
             .send()
+            .await?
+            .handle_unauthorized_or_generic_error()?
+            .json::<PasswordlessSession>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let passwordless_session = response.json::<PasswordlessSession>().await?;
-
-                Ok(passwordless_session)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(passwordless_session)
     }
 }
 

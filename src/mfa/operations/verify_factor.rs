@@ -1,10 +1,9 @@
 use async_trait::async_trait;
-use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::mfa::{AuthenticationChallenge, AuthenticationChallengeId, Mfa, MfaCode};
-use crate::{WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// Payload returned from [`VerifyFactor`] including Authentication Factor and Valid status.
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,26 +49,19 @@ impl<'a> VerifyFactor for Mfa<'a> {
         params: &VerifyFactorParams<'_>,
     ) -> WorkOsResult<VerifyFactorResponse, VerifyFactorError> {
         let url = self.workos.base_url().join("/auth/factors/verify")?;
-        let response = self
+        let verify_response = self
             .workos
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
             .json(&params)
             .send()
+            .await?
+            .handle_unauthorized_or_generic_error()?
+            .json::<VerifyFactorResponse>()
             .await?;
 
-        match response.error_for_status_ref() {
-            Ok(_) => {
-                let verify = response.json::<VerifyFactorResponse>().await?;
-
-                Ok(verify)
-            }
-            Err(err) => match err.status() {
-                Some(StatusCode::UNAUTHORIZED) => Err(WorkOsError::Unauthorized),
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
+        Ok(verify_response)
     }
 }
 
