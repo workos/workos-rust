@@ -59,6 +59,7 @@ pub trait ListOrganizations {
     /// let paginated_organizations = workos
     ///     .organizations()
     ///     .list_organizations(&ListOrganizationsParams {
+    ///         domains: Some(vec!["foo-corp.com"].into()),
     ///         ..Default::default()
     ///     })
     ///     .await?;

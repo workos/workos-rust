@@ -47,6 +47,31 @@ pub trait UpdateOrganization {
     /// Update an [`Organization`].
     ///
     /// [WorkOS Docs: Update an Organization](https://workos.com/docs/reference/organization/update)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::collections::HashSet;
+    ///
+    /// # use workos::WorkOsResult;
+    /// # use workos::organizations::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), UpdateOrganizationError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let organization = workos
+    ///     .organizations()
+    ///     .update_organization(&UpdateOrganizationParams {
+    ///         organization_id: &OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"),
+    ///         name: Some("Foo Corp"),
+    ///         allow_profiles_outside_organization: None,
+    ///         domains: Some(HashSet::from(["foo-corp.com"])),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn update_organization(
         &self,
         params: &UpdateOrganizationParams<'_>,
