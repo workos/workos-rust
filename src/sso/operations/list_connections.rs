@@ -34,7 +34,7 @@ pub trait ListConnections {
     /// # use workos::sso::*;
     /// use workos::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), ()> {
+    /// # async fn run() -> WorkOsResult<WorkOsResult<(), GetProfileError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// let paginated_connections = workos
