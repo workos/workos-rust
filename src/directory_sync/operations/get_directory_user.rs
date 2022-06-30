@@ -39,6 +39,7 @@ pub trait GetDirectoryUser {
     ///     .await?;
     /// # Ok(())
     /// # }
+    /// ```
     async fn get_directory_user(
         &self,
         id: &DirectoryUserId,

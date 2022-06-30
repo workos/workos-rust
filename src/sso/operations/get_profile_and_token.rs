@@ -94,6 +94,7 @@ pub trait GetProfileAndToken {
     ///     .await?;
     /// # Ok(())
     /// # }
+    /// ```
     async fn get_profile_and_token(
         &self,
         params: &GetProfileAndTokenParams<'_>,

@@ -33,12 +33,11 @@ pub trait GetDirectory {
     ///
     /// let directory = workos
     ///     .directory_sync()
-    ///     .get_directory(&DirectoryId::from(
-    ///         "directory_01ECAZ4NV9QMV47GW873HDCX74",
-    ///     ))
+    ///     .get_directory(&DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"))
     ///     .await?;
     /// # Ok(())
     /// # }
+    /// ```
     async fn get_directory(&self, id: &DirectoryId) -> WorkOsResult<Directory, GetDirectoryError>;
 }
 

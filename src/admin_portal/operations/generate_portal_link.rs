@@ -86,6 +86,7 @@ pub trait GeneratePortalLink {
     ///     .await?;
     /// # Ok(())
     /// # }
+    /// ```
     async fn generate_portal_link(
         &self,
         params: &GeneratePortalLinkParams<'_>,

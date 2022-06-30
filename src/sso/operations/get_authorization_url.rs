@@ -65,9 +65,9 @@ pub trait GetAuthorizationUrl {
     ///     .get_authorization_url(&GetAuthorizationUrlParams {
     ///         client_id: &ClientId::from("client_123456789"),
     ///         redirect_uri: "https://your-app.com/callback",
-    ///         connection_selector: ConnectionSelector::Connection(
-    ///             &ConnectionId::from("conn_01E4ZCR3C56J083X43JQXF3JK5")
-    ///         ),
+    ///         connection_selector: ConnectionSelector::Connection(&ConnectionId::from(
+    ///             "conn_01E4ZCR3C56J083X43JQXF3JK5",
+    ///         )),
     ///         state: None,
     ///     })?;
     /// # Ok(())

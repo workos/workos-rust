@@ -47,6 +47,7 @@ pub trait DeleteDirectory {
     ///     .await?;
     /// # Ok(())
     /// # }
+    /// ```
     async fn delete_directory(
         &self,
         params: &DeleteDirectoryParams<'_>,

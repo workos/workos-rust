@@ -39,6 +39,7 @@ pub trait GetDirectoryGroup {
     ///     .await?;
     /// # Ok(())
     /// # }
+    /// ```
     async fn get_directory_group(
         &self,
         id: &DirectoryGroupId,
