@@ -28,6 +28,26 @@ pub trait DeleteOrganization {
     /// Creates an [`Organization`](crate::organizations::Organization).
     ///
     /// [WorkOS Docs: Delete an Organization](https://workos.com/docs/reference/organization/delete)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::organizations::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), DeleteOrganizationError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// workos
+    ///     .organizations()
+    ///     .delete_organization(&DeleteOrganizationParams {
+    ///         organization_id: &OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"),
+    ///     })
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn delete_organization(
         &self,
         params: &DeleteOrganizationParams<'_>,
