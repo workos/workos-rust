@@ -20,6 +20,25 @@ pub trait GetDirectoryGroup {
     /// Retrieves a [`DirectoryGroup`] by its ID.
     ///
     /// [WorkOS Docs: Get a Directory Group](https://workos.com/docs/reference/directory-sync/group/get)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::directory_sync::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), GetDirectoryGroupError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let directory_group = workos
+    ///     .directory_sync()
+    ///     .get_directory_group(&DirectoryGroupId::from(
+    ///         "directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT",
+    ///     ))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
     async fn get_directory_group(
         &self,
         id: &DirectoryGroupId,
