@@ -57,7 +57,7 @@ impl<'a> ListDirectories for DirectorySync<'a> {
         params: &ListDirectoriesParams<'_>,
     ) -> WorkOsResult<PaginatedList<Directory>, ()> {
         let url = self.workos.base_url().join("/directories")?;
-        let paginated_directories = self
+        let directories = self
             .workos
             .client()
             .get(url)
@@ -69,7 +69,7 @@ impl<'a> ListDirectories for DirectorySync<'a> {
             .json::<PaginatedList<Directory>>()
             .await?;
 
-        Ok(paginated_directories)
+        Ok(directories)
     }
 }
 

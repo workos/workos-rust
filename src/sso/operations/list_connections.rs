@@ -49,7 +49,7 @@ impl<'a> ListConnections for Sso<'a> {
         params: &ListConnectionsParams<'_>,
     ) -> WorkOsResult<PaginatedList<Connection>, ()> {
         let url = self.workos.base_url().join("/connections")?;
-        let paginated_connections = self
+        let connections = self
             .workos
             .client()
             .get(url)
@@ -61,7 +61,7 @@ impl<'a> ListConnections for Sso<'a> {
             .json::<PaginatedList<Connection>>()
             .await?;
 
-        Ok(paginated_connections)
+        Ok(connections)
     }
 }
 

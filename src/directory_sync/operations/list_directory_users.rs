@@ -52,7 +52,7 @@ impl<'a> ListDirectoryUsers for DirectorySync<'a> {
         params: &ListDirectoryUsersParams<'_>,
     ) -> WorkOsResult<PaginatedList<DirectoryUser>, ()> {
         let url = self.workos.base_url().join("/directory_users")?;
-        let paginated_directory_users = self
+        let directory_users = self
             .workos
             .client()
             .get(url)
@@ -64,7 +64,7 @@ impl<'a> ListDirectoryUsers for DirectorySync<'a> {
             .json::<PaginatedList<DirectoryUser>>()
             .await?;
 
-        Ok(paginated_directory_users)
+        Ok(directory_users)
     }
 }
 
