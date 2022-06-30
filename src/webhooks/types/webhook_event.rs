@@ -40,7 +40,7 @@ pub enum WebhookEvent {
 
     /// [WorkOS Docs: `dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)
     #[serde(rename = "dsync.group.user_added")]
-    DirectoryGroupUserAdded(DirectoryGroupUserAddedWebhook),
+    DirectoryUserAddedToGroup(DirectoryUserAddedToGroupWebhook),
 
     /// [WorkOS Docs: `dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
     #[serde(rename = "dsync.group.user_removed")]
