@@ -122,7 +122,8 @@ mod test {
     use serde_json::json;
     use tokio;
 
-    use crate::{organizations::OrganizationId, ApiKey, WorkOs};
+    use crate::organizations::OrganizationId;
+    use crate::{ApiKey, WorkOs};
 
     use super::*;
 

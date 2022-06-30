@@ -1,10 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    directory_sync::{DirectoryId, DirectoryType},
-    organizations::OrganizationId,
-    KnownOrUnknown, Timestamps,
-};
+use crate::directory_sync::{DirectoryId, DirectoryType};
+use crate::organizations::OrganizationId;
+use crate::{KnownOrUnknown, Timestamps};
 
 /// The state of a [`Directory`].
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

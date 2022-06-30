@@ -2,7 +2,8 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{directory_sync::DirectoryId, RawAttributes, Timestamps};
+use crate::directory_sync::DirectoryId;
+use crate::{RawAttributes, Timestamps};
 
 /// The ID of a [`DirectoryGroup`].
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

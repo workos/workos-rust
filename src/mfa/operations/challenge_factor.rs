@@ -79,10 +79,8 @@ mod test {
     use serde_json::json;
     use tokio;
 
-    use crate::{
-        mfa::{AuthenticationChallengeId, AuthenticationFactorId},
-        ApiKey, WorkOs,
-    };
+    use crate::mfa::{AuthenticationChallengeId, AuthenticationFactorId};
+    use crate::{ApiKey, WorkOs};
 
     use super::*;
 

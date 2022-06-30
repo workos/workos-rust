@@ -1,8 +1,6 @@
-use std::fmt::Display;
-use std::fmt::Write;
+use std::fmt::{Display, Write};
 
-use serde::Serialize;
-use serde::{ser, Serializer};
+use serde::{ser, Serialize, Serializer};
 
 /// A [`Vec`] that can be URL-encoded.
 #[derive(Debug)]

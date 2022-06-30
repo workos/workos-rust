@@ -2,7 +2,8 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{organizations::OrganizationId, KnownOrUnknown, RawAttributes};
+use crate::organizations::OrganizationId;
+use crate::{KnownOrUnknown, RawAttributes};
 
 use super::{ConnectionId, ConnectionType};
 

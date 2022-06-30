@@ -2,9 +2,9 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    directory_sync::DirectoryType, organizations::OrganizationId, KnownOrUnknown, Timestamps,
-};
+use crate::directory_sync::DirectoryType;
+use crate::organizations::OrganizationId;
+use crate::{KnownOrUnknown, Timestamps};
 
 /// The ID of a [`Directory`].
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

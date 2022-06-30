@@ -95,7 +95,8 @@ mod test {
     use serde_json::json;
     use tokio;
 
-    use crate::{directory_sync::DirectoryGroupId, ApiKey, WorkOs};
+    use crate::directory_sync::DirectoryGroupId;
+    use crate::{ApiKey, WorkOs};
 
     use super::*;
 
