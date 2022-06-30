@@ -62,7 +62,6 @@
 <span id="57">57</span>
 <span id="58">58</span>
 <span id="59">59</span>
-<span id="60">60</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::webhooks::Directory</span>;
@@ -75,11 +74,10 @@
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="ident">serde_json::json</span>;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync::DirectoryType</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectoryState</span>, <span class="ident">DirectoryType</span>};
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::webhooks</span>::{
-        <span class="ident">Directory</span>, <span class="ident">DirectoryActivatedWebhook</span>, <span class="ident">DirectoryId</span>, <span class="ident">DirectoryState</span>, <span class="ident">Webhook</span>, <span class="ident">WebhookEvent</span>,
-        <span class="ident">WebhookId</span>,
+        <span class="ident">Directory</span>, <span class="ident">DirectoryActivatedWebhook</span>, <span class="ident">DirectoryId</span>, <span class="ident">Webhook</span>, <span class="ident">WebhookEvent</span>, <span class="ident">WebhookId</span>,
     };
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">Timestamp</span>, <span class="ident">Timestamps</span>};
 
