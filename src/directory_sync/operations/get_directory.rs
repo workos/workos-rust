@@ -20,6 +20,25 @@ pub trait GetDirectory {
     /// Retrieves a [`Directory`] by its ID.
     ///
     /// [WorkOS Docs: Get a Directory](https://workos.com/docs/reference/directory-sync/directory/get)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::directory_sync::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), GetDirectoryError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let directory = workos
+    ///     .directory_sync()
+    ///     .get_directory(&DirectoryId::from(
+    ///         "directory_01ECAZ4NV9QMV47GW873HDCX74",
+    ///     ))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
     async fn get_directory(&self, id: &DirectoryId) -> WorkOsResult<Directory, GetDirectoryError>;
 }
 
