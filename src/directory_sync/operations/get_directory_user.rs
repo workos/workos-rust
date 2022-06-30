@@ -20,6 +20,25 @@ pub trait GetDirectoryUser {
     /// Retrieves a [`DirectoryUser`] by its ID.
     ///
     /// [WorkOS Docs: Get a Directory User](https://workos.com/docs/reference/directory-sync/user/get)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::directory_sync::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), GetDirectoryUserError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let directory_user = workos
+    ///     .directory_sync()
+    ///     .get_directory_user(&DirectoryUserId::from(
+    ///         "directory_user_01E64QS50EAY48S0XJ1AA4WX4D",
+    ///     ))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
     async fn get_directory_user(
         &self,
         id: &DirectoryUserId,
