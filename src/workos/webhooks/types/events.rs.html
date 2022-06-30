@@ -26,12 +26,21 @@
 <span id="21">21</span>
 <span id="22">22</span>
 <span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">connection_activated</span>;
 <span class="kw">mod</span> <span class="ident">connection_deactivated</span>;
 <span class="kw">mod</span> <span class="ident">connection_deleted</span>;
 <span class="kw">mod</span> <span class="ident">directory_activated</span>;
 <span class="kw">mod</span> <span class="ident">directory_deactivated</span>;
 <span class="kw">mod</span> <span class="ident">directory_deleted</span>;
+<span class="kw">mod</span> <span class="ident">directory_group_created</span>;
+<span class="kw">mod</span> <span class="ident">directory_group_deleted</span>;
+<span class="kw">mod</span> <span class="ident">directory_group_updated</span>;
 <span class="kw">mod</span> <span class="ident">directory_group_user_added</span>;
 <span class="kw">mod</span> <span class="ident">directory_group_user_removed</span>;
 <span class="kw">mod</span> <span class="ident">directory_user_created</span>;
@@ -44,6 +53,9 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_activated</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_deactivated</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_deleted</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_group_created</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_group_deleted</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_group_updated</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_group_user_added</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_group_user_removed</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">directory_user_created</span>::<span class="kw-2">*</span>;
