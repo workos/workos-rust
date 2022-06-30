@@ -20,6 +20,24 @@ pub trait GetOrganization {
     /// Retrieves an [`Organization`] by its ID.
     ///
     /// [WorkOS Docs: Get an Organization](https://workos.com/docs/reference/sso/organization/get)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use workos::WorkOsResult;
+    /// # use workos::organizations::*;
+    /// use workos::{ApiKey, WorkOs};
+    ///
+    /// # async fn run() -> WorkOsResult<(), GetOrganizationError> {
+    /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
+    ///
+    /// let organization = workos
+    ///     .organizations()
+    ///     .get_organization(&OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"))
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     async fn get_organization(
         &self,
         id: &OrganizationId,
