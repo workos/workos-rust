@@ -48,7 +48,7 @@ pub trait CreateOrganization {
     ///
     /// ```
     /// use std::collections::HashSet;
-    /// 
+    ///
     /// # use workos::WorkOsResult;
     /// # use workos::organizations::*;
     /// use workos::{ApiKey, WorkOs};
