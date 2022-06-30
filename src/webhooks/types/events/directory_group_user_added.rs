@@ -44,7 +44,8 @@ mod test {
                 "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
                 "user": {
                   "id": "directory_user_01E1X56GH84T3FB41SD6PZGDBX",
-                  "idp_id": "2936",
+                  "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+                  "idp_id": "1a2b3c4d5e",
                   "emails": [{
                     "primary": true,
                     "type": "work",
@@ -63,7 +64,7 @@ mod test {
                 },
                 "group": {
                     "id": "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z",
-                    "idp_id": "02grqrue4294w24",
+                    "idp_id": "12345",
                     "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
                     "name": "Developers",
                     "created_at": "2021-06-25T19:07:33.155Z",
@@ -109,7 +110,7 @@ mod test {
                                 updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z")
                                     .unwrap()
                             },
-                            idp_id: "12345".to_string(),
+                            idp_id: "1a2b3c4d5e".to_string(),
                             directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
                             username: Some("eric@foo-corp.com".to_string()),
                             emails: vec![DirectoryUserEmail {

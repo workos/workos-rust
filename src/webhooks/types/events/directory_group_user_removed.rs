@@ -2,16 +2,16 @@ use serde::Deserialize;
 
 use crate::directory_sync::{DirectoryGroup, DirectoryId, DirectoryUser};
 
-///Payload Structure for [dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
+///Payload Structure for [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserRemovedFromGroupWebhook {
-    /// [`DirectoryId`] in [dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
+    /// [`DirectoryId`] in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
     pub directory_id: DirectoryId,
 
-    /// [`DirectoryUser`] (appears as "user") in [dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
+    /// [`DirectoryUser`] (appears as "user") in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
     pub user: DirectoryUser,
 
-    /// [`DirectoryGroup`] (appears as "group") in [dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
+    /// [`DirectoryGroup`] (appears as "group") in [dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
     pub group: DirectoryGroup,
 }
 
@@ -43,7 +43,8 @@ mod test {
                 "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
                 "user": {
                   "id": "directory_user_01E1X56GH84T3FB41SD6PZGDBX",
-                  "idp_id": "2936",
+                  "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+                  "idp_id": "12345",
                   "emails": [{
                     "primary": true,
                     "type": "work",
@@ -62,7 +63,7 @@ mod test {
                 },
                 "group": {
                     "id": "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z",
-                    "idp_id": "02grqrue4294w24",
+                    "idp_id": "12345",
                     "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
                     "name": "Developers",
                     "created_at": "2021-06-25T19:07:33.155Z",
@@ -71,7 +72,7 @@ mod test {
                       "id": "12345"
                   }}
               },
-              "event": "dsync.group.user_added"
+              "event": "dsync.group.user_removed"
             })
             .to_string(),
         )
