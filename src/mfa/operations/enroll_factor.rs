@@ -54,18 +54,16 @@ struct WorkOsApiError {
 }
 
 #[async_trait]
-trait HandleEnrollFactorError {
-    async fn handle_enroll_factor_error(self) -> WorkOsResult<Self, EnrollFactorError>
-    where
-        Self: Sized;
+trait HandleEnrollFactorError
+where
+    Self: Sized,
+{
+    async fn handle_enroll_factor_error(self) -> WorkOsResult<Self, EnrollFactorError>;
 }
 
 #[async_trait]
 impl HandleEnrollFactorError for Response {
-    async fn handle_enroll_factor_error(self) -> WorkOsResult<Self, EnrollFactorError>
-    where
-        Self: Sized,
-    {
+    async fn handle_enroll_factor_error(self) -> WorkOsResult<Self, EnrollFactorError> {
         match self.error_for_status_ref() {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
