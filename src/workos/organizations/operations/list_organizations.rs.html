@@ -206,6 +206,28 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -253,6 +275,27 @@
     <span class="doccomment">/// Retrieves a list of [`Organization`]s.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [WorkOS Docs: List Organizations](https://workos.com/docs/reference/organization/list)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use workos::WorkOsResult;</span>
+    <span class="doccomment">/// # use workos::organizations::*;</span>
+    <span class="doccomment">/// use workos::{ApiKey, WorkOs};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # async fn run() -&gt; WorkOsResult&lt;(), ()&gt; {</span>
+    <span class="doccomment">/// let workos = WorkOs::new(&amp;ApiKey::from(&quot;sk_example_123456789&quot;));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let paginated_organizations = workos</span>
+    <span class="doccomment">///     .organizations()</span>
+    <span class="doccomment">///     .list_organizations(&amp;ListOrganizationsParams {</span>
+    <span class="doccomment">///         domains: Some(vec![&quot;foo-corp.com&quot;].into()),</span>
+    <span class="doccomment">///         ..Default::default()</span>
+    <span class="doccomment">///     })</span>
+    <span class="doccomment">///     .await?;</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_organizations</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">ListOrganizationsParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
@@ -288,7 +331,8 @@
     <span class="kw">use</span> <span class="ident">serde_json::json</span>;
     <span class="kw">use</span> <span class="ident">tokio</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">organizations::OrganizationId</span>, <span class="ident">ApiKey</span>, <span class="ident">WorkOs</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ApiKey</span>, <span class="ident">WorkOs</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 

@@ -101,11 +101,13 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
+<span id="99">99</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">directory_sync::DirectoryId</span>, <span class="ident">RawAttributes</span>, <span class="ident">Timestamps</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync::DirectoryId</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">RawAttributes</span>, <span class="ident">Timestamps</span>};
 
 <span class="doccomment">/// The ID of a [`DirectoryGroup`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>

@@ -92,6 +92,26 @@
 <span id="87">87</span>
 <span id="88">88</span>
 <span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -122,6 +142,26 @@
     <span class="doccomment">/// Creates an [`Organization`](crate::organizations::Organization).</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [WorkOS Docs: Delete an Organization](https://workos.com/docs/reference/organization/delete)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use workos::WorkOsResult;</span>
+    <span class="doccomment">/// # use workos::organizations::*;</span>
+    <span class="doccomment">/// use workos::{ApiKey, WorkOs};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # async fn run() -&gt; WorkOsResult&lt;(), DeleteOrganizationError&gt; {</span>
+    <span class="doccomment">/// let workos = WorkOs::new(&amp;ApiKey::from(&quot;sk_example_123456789&quot;));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// workos</span>
+    <span class="doccomment">///     .organizations()</span>
+    <span class="doccomment">///     .delete_organization(&amp;DeleteOrganizationParams {</span>
+    <span class="doccomment">///         organization_id: &amp;OrganizationId::from(&quot;org_01EHZNVPK3SFK441A1RGBFSHRT&quot;),</span>
+    <span class="doccomment">///     })</span>
+    <span class="doccomment">///     .await?;</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_organization</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">DeleteOrganizationParams</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,

@@ -202,6 +202,7 @@
 <span id="197">197</span>
 <span id="198">198</span>
 <span id="199">199</span>
+<span id="200">200</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
@@ -285,7 +286,8 @@
     <span class="kw">use</span> <span class="ident">serde_json::json</span>;
     <span class="kw">use</span> <span class="ident">tokio</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">sso::ConnectionId</span>, <span class="ident">ApiKey</span>, <span class="ident">WorkOs</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sso::ConnectionId</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ApiKey</span>, <span class="ident">WorkOs</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 

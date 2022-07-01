@@ -152,9 +152,9 @@
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">directory_sync::DirectoryType</span>, <span class="ident">organizations::OrganizationId</span>, <span class="ident">KnownOrUnknown</span>, <span class="ident">Timestamps</span>,
-};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync::DirectoryType</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">Timestamps</span>};
 
 <span class="doccomment">/// The ID of a [`Directory`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>

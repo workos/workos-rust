@@ -127,8 +127,6 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -202,10 +200,8 @@
     <span class="kw">use</span> <span class="ident">serde_json::json</span>;
     <span class="kw">use</span> <span class="ident">tokio</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">mfa</span>::{<span class="ident">AuthenticationChallengeId</span>, <span class="ident">MfaCode</span>},
-        <span class="ident">ApiKey</span>, <span class="ident">WorkOs</span>,
-    };
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mfa</span>::{<span class="ident">AuthenticationChallengeId</span>, <span class="ident">MfaCode</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ApiKey</span>, <span class="ident">WorkOs</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
