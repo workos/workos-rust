@@ -137,6 +137,24 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
@@ -159,6 +177,24 @@
     <span class="doccomment">/// Retrieves a [`Connection`] by its ID.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [WorkOS Docs: Get a Connection](https://workos.com/docs/reference/sso/connection/get)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use workos::WorkOsResult;</span>
+    <span class="doccomment">/// # use workos::sso::*;</span>
+    <span class="doccomment">/// use workos::{ApiKey, WorkOs};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # async fn run() -&gt; WorkOsResult&lt;(), GetConnectionError&gt; {</span>
+    <span class="doccomment">/// let workos = WorkOs::new(&amp;ApiKey::from(&quot;sk_example_123456789&quot;));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let connection = workos</span>
+    <span class="doccomment">///     .sso()</span>
+    <span class="doccomment">///     .get_connection(&amp;ConnectionId::from(&quot;conn_01E4ZCR3C56J083X43JQXF3JK5&quot;))</span>
+    <span class="doccomment">///     .await?;</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_connection</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionId</span>,
