@@ -20,6 +20,7 @@ pub struct VerifyChallengeResponse {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub struct VerifyChallengeParams<'a> {
     /// The ID of the authentication challenge to verify.
+    #[serde(skip)]
     pub authentication_challenge_id: &'a AuthenticationChallengeId,
 
     /// The MFA code to verify.
@@ -71,7 +72,10 @@ impl<'a> VerifyChallenge for Mfa<'a> {
         &self,
         params: &VerifyChallengeParams<'_>,
     ) -> WorkOsResult<VerifyChallengeResponse, VerifyChallengeError> {
-        let url = self.workos.base_url().join("/auth/factors/verify")?;
+        let url = self.workos.base_url().join(&format!(
+            "/auth/challenges/{id}/verify",
+            id = params.authentication_challenge_id
+        ))?;
         let verify_response = self
             .workos
             .client()
@@ -106,27 +110,28 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = mock("POST", "/auth/factors/verify")
-            .match_header("Authorization", "Bearer sk_example_123456789")
-            .match_body(
-                r#"{"authentication_challenge_id":"auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5","code":"123456"}"#,
-            )
-            .with_status(201)
-            .with_body(
-                json!({
-                  "challenge": {
-                    "object": "authentication_challenge",
-                    "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
-                    "created_at": "2022-02-15T15:26:53.274Z",
-                    "updated_at": "2022-02-15T15:26:53.274Z",
-                    "expires_at": "2022-02-15T15:36:53.279Z",
-                    "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
-                  },
-                  "valid": true
-                })
-                .to_string(),
-            )
-            .create();
+        let _mock = mock(
+            "POST",
+            "/auth/challenges/auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5/verify",
+        )
+        .match_header("Authorization", "Bearer sk_example_123456789")
+        .match_body(r#"{"code":"123456"}"#)
+        .with_status(201)
+        .with_body(
+            json!({
+              "challenge": {
+                "object": "authentication_challenge",
+                "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
+                "created_at": "2022-02-15T15:26:53.274Z",
+                "updated_at": "2022-02-15T15:26:53.274Z",
+                "expires_at": "2022-02-15T15:36:53.279Z",
+                "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
+              },
+              "valid": true
+            })
+            .to_string(),
+        )
+        .create();
 
         let verify = workos
             .mfa()

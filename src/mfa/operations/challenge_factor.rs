@@ -27,6 +27,7 @@ pub enum ChallengeAuthenticationFactorType<'a> {
 #[derive(Debug, Serialize)]
 pub struct ChallengeFactorParams<'a> {
     /// The ID of the authentication factor to challenge.
+    #[serde(skip)]
     pub authentication_factor_id: &'a AuthenticationFactorId,
 
     /// The type of the authentication factor to challenge.
@@ -79,7 +80,10 @@ impl<'a> ChallengeFactor for Mfa<'a> {
         &self,
         params: &ChallengeFactorParams<'_>,
     ) -> WorkOsResult<AuthenticationChallenge, ChallengeFactorError> {
-        let url = self.workos.base_url().join("/auth/factors/challenge")?;
+        let url = self.workos.base_url().join(&format!(
+            "/auth/factors/{id}/challenge",
+            id = params.authentication_factor_id
+        ))?;
         let challenge = self
             .workos
             .client()
@@ -114,22 +118,25 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = mock("POST", "/auth/factors/challenge")
-            .match_header("Authorization", "Bearer sk_example_123456789")
-            .match_body(r#"{"authentication_factor_id":"auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"}"#)
-            .with_status(201)
-            .with_body(
-                json!({
-                  "object": "authentication_challenge",
-                  "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
-                  "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
-                  "expires_at": "2022-02-15T15:36:53.279Z",
-                  "created_at": "2022-02-15T15:26:53.274Z",
-                  "updated_at": "2022-02-15T15:26:53.274Z"
-                })
-                .to_string(),
-            )
-            .create();
+        let _mock = mock(
+            "POST",
+            "/auth/factors/auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ/challenge",
+        )
+        .match_header("Authorization", "Bearer sk_example_123456789")
+        .match_body("{}")
+        .with_status(201)
+        .with_body(
+            json!({
+              "object": "authentication_challenge",
+              "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
+              "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
+              "expires_at": "2022-02-15T15:36:53.279Z",
+              "created_at": "2022-02-15T15:26:53.274Z",
+              "updated_at": "2022-02-15T15:26:53.274Z"
+            })
+            .to_string(),
+        )
+        .create();
 
         let challenge = workos
             .mfa()
@@ -155,22 +162,25 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = mock("POST", "/auth/factors/challenge")
-            .match_header("Authorization", "Bearer sk_example_123456789")
-            .match_body(r#"{"authentication_factor_id":"auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ","sms_template":"Here's your one-time code: {{code}}"}"#)
-            .with_status(201)
-            .with_body(
-                json!({
-                  "object": "authentication_challenge",
-                  "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
-                  "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
-                  "expires_at": "2022-02-15T15:36:53.279Z",
-                  "created_at": "2022-02-15T15:26:53.274Z",
-                  "updated_at": "2022-02-15T15:26:53.274Z"
-                })
-                .to_string(),
-            )
-            .create();
+        let _mock = mock(
+            "POST",
+            "/auth/factors/auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ/challenge",
+        )
+        .match_header("Authorization", "Bearer sk_example_123456789")
+        .match_body(r#"{"sms_template":"Here's your one-time code: {{code}}"}"#)
+        .with_status(201)
+        .with_body(
+            json!({
+              "object": "authentication_challenge",
+              "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
+              "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
+              "expires_at": "2022-02-15T15:36:53.279Z",
+              "created_at": "2022-02-15T15:26:53.274Z",
+              "updated_at": "2022-02-15T15:26:53.274Z"
+            })
+            .to_string(),
+        )
+        .create();
 
         let challenge = workos
             .mfa()
