@@ -31,12 +31,12 @@ pub struct VerifyChallengeParams<'a> {
 #[derive(Debug, Error)]
 pub enum VerifyChallengeError {}
 
-/// [WorkOS Docs: Verify Challenge](https://workos.com/docs/reference/mfa/verify-factor)
+/// [WorkOS Docs: Verify Challenge](https://workos.com/docs/reference/mfa/verify-challenge)
 #[async_trait]
 pub trait VerifyChallenge {
     /// Attempts a verification for an authentication challenge.
     ///
-    /// [WorkOS Docs: Verify Challenge](https://workos.com/docs/reference/mfa/verify-factor)
+    /// [WorkOS Docs: Verify Challenge](https://workos.com/docs/reference/mfa/verify-challenge)
     ///
     /// # Examples
     ///
