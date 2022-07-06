@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::Serialize;
 use thiserror::Error;
 
-use crate::audit_logs::AuditLogs;
+use crate::audit_logs::{AuditLogs, Event};
 use crate::organizations::OrganizationId;
 use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
@@ -10,6 +10,8 @@ use crate::{ResponseExt, WorkOsError, WorkOsResult};
 #[derive(Debug, Serialize)]
 pub struct CreateEventParams<'a> {
     pub organization_id: &'a OrganizationId,
+
+    pub event: &'a Event,
 }
 
 /// An error returned from [`CreateEvent`].
@@ -37,14 +39,29 @@ impl<'a> CreateEvent for AuditLogs<'a> {
         params: &CreateEventParams<'_>,
     ) -> WorkOsResult<(), CreateEventError> {
         let url = self.workos.base_url().join("logs")?;
-        self.workos
+        let response = self
+            .workos
             .client()
             .post(url)
             .bearer_auth(self.workos.key())
+            .json(&params)
             .send()
             .await?
-            .handle_unauthorized_or_generic_error()?;
+            .handle_unauthorized_error()?;
 
-        Ok(())
+        match response.error_for_status_ref() {
+            Ok(response) => Ok(()),
+            Err(err) => {
+                #[derive(Debug, serde::Deserialize)]
+                struct ErrorMessage {
+                    pub message: String,
+                }
+
+                let message = response.json::<ErrorMessage>().await?;
+                let message = dbg!(message);
+
+                Err(WorkOsError::RequestError(err))
+            }
+        }
     }
 }
