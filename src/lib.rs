@@ -7,6 +7,7 @@ mod known_or_unknown;
 mod workos;
 
 pub mod admin_portal;
+pub mod audit_logs;
 pub mod directory_sync;
 pub mod mfa;
 pub mod organizations;

@@ -1,6 +1,7 @@
 use url::{ParseError, Url};
 
 use crate::admin_portal::AdminPortal;
+use crate::audit_logs::AuditLogs;
 use crate::directory_sync::DirectorySync;
 use crate::mfa::Mfa;
 use crate::organizations::Organizations;
@@ -41,6 +42,11 @@ impl WorkOs {
     /// Returns an [`AdminPortal`] instance.
     pub fn admin_portal(&self) -> AdminPortal {
         AdminPortal::new(self)
+    }
+
+    /// Returns an [`AuditLogs`] instance.
+    pub fn audit_logs(&self) -> AuditLogs {
+        AuditLogs::new(self)
     }
 
     /// Returns a [`DirectorySync`] instance.
