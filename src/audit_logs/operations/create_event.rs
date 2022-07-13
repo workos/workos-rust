@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use async_trait::async_trait;
 use serde::Serialize;
+use serde_json::Value;
 use thiserror::Error;
 
 use crate::audit_logs::{AuditLogs, Event};
@@ -38,7 +41,7 @@ impl<'a> CreateEvent for AuditLogs<'a> {
         &self,
         params: &CreateEventParams<'_>,
     ) -> WorkOsResult<(), CreateEventError> {
-        let url = self.workos.base_url().join("logs")?;
+        let url = self.workos.base_url().join("audit_logs/events")?;
         let response = self
             .workos
             .client()
@@ -53,11 +56,26 @@ impl<'a> CreateEvent for AuditLogs<'a> {
             Ok(response) => Ok(()),
             Err(err) => {
                 #[derive(Debug, serde::Deserialize)]
-                struct ErrorMessage {
+                #[serde(rename_all = "camelCase")]
+                struct JsonSchemaError {
+                    pub instance_path: String,
+                    pub schema_path: String,
+                    pub keyword: String,
+                    pub params: HashMap<String, Value>,
                     pub message: String,
                 }
 
-                let message = response.json::<ErrorMessage>().await?;
+                #[derive(Debug, serde::Deserialize)]
+                struct ErrorMessage {
+                    pub message: String,
+                    pub errors: Vec<JsonSchemaError>,
+                }
+
+                let raw_body = response.text().await?;
+                let raw_body = dbg!(raw_body);
+
+                let message =
+                    serde_json::from_str::<ErrorMessage>(&raw_body).expect("failed to parse JSON");
                 let message = dbg!(message);
 
                 Err(WorkOsError::RequestError(err))

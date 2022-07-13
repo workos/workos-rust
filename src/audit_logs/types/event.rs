@@ -18,7 +18,7 @@ pub struct Event {
 
     pub targets: Vec<Target>,
 
-    pub context: HashMap<String, Value>,
+    pub context: Context,
 
     pub metadata: HashMap<String, Value>,
 }
@@ -61,3 +61,9 @@ pub struct Target {
     pub r#type: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Context {
+    pub location: String,
+
+    pub user_agent: Option<String>,
+}
