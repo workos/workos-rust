@@ -75,6 +75,11 @@
 <span id="70">70</span>
 <span id="71">71</span>
 <span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync::DirectoryGroup</span>;
@@ -91,6 +96,7 @@
 
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync</span>::{<span class="ident">DirectoryGroupId</span>, <span class="ident">DirectoryId</span>};
 
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::webhooks</span>::{<span class="ident">Webhook</span>, <span class="ident">WebhookEvent</span>, <span class="ident">WebhookId</span>};
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">RawAttributes</span>, <span class="ident">Timestamp</span>, <span class="ident">Timestamps</span>};
 
@@ -107,6 +113,7 @@
                   <span class="string">&quot;object&quot;</span>: <span class="string">&quot;directory_group&quot;</span>,
                   <span class="string">&quot;id&quot;</span>: <span class="string">&quot;directory_group_01E1X5GPMMXF4T1DCERMVEEPVW&quot;</span>,
                   <span class="string">&quot;directory_id&quot;</span>: <span class="string">&quot;directory_01E1X194NTJ3PYMAY79DYV0F0P&quot;</span>,
+                  <span class="string">&quot;organization_id&quot;</span>: <span class="string">&quot;org_01EZTR6WYX1A0DSE2CYMGXQ24Y&quot;</span>,
                   <span class="string">&quot;idp_id&quot;</span>: <span class="string">&quot;02grqrue4294w24&quot;</span>,
                   <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Developers&quot;</span>,
                   <span class="string">&quot;created_at&quot;</span>: <span class="string">&quot;2021-06-25T19:07:33.155Z&quot;</span>,
@@ -135,6 +142,9 @@
                         <span class="ident">id</span>: <span class="ident">DirectoryGroupId::from</span>(<span class="string">&quot;directory_group_01E1X5GPMMXF4T1DCERMVEEPVW&quot;</span>),
                         <span class="ident">idp_id</span>: <span class="string">&quot;02grqrue4294w24&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">directory_id</span>: <span class="ident">DirectoryId::from</span>(<span class="string">&quot;directory_01E1X194NTJ3PYMAY79DYV0F0P&quot;</span>),
+                        <span class="ident">organization_id</span>: <span class="prelude-val">Some</span>(<span class="ident">OrganizationId::from</span>(
+                            <span class="string">&quot;org_01EZTR6WYX1A0DSE2CYMGXQ24Y&quot;</span>
+                        )),
                         <span class="ident">name</span>: <span class="string">&quot;Developers&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">timestamps</span>: <span class="ident">Timestamps</span> {
                             <span class="ident">created_at</span>: <span class="ident">Timestamp::try_from</span>(<span class="string">&quot;2021-06-25T19:07:33.155Z&quot;</span>).<span class="ident">unwrap</span>(),

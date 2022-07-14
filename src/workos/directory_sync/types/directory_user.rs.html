@@ -240,6 +240,13 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
@@ -247,6 +254,7 @@
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync::DirectoryId</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">RawAttributes</span>, <span class="ident">Timestamps</span>};
 
 <span class="doccomment">/// The ID of a [`DirectoryUser`].</span>
@@ -283,6 +291,9 @@
 
     <span class="doccomment">/// The identifier of the [`Directory`](crate::directory_sync::Directory) the directory user belongs to.</span>
     <span class="kw">pub</span> <span class="ident">directory_id</span>: <span class="ident">DirectoryId</span>,
+
+    <span class="doccomment">/// The ID of the organization in which the directory resides.</span>
+    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OrganizationId</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The username of the directory user.</span>
     <span class="kw">pub</span> <span class="ident">username</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -344,6 +355,7 @@
     <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
     <span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">json</span>, <span class="ident">Value</span>};
 
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">RawAttributes</span>, <span class="ident">Timestamp</span>, <span class="ident">Timestamps</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::{
@@ -357,6 +369,7 @@
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;directory_user_01E1JG7J09H96KYP8HM9B0G5SJ&quot;</span>,
                 <span class="string">&quot;idp_id&quot;</span>: <span class="string">&quot;2836&quot;</span>,
                 <span class="string">&quot;directory_id&quot;</span>: <span class="string">&quot;directory_01ECAZ4NV9QMV47GW873HDCX74&quot;</span>,
+                <span class="string">&quot;organization_id&quot;</span>: <span class="string">&quot;org_01EZTR6WYX1A0DSE2CYMGXQ24Y&quot;</span>,
                 <span class="string">&quot;first_name&quot;</span>: <span class="string">&quot;Marcelina&quot;</span>,
                 <span class="string">&quot;last_name&quot;</span>: <span class="string">&quot;Davis&quot;</span>,
                 <span class="string">&quot;emails&quot;</span>: [
@@ -405,6 +418,7 @@
                 <span class="ident">id</span>: <span class="ident">DirectoryUserId::from</span>(<span class="string">&quot;directory_user_01E1JG7J09H96KYP8HM9B0G5SJ&quot;</span>),
                 <span class="ident">idp_id</span>: <span class="string">&quot;2836&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">directory_id</span>: <span class="ident">DirectoryId::from</span>(<span class="string">&quot;directory_01ECAZ4NV9QMV47GW873HDCX74&quot;</span>),
+                <span class="ident">organization_id</span>: <span class="prelude-val">Some</span>(<span class="ident">OrganizationId::from</span>(<span class="string">&quot;org_01EZTR6WYX1A0DSE2CYMGXQ24Y&quot;</span>)),
                 <span class="ident">username</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;marcelina@foo-corp.com&quot;</span>.<span class="ident">to_string</span>()),
                 <span class="ident">emails</span>: <span class="macro">vec!</span>[<span class="ident">DirectoryUserEmail</span> {
                     <span class="ident">primary</span>: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),

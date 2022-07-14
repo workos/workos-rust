@@ -128,6 +128,11 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
@@ -160,6 +165,7 @@
         <span class="ident">DirectoryId</span>, <span class="ident">DirectoryUserEmail</span>, <span class="ident">DirectoryUserId</span>, <span class="ident">DirectoryUserState</span>,
     };
 
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::webhooks</span>::{<span class="ident">Webhook</span>, <span class="ident">WebhookEvent</span>, <span class="ident">WebhookId</span>};
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">RawAttributes</span>, <span class="ident">Timestamp</span>, <span class="ident">Timestamps</span>};
 
@@ -175,6 +181,7 @@
                 <span class="string">&quot;data&quot;</span>: {
                   <span class="string">&quot;object&quot;</span>: <span class="string">&quot;directory_user&quot;</span>,
                   <span class="string">&quot;directory_id&quot;</span>: <span class="string">&quot;directory_01E1X194NTJ3PYMAY79DYV0F0P&quot;</span>,
+                  <span class="string">&quot;organization_id&quot;</span>: <span class="string">&quot;org_01EZTR6WYX1A0DSE2CYMGXQ24Y&quot;</span>,
                   <span class="string">&quot;id&quot;</span>: <span class="string">&quot;directory_user_01E1X1B89NH8Z3SDFJR4H7RGX7&quot;</span>,
                   <span class="string">&quot;idp_id&quot;</span>: <span class="string">&quot;8931&quot;</span>,
                   <span class="string">&quot;first_name&quot;</span>: <span class="string">&quot;Veda&quot;</span>,
@@ -235,6 +242,9 @@
                             },
                             <span class="ident">idp_id</span>: <span class="string">&quot;8931&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="ident">directory_id</span>: <span class="ident">DirectoryId::from</span>(<span class="string">&quot;directory_01E1X194NTJ3PYMAY79DYV0F0P&quot;</span>),
+                            <span class="ident">organization_id</span>: <span class="prelude-val">Some</span>(<span class="ident">OrganizationId::from</span>(
+                                <span class="string">&quot;org_01EZTR6WYX1A0DSE2CYMGXQ24Y&quot;</span>
+                            )),
                             <span class="ident">username</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;veda@example.com&quot;</span>.<span class="ident">to_string</span>()),
                             <span class="ident">emails</span>: <span class="macro">vec!</span>[<span class="ident">DirectoryUserEmail</span> {
                                 <span class="ident">primary</span>: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),

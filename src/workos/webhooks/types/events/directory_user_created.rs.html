@@ -96,6 +96,11 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::directory_sync::DirectoryUser</span>;
@@ -114,6 +119,7 @@
         <span class="ident">DirectoryId</span>, <span class="ident">DirectoryUserEmail</span>, <span class="ident">DirectoryUserId</span>, <span class="ident">DirectoryUserState</span>,
     };
 
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::organizations::OrganizationId</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::webhooks</span>::{<span class="ident">Webhook</span>, <span class="ident">WebhookEvent</span>, <span class="ident">WebhookId</span>};
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">KnownOrUnknown</span>, <span class="ident">RawAttributes</span>, <span class="ident">Timestamp</span>, <span class="ident">Timestamps</span>};
 
@@ -127,6 +133,7 @@
               <span class="string">&quot;data&quot;</span>: {
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;directory_user_01E1X1B89NH8Z3SDFJR4H7RGX7&quot;</span>,
                 <span class="string">&quot;directory_id&quot;</span>: <span class="string">&quot;directory_01ECAZ4NV9QMV47GW873HDCX74&quot;</span>,
+                <span class="string">&quot;organization_id&quot;</span>: <span class="string">&quot;org_01EZTR6WYX1A0DSE2CYMGXQ24Y&quot;</span>,
                 <span class="string">&quot;idp_id&quot;</span>: <span class="string">&quot;8931&quot;</span>,
                 <span class="string">&quot;emails&quot;</span>: [{
                   <span class="string">&quot;primary&quot;</span>: <span class="bool-val">true</span>,
@@ -173,6 +180,9 @@
                         },
                         <span class="ident">idp_id</span>: <span class="string">&quot;8931&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">directory_id</span>: <span class="ident">DirectoryId::from</span>(<span class="string">&quot;directory_01ECAZ4NV9QMV47GW873HDCX74&quot;</span>),
+                        <span class="ident">organization_id</span>: <span class="prelude-val">Some</span>(<span class="ident">OrganizationId::from</span>(
+                            <span class="string">&quot;org_01EZTR6WYX1A0DSE2CYMGXQ24Y&quot;</span>
+                        )),
                         <span class="ident">username</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;veda@foo-corp.com&quot;</span>.<span class="ident">to_string</span>()),
                         <span class="ident">emails</span>: <span class="macro">vec!</span>[<span class="ident">DirectoryUserEmail</span> {
                             <span class="ident">primary</span>: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
