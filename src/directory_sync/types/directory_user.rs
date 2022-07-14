@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::directory_sync::DirectoryId;
+use crate::organizations::OrganizationId;
 use crate::{KnownOrUnknown, RawAttributes, Timestamps};
 
 /// The ID of a [`DirectoryUser`].
@@ -41,6 +42,9 @@ pub struct DirectoryUser<TCustomAttributes = HashMap<String, Value>> {
 
     /// The identifier of the [`Directory`](crate::directory_sync::Directory) the directory user belongs to.
     pub directory_id: DirectoryId,
+
+    /// The ID of the organization in which the directory resides.
+    pub organization_id: Option<OrganizationId>,
 
     /// The username of the directory user.
     pub username: Option<String>,
@@ -102,6 +106,7 @@ mod test {
     use serde::Deserialize;
     use serde_json::{json, Value};
 
+    use crate::organizations::OrganizationId;
     use crate::{KnownOrUnknown, RawAttributes, Timestamp, Timestamps};
 
     use super::{
@@ -115,6 +120,7 @@ mod test {
                 "id": "directory_user_01E1JG7J09H96KYP8HM9B0G5SJ",
                 "idp_id": "2836",
                 "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+                "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
                 "first_name": "Marcelina",
                 "last_name": "Davis",
                 "emails": [
@@ -163,6 +169,7 @@ mod test {
                 id: DirectoryUserId::from("directory_user_01E1JG7J09H96KYP8HM9B0G5SJ"),
                 idp_id: "2836".to_string(),
                 directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+                organization_id: Some(OrganizationId::from("org_01EZTR6WYX1A0DSE2CYMGXQ24Y")),
                 username: Some("marcelina@foo-corp.com".to_string()),
                 emails: vec![DirectoryUserEmail {
                     primary: Some(true),

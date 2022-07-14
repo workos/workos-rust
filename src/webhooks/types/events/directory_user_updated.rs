@@ -30,6 +30,7 @@ mod test {
         DirectoryId, DirectoryUserEmail, DirectoryUserId, DirectoryUserState,
     };
 
+    use crate::organizations::OrganizationId;
     use crate::webhooks::{Webhook, WebhookEvent, WebhookId};
     use crate::{KnownOrUnknown, RawAttributes, Timestamp, Timestamps};
 
@@ -45,6 +46,7 @@ mod test {
                 "data": {
                   "object": "directory_user",
                   "directory_id": "directory_01E1X194NTJ3PYMAY79DYV0F0P",
+                  "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
                   "id": "directory_user_01E1X1B89NH8Z3SDFJR4H7RGX7",
                   "idp_id": "8931",
                   "first_name": "Veda",
@@ -105,6 +107,9 @@ mod test {
                             },
                             idp_id: "8931".to_string(),
                             directory_id: DirectoryId::from("directory_01E1X194NTJ3PYMAY79DYV0F0P"),
+                            organization_id: Some(OrganizationId::from(
+                                "org_01EZTR6WYX1A0DSE2CYMGXQ24Y"
+                            )),
                             username: Some("veda@example.com".to_string()),
                             emails: vec![DirectoryUserEmail {
                                 primary: Some(true),

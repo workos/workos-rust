@@ -3,6 +3,7 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 use crate::directory_sync::DirectoryId;
+use crate::organizations::OrganizationId;
 use crate::{RawAttributes, Timestamps};
 
 /// The ID of a [`DirectoryGroup`].
@@ -40,6 +41,9 @@ pub struct DirectoryGroup {
     /// The identifier of the [`Directory`](crate::directory_sync::Directory) the Directory Group belongs to.
     pub directory_id: DirectoryId,
 
+    /// The ID of the organization in which the directory resides.
+    pub organization_id: Option<OrganizationId>,
+
     /// The name of the Directory Group.
     pub name: String,
 
@@ -57,6 +61,7 @@ mod test {
 
     use serde_json::{json, Value};
 
+    use crate::organizations::OrganizationId;
     use crate::{RawAttributes, Timestamp, Timestamps};
 
     use super::{DirectoryGroup, DirectoryGroupId, DirectoryId};
@@ -68,6 +73,7 @@ mod test {
               "id": "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z",
               "idp_id": "02grqrue4294w24",
               "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+              "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
               "name": "Developers",
               "created_at": "2021-06-25T19:07:33.155Z",
               "updated_at": "2021-06-25T19:07:33.155Z",
@@ -87,6 +93,7 @@ mod test {
                 id: DirectoryGroupId::from("directory_group_01E1JJS84MFPPQ3G655FHTKX6Z"),
                 idp_id: "02grqrue4294w24".to_string(),
                 directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+                organization_id: Some(OrganizationId::from("org_01EZTR6WYX1A0DSE2CYMGXQ24Y")),
                 name: "Developers".to_string(),
                 timestamps: Timestamps {
                     created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),

@@ -25,6 +25,7 @@ mod test {
         DirectoryGroupId, DirectoryId, DirectoryUser, DirectoryUserEmail, DirectoryUserId,
         DirectoryUserState,
     };
+    use crate::organizations::OrganizationId;
     use crate::webhooks::{Webhook, WebhookEvent, WebhookId};
     use crate::{KnownOrUnknown, RawAttributes, Timestamp, Timestamps};
 
@@ -40,6 +41,7 @@ mod test {
                 "user": {
                   "id": "directory_user_01E1X56GH84T3FB41SD6PZGDBX",
                   "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+                  "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
                   "idp_id": "12345",
                   "emails": [{
                     "primary": true,
@@ -61,6 +63,7 @@ mod test {
                     "id": "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z",
                     "idp_id": "12345",
                     "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+                    "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
                     "name": "Developers",
                     "created_at": "2021-06-25T19:07:33.155Z",
                     "updated_at": "2021-06-25T19:07:33.155Z",
@@ -107,6 +110,9 @@ mod test {
                             },
                             idp_id: "12345".to_string(),
                             directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+                            organization_id: Some(OrganizationId::from(
+                                "org_01EZTR6WYX1A0DSE2CYMGXQ24Y"
+                            )),
                             username: Some("eric@foo-corp.com".to_string()),
                             emails: vec![DirectoryUserEmail {
                                 primary: Some(true),
@@ -124,6 +130,9 @@ mod test {
                             ),
                             idp_id: "12345".to_string(),
                             directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+                            organization_id: Some(OrganizationId::from(
+                                "org_01EZTR6WYX1A0DSE2CYMGXQ24Y"
+                            )),
                             name: "Developers".to_string(),
                             timestamps: Timestamps {
                                 created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z")
