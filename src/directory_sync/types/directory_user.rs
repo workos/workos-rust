@@ -72,6 +72,15 @@ pub struct DirectoryUser<TCustomAttributes = HashMap<String, Value>> {
     pub timestamps: Timestamps,
 }
 
+impl DirectoryUser {
+    /// Returns the first primary email for the [`DirectoryUser`].
+    ///
+    /// Returns [`None`] if the directory user does not have a primary email.
+    pub fn primary_email(&self) -> Option<&DirectoryUserEmail> {
+        self.emails.iter().find(|email| email.primary == Some(true))
+    }
+}
+
 /// The state of a [`DirectoryUser`].
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -240,5 +249,70 @@ mod test {
                 department: "Engineering".to_string()
             }
         )
+    }
+
+    #[test]
+    fn it_returns_the_primary_email_when_the_user_has_a_primary_email() {
+        let directory_user = DirectoryUser {
+            id: DirectoryUserId::from("directory_user_01E1JG7J09H96KYP8HM9B0G5SJ"),
+            idp_id: "2836".to_string(),
+            directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+            organization_id: Some(OrganizationId::from("org_01EZTR6WYX1A0DSE2CYMGXQ24Y")),
+            username: Some("marcelina@foo-corp.com".to_string()),
+            emails: vec![DirectoryUserEmail {
+                primary: Some(true),
+                r#type: Some("work".to_string()),
+                value: Some("marcelina@foo-corp.com".to_string()),
+            }],
+            first_name: Some("Marcelina".to_string()),
+            last_name: Some("Davis".to_string()),
+            state: KnownOrUnknown::Known(DirectoryUserState::Active),
+            custom_attributes: HashMap::new(),
+            raw_attributes: RawAttributes(HashMap::new()),
+            timestamps: Timestamps {
+                created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+            },
+        };
+
+        let primary_email = directory_user.primary_email();
+
+        assert_eq!(
+            primary_email,
+            Some(&DirectoryUserEmail {
+                primary: Some(true),
+                r#type: Some("work".to_string()),
+                value: Some("marcelina@foo-corp.com".to_string())
+            })
+        )
+    }
+
+    #[test]
+    fn it_returns_none_for_the_primary_email_when_the_user_does_not_have_a_primary_email() {
+        let directory_user = DirectoryUser {
+            id: DirectoryUserId::from("directory_user_01E1JG7J09H96KYP8HM9B0G5SJ"),
+            idp_id: "2836".to_string(),
+            directory_id: DirectoryId::from("directory_01ECAZ4NV9QMV47GW873HDCX74"),
+            organization_id: Some(OrganizationId::from("org_01EZTR6WYX1A0DSE2CYMGXQ24Y")),
+            username: Some("marcelina@foo-corp.com".to_string()),
+            emails: vec![DirectoryUserEmail {
+                primary: Some(false),
+                r#type: Some("work".to_string()),
+                value: Some("marcelina@foo-corp.com".to_string()),
+            }],
+            first_name: Some("Marcelina".to_string()),
+            last_name: Some("Davis".to_string()),
+            state: KnownOrUnknown::Known(DirectoryUserState::Active),
+            custom_attributes: HashMap::new(),
+            raw_attributes: RawAttributes(HashMap::new()),
+            timestamps: Timestamps {
+                created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+                updated_at: Timestamp::try_from("2021-06-25T19:07:33.155Z").unwrap(),
+            },
+        };
+
+        let primary_email = directory_user.primary_email();
+
+        assert_eq!(primary_email, None)
     }
 }
