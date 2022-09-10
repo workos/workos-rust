@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `primary_email` getter to `DirectoryUser`s ([#86](https://github.com/workos/workos-rust/pull/86))
+
 ## [0.2.0] - 2022-07-14
 
 ### Added
