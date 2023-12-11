@@ -90,9 +90,6 @@ pub enum DirectoryUserState {
 
     /// The directory user is inactive.
     Inactive,
-
-    /// The directory user was suspended from the directory.
-    Suspended,
 }
 
 /// An email address for a [`DirectoryUser`].
