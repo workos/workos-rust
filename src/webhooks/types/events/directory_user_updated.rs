@@ -59,7 +59,7 @@ mod test {
                       "primary": true
                     }
                   ],
-                  "state": "suspended",
+                  "state": "inactive",
                   "created_at": "2021-06-25T19:07:33.155Z",
                   "updated_at": "2021-06-25T19:07:33.155Z",
                   "raw_attributes": {
@@ -98,7 +98,7 @@ mod test {
                     DirectoryUserWithPreviousAttributes {
                         directory_user: DirectoryUser {
                             id: DirectoryUserId::from("directory_user_01E1X1B89NH8Z3SDFJR4H7RGX7"),
-                            state: KnownOrUnknown::Known(DirectoryUserState::Suspended),
+                            state: KnownOrUnknown::Known(DirectoryUserState::Inactive),
                             timestamps: Timestamps {
                                 created_at: Timestamp::try_from("2021-06-25T19:07:33.155Z")
                                     .unwrap(),
