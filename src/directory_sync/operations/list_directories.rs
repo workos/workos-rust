@@ -8,9 +8,6 @@ use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOs
 /// The parameters for [`ListDirectories`].
 #[derive(Debug, Default, Serialize)]
 pub struct ListDirectoriesParams<'a> {
-    /// The domain of a directory.
-    pub domain: Option<&'a String>,
-
     /// Searchable text to match against Directory names.
     pub search: Option<&'a String>,
 
