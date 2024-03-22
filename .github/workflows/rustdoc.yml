@@ -15,18 +15,14 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          profile: minimal
-          override: true
           components: cargo
 
       - name: cargo doc
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --no-deps
+        run: |
+          cargo doc --no-deps
 
       - name: Add index.html
         run: echo "<meta http-equiv=\"refresh\" content=\"0; url=workos\">" > ./target/doc/index.html
