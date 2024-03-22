@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sso/operations/get_authorization_url.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>get_authorization_url.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../workos/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sso/operations/get_authorization_url.rs`."><title>get_authorization_url.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../workos/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -203,7 +205,7 @@
 <a href="#203" id="203">203</a>
 <a href="#204" id="204">204</a>
 <a href="#205" id="205">205</a>
-</pre><pre class="rust"><code><span class="kw">use </span>url::{ParseError, Url};
+</pre></div><pre class="rust"><code><span class="kw">use </span>url::{ParseError, Url};
 
 <span class="kw">use </span><span class="kw">crate</span>::organizations::OrganizationId;
 <span class="kw">use </span><span class="kw">crate</span>::sso::{ClientId, ConnectionId, Sso};
@@ -220,33 +222,33 @@
 
 <span class="doccomment">/// The selector to use to determine which connection to use for SSO.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>ConnectionSelector&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub enum </span>ConnectionSelector&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Initiate SSO for the connection with the specified ID.
-    </span>Connection(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConnectionId),
+    </span>Connection(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConnectionId),
 
     <span class="doccomment">/// Initiate SSO for the organization with the specified ID.
-    </span>Organization(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>OrganizationId),
+    </span>Organization(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>OrganizationId),
 
     <span class="doccomment">/// Initiate SSO for the specified OAuth provider.
-    </span>Provider(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Provider),
+    </span>Provider(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Provider),
 }
 
 <span class="doccomment">/// The parameters for [`GetAuthorizationUrl`].
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>GetAuthorizationUrlParams&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>GetAuthorizationUrlParams&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The client ID for the environment in which SSO is being initiated.
     ///
-    /// This value can be obtained from the &quot;Configuration&quot; page in the WorkOS Dashboard.
-    </span><span class="kw">pub </span>client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
+    /// This value can be obtained from the "Configuration" page in the WorkOS Dashboard.
+    </span><span class="kw">pub </span>client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
 
     <span class="doccomment">/// The redirect URI the user will be redirected to after successfully signing in.
-    </span><span class="kw">pub </span>redirect_uri: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    </span><span class="kw">pub </span>redirect_uri: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
 
     <span class="doccomment">/// The connection selector to use to initiate SSO.
-    </span><span class="kw">pub </span>connection_selector: ConnectionSelector&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span><span class="kw">pub </span>connection_selector: ConnectionSelector&lt;<span class="lifetime">'a</span>&gt;,
 
     <span class="doccomment">/// The state parameter that will be passed back to the redirect URI.
-    </span><span class="kw">pub </span>state: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+    </span><span class="kw">pub </span>state: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
 }
 
 <span class="doccomment">/// [WorkOS Docs: Get Authorization URL](https://workos.com/docs/reference/sso/authorize/get)
@@ -263,15 +265,15 @@
     /// use workos::{ApiKey, WorkOs};
     ///
     /// # fn run() -&gt; Result&lt;(), ParseError&gt; {
-    /// let workos = WorkOs::new(&amp;ApiKey::from(&quot;sk_example_123456789&quot;));
+    /// let workos = WorkOs::new(&amp;ApiKey::from("sk_example_123456789"));
     ///
     /// let authorization_url = workos
     ///     .sso()
     ///     .get_authorization_url(&amp;GetAuthorizationUrlParams {
-    ///         client_id: &amp;ClientId::from(&quot;client_123456789&quot;),
-    ///         redirect_uri: &quot;https://your-app.com/callback&quot;,
+    ///         client_id: &amp;ClientId::from("client_123456789"),
+    ///         redirect_uri: "https://your-app.com/callback",
     ///         connection_selector: ConnectionSelector::Connection(&amp;ConnectionId::from(
-    ///             &quot;conn_01E4ZCR3C56J083X43JQXF3JK5&quot;,
+    ///             "conn_01E4ZCR3C56J083X43JQXF3JK5",
     ///         )),
     ///         state: None,
     ///     })?;
@@ -282,7 +284,7 @@
     </span><span class="kw">fn </span>get_authorization_url(<span class="kw-2">&amp;</span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>GetAuthorizationUrlParams) -&gt; <span class="prelude-ty">Result</span>&lt;Url, ParseError&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GetAuthorizationUrl <span class="kw">for </span>Sso&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; GetAuthorizationUrl <span class="kw">for </span>Sso&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>get_authorization_url(<span class="kw-2">&amp;</span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>GetAuthorizationUrlParams) -&gt; <span class="prelude-ty">Result</span>&lt;Url, ParseError&gt; {
         <span class="kw">let </span>GetAuthorizationUrlParams {
             connection_selector,
@@ -296,36 +298,36 @@
 
             <span class="kw">let </span>connection_selector_param = <span class="kw">match </span>connection_selector {
                 ConnectionSelector::Connection(connection_id) =&gt; {
-                    (<span class="string">&quot;connection&quot;</span>, connection_id.to_string())
+                    (<span class="string">"connection"</span>, connection_id.to_string())
                 }
                 ConnectionSelector::Organization(organization_id) =&gt; {
-                    (<span class="string">&quot;organization&quot;</span>, organization_id.to_string())
+                    (<span class="string">"organization"</span>, organization_id.to_string())
                 }
                 ConnectionSelector::Provider(provider) =&gt; (
-                    <span class="string">&quot;provider&quot;</span>,
+                    <span class="string">"provider"</span>,
                     <span class="kw">match </span>provider {
-                        Provider::GoogleOauth =&gt; <span class="string">&quot;GoogleOAuth&quot;</span>.to_string(),
-                        Provider::MicrosoftOauth =&gt; <span class="string">&quot;MicrosoftOAuth&quot;</span>.to_string(),
+                        Provider::GoogleOauth =&gt; <span class="string">"GoogleOAuth"</span>.to_string(),
+                        Provider::MicrosoftOauth =&gt; <span class="string">"MicrosoftOAuth"</span>.to_string(),
                     },
                 ),
             };
 
             <span class="kw">let </span><span class="kw-2">mut </span>query_params: querystring::QueryParams = <span class="macro">vec!</span>[
-                (<span class="string">&quot;response_type&quot;</span>, <span class="string">&quot;code&quot;</span>),
-                (<span class="string">&quot;client_id&quot;</span>, <span class="kw-2">&amp;</span>client_id),
-                (<span class="string">&quot;redirect_uri&quot;</span>, redirect_uri),
+                (<span class="string">"response_type"</span>, <span class="string">"code"</span>),
+                (<span class="string">"client_id"</span>, <span class="kw-2">&amp;</span>client_id),
+                (<span class="string">"redirect_uri"</span>, redirect_uri),
                 (connection_selector_param.<span class="number">0</span>, <span class="kw-2">&amp;</span>connection_selector_param.<span class="number">1</span>),
             ];
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = state {
-                query_params.push((<span class="string">&quot;state&quot;</span>, state));
+                query_params.push((<span class="string">"state"</span>, state));
             }
-            String::from(querystring::stringify(query_params).trim_end_matches(<span class="string">&#39;&amp;&#39;</span>))
+            String::from(querystring::stringify(query_params).trim_end_matches(<span class="string">'&amp;'</span>))
         };
 
         <span class="self">self</span>.workos
             .base_url()
-            .join(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;/sso/authorize?{}&quot;</span>, query))
+            .join(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"/sso/authorize?{}"</span>, query))
     }
 }
 
@@ -337,15 +339,15 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_builds_an_authorization_url_when_given_a_connection_id() {
-        <span class="kw">let </span>workos = WorkOs::new(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>));
+        <span class="kw">let </span>workos = WorkOs::new(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>));
 
         <span class="kw">let </span>authorization_url = workos
             .sso()
             .get_authorization_url(<span class="kw-2">&amp;</span>GetAuthorizationUrlParams {
-                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">&quot;client_123456789&quot;</span>),
-                redirect_uri: <span class="string">&quot;https://your-app.com/callback&quot;</span>,
+                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">"client_123456789"</span>),
+                redirect_uri: <span class="string">"https://your-app.com/callback"</span>,
                 connection_selector: ConnectionSelector::Connection(<span class="kw-2">&amp;</span>ConnectionId::from(
-                    <span class="string">&quot;conn_1234&quot;</span>,
+                    <span class="string">"conn_1234"</span>,
                 )),
                 state: <span class="prelude-val">None</span>,
             })
@@ -354,7 +356,7 @@
         <span class="macro">assert_eq!</span>(
             authorization_url,
             Url::parse(
-                <span class="string">&quot;https://api.workos.com/sso/authorize?response_type=code&amp;client_id=client_123456789&amp;redirect_uri=https://your-app.com/callback&amp;connection=conn_1234&quot;
+                <span class="string">"https://api.workos.com/sso/authorize?response_type=code&amp;client_id=client_123456789&amp;redirect_uri=https://your-app.com/callback&amp;connection=conn_1234"
             </span>)
             .unwrap()
         )
@@ -362,15 +364,15 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_builds_an_authorization_url_when_given_an_organization_id() {
-        <span class="kw">let </span>workos = WorkOs::new(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>));
+        <span class="kw">let </span>workos = WorkOs::new(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>));
         <span class="kw">let </span>workos_sso = Sso::new(<span class="kw-2">&amp;</span>workos);
 
         <span class="kw">let </span>authorization_url = workos_sso
             .get_authorization_url(<span class="kw-2">&amp;</span>GetAuthorizationUrlParams {
-                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">&quot;client_123456789&quot;</span>),
-                redirect_uri: <span class="string">&quot;https://your-app.com/callback&quot;</span>,
+                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">"client_123456789"</span>),
+                redirect_uri: <span class="string">"https://your-app.com/callback"</span>,
                 connection_selector: ConnectionSelector::Organization(<span class="kw-2">&amp;</span>OrganizationId::from(
-                    <span class="string">&quot;org_1234&quot;</span>,
+                    <span class="string">"org_1234"</span>,
                 )),
                 state: <span class="prelude-val">None</span>,
             })
@@ -379,7 +381,7 @@
         <span class="macro">assert_eq!</span>(
             authorization_url,
             Url::parse(
-                <span class="string">&quot;https://api.workos.com/sso/authorize?response_type=code&amp;client_id=client_123456789&amp;redirect_uri=https://your-app.com/callback&amp;organization=org_1234&quot;
+                <span class="string">"https://api.workos.com/sso/authorize?response_type=code&amp;client_id=client_123456789&amp;redirect_uri=https://your-app.com/callback&amp;organization=org_1234"
             </span>)
             .unwrap()
         )
@@ -387,13 +389,13 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_builds_an_authorization_url_when_given_a_provider() {
-        <span class="kw">let </span>workos = WorkOs::new(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>));
+        <span class="kw">let </span>workos = WorkOs::new(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>));
         <span class="kw">let </span>workos_sso = Sso::new(<span class="kw-2">&amp;</span>workos);
 
         <span class="kw">let </span>authorization_url = workos_sso
             .get_authorization_url(<span class="kw-2">&amp;</span>GetAuthorizationUrlParams {
-                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">&quot;client_123456789&quot;</span>),
-                redirect_uri: <span class="string">&quot;https://your-app.com/callback&quot;</span>,
+                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">"client_123456789"</span>),
+                redirect_uri: <span class="string">"https://your-app.com/callback"</span>,
                 connection_selector: ConnectionSelector::Provider(<span class="kw-2">&amp;</span>Provider::GoogleOauth),
                 state: <span class="prelude-val">None</span>,
             })
@@ -402,11 +404,10 @@
         <span class="macro">assert_eq!</span>(
             authorization_url,
             Url::parse(
-                <span class="string">&quot;https://api.workos.com/sso/authorize?response_type=code&amp;client_id=client_123456789&amp;redirect_uri=https://your-app.com/callback&amp;provider=GoogleOAuth&quot;
+                <span class="string">"https://api.workos.com/sso/authorize?response_type=code&amp;client_id=client_123456789&amp;redirect_uri=https://your-app.com/callback&amp;provider=GoogleOAuth"
             </span>)
             .unwrap()
         )
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

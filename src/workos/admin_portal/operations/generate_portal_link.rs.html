@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/admin_portal/operations/generate_portal_link.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generate_portal_link.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../workos/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/admin_portal/operations/generate_portal_link.rs`."><title>generate_portal_link.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../workos/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -164,7 +166,7 @@
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
-</pre><pre class="rust"><code><span class="kw">use </span>async_trait::async_trait;
+</pre></div><pre class="rust"><code><span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::admin_portal::AdminPortal;
@@ -173,24 +175,24 @@
 
 <span class="doccomment">/// The intent of an Admin Portal session.
 </span><span class="attr">#[derive(Debug, Serialize)]
-#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+#[serde(rename_all = <span class="string">"snake_case"</span>)]
 </span><span class="kw">pub enum </span>AdminPortalIntent {
     <span class="doccomment">/// The Admin Portal will be used to setup Single Sign-On (SSO).
     </span>Sso,
 
     <span class="doccomment">/// The Admin Portal wil be used to setup Directory Sync.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;dsync&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"dsync"</span>)]
     </span>DirectorySync,
 }
 
 <span class="doccomment">/// The target of the Admin Portal.
 </span><span class="attr">#[derive(Debug, Serialize)]
-#[serde(untagged, rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+#[serde(untagged, rename_all = <span class="string">"snake_case"</span>)]
 </span><span class="kw">pub enum </span>AdminPortalTarget {
     <span class="doccomment">/// The Admin Portal session should target an organization.
     </span>Organization {
         <span class="doccomment">/// The ID of the organization.
-        </span><span class="attr">#[serde(rename = <span class="string">&quot;organization&quot;</span>)]
+        </span><span class="attr">#[serde(rename = <span class="string">"organization"</span>)]
         </span>organization_id: OrganizationId,
 
         <span class="doccomment">/// The intent of the Admin Portal session.
@@ -200,14 +202,14 @@
 
 <span class="doccomment">/// The parameters for [`GeneratePortalLink`].
 </span><span class="attr">#[derive(Debug, Serialize)]
-</span><span class="kw">pub struct </span>GeneratePortalLinkParams&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>GeneratePortalLinkParams&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The target of the Admin Portal.
     </span><span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>target: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AdminPortalTarget,
+    </span><span class="kw">pub </span>target: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AdminPortalTarget,
 
     <span class="doccomment">/// The URL to which the Admin Portal should send users when they click on the link
     /// to return to your application.
-    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span><span class="kw">pub </span>return_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
@@ -238,13 +240,13 @@
     /// use workos::{ApiKey, WorkOs};
     ///
     /// # async fn run() -&gt; WorkOsResult&lt;(), GeneratePortalLinkError&gt; {
-    /// let workos = WorkOs::new(&amp;ApiKey::from(&quot;sk_example_123456789&quot;));
+    /// let workos = WorkOs::new(&amp;ApiKey::from("sk_example_123456789"));
     ///
     /// let GeneratePortalLinkResponse { link } = workos
     ///     .admin_portal()
     ///     .generate_portal_link(&amp;GeneratePortalLinkParams {
     ///         target: &amp;AdminPortalTarget::Organization {
-    ///             organization_id: OrganizationId::from(&quot;org_01EHZNVPK3SFK441A1RGBFSHRT&quot;),
+    ///             organization_id: OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"),
     ///             intent: AdminPortalIntent::Sso,
     ///         },
     ///         return_url: None,
@@ -255,17 +257,17 @@
     /// ```
     </span><span class="kw">async fn </span>generate_portal_link(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>GeneratePortalLinkParams&lt;<span class="lifetime">&#39;_</span>&gt;,
+        params: <span class="kw-2">&amp;</span>GeneratePortalLinkParams&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; WorkOsResult&lt;GeneratePortalLinkResponse, GeneratePortalLinkError&gt;;
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GeneratePortalLink <span class="kw">for </span>AdminPortal&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; GeneratePortalLink <span class="kw">for </span>AdminPortal&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">async fn </span>generate_portal_link(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>GeneratePortalLinkParams&lt;<span class="lifetime">&#39;_</span>&gt;,
+        params: <span class="kw-2">&amp;</span>GeneratePortalLinkParams&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; WorkOsResult&lt;GeneratePortalLinkResponse, GeneratePortalLinkError&gt; {
-        <span class="kw">let </span>url = <span class="self">self</span>.workos.base_url().join(<span class="string">&quot;/portal/generate_link&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>url = <span class="self">self</span>.workos.base_url().join(<span class="string">"/portal/generate_link"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>generate_link_response = <span class="self">self
             </span>.workos
             .client()
@@ -295,18 +297,18 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>it_calls_the_generate_portal_link_endpoint() {
-        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>))
+        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>))
             .base_url(<span class="kw-2">&amp;</span><span class="macro">dbg!</span>(mockito::server_url()))
             .unwrap()
             .build();
 
-        <span class="kw">let </span>_mock = mock(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/portal/generate_link&quot;</span>)
-            .match_header(<span class="string">&quot;Authorization&quot;</span>, <span class="string">&quot;Bearer sk_example_123456789&quot;</span>)
-            .match_body(<span class="string">r#&quot;{&quot;organization&quot;:&quot;org_01EHZNVPK3SFK441A1RGBFSHRT&quot;,&quot;intent&quot;:&quot;sso&quot;}&quot;#</span>)
+        <span class="kw">let </span>_mock = mock(<span class="string">"POST"</span>, <span class="string">"/portal/generate_link"</span>)
+            .match_header(<span class="string">"Authorization"</span>, <span class="string">"Bearer sk_example_123456789"</span>)
+            .match_body(<span class="string">r#"{"organization":"org_01EHZNVPK3SFK441A1RGBFSHRT","intent":"sso"}"#</span>)
             .with_status(<span class="number">201</span>)
             .with_body(
                 <span class="macro">json!</span>({
-                    <span class="string">&quot;link&quot;</span>: <span class="string">&quot;https://setup.workos.com/portal/launch?secret=JteZqfJZqUcgWGaYCC6iI0gW0&quot;
+                    <span class="string">"link"</span>: <span class="string">"https://setup.workos.com/portal/launch?secret=JteZqfJZqUcgWGaYCC6iI0gW0"
                 </span>})
                 .to_string(),
             )
@@ -316,7 +318,7 @@
             .admin_portal()
             .generate_portal_link(<span class="kw-2">&amp;</span>GeneratePortalLinkParams {
                 target: <span class="kw-2">&amp;</span>AdminPortalTarget::Organization {
-                    organization_id: OrganizationId::from(<span class="string">&quot;org_01EHZNVPK3SFK441A1RGBFSHRT&quot;</span>),
+                    organization_id: OrganizationId::from(<span class="string">"org_01EHZNVPK3SFK441A1RGBFSHRT"</span>),
                     intent: AdminPortalIntent::Sso,
                 },
                 return_url: <span class="prelude-val">None</span>,
@@ -326,9 +328,8 @@
 
         <span class="macro">assert_eq!</span>(
             link,
-            <span class="string">&quot;https://setup.workos.com/portal/launch?secret=JteZqfJZqUcgWGaYCC6iI0gW0&quot;</span>.to_string()
+            <span class="string">"https://setup.workos.com/portal/launch?secret=JteZqfJZqUcgWGaYCC6iI0gW0"</span>.to_string()
         )
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

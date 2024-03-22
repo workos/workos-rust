@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sso/operations/get_profile_and_token.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>get_profile_and_token.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../workos/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sso/operations/get_profile_and_token.rs`."><title>get_profile_and_token.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../workos/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -295,7 +297,7 @@
 <a href="#295" id="295">295</a>
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
-</pre><pre class="rust"><code><span class="kw">use </span>async_trait::async_trait;
+</pre></div><pre class="rust"><code><span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>reqwest::{Response, StatusCode};
 <span class="kw">use </span>serde::Deserialize;
 <span class="kw">use </span>thiserror::Error;
@@ -305,13 +307,13 @@
 
 <span class="doccomment">/// The parameters for [`GetProfileAndToken`].
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>GetProfileAndTokenParams&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>GetProfileAndTokenParams&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The client ID corresponding to the environment that SSO was initiated
     /// from.
-    </span><span class="kw">pub </span>client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
+    </span><span class="kw">pub </span>client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
 
     <span class="doccomment">/// The authorization code to exchange for the profile and token.
-    </span><span class="kw">pub </span>code: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthorizationCode,
+    </span><span class="kw">pub </span>code: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthorizationCode,
 }
 
 <span class="doccomment">/// The response for [`GetProfileAndToken`].
@@ -326,7 +328,7 @@
 
 <span class="doccomment">/// An error returned from [`GetProfileAndToken`].
 </span><span class="attr">#[derive(Debug, Error, Deserialize)]
-#[error(<span class="string">&quot;{error}: {error_description}&quot;</span>)]
+#[error(<span class="string">"{error}: {error_description}"</span>)]
 </span><span class="kw">pub struct </span>GetProfileAndTokenError {
     <span class="doccomment">/// The error code of the error that occurred.
     </span><span class="kw">pub </span>error: String,
@@ -357,7 +359,7 @@
                     <span class="kw">let </span>error = <span class="self">self</span>.json::&lt;GetProfileAndTokenError&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
 
                     <span class="prelude-val">Err</span>(<span class="kw">match </span>error.error.as_str() {
-                        <span class="string">&quot;invalid_client&quot; </span>| <span class="string">&quot;unauthorized_client&quot; </span>=&gt; WorkOsError::Unauthorized,
+                        <span class="string">"invalid_client" </span>| <span class="string">"unauthorized_client" </span>=&gt; WorkOsError::Unauthorized,
                         <span class="kw">_ </span>=&gt; WorkOsError::Operation(error),
                     })
                 }
@@ -380,13 +382,13 @@
     /// use workos::{ApiKey, WorkOs};
     ///
     /// # async fn run() -&gt; WorkOsResult&lt;(), GetProfileAndTokenError&gt; {
-    /// let workos = WorkOs::new(&amp;ApiKey::from(&quot;sk_example_123456789&quot;));
+    /// let workos = WorkOs::new(&amp;ApiKey::from("sk_example_123456789"));
     ///
     /// let GetProfileAndTokenResponse { profile, .. } = workos
     ///     .sso()
     ///     .get_profile_and_token(&amp;GetProfileAndTokenParams {
-    ///         client_id: &amp;ClientId::from(&quot;client_123456789&quot;),
-    ///         code: &amp;AuthorizationCode::from(&quot;01G6RSWVD06ZQ6JB4YS5W521S3&quot;),
+    ///         client_id: &amp;ClientId::from("client_123456789"),
+    ///         code: &amp;AuthorizationCode::from("01G6RSWVD06ZQ6JB4YS5W521S3"),
     ///     })
     ///     .await?;
     /// # Ok(())
@@ -394,24 +396,24 @@
     /// ```
     </span><span class="kw">async fn </span>get_profile_and_token(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>GetProfileAndTokenParams&lt;<span class="lifetime">&#39;_</span>&gt;,
+        params: <span class="kw-2">&amp;</span>GetProfileAndTokenParams&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; WorkOsResult&lt;GetProfileAndTokenResponse, GetProfileAndTokenError&gt;;
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GetProfileAndToken <span class="kw">for </span>Sso&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; GetProfileAndToken <span class="kw">for </span>Sso&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">async fn </span>get_profile_and_token(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>GetProfileAndTokenParams&lt;<span class="lifetime">&#39;_</span>&gt;,
+        params: <span class="kw-2">&amp;</span>GetProfileAndTokenParams&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; WorkOsResult&lt;GetProfileAndTokenResponse, GetProfileAndTokenError&gt; {
         <span class="kw">let </span><span class="kw-2">&amp;</span>GetProfileAndTokenParams { client_id, code } = params;
 
-        <span class="kw">let </span>url = <span class="self">self</span>.workos.base_url().join(<span class="string">&quot;/sso/token&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>url = <span class="self">self</span>.workos.base_url().join(<span class="string">"/sso/token"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>params = [
-            (<span class="string">&quot;client_id&quot;</span>, <span class="kw-2">&amp;</span>client_id.to_string()),
-            (<span class="string">&quot;client_secret&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.workos.key().to_string()),
-            (<span class="string">&quot;grant_type&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;authorization_code&quot;</span>.to_string()),
-            (<span class="string">&quot;code&quot;</span>, <span class="kw-2">&amp;</span>code.to_string()),
+            (<span class="string">"client_id"</span>, <span class="kw-2">&amp;</span>client_id.to_string()),
+            (<span class="string">"client_secret"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.workos.key().to_string()),
+            (<span class="string">"grant_type"</span>, <span class="kw-2">&amp;</span><span class="string">"authorization_code"</span>.to_string()),
+            (<span class="string">"code"</span>, <span class="kw-2">&amp;</span>code.to_string()),
         ];
         <span class="kw">let </span>get_profile_and_token_response = <span class="self">self
             </span>.workos
@@ -443,35 +445,35 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>it_calls_the_token_endpoint() {
-        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>))
+        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>))
             .base_url(<span class="kw-2">&amp;</span>mockito::server_url())
             .unwrap()
             .build();
 
-        <span class="kw">let </span>_mock = mock(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/sso/token&quot;</span>)
+        <span class="kw">let </span>_mock = mock(<span class="string">"POST"</span>, <span class="string">"/sso/token"</span>)
             .match_body(Matcher::AllOf(<span class="macro">vec!</span>[
-                Matcher::UrlEncoded(<span class="string">&quot;client_id&quot;</span>.to_string(), <span class="string">&quot;client_1234&quot;</span>.to_string()),
+                Matcher::UrlEncoded(<span class="string">"client_id"</span>.to_string(), <span class="string">"client_1234"</span>.to_string()),
                 Matcher::UrlEncoded(
-                    <span class="string">&quot;client_secret&quot;</span>.to_string(),
-                    <span class="string">&quot;sk_example_123456789&quot;</span>.to_string(),
+                    <span class="string">"client_secret"</span>.to_string(),
+                    <span class="string">"sk_example_123456789"</span>.to_string(),
                 ),
-                Matcher::UrlEncoded(<span class="string">&quot;grant_type&quot;</span>.to_string(), <span class="string">&quot;authorization_code&quot;</span>.to_string()),
-                Matcher::UrlEncoded(<span class="string">&quot;code&quot;</span>.to_string(), <span class="string">&quot;abc123&quot;</span>.to_string()),
+                Matcher::UrlEncoded(<span class="string">"grant_type"</span>.to_string(), <span class="string">"authorization_code"</span>.to_string()),
+                Matcher::UrlEncoded(<span class="string">"code"</span>.to_string(), <span class="string">"abc123"</span>.to_string()),
             ]))
             .with_status(<span class="number">200</span>)
             .with_body(
                 <span class="macro">json!</span>({
-                  <span class="string">&quot;access_token&quot;</span>: <span class="string">&quot;01DMEK0J53CVMC32CK5SE0KZ8Q&quot;</span>,
-                  <span class="string">&quot;profile&quot;</span>: {
-                    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;prof_01DMC79VCBZ0NY2099737PSVF1&quot;</span>,
-                    <span class="string">&quot;connection_id&quot;</span>: <span class="string">&quot;conn_01E4ZCR3C56J083X43JQXF3JK5&quot;</span>,
-                    <span class="string">&quot;connection_type&quot;</span>: <span class="string">&quot;okta&quot;</span>,
-                    <span class="string">&quot;email&quot;</span>: <span class="string">&quot;todd@foo-corp.com&quot;</span>,
-                    <span class="string">&quot;first_name&quot;</span>: <span class="string">&quot;Todd&quot;</span>,
-                    <span class="string">&quot;idp_id&quot;</span>: <span class="string">&quot;00u1a0ufowBJlzPlk357&quot;</span>,
-                    <span class="string">&quot;last_name&quot;</span>: <span class="string">&quot;Rundgren&quot;</span>,
-                    <span class="string">&quot;object&quot;</span>: <span class="string">&quot;profile&quot;</span>,
-                    <span class="string">&quot;raw_attributes&quot;</span>: {}
+                  <span class="string">"access_token"</span>: <span class="string">"01DMEK0J53CVMC32CK5SE0KZ8Q"</span>,
+                  <span class="string">"profile"</span>: {
+                    <span class="string">"id"</span>: <span class="string">"prof_01DMC79VCBZ0NY2099737PSVF1"</span>,
+                    <span class="string">"connection_id"</span>: <span class="string">"conn_01E4ZCR3C56J083X43JQXF3JK5"</span>,
+                    <span class="string">"connection_type"</span>: <span class="string">"okta"</span>,
+                    <span class="string">"email"</span>: <span class="string">"todd@foo-corp.com"</span>,
+                    <span class="string">"first_name"</span>: <span class="string">"Todd"</span>,
+                    <span class="string">"idp_id"</span>: <span class="string">"00u1a0ufowBJlzPlk357"</span>,
+                    <span class="string">"last_name"</span>: <span class="string">"Rundgren"</span>,
+                    <span class="string">"object"</span>: <span class="string">"profile"</span>,
+                    <span class="string">"raw_attributes"</span>: {}
                   }
                 })
                 .to_string(),
@@ -481,35 +483,35 @@
         <span class="kw">let </span>response = workos
             .sso()
             .get_profile_and_token(<span class="kw-2">&amp;</span>GetProfileAndTokenParams {
-                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">&quot;client_1234&quot;</span>),
-                code: <span class="kw-2">&amp;</span>AuthorizationCode::from(<span class="string">&quot;abc123&quot;</span>),
+                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">"client_1234"</span>),
+                code: <span class="kw-2">&amp;</span>AuthorizationCode::from(<span class="string">"abc123"</span>),
             })
             .<span class="kw">await
             </span>.unwrap();
 
         <span class="macro">assert_eq!</span>(
             response.access_token,
-            AccessToken::from(<span class="string">&quot;01DMEK0J53CVMC32CK5SE0KZ8Q&quot;</span>)
+            AccessToken::from(<span class="string">"01DMEK0J53CVMC32CK5SE0KZ8Q"</span>)
         );
         <span class="macro">assert_eq!</span>(
             response.profile.id,
-            ProfileId::from(<span class="string">&quot;prof_01DMC79VCBZ0NY2099737PSVF1&quot;</span>)
+            ProfileId::from(<span class="string">"prof_01DMC79VCBZ0NY2099737PSVF1"</span>)
         )
     }
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>it_returns_an_unauthorized_error_with_an_invalid_client() {
-        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>))
+        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>))
             .base_url(<span class="kw-2">&amp;</span>mockito::server_url())
             .unwrap()
             .build();
 
-        <span class="kw">let </span>_mock = mock(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/sso/token&quot;</span>)
+        <span class="kw">let </span>_mock = mock(<span class="string">"POST"</span>, <span class="string">"/sso/token"</span>)
             .with_status(<span class="number">400</span>)
             .with_body(
                 <span class="macro">json!</span>({
-                    <span class="string">&quot;error&quot;</span>: <span class="string">&quot;invalid_client&quot;</span>,
-                    <span class="string">&quot;error_description&quot;</span>: <span class="string">&quot;Invalid client ID.&quot;
+                    <span class="string">"error"</span>: <span class="string">"invalid_client"</span>,
+                    <span class="string">"error_description"</span>: <span class="string">"Invalid client ID."
                 </span>})
                 .to_string(),
             )
@@ -518,8 +520,8 @@
         <span class="kw">let </span>result = workos
             .sso()
             .get_profile_and_token(<span class="kw-2">&amp;</span>GetProfileAndTokenParams {
-                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">&quot;client_1234&quot;</span>),
-                code: <span class="kw-2">&amp;</span>AuthorizationCode::from(<span class="string">&quot;abc123&quot;</span>),
+                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">"client_1234"</span>),
+                code: <span class="kw-2">&amp;</span>AuthorizationCode::from(<span class="string">"abc123"</span>),
             })
             .<span class="kw">await</span>;
 
@@ -528,17 +530,17 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>it_returns_an_unauthorized_error_with_an_unauthorized_client() {
-        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>))
+        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>))
             .base_url(<span class="kw-2">&amp;</span>mockito::server_url())
             .unwrap()
             .build();
 
-        <span class="kw">let </span>_mock = mock(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/sso/token&quot;</span>)
+        <span class="kw">let </span>_mock = mock(<span class="string">"POST"</span>, <span class="string">"/sso/token"</span>)
             .with_status(<span class="number">400</span>)
             .with_body(
                 <span class="macro">json!</span>({
-                    <span class="string">&quot;error&quot;</span>: <span class="string">&quot;unauthorized_client&quot;</span>,
-                    <span class="string">&quot;error_description&quot;</span>: <span class="string">&quot;Unauthorized&quot;
+                    <span class="string">"error"</span>: <span class="string">"unauthorized_client"</span>,
+                    <span class="string">"error_description"</span>: <span class="string">"Unauthorized"
                 </span>})
                 .to_string(),
             )
@@ -547,8 +549,8 @@
         <span class="kw">let </span>result = workos
             .sso()
             .get_profile_and_token(<span class="kw-2">&amp;</span>GetProfileAndTokenParams {
-                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">&quot;client_1234&quot;</span>),
-                code: <span class="kw-2">&amp;</span>AuthorizationCode::from(<span class="string">&quot;abc123&quot;</span>),
+                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">"client_1234"</span>),
+                code: <span class="kw-2">&amp;</span>AuthorizationCode::from(<span class="string">"abc123"</span>),
             })
             .<span class="kw">await</span>;
 
@@ -557,17 +559,17 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>it_returns_an_error_when_the_authorization_code_is_invalid() {
-        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>))
+        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>))
             .base_url(<span class="kw-2">&amp;</span>mockito::server_url())
             .unwrap()
             .build();
 
-        <span class="kw">let </span>_mock = mock(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/sso/token&quot;</span>)
+        <span class="kw">let </span>_mock = mock(<span class="string">"POST"</span>, <span class="string">"/sso/token"</span>)
             .with_status(<span class="number">400</span>)
             .with_body(
                 <span class="macro">json!</span>({
-                    <span class="string">&quot;error&quot;</span>: <span class="string">&quot;invalid_grant&quot;</span>,
-                    <span class="string">&quot;error_description&quot;</span>: <span class="string">&quot;The code &#39;abc123&#39; has expired or is invalid.&quot;
+                    <span class="string">"error"</span>: <span class="string">"invalid_grant"</span>,
+                    <span class="string">"error_description"</span>: <span class="string">"The code 'abc123' has expired or is invalid."
                 </span>})
                 .to_string(),
             )
@@ -576,21 +578,20 @@
         <span class="kw">let </span>result = workos
             .sso()
             .get_profile_and_token(<span class="kw-2">&amp;</span>GetProfileAndTokenParams {
-                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">&quot;client_1234&quot;</span>),
-                code: <span class="kw-2">&amp;</span>AuthorizationCode::from(<span class="string">&quot;abc123&quot;</span>),
+                client_id: <span class="kw-2">&amp;</span>ClientId::from(<span class="string">"client_1234"</span>),
+                code: <span class="kw-2">&amp;</span>AuthorizationCode::from(<span class="string">"abc123"</span>),
             })
             .<span class="kw">await</span>;
 
         <span class="kw">if let </span><span class="prelude-val">Err</span>(WorkOsError::Operation(error)) = result {
-            <span class="macro">assert_eq!</span>(error.error, <span class="string">&quot;invalid_grant&quot;</span>);
+            <span class="macro">assert_eq!</span>(error.error, <span class="string">"invalid_grant"</span>);
             <span class="macro">assert_eq!</span>(
                 error.error_description,
-                <span class="string">&quot;The code &#39;abc123&#39; has expired or is invalid.&quot;
+                <span class="string">"The code 'abc123' has expired or is invalid."
             </span>);
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;expected get_profile_and_token to return an error&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"expected get_profile_and_token to return an error"</span>)
         }
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

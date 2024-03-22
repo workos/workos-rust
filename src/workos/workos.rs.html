@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/workos.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>workos.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../workos/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/workos.rs`."><title>workos.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../workos/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -162,7 +164,7 @@
 <a href="#162" id="162">162</a>
 <a href="#163" id="163">163</a>
 <a href="#164" id="164">164</a>
-</pre><pre class="rust"><code><span class="kw">use </span>url::{ParseError, Url};
+</pre></div><pre class="rust"><code><span class="kw">use </span>url::{ParseError, Url};
 
 <span class="kw">use </span><span class="kw">crate</span>::admin_portal::AdminPortal;
 <span class="kw">use </span><span class="kw">crate</span>::directory_sync::DirectorySync;
@@ -234,28 +236,28 @@
 }
 
 <span class="doccomment">/// A builder for a WorkOS client.
-</span><span class="kw">pub struct </span>WorkOsBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>WorkOsBuilder&lt;<span class="lifetime">'a</span>&gt; {
     base_url: Url,
-    key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ApiKey,
+    key: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ApiKey,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; WorkOsBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; WorkOsBuilder&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a new [`WorkOsBuilder`] using the provided API key.
-    </span><span class="kw">pub fn </span>new(key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ApiKey) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(key: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ApiKey) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            base_url: Url::parse(<span class="string">&quot;https://api.workos.com&quot;</span>).unwrap(),
+            base_url: Url::parse(<span class="string">"https://api.workos.com"</span>).unwrap(),
             key,
         }
     }
 
     <span class="doccomment">/// Sets the base URL of the WorkOS API that the client should point to.
-    </span><span class="kw">pub fn </span>base_url(<span class="kw-2">mut </span><span class="self">self</span>, base_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;WorkOsBuilder, ParseError&gt; {
+    </span><span class="kw">pub fn </span>base_url(<span class="kw-2">mut </span><span class="self">self</span>, base_url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;WorkOsBuilder, ParseError&gt; {
         <span class="self">self</span>.base_url = Url::parse(base_url)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Sets the API key that the client will use.
-    </span><span class="kw">pub fn </span>key(<span class="kw-2">mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ApiKey) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>key(<span class="kw-2">mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ApiKey) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.key = key;
         <span class="self">self
     </span>}
@@ -263,7 +265,7 @@
     <span class="doccomment">/// Consumes the builder and returns the constructed client.
     </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; WorkOs {
         <span class="kw">let </span>client = reqwest::Client::builder()
-            .user_agent(<span class="macro">concat!</span>(<span class="string">&quot;workos-rust/&quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>)))
+            .user_agent(<span class="macro">concat!</span>(<span class="string">"workos-rust/"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)))
             .build()
             .unwrap();
 
@@ -283,48 +285,47 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_supports_setting_the_base_url_through_the_builder() {
-        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>))
-            .base_url(<span class="string">&quot;https://auth.your-app.com&quot;</span>)
+        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>))
+            .base_url(<span class="string">"https://auth.your-app.com"</span>)
             .unwrap()
             .build();
 
         <span class="macro">assert_eq!</span>(
             workos.base_url(),
-            <span class="kw-2">&amp;</span>Url::parse(<span class="string">&quot;https://auth.your-app.com&quot;</span>).unwrap()
+            <span class="kw-2">&amp;</span>Url::parse(<span class="string">"https://auth.your-app.com"</span>).unwrap()
         )
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_supports_setting_the_api_key_through_the_builder() {
-        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>))
-            .key(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_another_api_key&quot;</span>))
+        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>))
+            .key(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_another_api_key"</span>))
             .build();
 
-        <span class="macro">assert_eq!</span>(workos.key(), <span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_another_api_key&quot;</span>))
+        <span class="macro">assert_eq!</span>(workos.key(), <span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_another_api_key"</span>))
     }
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>it_sets_the_user_agent_header_on_the_client() {
-        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">&quot;sk_example_123456789&quot;</span>))
+        <span class="kw">let </span>workos = WorkOs::builder(<span class="kw-2">&amp;</span>ApiKey::from(<span class="string">"sk_example_123456789"</span>))
             .base_url(<span class="kw-2">&amp;</span>mockito::server_url())
             .unwrap()
             .build();
 
-        <span class="kw">let </span>_mock = mock(<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;/health&quot;</span>)
+        <span class="kw">let </span>_mock = mock(<span class="string">"GET"</span>, <span class="string">"/health"</span>)
             .match_header(
-                <span class="string">&quot;User-Agent&quot;</span>,
-                <span class="macro">concat!</span>(<span class="string">&quot;workos-rust/&quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>)),
+                <span class="string">"User-Agent"</span>,
+                <span class="macro">concat!</span>(<span class="string">"workos-rust/"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)),
             )
             .with_status(<span class="number">200</span>)
-            .with_body(<span class="string">&quot;User-Agent correctly set&quot;</span>)
+            .with_body(<span class="string">"User-Agent correctly set"</span>)
             .create();
 
-        <span class="kw">let </span>url = workos.base_url().join(<span class="string">&quot;/health&quot;</span>).unwrap();
+        <span class="kw">let </span>url = workos.base_url().join(<span class="string">"/health"</span>).unwrap();
         <span class="kw">let </span>response = workos.client().get(url).send().<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>response_body = response.text().<span class="kw">await</span>.unwrap();
 
-        <span class="macro">assert_eq!</span>(response_body, <span class="string">&quot;User-Agent correctly set&quot;</span>)
+        <span class="macro">assert_eq!</span>(response_body, <span class="string">"User-Agent correctly set"</span>)
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sso/types/connection_type.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection_type.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../workos/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sso/types/connection_type.rs`."><title>connection_type.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../workos/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -188,7 +190,7 @@
 <a href="#188" id="188">188</a>
 <a href="#189" id="189">189</a>
 <a href="#190" id="190">190</a>
-</pre><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
+</pre></div><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="doccomment">/// The type of a [`Connection`](crate::sso::Connection).
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -196,163 +198,163 @@
     <span class="doccomment">/// AD FS SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/adfs-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ADFSSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ADFSSAML"</span>)]
     </span>AdFsSaml,
 
     <span class="doccomment">/// ADP OpenID Connect (OIDC).
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/adp-oidc)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ADPOIDC&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ADPOIDC"</span>)]
     </span>AdpOidc,
 
     <span class="doccomment">/// Auth0 SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/auth0-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;Auth0SAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"Auth0SAML"</span>)]
     </span>Auth0Saml,
 
     <span class="doccomment">/// Azure Active Directory (AD) SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/azure-ad-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;AzureSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"AzureSAML"</span>)]
     </span>AzureSaml,
 
     <span class="doccomment">/// CAS SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/cas-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;CASSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"CASSAML"</span>)]
     </span>CasSaml,
 
     <span class="doccomment">/// ClassLink SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/classlink-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ClassLinkSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ClassLinkSAML"</span>)]
     </span>ClassLinkSaml,
 
     <span class="doccomment">/// Cloudflare SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/cloudflare-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;CloudflareSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"CloudflareSAML"</span>)]
     </span>CloudflareSaml,
 
     <span class="doccomment">/// CyberArk SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/cyberark-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;CyberArkSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"CyberArkSAML"</span>)]
     </span>CyberArkSaml,
 
     <span class="doccomment">/// Duo SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/duo-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;DuoSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"DuoSAML"</span>)]
     </span>DuoSaml,
 
     <span class="doccomment">/// Generic OpenID Connect (OIDC).
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/oidc)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;GenericOIDC&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"GenericOIDC"</span>)]
     </span>GenericOidc,
 
     <span class="doccomment">/// Generic SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/generic-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;GenericSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"GenericSAML"</span>)]
     </span>GenericSaml,
 
     <span class="doccomment">/// Google OAuth.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/g-suite-oauth)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;GoogleOAuth&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"GoogleOAuth"</span>)]
     </span>GoogleOauth,
 
     <span class="doccomment">/// Google SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/google-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;GoogleSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"GoogleSAML"</span>)]
     </span>GoogleSaml,
 
     <span class="doccomment">/// JumpCloud SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/jumpcloud-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;JumpCloudSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"JumpCloudSAML"</span>)]
     </span>JumpCloudSaml,
 
     <span class="doccomment">/// Keycloak SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/keycloak-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;KeycloakSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"KeycloakSAML"</span>)]
     </span>KeycloakSaml,
 
     <span class="doccomment">/// Microsoft OAuth.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/microsoft-oauth)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;MicrosoftOAuth&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"MicrosoftOAuth"</span>)]
     </span>MicrosoftOauth,
 
     <span class="doccomment">/// miniOrange SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/mini-orange-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;MiniOrangeSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"MiniOrangeSAML"</span>)]
     </span>MiniOrangeSaml,
 
     <span class="doccomment">/// NetIQ SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/net-iq-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;NetIqSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"NetIqSAML"</span>)]
     </span>NetIqSaml,
 
     <span class="doccomment">/// Okta SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/okta-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;OktaSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"OktaSAML"</span>)]
     </span>OktaSaml,
 
     <span class="doccomment">/// OneLogin SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/onelogin-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;OneLoginSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"OneLoginSAML"</span>)]
     </span>OneLoginSaml,
 
     <span class="doccomment">/// Oracle SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/oracle-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;OracleSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"OracleSAML"</span>)]
     </span>OracleSaml,
 
     <span class="doccomment">/// PingFederate SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/ping-federate-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;PingFederateSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"PingFederateSAML"</span>)]
     </span>PingFederateSaml,
 
     <span class="doccomment">/// PingOne SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/ping-one-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;PingOneSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"PingOneSAML"</span>)]
     </span>PingOneSaml,
 
     <span class="doccomment">/// Salesforce SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/salesforce-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;SalesforceSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"SalesforceSAML"</span>)]
     </span>SalesforceSaml,
 
     <span class="doccomment">/// Shibboleth SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/shibboleth)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ShibbolethSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ShibbolethSAML"</span>)]
     </span>ShibbolethSaml,
 
     <span class="doccomment">/// SimpleSAMLphp SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/simple-saml-php-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;SimpleSamlPhpSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"SimpleSamlPhpSAML"</span>)]
     </span>SimpleSamlPhpSaml,
 
     <span class="doccomment">/// VMware SAML.
     ///
     /// [WorkOS Docs: Integration Guide](https://workos.com/docs/integrations/vmware-saml)
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;VMwareSAML&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"VMwareSAML"</span>)]
     </span>VmwareSaml,
 }
 
@@ -366,17 +368,16 @@
     </span><span class="kw">fn </span>it_properly_serializes_adp_oidc() {
         <span class="macro">assert_eq!</span>(
             serde_json::to_string(<span class="kw-2">&amp;</span>ConnectionType::AdpOidc).unwrap(),
-            <span class="macro">json!</span>(<span class="string">&quot;ADPOIDC&quot;</span>).to_string()
+            <span class="macro">json!</span>(<span class="string">"ADPOIDC"</span>).to_string()
         )
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_properly_deserializes_adp_oidc() {
         <span class="macro">assert_eq!</span>(
-            serde_json::from_str::&lt;ConnectionType&gt;(<span class="kw-2">&amp;</span><span class="macro">json!</span>(<span class="string">&quot;ADPOIDC&quot;</span>).to_string()).unwrap(),
+            serde_json::from_str::&lt;ConnectionType&gt;(<span class="kw-2">&amp;</span><span class="macro">json!</span>(<span class="string">"ADPOIDC"</span>).to_string()).unwrap(),
             ConnectionType::AdpOidc
         )
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="workos" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>
