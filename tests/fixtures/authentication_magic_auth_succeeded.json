@@ -1,0 +1,14 @@
+{
+  "id": "test_id",
+  "event": "authentication.magic_auth_succeeded",
+  "data": {
+    "type": "magic_auth",
+    "status": "succeeded",
+    "ip_address": "test_ip_address",
+    "user_agent": "test_user_agent",
+    "user_id": "test_user_id",
+    "email": "test@example.com"
+  },
+  "created_at": "2023-01-01T00:00:00.000Z",
+  "object": "event"
+}

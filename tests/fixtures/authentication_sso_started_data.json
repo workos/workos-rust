@@ -1,0 +1,13 @@
+{
+  "type": "sso",
+  "status": "started",
+  "ip_address": "test_ip_address",
+  "user_agent": "test_user_agent",
+  "user_id": "test_user_id",
+  "email": "test@example.com",
+  "sso": {
+    "organization_id": "test_organization_id",
+    "connection_id": "test_connection_id",
+    "session_id": "test_session_id"
+  }
+}

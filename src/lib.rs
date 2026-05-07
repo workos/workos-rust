@@ -1,19 +1,17 @@
-//! The official SDK for interacting with the [WorkOS](https://workos.com) API.
+// @oagen-ignore-file
+//! WorkOS Rust SDK.
 
-#![warn(missing_docs)]
+pub mod client;
+pub mod enums;
+pub mod error;
+pub mod models;
+pub mod pagination;
+pub mod resources;
+pub mod resources_api;
 
-mod core;
-mod known_or_unknown;
-mod workos;
-
-pub mod admin_portal;
-pub mod directory_sync;
-pub mod mfa;
-pub mod organizations;
-pub mod passwordless;
-pub mod sso;
-pub mod webhooks;
-
-pub use crate::core::*;
-pub use crate::workos::*;
-pub use known_or_unknown::*;
+pub use client::{Client, ClientBuilder, DEFAULT_BASE_URL};
+pub use enums::*;
+pub use error::Error;
+pub use models::*;
+pub use pagination::{ListMetadata, Page, auto_paginate};
+pub use resources::*;

@@ -1,0 +1,8 @@
+{
+  "client_id": "test_client_id",
+  "client_secret": "test_client_secret",
+  "grant_type": "urn:workos:oauth:grant-type:mfa-totp",
+  "code": "test_code",
+  "pending_authentication_token": "test_pending_authentication_token",
+  "authentication_challenge_id": "test_authentication_challenge_id"
+}

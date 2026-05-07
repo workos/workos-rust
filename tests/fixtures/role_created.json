@@ -1,0 +1,13 @@
+{
+  "id": "test_id",
+  "event": "role.created",
+  "data": {
+    "object": "role",
+    "slug": "test_slug",
+    "resource_type_slug": "test_resource_type_slug",
+    "created_at": "2023-01-01T00:00:00.000Z",
+    "updated_at": "2023-01-01T00:00:00.000Z"
+  },
+  "created_at": "2023-01-01T00:00:00.000Z",
+  "object": "event"
+}

@@ -1,0 +1,15 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "object": "event",
+      "id": "test_id",
+      "event": "test_event",
+      "data": {},
+      "created_at": "2023-01-01T00:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "after": "test_after"
+  }
+}

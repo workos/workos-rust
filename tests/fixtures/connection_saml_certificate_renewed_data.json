@@ -1,0 +1,10 @@
+{
+  "connection": {
+    "id": "test_id"
+  },
+  "certificate": {
+    "certificate_type": "ResponseSigning",
+    "expiry_date": "2023-01-01T00:00:00.000Z"
+  },
+  "renewed_at": "2023-01-01T00:00:00.000Z"
+}

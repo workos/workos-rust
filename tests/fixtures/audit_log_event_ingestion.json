@@ -1,0 +1,20 @@
+{
+  "organization_id": "test_organization_id",
+  "event": {
+    "action": "test_action",
+    "occurred_at": "2023-01-01T00:00:00.000Z",
+    "actor": {
+      "id": "test_id",
+      "type": "test_type"
+    },
+    "targets": [
+      {
+        "id": "test_id",
+        "type": "test_type"
+      }
+    ],
+    "context": {
+      "location": "test_location"
+    }
+  }
+}

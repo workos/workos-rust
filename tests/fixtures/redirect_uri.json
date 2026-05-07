@@ -1,0 +1,8 @@
+{
+  "object": "redirect_uri",
+  "id": "test_id",
+  "uri": "test_uri",
+  "default": false,
+  "created_at": "test_created_at",
+  "updated_at": "test_updated_at"
+}

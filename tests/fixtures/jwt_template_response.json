@@ -1,0 +1,6 @@
+{
+  "object": "jwt_template",
+  "content": "test_content",
+  "created_at": "test_created_at",
+  "updated_at": "test_updated_at"
+}

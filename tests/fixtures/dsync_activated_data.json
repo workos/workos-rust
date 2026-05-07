@@ -1,0 +1,17 @@
+{
+  "object": "directory",
+  "id": "test_id",
+  "type": "azure scim v2.0",
+  "state": "active",
+  "name": "test_name",
+  "created_at": "2023-01-01T00:00:00.000Z",
+  "updated_at": "2023-01-01T00:00:00.000Z",
+  "external_key": "test_external_key",
+  "domains": [
+    {
+      "object": "organization_domain",
+      "id": "test_id",
+      "domain": "test_domain"
+    }
+  ]
+}

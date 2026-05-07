@@ -1,0 +1,8 @@
+{
+  "claim": "test_claim",
+  "type": "enum",
+  "label": "test_label",
+  "choices": [
+    {}
+  ]
+}

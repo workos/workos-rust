@@ -1,0 +1,7 @@
+{
+  "id": "test_id",
+  "type": "AzureSentinel",
+  "state": "active",
+  "last_synced_at": "test_last_synced_at",
+  "created_at": "2023-01-01T00:00:00.000Z"
+}

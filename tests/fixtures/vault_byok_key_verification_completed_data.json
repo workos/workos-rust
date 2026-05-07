@@ -1,0 +1,5 @@
+{
+  "organization_id": "test_organization_id",
+  "key_provider": "AWS_KMS",
+  "verified": false
+}

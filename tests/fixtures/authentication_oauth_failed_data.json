@@ -1,0 +1,12 @@
+{
+  "type": "oauth",
+  "status": "failed",
+  "ip_address": "test_ip_address",
+  "user_agent": "test_user_agent",
+  "user_id": "test_user_id",
+  "email": "test@example.com",
+  "error": {
+    "code": "test_code",
+    "message": "test_message"
+  }
+}

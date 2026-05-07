@@ -1,0 +1,6 @@
+{
+  "endpoint_url": "test_endpoint_url",
+  "events": [
+    "authentication.email_verification_succeeded"
+  ]
+}

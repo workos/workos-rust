@@ -1,0 +1,5 @@
+{
+  "verdict": "allow",
+  "reason": "test_reason",
+  "attempt_id": "test_attempt_id"
+}

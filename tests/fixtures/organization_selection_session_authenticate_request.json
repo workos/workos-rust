@@ -1,0 +1,7 @@
+{
+  "client_id": "test_client_id",
+  "client_secret": "test_client_secret",
+  "grant_type": "urn:workos:oauth:grant-type:organization-selection",
+  "pending_authentication_token": "test_pending_authentication_token",
+  "organization_id": "test_organization_id"
+}

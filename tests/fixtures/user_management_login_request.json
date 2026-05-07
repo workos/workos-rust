@@ -1,0 +1,7 @@
+{
+  "external_auth_id": "test_external_auth_id",
+  "user": {
+    "id": "test_id",
+    "email": "test@example.com"
+  }
+}

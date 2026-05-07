@@ -1,0 +1,24 @@
+{
+  "client_id": "test_client_id",
+  "actor": {
+    "id": "test_id",
+    "source": "api",
+    "name": "test_name"
+  },
+  "access_type": "none",
+  "configured_targets": {
+    "organizations": [
+      {
+        "id": "test_id",
+        "name": "test_name"
+      }
+    ],
+    "users": [
+      {
+        "id": "test_id",
+        "email": "test@example.com"
+      }
+    ]
+  },
+  "previous_attributes": {}
+}

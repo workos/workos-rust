@@ -1,0 +1,13 @@
+{
+  "object": "profile",
+  "id": "test_id",
+  "organization_id": "test_organization_id",
+  "connection_id": "test_connection_id",
+  "connection_type": "Pending",
+  "idp_id": "test_idp_id",
+  "email": "test@example.com",
+  "first_name": "test_first_name",
+  "last_name": "test_last_name",
+  "name": "test_name",
+  "raw_attributes": {}
+}

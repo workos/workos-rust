@@ -1,0 +1,20 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "object": "permission",
+      "id": "test_id",
+      "slug": "test_slug",
+      "name": "test_name",
+      "description": "test_description",
+      "system": false,
+      "resource_type_slug": "test_resource_type_slug",
+      "created_at": "2023-01-01T00:00:00.000Z",
+      "updated_at": "2023-01-01T00:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": "test_before",
+    "after": "test_after"
+  }
+}

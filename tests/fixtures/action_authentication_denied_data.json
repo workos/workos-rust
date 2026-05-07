@@ -1,0 +1,11 @@
+{
+  "action_endpoint_id": "test_action_endpoint_id",
+  "action_execution_id": "test_action_execution_id",
+  "type": "authentication",
+  "verdict": "Deny",
+  "user_id": "test_user_id",
+  "organization_id": "test_organization_id",
+  "email": "test@example.com",
+  "ip_address": "test_ip_address",
+  "user_agent": "test_user_agent"
+}

@@ -1,0 +1,11 @@
+{
+  "object": "directory",
+  "id": "test_id",
+  "organization_id": "test_organization_id",
+  "external_key": "test_external_key",
+  "type": "azure scim v2.0",
+  "state": "linked",
+  "name": "test_name",
+  "created_at": "2023-01-01T00:00:00.000Z",
+  "updated_at": "2023-01-01T00:00:00.000Z"
+}

@@ -1,0 +1,5 @@
+{
+  "idp_id": "test_idp_id",
+  "type": "OAuth",
+  "provider": "AppleOAuth"
+}

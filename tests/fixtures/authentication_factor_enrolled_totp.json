@@ -1,0 +1,7 @@
+{
+  "issuer": "test_issuer",
+  "user": "test_user",
+  "secret": "test_secret",
+  "qr_code": "test_qr_code",
+  "uri": "test_uri"
+}

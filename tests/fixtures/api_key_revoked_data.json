@@ -1,0 +1,16 @@
+{
+  "object": "api_key",
+  "id": "test_id",
+  "owner": {
+    "type": "organization",
+    "id": "test_id"
+  },
+  "name": "test_name",
+  "obfuscated_value": "test_obfuscated_value",
+  "last_used_at": "test_last_used_at",
+  "permissions": [
+    "test_permissions"
+  ],
+  "created_at": "test_created_at",
+  "updated_at": "test_updated_at"
+}

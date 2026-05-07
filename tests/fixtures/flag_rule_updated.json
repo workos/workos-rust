@@ -1,0 +1,50 @@
+{
+  "id": "test_id",
+  "event": "flag.rule_updated",
+  "data": {
+    "object": "feature_flag",
+    "id": "test_id",
+    "environment_id": "test_environment_id",
+    "slug": "test_slug",
+    "name": "test_name",
+    "description": "test_description",
+    "owner": {
+      "email": "test@example.com",
+      "first_name": "test_first_name",
+      "last_name": "test_last_name"
+    },
+    "tags": [
+      "test_tags"
+    ],
+    "enabled": false,
+    "default_value": false,
+    "created_at": "2023-01-01T00:00:00.000Z",
+    "updated_at": "2023-01-01T00:00:00.000Z"
+  },
+  "created_at": "2023-01-01T00:00:00.000Z",
+  "context": {
+    "client_id": "test_client_id",
+    "actor": {
+      "id": "test_id",
+      "source": "api",
+      "name": "test_name"
+    },
+    "access_type": "none",
+    "configured_targets": {
+      "organizations": [
+        {
+          "id": "test_id",
+          "name": "test_name"
+        }
+      ],
+      "users": [
+        {
+          "id": "test_id",
+          "email": "test@example.com"
+        }
+      ]
+    },
+    "previous_attributes": {}
+  },
+  "object": "event"
+}

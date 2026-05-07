@@ -1,0 +1,9 @@
+{
+  "object": "connection",
+  "id": "test_id",
+  "state": "draft",
+  "name": "test_name",
+  "connection_type": "ADFSSAML",
+  "created_at": "2023-01-01T00:00:00.000Z",
+  "updated_at": "2023-01-01T00:00:00.000Z"
+}

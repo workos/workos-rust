@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+cd "$ROOT_DIR"
+
+echo "==> cargo fmt --check"
+cargo fmt --check
+
+echo "==> cargo build --all-targets"
+cargo build --all-targets
+
+echo "==> cargo clippy --all-targets -- -D warnings"
+cargo clippy --all-targets -- -D warnings
+
+echo "==> cargo test"
+cargo test

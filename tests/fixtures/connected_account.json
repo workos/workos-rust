@@ -1,0 +1,12 @@
+{
+  "object": "connected_account",
+  "id": "test_id",
+  "user_id": "test_user_id",
+  "organization_id": "test_organization_id",
+  "scopes": [
+    "test_scopes"
+  ],
+  "state": "connected",
+  "created_at": "test_created_at",
+  "updated_at": "test_updated_at"
+}

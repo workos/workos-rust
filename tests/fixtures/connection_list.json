@@ -1,0 +1,26 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "object": "connection",
+      "id": "test_id",
+      "connection_type": "Pending",
+      "name": "test_name",
+      "state": "requires_type",
+      "status": "linked",
+      "domains": [
+        {
+          "id": "test_id",
+          "object": "connection_domain",
+          "domain": "test_domain"
+        }
+      ],
+      "created_at": "2023-01-01T00:00:00.000Z",
+      "updated_at": "2023-01-01T00:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": "test_before",
+    "after": "test_after"
+  }
+}

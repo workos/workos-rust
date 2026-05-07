@@ -1,0 +1,5 @@
+{
+  "certificate_type": "ResponseSigning",
+  "expiry_date": "2023-01-01T00:00:00.000Z",
+  "is_expired": false
+}

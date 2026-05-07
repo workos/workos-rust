@@ -1,0 +1,19 @@
+{
+  "id": "test_id",
+  "event": "organization_role.updated",
+  "data": {
+    "object": "organization_role",
+    "organization_id": "test_organization_id",
+    "slug": "test_slug",
+    "name": "test_name",
+    "description": "test_description",
+    "resource_type_slug": "test_resource_type_slug",
+    "permissions": [
+      "test_permissions"
+    ],
+    "created_at": "2023-01-01T00:00:00.000Z",
+    "updated_at": "2023-01-01T00:00:00.000Z"
+  },
+  "created_at": "2023-01-01T00:00:00.000Z",
+  "object": "event"
+}

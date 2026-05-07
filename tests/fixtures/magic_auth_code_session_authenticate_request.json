@@ -1,0 +1,7 @@
+{
+  "client_id": "test_client_id",
+  "client_secret": "test_client_secret",
+  "grant_type": "urn:workos:oauth:grant-type:magic-auth:code",
+  "code": "test_code",
+  "email": "test@example.com"
+}

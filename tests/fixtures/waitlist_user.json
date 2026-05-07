@@ -1,0 +1,9 @@
+{
+  "object": "waitlist_user",
+  "id": "test_id",
+  "email": "test@example.com",
+  "state": "pending",
+  "approved_at": "2023-01-01T00:00:00.000Z",
+  "created_at": "2023-01-01T00:00:00.000Z",
+  "updated_at": "2023-01-01T00:00:00.000Z"
+}
