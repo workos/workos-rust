@@ -5,12 +5,36 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use http::{HeaderMap, Method};
-use jsonwebtoken::jwk::JwkSet;
+use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
 use crate::client::{Client, DEFAULT_BASE_URL};
 use crate::error::Error;
 use crate::transport::{HttpRequest, SharedTransport};
+
+/// A single JSON Web Key (RFC 7517). Common metadata fields are typed; the
+/// remainder of the key material (e.g. `n`/`e` for RSA, `x`/`y`/`crv` for EC,
+/// `k` for symmetric keys) is preserved verbatim under `other` so callers can
+/// feed it into their JWT library of choice.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Jwk {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kid: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kty: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alg: Option<String>,
+    #[serde(default, rename = "use", skip_serializing_if = "Option::is_none")]
+    pub use_: Option<String>,
+    #[serde(flatten)]
+    pub other: serde_json::Map<String, serde_json::Value>,
+}
+
+/// A JWK Set (RFC 7517 §5).
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+pub struct JwkSet {
+    pub keys: Vec<Jwk>,
+}
 
 /// Builds the JWKS URL for `client_id` against `base_url` (defaulting when empty).
 pub fn jwks_url(base_url: &str, client_id: &str) -> String {

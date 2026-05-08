@@ -1,7 +1,7 @@
 // @oagen-ignore-file
 use std::future::Future;
 
-use futures::stream::{self, Stream, TryStreamExt};
+use futures_util::stream::{self, Stream, TryStreamExt};
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;

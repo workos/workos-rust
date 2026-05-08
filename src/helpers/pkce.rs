@@ -30,7 +30,7 @@ pub fn generate_code_verifier(length: Option<usize>) -> Result<String, Error> {
 
     let byte_len = (3 * n).div_ceil(4);
     let mut buf = vec![0u8; byte_len];
-    rand::thread_rng().fill_bytes(&mut buf);
+    rand::rng().fill_bytes(&mut buf);
     let encoded = URL_SAFE_NO_PAD.encode(&buf);
     Ok(encoded[..n].to_string())
 }

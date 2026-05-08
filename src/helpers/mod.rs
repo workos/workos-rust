@@ -22,7 +22,7 @@ pub use authkit::{
     AuthKitAuthorizationUrlParams, AuthKitHelper, AuthKitPkceAuthorizationUrl,
     AuthKitPkceCodeExchangeParams,
 };
-pub use jwks::{JwksHelper, jwks_url};
+pub use jwks::{Jwk, JwkSet, JwksHelper, jwks_url};
 pub use passwordless::{
     PasswordlessApi, PasswordlessCreateSessionParams, PasswordlessSession, PasswordlessSessionType,
 };

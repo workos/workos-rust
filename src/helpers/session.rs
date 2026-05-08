@@ -337,7 +337,7 @@ fn seal_bytes(plaintext: &[u8], password: &str) -> Result<String, Error> {
     let cipher = Aes256Gcm::new_from_slice(&key)
         .map_err(|e| Error::Session(format!("init AES-GCM: {e}")))?;
     let mut nonce_bytes = [0u8; 12];
-    rand::thread_rng().fill_bytes(&mut nonce_bytes);
+    rand::rng().fill_bytes(&mut nonce_bytes);
     let nonce = Nonce::from_slice(&nonce_bytes);
     let ciphertext = cipher
         .encrypt(nonce, plaintext)

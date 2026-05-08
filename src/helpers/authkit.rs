@@ -114,7 +114,7 @@ impl<'a> AuthKitHelper<'a> {
             Some(s) => s,
             None => {
                 let mut buf = [0u8; 32];
-                rand::thread_rng().fill_bytes(&mut buf);
+                rand::rng().fill_bytes(&mut buf);
                 URL_SAFE_NO_PAD.encode(buf)
             }
         };
