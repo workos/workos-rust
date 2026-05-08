@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["local_decrypt","local_encrypt"],"struct":["DataKey","DataKeyPair","KeyContext","ObjectMetadata","VaultApi","VaultCreateDataKeyParams","VaultCreateObjectParams","VaultDecryptDataKeyParams","VaultEncryptResult","VaultListObjectsParams","VaultListObjectsResponse","VaultObject","VaultObjectDigest","VaultObjectVersion","VaultUpdateObjectParams"]};

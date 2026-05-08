@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_BASE_URL"],"struct":["Client","ClientBuilder"]};

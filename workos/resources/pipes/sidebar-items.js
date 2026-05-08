@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AuthorizeDataIntegrationParams","CreateDataIntegrationTokenParams","DeleteUserConnectedAccountParams","GetUserConnectedAccountParams","ListUserDataProvidersParams","PipesApi"]};

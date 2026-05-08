@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ChallengeFactorParams","CreateUserAuthFactorParams","DeleteFactorParams","EnrollFactorParams","GetFactorParams","ListUserAuthFactorsParams","MultiFactorAuthApi","VerifyChallengeParams"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AuthorizeLogoutParams","DeleteConnectionParams","GetAuthorizationUrlParams","GetConnectionParams","GetLogoutUrlParams","GetProfileAndTokenParams","GetProfileParams","ListConnectionsParams","SSOApi"]};

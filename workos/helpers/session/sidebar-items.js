@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["authenticate_session","seal","seal_session","seal_session_from_auth_response","unseal","unseal_session"],"struct":["SessionData","SessionManager","SessionRefreshOptions","SessionRefreshResult","SessionState"]};

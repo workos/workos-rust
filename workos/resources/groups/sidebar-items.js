@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["CreateGroupOrganizationMembershipParams","CreateOrganizationGroupParams","DeleteGroupOrganizationMembershipParams","DeleteOrganizationGroupParams","GetOrganizationGroupParams","GroupsApi","ListGroupOrganizationMembershipsParams","ListOrganizationGroupsParams","UpdateOrganizationGroupParams"]};

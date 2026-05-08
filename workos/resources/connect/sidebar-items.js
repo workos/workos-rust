@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["CompleteOAuth2Params","ConnectApi","CreateApplicationClientSecretParams","CreateM2MApplicationParams","CreateOAuthApplicationParams","DeleteApplicationParams","DeleteClientSecretParams","GetApplicationParams","ListApplicationClientSecretsParams","ListApplicationsParams","UpdateApplicationParams"]};

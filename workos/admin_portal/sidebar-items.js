@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AdminPortalIntent","AdminPortalTarget","GeneratePortalLinkError"],"struct":["AdminPortal","GeneratePortalLinkParams","GeneratePortalLinkResponse"],"trait":["GeneratePortalLink"]};

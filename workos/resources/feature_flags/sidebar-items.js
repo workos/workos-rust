@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AddFlagTargetParams","DisableFeatureFlagParams","EnableFeatureFlagParams","FeatureFlagsApi","GetFeatureFlagParams","ListFeatureFlagsParams","ListOrganizationFeatureFlagsParams","ListUserFeatureFlagsParams","RemoveFlagTargetParams"]};

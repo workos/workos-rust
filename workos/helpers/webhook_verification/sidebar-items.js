@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["compute_webhook_signature","parse_webhook_signature_header"],"struct":["WebhookVerifier"]};

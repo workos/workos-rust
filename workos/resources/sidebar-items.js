@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["admin_portal","api_keys","audit_logs","authorization","connect","directory_sync","events","feature_flags","groups","multi_factor_auth","organization_domains","organizations","pipes","radar","sso","user_management","user_management_organization_membership_groups","webhooks","widgets"]};

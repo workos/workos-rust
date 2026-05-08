@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["KnownOrUnknown","PaginationOrder","WorkOsError"],"mod":["admin_portal","directory_sync","mfa","organizations","passwordless","sso","webhooks"],"struct":["ApiKey","ListMetadata","PaginatedList","PaginationParams","RawAttributes","Timestamp","Timestamps","WorkOs","WorkOsBuilder"],"type":["WorkOsResult"]};
+window.SIDEBAR_ITEMS = {"mod":["client","enums","error","helpers","models","pagination","resources","resources_api","transport"]};

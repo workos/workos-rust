@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PasswordlessSessionType"],"struct":["PasswordlessApi","PasswordlessCreateSessionParams","PasswordlessSession"]};

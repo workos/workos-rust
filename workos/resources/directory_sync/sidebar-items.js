@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["DeleteDirectoryParams","DirectorySyncApi","GetDirectoryParams","GetGroupParams","GetUserParams","ListDirectoriesParams","ListGroupsParams","ListUsersParams"]};

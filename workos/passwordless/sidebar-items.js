@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CreatePasswordlessSessionError","CreatePasswordlessSessionType","PasswordlessSessionType","SendPasswordlessSessionError"],"struct":["CreatePasswordlessSessionParams","Passwordless","PasswordlessSession","PasswordlessSessionId","SendPasswordlessSessionParams"],"trait":["CreatePasswordlessSession","SendPasswordlessSession"]};
