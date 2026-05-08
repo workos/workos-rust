@@ -1,4 +1,4 @@
-name: CI
+name: Rust Lint
 
 on:
   push:
@@ -11,8 +11,8 @@ defaults:
     shell: bash
 
 jobs:
-  test:
-    name: Test Rust
+  lint:
+    name: Rust fmt and clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -20,9 +20,10 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@2b1f5e9b395427c92ee4e3331786ca3c37afe2d7 # v1.16.0
         with:
           toolchain: stable
-          components: cargo
+          components: rustfmt, clippy
 
-      - name: Run Tests
-        run: |
-          cargo build --verbose
-          cargo test --verbose
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
