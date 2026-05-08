@@ -14,10 +14,10 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use http::{HeaderMap, Method, StatusCode};
 
-#[cfg(feature = "reqwest")]
+#[cfg(any(feature = "native-tls", feature = "rustls-tls"))]
 mod reqwest_impl;
 
-#[cfg(feature = "reqwest")]
+#[cfg(any(feature = "native-tls", feature = "rustls-tls"))]
 pub use reqwest_impl::ReqwestTransport;
 
 /// A single outbound HTTP request.

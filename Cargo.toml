@@ -23,13 +23,12 @@ exclude = [
 ]
 
 [features]
-default = ["reqwest", "rustls-tls"]
-# Bundles the built-in `reqwest` HTTP transport. Disable to plug in your own
-# `HttpTransport` impl (e.g. for WASM or to share a request pipeline with the
-# rest of your app).
-reqwest = ["dep:reqwest"]
-native-tls = ["reqwest/native-tls"]
-rustls-tls = ["reqwest/rustls-tls"]
+default = ["rustls-tls"]
+# Pick a TLS backend. Both pull in the bundled `reqwest` transport; disable
+# default features and supply your own `HttpTransport` impl (e.g. for WASM or
+# to share a request pipeline with the rest of your app) instead.
+native-tls = ["dep:reqwest", "reqwest/native-tls"]
+rustls-tls = ["dep:reqwest", "reqwest/rustls-tls"]
 
 [dependencies]
 reqwest = { version = "0.12", default-features = false, features = [

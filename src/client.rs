@@ -43,9 +43,10 @@ pub struct ClientBuilder {
 impl Client {
     /// Construct a new client with the given API key and default settings.
     ///
-    /// Requires the `reqwest` feature (default-on). For custom transports use
-    /// [`Client::builder`] with [`ClientBuilder::transport`].
-    #[cfg(feature = "reqwest")]
+    /// Requires either the `native-tls` or `rustls-tls` feature (the latter is
+    /// default-on). For custom transports use [`Client::builder`] with
+    /// [`ClientBuilder::transport`].
+    #[cfg(any(feature = "native-tls", feature = "rustls-tls"))]
     pub fn new(api_key: impl Into<String>) -> Self {
         Self::builder().api_key(api_key).build()
     }
@@ -335,15 +336,15 @@ impl ClientBuilder {
     }
 }
 
-#[cfg(feature = "reqwest")]
+#[cfg(any(feature = "native-tls", feature = "rustls-tls"))]
 fn default_transport(timeout: Duration) -> SharedTransport {
     Arc::new(crate::transport::ReqwestTransport::with_timeout(timeout))
 }
 
-#[cfg(not(feature = "reqwest"))]
+#[cfg(not(any(feature = "native-tls", feature = "rustls-tls")))]
 fn default_transport(_timeout: Duration) -> SharedTransport {
     panic!(
-        "no HTTP transport configured: build with --features reqwest, or supply one via \
-         ClientBuilder::transport(...)"
+        "no HTTP transport configured: build with --features rustls-tls (or native-tls), \
+         or supply one via ClientBuilder::transport(...)"
     );
 }
