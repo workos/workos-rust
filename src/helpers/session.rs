@@ -229,12 +229,10 @@ impl<'a> SessionManager<'a> {
         {
             Ok(r) => r,
             Err(e) => {
-                let reason = match &e {
-                    Error::Api {
-                        status: 401,
-                        message,
-                        ..
-                    } if message.contains("invalid_grant") => "refresh_token_revoked",
+                let reason = match e.api() {
+                    Some(api) if api.status == 401 && api.message.contains("invalid_grant") => {
+                        "refresh_token_revoked"
+                    }
                     _ => "refresh_failed",
                 };
                 return Ok(SessionRefreshResult {

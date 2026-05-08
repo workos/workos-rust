@@ -14,54 +14,86 @@ pub struct GroupsApi<'a> {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListOrganizationGroupsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateOrganizationGroupParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateGroup,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetOrganizationGroupParams {}
+impl CreateOrganizationGroupParams {
+    /// Construct a new `CreateOrganizationGroupParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateGroup) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateOrganizationGroupParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateGroup,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteOrganizationGroupParams {}
+impl UpdateOrganizationGroupParams {
+    /// Construct a new `UpdateOrganizationGroupParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateGroup) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListGroupOrganizationMembershipsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateGroupOrganizationMembershipParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateGroupMembership,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteGroupOrganizationMembershipParams {}
+impl CreateGroupOrganizationMembershipParams {
+    /// Construct a new `CreateGroupOrganizationMembershipParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateGroupMembership) -> Self {
+        Self { body }
+    }
+}
 
 impl<'a> GroupsApi<'a> {
     /// List groups
@@ -72,9 +104,63 @@ impl<'a> GroupsApi<'a> {
         organization_id: &str,
         params: ListOrganizationGroupsParams,
     ) -> Result<GroupList, Error> {
-        let path = format!("/organizations/{}/groups", organization_id);
+        self.list_organization_groups_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_organization_groups`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_organization_groups_with_options(
+        &self,
+        organization_id: &str,
+        params: ListOrganizationGroupsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<GroupList, Error> {
+        let path = format!("/organizations/{organization_id}/groups");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `Group`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<Group> = self
+    ///     .list_organization_groups_auto_paging(organization_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_organization_groups_auto_paging(
+        &self,
+        organization_id: impl Into<String>,
+        params: ListOrganizationGroupsParams,
+    ) -> impl futures_util::Stream<Item = Result<Group, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let organization_id: String = organization_id.into();
+        let initial = (Some(params), organization_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, organization_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_organization_groups(&organization_id, params.clone())
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk =
+                    futures_util::stream::iter(page.data.into_iter().map(Ok::<Group, Error>));
+                Ok::<_, Error>(Some((chunk, (next, organization_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// Create a group
@@ -85,10 +171,21 @@ impl<'a> GroupsApi<'a> {
         organization_id: &str,
         params: CreateOrganizationGroupParams,
     ) -> Result<Group, Error> {
-        let path = format!("/organizations/{}/groups", organization_id);
+        self.create_organization_group_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_organization_group`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_organization_group_with_options(
+        &self,
+        organization_id: &str,
+        params: CreateOrganizationGroupParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Group, Error> {
+        let path = format!("/organizations/{organization_id}/groups");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -99,11 +196,23 @@ impl<'a> GroupsApi<'a> {
         &self,
         organization_id: &str,
         group_id: &str,
-        params: GetOrganizationGroupParams,
     ) -> Result<Group, Error> {
-        let path = format!("/organizations/{}/groups/{}", organization_id, group_id);
+        self.get_organization_group_with_options(organization_id, group_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_organization_group`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_organization_group_with_options(
+        &self,
+        organization_id: &str,
+        group_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Group, Error> {
+        let path = format!("/organizations/{organization_id}/groups/{group_id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update a group
@@ -115,10 +224,22 @@ impl<'a> GroupsApi<'a> {
         group_id: &str,
         params: UpdateOrganizationGroupParams,
     ) -> Result<Group, Error> {
-        let path = format!("/organizations/{}/groups/{}", organization_id, group_id);
+        self.update_organization_group_with_options(organization_id, group_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_organization_group`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_organization_group_with_options(
+        &self,
+        organization_id: &str,
+        group_id: &str,
+        params: UpdateOrganizationGroupParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Group, Error> {
+        let path = format!("/organizations/{organization_id}/groups/{group_id}");
         let method = http::Method::PATCH;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -129,11 +250,23 @@ impl<'a> GroupsApi<'a> {
         &self,
         organization_id: &str,
         group_id: &str,
-        params: DeleteOrganizationGroupParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/organizations/{}/groups/{}", organization_id, group_id);
+        self.delete_organization_group_with_options(organization_id, group_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_organization_group`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_organization_group_with_options(
+        &self,
+        organization_id: &str,
+        group_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/organizations/{organization_id}/groups/{group_id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List Group members
@@ -145,12 +278,80 @@ impl<'a> GroupsApi<'a> {
         group_id: &str,
         params: ListGroupOrganizationMembershipsParams,
     ) -> Result<UserOrganizationMembershipBaseList, Error> {
-        let path = format!(
-            "/organizations/{}/groups/{}/organization-memberships",
-            organization_id, group_id
-        );
+        self.list_group_organization_memberships_with_options(
+            organization_id,
+            group_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::list_group_organization_memberships`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_group_organization_memberships_with_options(
+        &self,
+        organization_id: &str,
+        group_id: &str,
+        params: ListGroupOrganizationMembershipsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserOrganizationMembershipBaseList, Error> {
+        let path =
+            format!("/organizations/{organization_id}/groups/{group_id}/organization-memberships");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `UserOrganizationMembershipBaseListData`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<UserOrganizationMembershipBaseListData> = self
+    ///     .list_group_organization_memberships_auto_paging(organization_id, group_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_group_organization_memberships_auto_paging(
+        &self,
+        organization_id: impl Into<String>,
+        group_id: impl Into<String>,
+        params: ListGroupOrganizationMembershipsParams,
+    ) -> impl futures_util::Stream<Item = Result<UserOrganizationMembershipBaseListData, Error>> + '_
+    {
+        use futures_util::TryStreamExt;
+        let organization_id: String = organization_id.into();
+        let group_id: String = group_id.into();
+        let initial = (Some(params), organization_id, group_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, organization_id, group_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_group_organization_memberships(
+                        &organization_id,
+                        &group_id,
+                        params.clone(),
+                    )
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data
+                        .into_iter()
+                        .map(Ok::<UserOrganizationMembershipBaseListData, Error>),
+                );
+                Ok::<_, Error>(Some((chunk, (next, organization_id, group_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// Add a member to a Group
@@ -162,13 +363,28 @@ impl<'a> GroupsApi<'a> {
         group_id: &str,
         params: CreateGroupOrganizationMembershipParams,
     ) -> Result<Group, Error> {
-        let path = format!(
-            "/organizations/{}/groups/{}/organization-memberships",
-            organization_id, group_id
-        );
+        self.create_group_organization_membership_with_options(
+            organization_id,
+            group_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::create_group_organization_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_group_organization_membership_with_options(
+        &self,
+        organization_id: &str,
+        group_id: &str,
+        params: CreateGroupOrganizationMembershipParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Group, Error> {
+        let path =
+            format!("/organizations/{organization_id}/groups/{group_id}/organization-memberships");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -180,13 +396,30 @@ impl<'a> GroupsApi<'a> {
         organization_id: &str,
         group_id: &str,
         om_id: &str,
-        params: DeleteGroupOrganizationMembershipParams,
+    ) -> Result<serde_json::Value, Error> {
+        self.delete_group_organization_membership_with_options(
+            organization_id,
+            group_id,
+            om_id,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::delete_group_organization_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_group_organization_membership_with_options(
+        &self,
+        organization_id: &str,
+        group_id: &str,
+        om_id: &str,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
         let path = format!(
-            "/organizations/{}/groups/{}/organization-memberships/{}",
-            organization_id, group_id, om_id
+            "/organizations/{organization_id}/groups/{group_id}/organization-memberships/{om_id}"
         );
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

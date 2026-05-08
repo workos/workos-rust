@@ -14,65 +14,73 @@ pub struct DirectorySyncApi<'a> {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListDirectoriesParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter Directories by their associated organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// Searchable text to match against Directory names.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub search: Option<String>,
+    /// Filter Directories by their associated domain.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated]
     pub domain: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
-pub struct GetDirectoryParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteDirectoryParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
 pub struct ListGroupsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Unique identifier of the WorkOS Directory. This value can be obtained from the WorkOS dashboard or from the WorkOS API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub directory: Option<String>,
+    /// Unique identifier of the WorkOS Directory User. This value can be obtained from the WorkOS API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
-pub struct GetGroupParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
 pub struct ListUsersParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Unique identifier of the WorkOS Directory. This value can be obtained from the WorkOS dashboard or from the WorkOS API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub directory: Option<String>,
+    /// Unique identifier of the WorkOS Directory Group. This value can be obtained from the WorkOS API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub group: Option<String>,
 }
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetUserParams {}
 
 impl<'a> DirectorySyncApi<'a> {
     /// List Directories
@@ -82,78 +90,244 @@ impl<'a> DirectorySyncApi<'a> {
         &self,
         params: ListDirectoriesParams,
     ) -> Result<DirectoryList, Error> {
+        self.list_directories_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_directories`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_directories_with_options(
+        &self,
+        params: ListDirectoriesParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DirectoryList, Error> {
         let path = "/directories".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `Directory`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<Directory> = self
+    ///     .list_directories_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_directories_auto_paging(
+        &self,
+        params: ListDirectoriesParams,
+    ) -> impl futures_util::Stream<Item = Result<Directory, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_directories(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk =
+                futures_util::stream::iter(page.data.into_iter().map(Ok::<Directory, Error>));
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Get a Directory
     ///
     /// Get the details of an existing directory.
-    pub async fn get_directory(
+    pub async fn get_directory(&self, id: &str) -> Result<Directory, Error> {
+        self.get_directory_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_directory`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_directory_with_options(
         &self,
         id: &str,
-        params: GetDirectoryParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<Directory, Error> {
-        let path = format!("/directories/{}", id);
+        let path = format!("/directories/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Delete a Directory
     ///
     /// Permanently deletes an existing directory. It cannot be undone.
-    pub async fn delete_directory(
+    pub async fn delete_directory(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_directory_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_directory`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_directory_with_options(
         &self,
         id: &str,
-        params: DeleteDirectoryParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/directories/{}", id);
+        let path = format!("/directories/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List Directory Groups
     ///
     /// Get a list of all of existing directory groups matching the criteria specified.
     pub async fn list_groups(&self, params: ListGroupsParams) -> Result<DirectoryGroupList, Error> {
+        self.list_groups_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_groups`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_groups_with_options(
+        &self,
+        params: ListGroupsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DirectoryGroupList, Error> {
         let path = "/directory_groups".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `DirectoryGroup`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<DirectoryGroup> = self
+    ///     .list_groups_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_groups_auto_paging(
+        &self,
+        params: ListGroupsParams,
+    ) -> impl futures_util::Stream<Item = Result<DirectoryGroup, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_groups(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk =
+                futures_util::stream::iter(page.data.into_iter().map(Ok::<DirectoryGroup, Error>));
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Get a Directory Group
     ///
     /// Get the details of an existing Directory Group.
-    pub async fn get_group(
+    pub async fn get_group(&self, id: &str) -> Result<DirectoryGroup, Error> {
+        self.get_group_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_group`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_group_with_options(
         &self,
         id: &str,
-        params: GetGroupParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<DirectoryGroup, Error> {
-        let path = format!("/directory_groups/{}", id);
+        let path = format!("/directory_groups/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List Directory Users
     ///
     /// Get a list of all of existing Directory Users matching the criteria specified.
     pub async fn list_users(&self, params: ListUsersParams) -> Result<DirectoryUserList, Error> {
+        self.list_users_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_users`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_users_with_options(
+        &self,
+        params: ListUsersParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DirectoryUserList, Error> {
         let path = "/directory_users".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `DirectoryUserWithGroups`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<DirectoryUserWithGroups> = self
+    ///     .list_users_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_users_auto_paging(
+        &self,
+        params: ListUsersParams,
+    ) -> impl futures_util::Stream<Item = Result<DirectoryUserWithGroups, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_users(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(
+                page.data
+                    .into_iter()
+                    .map(Ok::<DirectoryUserWithGroups, Error>),
+            );
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Get a Directory User
     ///
     /// Get the details of an existing Directory User.
-    pub async fn get_user(
+    pub async fn get_user(&self, id: &str) -> Result<DirectoryUserWithGroups, Error> {
+        self.get_user_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_user`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_user_with_options(
         &self,
         id: &str,
-        params: GetUserParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<DirectoryUserWithGroups, Error> {
-        let path = format!("/directory_users/{}", id);
+        let path = format!("/directory_users/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

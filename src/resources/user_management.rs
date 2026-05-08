@@ -13,53 +13,77 @@ pub struct UserManagementApi<'a> {
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
-pub struct GetJwksParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
 pub struct AuthenticateWithPasswordParams {
+    /// The user's email address.
+    ///
+    /// Required.
     pub email: String,
+    /// The user's password.
+    ///
+    /// Required.
     pub password: String,
+    /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invitation_token: Option<String>,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct AuthenticateWithCodeParams {
+    /// The authorization code received from the redirect.
+    ///
+    /// Required.
     pub code: String,
+    /// The PKCE code verifier used to derive the code challenge passed to the authorization URL.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code_verifier: Option<String>,
+    /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invitation_token: Option<String>,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct AuthenticateWithRefreshTokenParams {
+    /// The refresh token to exchange for new tokens.
+    ///
+    /// Required.
     pub refresh_token: String,
+    /// The ID of the organization to scope the session to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct AuthenticateWithMagicAuthParams {
+    /// Required.
     pub code: String,
+    /// Required.
     pub email: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invitation_token: Option<String>,
@@ -73,7 +97,9 @@ pub struct AuthenticateWithMagicAuthParams {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct AuthenticateWithEmailVerificationParams {
+    /// Required.
     pub code: String,
+    /// Required.
     pub pending_authentication_token: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
@@ -85,8 +111,11 @@ pub struct AuthenticateWithEmailVerificationParams {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct AuthenticateWithTotpParams {
+    /// Required.
     pub code: String,
+    /// Required.
     pub pending_authentication_token: String,
+    /// Required.
     pub authentication_challenge_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
@@ -98,7 +127,9 @@ pub struct AuthenticateWithTotpParams {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct AuthenticateWithOrganizationSelectionParams {
+    /// Required.
     pub pending_authentication_token: String,
+    /// Required.
     pub organization_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
@@ -110,6 +141,7 @@ pub struct AuthenticateWithOrganizationSelectionParams {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct AuthenticateWithDeviceCodeParams {
+    /// Required.
     pub device_code: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
@@ -119,308 +151,547 @@ pub struct AuthenticateWithDeviceCodeParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct GetAuthorizationUrlParams {
+    /// The only valid PKCE code challenge method is `"S256"`. Required when specifying a `code_challenge`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code_challenge_method: Option<String>,
+    /// Code challenge derived from the code verifier used for the PKCE flow.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code_challenge: Option<String>,
+    /// A domain hint for SSO connection lookup.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub domain_hint: Option<String>,
+    /// The ID of an SSO connection to use for authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub connection_id: Option<String>,
+    /// Key/value pairs of query parameters to pass to the OAuth provider.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub provider_query_params: Option<std::collections::HashMap<String, String>>,
+    /// Additional OAuth scopes to request from the identity provider.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub provider_scopes: Option<Vec<String>>,
+    /// A token representing a user invitation to redeem during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invitation_token: Option<String>,
+    /// Used to specify which screen to display when the provider is `authkit`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub screen_hint: Option<UserManagementAuthenticationScreenHint>,
+    /// A hint to the authorization server about the login identifier the user might use.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub login_hint: Option<String>,
+    /// The OAuth provider to authenticate with (e.g., GoogleOAuth, MicrosoftOAuth, GitHubOAuth).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub provider: Option<UserManagementAuthenticationProvider>,
+    /// Controls the authentication flow behavior for the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt: Option<String>,
+    /// An opaque value used to maintain state between the request and the callback.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
+    /// The ID of the organization to authenticate the user against.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// The callback URI where the authorization code will be sent after authentication.
+    ///
+    /// Required.
     pub redirect_uri: String,
+}
+
+impl GetAuthorizationUrlParams {
+    /// Construct a new `GetAuthorizationUrlParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(redirect_uri: impl Into<String>) -> Self {
+        Self {
+            code_challenge_method: Default::default(),
+            code_challenge: Default::default(),
+            domain_hint: Default::default(),
+            connection_id: Default::default(),
+            provider_query_params: Default::default(),
+            provider_scopes: Default::default(),
+            invitation_token: Default::default(),
+            screen_hint: Default::default(),
+            login_hint: Default::default(),
+            provider: Default::default(),
+            prompt: Default::default(),
+            state: Default::default(),
+            organization_id: Default::default(),
+            redirect_uri: redirect_uri.into(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateDeviceParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: SSODeviceAuthorizationRequest,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl CreateDeviceParams {
+    /// Construct a new `CreateDeviceParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: SSODeviceAuthorizationRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct GetLogoutUrlParams {
+    /// The ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
+    ///
+    /// Required.
     pub session_id: String,
+    /// The URL to redirect the user to after session revocation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_to: Option<String>,
 }
 
+impl GetLogoutUrlParams {
+    /// Construct a new `GetLogoutUrlParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(session_id: impl Into<String>) -> Self {
+        Self {
+            session_id: session_id.into(),
+            return_to: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct RevokeSessionParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: RevokeSession,
 }
 
+impl RevokeSessionParams {
+    /// Construct a new `RevokeSessionParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: RevokeSession) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateCorsOriginParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateCorsOrigin,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetEmailVerificationParams {}
+impl CreateCorsOriginParams {
+    /// Construct a new `CreateCorsOriginParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateCorsOrigin) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ResetPasswordParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreatePasswordResetToken,
 }
 
+impl ResetPasswordParams {
+    /// Construct a new `ResetPasswordParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreatePasswordResetToken) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct ConfirmPasswordResetParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreatePasswordReset,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetPasswordResetParams {}
+impl ConfirmPasswordResetParams {
+    /// Construct a new `ConfirmPasswordResetParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreatePasswordReset) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListUsersParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter users by the organization they are a member of. Deprecated in favor of `organization_id`.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated]
     pub organization: Option<String>,
+    /// Filter users by the organization they are a member of.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// Filter users by their email address.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateUserParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateUser,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetUserByExternalIdParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetUserParams {}
+impl CreateUserParams {
+    /// Construct a new `CreateUserParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateUser) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateUserParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateUser,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteUserParams {}
+impl UpdateUserParams {
+    /// Construct a new `UpdateUserParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateUser) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ConfirmEmailChangeParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: ConfirmEmailChange,
 }
 
+impl ConfirmEmailChangeParams {
+    /// Construct a new `ConfirmEmailChangeParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ConfirmEmailChange) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct SendEmailChangeParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: SendEmailChange,
 }
 
+impl SendEmailChangeParams {
+    /// Construct a new `SendEmailChangeParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: SendEmailChange) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct VerifyEmailParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: VerifyEmailAddress,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct SendVerificationEmailParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetUserIdentitiesParams {}
+impl VerifyEmailParams {
+    /// Construct a new `VerifyEmailParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: VerifyEmailAddress) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListSessionsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListInvitationsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// The ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// The email address of the recipient.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct SendInvitationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateUserInviteOptions,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct FindInvitationByTokenParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetInvitationParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct AcceptInvitationParams {}
+impl SendInvitationParams {
+    /// Construct a new `SendInvitationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateUserInviteOptions) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ResendInvitationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: ResendUserInviteOptions,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct RevokeInvitationParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct ListJWTTemplateParams {}
+impl ResendInvitationParams {
+    /// Construct a new `ResendInvitationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ResendUserInviteOptions) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateJWTTemplateParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateJWTTemplate,
 }
 
+impl UpdateJWTTemplateParams {
+    /// Construct a new `UpdateJWTTemplateParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateJWTTemplate) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateMagicAuthParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateMagicCodeAndReturn,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetMagicAuthParams {}
+impl CreateMagicAuthParams {
+    /// Construct a new `CreateMagicAuthParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateMagicCodeAndReturn) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListOrganizationMembershipsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// The ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// Filter by the status of the organization membership. Array including any of `active`, `inactive`, or `pending`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statuses: Option<Vec<UserManagementOrganizationMembershipStatuses>>,
+    /// The ID of the [user](https://workos.com/docs/reference/authkit/user).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateOrganizationMembershipParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateUserOrganizationMembership,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetOrganizationMembershipParams {}
+impl CreateOrganizationMembershipParams {
+    /// Construct a new `CreateOrganizationMembershipParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateUserOrganizationMembership) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateOrganizationMembershipParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateUserOrganizationMembership,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteOrganizationMembershipParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeactivateOrganizationMembershipParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct ReactivateOrganizationMembershipParams {}
+impl UpdateOrganizationMembershipParams {
+    /// Construct a new `UpdateOrganizationMembershipParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateUserOrganizationMembership) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateRedirectUriParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateRedirectUri,
 }
 
+impl CreateRedirectUriParams {
+    /// Construct a new `CreateRedirectUriParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateRedirectUri) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListUserAuthorizedApplicationsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteUserAuthorizedApplicationParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
 pub struct ListUserApiKeysParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// The ID of the organization to filter user API keys by. When provided, only API keys created against that organization membership are returned.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateUserApiKeyParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateUserApiKey,
+}
+
+impl CreateUserApiKeyParams {
+    /// Construct a new `CreateUserApiKeyParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateUserApiKey) -> Self {
+        Self { body }
+    }
 }
 
 impl<'a> UserManagementApi<'a> {
     /// Get JWKS
     ///
     /// Returns the JSON Web Key Set (JWKS) containing the public keys used for verifying access tokens.
-    pub async fn get_jwks(
+    pub async fn get_jwks(&self, client_id: &str) -> Result<JwksResponse, Error> {
+        self.get_jwks_with_options(client_id, None).await
+    }
+
+    /// Variant of [`Self::get_jwks`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_jwks_with_options(
         &self,
         client_id: &str,
-        params: GetJwksParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<JwksResponse, Error> {
-        let path = format!("/sso/jwks/{}", client_id);
+        let path = format!("/sso/jwks/{client_id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Authenticate
@@ -429,6 +700,16 @@ impl<'a> UserManagementApi<'a> {
     pub async fn authenticate_with_password(
         &self,
         params: AuthenticateWithPasswordParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_password_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authenticate_with_password`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_password_with_options(
+        &self,
+        params: AuthenticateWithPasswordParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
         let method = http::Method::POST;
@@ -446,7 +727,7 @@ impl<'a> UserManagementApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -456,6 +737,15 @@ impl<'a> UserManagementApi<'a> {
     pub async fn authenticate_with_code(
         &self,
         params: AuthenticateWithCodeParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_code_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::authenticate_with_code`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_code_with_options(
+        &self,
+        params: AuthenticateWithCodeParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
         let method = http::Method::POST;
@@ -473,7 +763,7 @@ impl<'a> UserManagementApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -483,6 +773,16 @@ impl<'a> UserManagementApi<'a> {
     pub async fn authenticate_with_refresh_token(
         &self,
         params: AuthenticateWithRefreshTokenParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_refresh_token_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authenticate_with_refresh_token`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_refresh_token_with_options(
+        &self,
+        params: AuthenticateWithRefreshTokenParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
         let method = http::Method::POST;
@@ -499,7 +799,7 @@ impl<'a> UserManagementApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -509,6 +809,16 @@ impl<'a> UserManagementApi<'a> {
     pub async fn authenticate_with_magic_auth(
         &self,
         params: AuthenticateWithMagicAuthParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_magic_auth_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authenticate_with_magic_auth`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_magic_auth_with_options(
+        &self,
+        params: AuthenticateWithMagicAuthParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
         let method = http::Method::POST;
@@ -526,7 +836,7 @@ impl<'a> UserManagementApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -536,6 +846,16 @@ impl<'a> UserManagementApi<'a> {
     pub async fn authenticate_with_email_verification(
         &self,
         params: AuthenticateWithEmailVerificationParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_email_verification_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authenticate_with_email_verification`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_email_verification_with_options(
+        &self,
+        params: AuthenticateWithEmailVerificationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
         let method = http::Method::POST;
@@ -552,7 +872,7 @@ impl<'a> UserManagementApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -562,6 +882,15 @@ impl<'a> UserManagementApi<'a> {
     pub async fn authenticate_with_totp(
         &self,
         params: AuthenticateWithTotpParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_totp_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::authenticate_with_totp`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_totp_with_options(
+        &self,
+        params: AuthenticateWithTotpParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
         let method = http::Method::POST;
@@ -579,7 +908,7 @@ impl<'a> UserManagementApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -589,6 +918,16 @@ impl<'a> UserManagementApi<'a> {
     pub async fn authenticate_with_organization_selection(
         &self,
         params: AuthenticateWithOrganizationSelectionParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_organization_selection_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authenticate_with_organization_selection`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_organization_selection_with_options(
+        &self,
+        params: AuthenticateWithOrganizationSelectionParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
         let method = http::Method::POST;
@@ -605,7 +944,7 @@ impl<'a> UserManagementApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -615,6 +954,16 @@ impl<'a> UserManagementApi<'a> {
     pub async fn authenticate_with_device_code(
         &self,
         params: AuthenticateWithDeviceCodeParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_device_code_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authenticate_with_device_code`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_device_code_with_options(
+        &self,
+        params: AuthenticateWithDeviceCodeParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
         let method = http::Method::POST;
@@ -629,7 +978,7 @@ impl<'a> UserManagementApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -640,9 +989,20 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: GetAuthorizationUrlParams,
     ) -> Result<serde_json::Value, Error> {
+        self.get_authorization_url_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::get_authorization_url`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_authorization_url_with_options(
+        &self,
+        params: GetAuthorizationUrlParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
         let path = "/user_management/authorize".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// Get device authorization URL
@@ -652,10 +1012,19 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: CreateDeviceParams,
     ) -> Result<DeviceAuthorizationResponse, Error> {
+        self.create_device_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_device`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_device_with_options(
+        &self,
+        params: CreateDeviceParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DeviceAuthorizationResponse, Error> {
         let path = "/user_management/authorize/device".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -666,9 +1035,20 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: GetLogoutUrlParams,
     ) -> Result<serde_json::Value, Error> {
+        self.get_logout_url_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::get_logout_url`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_logout_url_with_options(
+        &self,
+        params: GetLogoutUrlParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
         let path = "/user_management/sessions/logout".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// Revoke Session
@@ -678,10 +1058,19 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: RevokeSessionParams,
     ) -> Result<serde_json::Value, Error> {
+        self.revoke_session_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::revoke_session`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn revoke_session_with_options(
+        &self,
+        params: RevokeSessionParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
         let path = "/user_management/sessions/revoke".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -692,24 +1081,40 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: CreateCorsOriginParams,
     ) -> Result<CorsOriginResponse, Error> {
+        self.create_cors_origin_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_cors_origin`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_cors_origin_with_options(
+        &self,
+        params: CreateCorsOriginParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<CorsOriginResponse, Error> {
         let path = "/user_management/cors_origins".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get an email verification code
     ///
     /// Get the details of an existing email verification code that can be used to send an email to a user for verification.
-    pub async fn get_email_verification(
+    pub async fn get_email_verification(&self, id: &str) -> Result<EmailVerification, Error> {
+        self.get_email_verification_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_email_verification`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_email_verification_with_options(
         &self,
         id: &str,
-        params: GetEmailVerificationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<EmailVerification, Error> {
-        let path = format!("/user_management/email_verification/{}", id);
+        let path = format!("/user_management/email_verification/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Create a password reset token
@@ -719,10 +1124,19 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: ResetPasswordParams,
     ) -> Result<PasswordReset, Error> {
+        self.reset_password_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::reset_password`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn reset_password_with_options(
+        &self,
+        params: ResetPasswordParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<PasswordReset, Error> {
         let path = "/user_management/password_reset".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -733,90 +1147,195 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: ConfirmPasswordResetParams,
     ) -> Result<ResetPasswordResponse, Error> {
+        self.confirm_password_reset_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::confirm_password_reset`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn confirm_password_reset_with_options(
+        &self,
+        params: ConfirmPasswordResetParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ResetPasswordResponse, Error> {
         let path = "/user_management/password_reset/confirm".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get a password reset token
     ///
     /// Get the details of an existing password reset token that can be used to reset a user's password.
-    pub async fn get_password_reset(
+    pub async fn get_password_reset(&self, id: &str) -> Result<PasswordReset, Error> {
+        self.get_password_reset_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_password_reset`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_password_reset_with_options(
         &self,
         id: &str,
-        params: GetPasswordResetParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<PasswordReset, Error> {
-        let path = format!("/user_management/password_reset/{}", id);
+        let path = format!("/user_management/password_reset/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List users
     ///
     /// Get a list of all of your existing users matching the criteria specified.
     pub async fn list_users(&self, params: ListUsersParams) -> Result<UserList, Error> {
+        self.list_users_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_users`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_users_with_options(
+        &self,
+        params: ListUsersParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserList, Error> {
         let path = "/user_management/users".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `User`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<User> = self
+    ///     .list_users_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_users_auto_paging(
+        &self,
+        params: ListUsersParams,
+    ) -> impl futures_util::Stream<Item = Result<User, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_users(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(page.data.into_iter().map(Ok::<User, Error>));
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Create a user
     ///
     /// Create a new user in the current environment.
     pub async fn create_user(&self, params: CreateUserParams) -> Result<User, Error> {
+        self.create_user_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_user`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_user_with_options(
+        &self,
+        params: CreateUserParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<User, Error> {
         let path = "/user_management/users".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get a user by external ID
     ///
     /// Get the details of an existing user by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
-    pub async fn get_user_by_external_id(
+    pub async fn get_user_by_external_id(&self, external_id: &str) -> Result<User, Error> {
+        self.get_user_by_external_id_with_options(external_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_user_by_external_id`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_user_by_external_id_with_options(
         &self,
         external_id: &str,
-        params: GetUserByExternalIdParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<User, Error> {
-        let path = format!("/user_management/users/external_id/{}", external_id);
+        let path = format!("/user_management/users/external_id/{external_id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Get a user
     ///
     /// Get the details of an existing user.
-    pub async fn get_user(&self, id: &str, params: GetUserParams) -> Result<User, Error> {
-        let path = format!("/user_management/users/{}", id);
+    pub async fn get_user(&self, id: &str) -> Result<User, Error> {
+        self.get_user_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_user`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_user_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<User, Error> {
+        let path = format!("/user_management/users/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update a user
     ///
     /// Updates properties of a user. The omitted properties will be left unchanged.
     pub async fn update_user(&self, id: &str, params: UpdateUserParams) -> Result<User, Error> {
-        let path = format!("/user_management/users/{}", id);
+        self.update_user_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::update_user`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_user_with_options(
+        &self,
+        id: &str,
+        params: UpdateUserParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<User, Error> {
+        let path = format!("/user_management/users/{id}");
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Delete a user
     ///
     /// Permanently deletes a user in the current environment. It cannot be undone.
-    pub async fn delete_user(
+    pub async fn delete_user(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_user_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_user`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_user_with_options(
         &self,
         id: &str,
-        params: DeleteUserParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/user_management/users/{}", id);
+        let path = format!("/user_management/users/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Confirm email change
@@ -827,10 +1346,21 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         params: ConfirmEmailChangeParams,
     ) -> Result<EmailChangeConfirmation, Error> {
-        let path = format!("/user_management/users/{}/email_change/confirm", id);
+        self.confirm_email_change_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::confirm_email_change`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn confirm_email_change_with_options(
+        &self,
+        id: &str,
+        params: ConfirmEmailChangeParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<EmailChangeConfirmation, Error> {
+        let path = format!("/user_management/users/{id}/email_change/confirm");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -842,10 +1372,20 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         params: SendEmailChangeParams,
     ) -> Result<EmailChange, Error> {
-        let path = format!("/user_management/users/{}/email_change/send", id);
+        self.send_email_change_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::send_email_change`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn send_email_change_with_options(
+        &self,
+        id: &str,
+        params: SendEmailChangeParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<EmailChange, Error> {
+        let path = format!("/user_management/users/{id}/email_change/send");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -857,10 +1397,20 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         params: VerifyEmailParams,
     ) -> Result<VerifyEmailResponse, Error> {
-        let path = format!("/user_management/users/{}/email_verification/confirm", id);
+        self.verify_email_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::verify_email`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn verify_email_with_options(
+        &self,
+        id: &str,
+        params: VerifyEmailParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<VerifyEmailResponse, Error> {
+        let path = format!("/user_management/users/{id}/email_verification/confirm");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -870,24 +1420,41 @@ impl<'a> UserManagementApi<'a> {
     pub async fn send_verification_email(
         &self,
         id: &str,
-        params: SendVerificationEmailParams,
     ) -> Result<SendVerificationEmailResponse, Error> {
-        let path = format!("/user_management/users/{}/email_verification/send", id);
+        self.send_verification_email_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::send_verification_email`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn send_verification_email_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<SendVerificationEmailResponse, Error> {
+        let path = format!("/user_management/users/{id}/email_verification/send");
         let method = http::Method::POST;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Get user identities
     ///
     /// Get a list of identities associated with the user. A user can have multiple associated identities after going through [identity linking](https://workos.com/docs/authkit/identity-linking). Currently only OAuth identities are supported. More provider types may be added in the future.
-    pub async fn get_user_identities(
+    pub async fn get_user_identities(&self, id: &str) -> Result<Vec<UserIdentitiesGetItem>, Error> {
+        self.get_user_identities_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_user_identities`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_user_identities_with_options(
         &self,
         id: &str,
-        params: GetUserIdentitiesParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<Vec<UserIdentitiesGetItem>, Error> {
-        let path = format!("/user_management/users/{}/identities", id);
+        let path = format!("/user_management/users/{id}/identities");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List sessions
@@ -898,9 +1465,21 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         params: ListSessionsParams,
     ) -> Result<Vec<UserSessionsListItem>, Error> {
-        let path = format!("/user_management/users/{}/sessions", id);
+        self.list_sessions_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::list_sessions`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_sessions_with_options(
+        &self,
+        id: &str,
+        params: ListSessionsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Vec<UserSessionsListItem>, Error> {
+        let path = format!("/user_management/users/{id}/sessions");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// List invitations
@@ -910,59 +1489,101 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: ListInvitationsParams,
     ) -> Result<Vec<UserInvite>, Error> {
+        self.list_invitations_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_invitations`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_invitations_with_options(
+        &self,
+        params: ListInvitationsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Vec<UserInvite>, Error> {
         let path = "/user_management/invitations".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// Send an invitation
     ///
     /// Sends an invitation email to the recipient.
     pub async fn send_invitation(&self, params: SendInvitationParams) -> Result<UserInvite, Error> {
+        self.send_invitation_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::send_invitation`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn send_invitation_with_options(
+        &self,
+        params: SendInvitationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserInvite, Error> {
         let path = "/user_management/invitations".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Find an invitation by token
     ///
     /// Retrieve an existing invitation using the token.
-    pub async fn find_invitation_by_token(
+    pub async fn find_invitation_by_token(&self, token: &str) -> Result<UserInvite, Error> {
+        self.find_invitation_by_token_with_options(token, None)
+            .await
+    }
+
+    /// Variant of [`Self::find_invitation_by_token`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn find_invitation_by_token_with_options(
         &self,
         token: &str,
-        params: FindInvitationByTokenParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<UserInvite, Error> {
-        let path = format!("/user_management/invitations/by_token/{}", token);
+        let path = format!("/user_management/invitations/by_token/{token}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Get an invitation
     ///
     /// Get the details of an existing invitation.
-    pub async fn get_invitation(
+    pub async fn get_invitation(&self, id: &str) -> Result<UserInvite, Error> {
+        self.get_invitation_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_invitation`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_invitation_with_options(
         &self,
         id: &str,
-        params: GetInvitationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<UserInvite, Error> {
-        let path = format!("/user_management/invitations/{}", id);
+        let path = format!("/user_management/invitations/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Accept an invitation
     ///
     /// Accepts an invitation and, if linked to an organization, activates the user's membership in that organization.
-    pub async fn accept_invitation(
+    pub async fn accept_invitation(&self, id: &str) -> Result<Invitation, Error> {
+        self.accept_invitation_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::accept_invitation`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn accept_invitation_with_options(
         &self,
         id: &str,
-        params: AcceptInvitationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<Invitation, Error> {
-        let path = format!("/user_management/invitations/{}/accept", id);
+        let path = format!("/user_management/invitations/{id}/accept");
         let method = http::Method::POST;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Resend an invitation
@@ -973,36 +1594,60 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         params: ResendInvitationParams,
     ) -> Result<UserInvite, Error> {
-        let path = format!("/user_management/invitations/{}/resend", id);
+        self.resend_invitation_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::resend_invitation`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn resend_invitation_with_options(
+        &self,
+        id: &str,
+        params: ResendInvitationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserInvite, Error> {
+        let path = format!("/user_management/invitations/{id}/resend");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Revoke an invitation
     ///
     /// Revokes an existing invitation.
-    pub async fn revoke_invitation(
+    pub async fn revoke_invitation(&self, id: &str) -> Result<Invitation, Error> {
+        self.revoke_invitation_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::revoke_invitation`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn revoke_invitation_with_options(
         &self,
         id: &str,
-        params: RevokeInvitationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<Invitation, Error> {
-        let path = format!("/user_management/invitations/{}/revoke", id);
+        let path = format!("/user_management/invitations/{id}/revoke");
         let method = http::Method::POST;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Get JWT template
     ///
     /// Get the JWT template for the current environment.
-    pub async fn list_jwt_template(
+    pub async fn list_jwt_template(&self) -> Result<JWTTemplateResponse, Error> {
+        self.list_jwt_template_with_options(None).await
+    }
+
+    /// Variant of [`Self::list_jwt_template`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_jwt_template_with_options(
         &self,
-        params: ListJWTTemplateParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<JWTTemplateResponse, Error> {
         let path = "/user_management/jwt_template".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update JWT template
@@ -1012,10 +1657,19 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: UpdateJWTTemplateParams,
     ) -> Result<JWTTemplateResponse, Error> {
+        self.update_jwt_template_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::update_jwt_template`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_jwt_template_with_options(
+        &self,
+        params: UpdateJWTTemplateParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<JWTTemplateResponse, Error> {
         let path = "/user_management/jwt_template".to_string();
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -1026,24 +1680,40 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: CreateMagicAuthParams,
     ) -> Result<MagicAuth, Error> {
+        self.create_magic_auth_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_magic_auth`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_magic_auth_with_options(
+        &self,
+        params: CreateMagicAuthParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<MagicAuth, Error> {
         let path = "/user_management/magic_auth".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get Magic Auth code details
     ///
     /// Get the details of an existing [Magic Auth](https://workos.com/docs/reference/authkit/magic-auth) code that can be used to send an email to a user for authentication.
-    pub async fn get_magic_auth(
+    pub async fn get_magic_auth(&self, id: &str) -> Result<MagicAuth, Error> {
+        self.get_magic_auth_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_magic_auth`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_magic_auth_with_options(
         &self,
         id: &str,
-        params: GetMagicAuthParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<MagicAuth, Error> {
-        let path = format!("/user_management/magic_auth/{}", id);
+        let path = format!("/user_management/magic_auth/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List organization memberships
@@ -1053,9 +1723,21 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: ListOrganizationMembershipsParams,
     ) -> Result<Vec<UserOrganizationMembership>, Error> {
+        self.list_organization_memberships_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_organization_memberships`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_organization_memberships_with_options(
+        &self,
+        params: ListOrganizationMembershipsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Vec<UserOrganizationMembership>, Error> {
         let path = "/user_management/organization_memberships".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// Create an organization membership
@@ -1067,10 +1749,20 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: CreateOrganizationMembershipParams,
     ) -> Result<OrganizationMembership, Error> {
+        self.create_organization_membership_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_organization_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_organization_membership_with_options(
+        &self,
+        params: CreateOrganizationMembershipParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationMembership, Error> {
         let path = "/user_management/organization_memberships".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -1080,11 +1772,22 @@ impl<'a> UserManagementApi<'a> {
     pub async fn get_organization_membership(
         &self,
         id: &str,
-        params: GetOrganizationMembershipParams,
     ) -> Result<UserOrganizationMembership, Error> {
-        let path = format!("/user_management/organization_memberships/{}", id);
+        self.get_organization_membership_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_organization_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_organization_membership_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserOrganizationMembership, Error> {
+        let path = format!("/user_management/organization_memberships/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update an organization membership
@@ -1095,10 +1798,21 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         params: UpdateOrganizationMembershipParams,
     ) -> Result<UserOrganizationMembership, Error> {
-        let path = format!("/user_management/organization_memberships/{}", id);
+        self.update_organization_membership_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_organization_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_organization_membership_with_options(
+        &self,
+        id: &str,
+        params: UpdateOrganizationMembershipParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserOrganizationMembership, Error> {
+        let path = format!("/user_management/organization_memberships/{id}");
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -1108,11 +1822,22 @@ impl<'a> UserManagementApi<'a> {
     pub async fn delete_organization_membership(
         &self,
         id: &str,
-        params: DeleteOrganizationMembershipParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/user_management/organization_memberships/{}", id);
+        self.delete_organization_membership_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_organization_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_organization_membership_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/user_management/organization_memberships/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Deactivate an organization membership
@@ -1126,14 +1851,22 @@ impl<'a> UserManagementApi<'a> {
     pub async fn deactivate_organization_membership(
         &self,
         id: &str,
-        params: DeactivateOrganizationMembershipParams,
     ) -> Result<OrganizationMembership, Error> {
-        let path = format!(
-            "/user_management/organization_memberships/{}/deactivate",
-            id
-        );
+        self.deactivate_organization_membership_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::deactivate_organization_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn deactivate_organization_membership_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationMembership, Error> {
+        let path = format!("/user_management/organization_memberships/{id}/deactivate");
         let method = http::Method::PUT;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Reactivate an organization membership
@@ -1147,14 +1880,22 @@ impl<'a> UserManagementApi<'a> {
     pub async fn reactivate_organization_membership(
         &self,
         id: &str,
-        params: ReactivateOrganizationMembershipParams,
     ) -> Result<UserOrganizationMembership, Error> {
-        let path = format!(
-            "/user_management/organization_memberships/{}/reactivate",
-            id
-        );
+        self.reactivate_organization_membership_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::reactivate_organization_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn reactivate_organization_membership_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserOrganizationMembership, Error> {
+        let path = format!("/user_management/organization_memberships/{id}/reactivate");
         let method = http::Method::PUT;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Create a redirect URI
@@ -1164,10 +1905,19 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: CreateRedirectUriParams,
     ) -> Result<RedirectUri, Error> {
+        self.create_redirect_uri_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_redirect_uri`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_redirect_uri_with_options(
+        &self,
+        params: CreateRedirectUriParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<RedirectUri, Error> {
         let path = "/user_management/redirect_uris".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -1179,9 +1929,64 @@ impl<'a> UserManagementApi<'a> {
         user_id: &str,
         params: ListUserAuthorizedApplicationsParams,
     ) -> Result<AuthorizedConnectApplicationList, Error> {
-        let path = format!("/user_management/users/{}/authorized_applications", user_id);
+        self.list_user_authorized_applications_with_options(user_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_user_authorized_applications`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_user_authorized_applications_with_options(
+        &self,
+        user_id: &str,
+        params: ListUserAuthorizedApplicationsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizedConnectApplicationList, Error> {
+        let path = format!("/user_management/users/{user_id}/authorized_applications");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AuthorizedConnectApplicationListData`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AuthorizedConnectApplicationListData> = self
+    ///     .list_user_authorized_applications_auto_paging(user_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_user_authorized_applications_auto_paging(
+        &self,
+        user_id: impl Into<String>,
+        params: ListUserAuthorizedApplicationsParams,
+    ) -> impl futures_util::Stream<Item = Result<AuthorizedConnectApplicationListData, Error>> + '_
+    {
+        use futures_util::TryStreamExt;
+        let user_id: String = user_id.into();
+        let initial = (Some(params), user_id, self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, user_id, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this
+                .list_user_authorized_applications(&user_id, params.clone())
+                .await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(
+                page.data
+                    .into_iter()
+                    .map(Ok::<AuthorizedConnectApplicationListData, Error>),
+            );
+            Ok::<_, Error>(Some((chunk, (next, user_id, this))))
+        })
+        .try_flatten()
     }
 
     /// Delete an authorized application
@@ -1191,14 +1996,24 @@ impl<'a> UserManagementApi<'a> {
         &self,
         application_id: &str,
         user_id: &str,
-        params: DeleteUserAuthorizedApplicationParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!(
-            "/user_management/users/{}/authorized_applications/{}",
-            user_id, application_id
-        );
+        self.delete_user_authorized_application_with_options(application_id, user_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_user_authorized_application`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_user_authorized_application_with_options(
+        &self,
+        application_id: &str,
+        user_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path =
+            format!("/user_management/users/{user_id}/authorized_applications/{application_id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List API keys for a user
@@ -1209,9 +2024,58 @@ impl<'a> UserManagementApi<'a> {
         user_id: &str,
         params: ListUserApiKeysParams,
     ) -> Result<UserApiKeyList, Error> {
-        let path = format!("/user_management/users/{}/api_keys", user_id);
+        self.list_user_api_keys_with_options(user_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_user_api_keys`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_user_api_keys_with_options(
+        &self,
+        user_id: &str,
+        params: ListUserApiKeysParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserApiKeyList, Error> {
+        let path = format!("/user_management/users/{user_id}/api_keys");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `UserApiKey`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<UserApiKey> = self
+    ///     .list_user_api_keys_auto_paging(user_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_user_api_keys_auto_paging(
+        &self,
+        user_id: impl Into<String>,
+        params: ListUserApiKeysParams,
+    ) -> impl futures_util::Stream<Item = Result<UserApiKey, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let user_id: String = user_id.into();
+        let initial = (Some(params), user_id, self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, user_id, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_user_api_keys(&user_id, params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk =
+                futures_util::stream::iter(page.data.into_iter().map(Ok::<UserApiKey, Error>));
+            Ok::<_, Error>(Some((chunk, (next, user_id, this))))
+        })
+        .try_flatten()
     }
 
     /// Create an API key for a user
@@ -1222,10 +2086,21 @@ impl<'a> UserManagementApi<'a> {
         user_id: &str,
         params: CreateUserApiKeyParams,
     ) -> Result<UserApiKeyWithValue, Error> {
-        let path = format!("/user_management/users/{}/api_keys", user_id);
+        self.create_user_api_key_with_options(user_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_user_api_key`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_user_api_key_with_options(
+        &self,
+        user_id: &str,
+        params: CreateUserApiKeyParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserApiKeyWithValue, Error> {
+        let path = format!("/user_management/users/{user_id}/api_keys");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 }

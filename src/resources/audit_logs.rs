@@ -12,59 +12,105 @@ pub struct AuditLogsApi<'a> {
     pub(crate) client: &'a Client,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetOrganizationAuditLogsRetentionParams {}
-
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateOrganizationAuditLogsRetentionParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateAuditLogsRetention,
 }
 
+impl UpdateOrganizationAuditLogsRetentionParams {
+    /// Construct a new `UpdateOrganizationAuditLogsRetentionParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateAuditLogsRetention) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListActionsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListActionSchemasParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateSchemaParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: AuditLogSchema,
 }
 
+impl CreateSchemaParams {
+    /// Construct a new `CreateSchemaParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AuditLogSchema) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateEventParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: AuditLogEventIngestion,
 }
 
+impl CreateEventParams {
+    /// Construct a new `CreateEventParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AuditLogEventIngestion) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateExportParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: AuditLogExportCreation,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetExportParams {}
+impl CreateExportParams {
+    /// Construct a new `CreateExportParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AuditLogExportCreation) -> Self {
+        Self { body }
+    }
+}
 
 impl<'a> AuditLogsApi<'a> {
     /// Get Retention
@@ -73,11 +119,22 @@ impl<'a> AuditLogsApi<'a> {
     pub async fn get_organization_audit_logs_retention(
         &self,
         id: &str,
-        params: GetOrganizationAuditLogsRetentionParams,
     ) -> Result<AuditLogsRetentionJson, Error> {
-        let path = format!("/organizations/{}/audit_logs_retention", id);
+        self.get_organization_audit_logs_retention_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_organization_audit_logs_retention`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_organization_audit_logs_retention_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuditLogsRetentionJson, Error> {
+        let path = format!("/organizations/{id}/audit_logs_retention");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Set Retention
@@ -88,10 +145,21 @@ impl<'a> AuditLogsApi<'a> {
         id: &str,
         params: UpdateOrganizationAuditLogsRetentionParams,
     ) -> Result<AuditLogsRetentionJson, Error> {
-        let path = format!("/organizations/{}/audit_logs_retention", id);
+        self.update_organization_audit_logs_retention_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_organization_audit_logs_retention`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_organization_audit_logs_retention_with_options(
+        &self,
+        id: &str,
+        params: UpdateOrganizationAuditLogsRetentionParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuditLogsRetentionJson, Error> {
+        let path = format!("/organizations/{id}/audit_logs_retention");
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -102,9 +170,20 @@ impl<'a> AuditLogsApi<'a> {
         &self,
         params: ListActionsParams,
     ) -> Result<Vec<AuditLogActionJson>, Error> {
+        self.list_actions_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_actions`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_actions_with_options(
+        &self,
+        params: ListActionsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Vec<AuditLogActionJson>, Error> {
         let path = "/audit_logs/actions".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// List Schemas
@@ -115,9 +194,22 @@ impl<'a> AuditLogsApi<'a> {
         action_name: &str,
         params: ListActionSchemasParams,
     ) -> Result<Vec<AuditLogSchemaJson>, Error> {
-        let path = format!("/audit_logs/actions/{}/schemas", action_name);
+        self.list_action_schemas_with_options(action_name, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_action_schemas`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_action_schemas_with_options(
+        &self,
+        action_name: &str,
+        params: ListActionSchemasParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Vec<AuditLogSchemaJson>, Error> {
+        let path = format!("/audit_logs/actions/{action_name}/schemas");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// Create Schema
@@ -128,10 +220,21 @@ impl<'a> AuditLogsApi<'a> {
         action_name: &str,
         params: CreateSchemaParams,
     ) -> Result<AuditLogSchemaJson, Error> {
-        let path = format!("/audit_logs/actions/{}/schemas", action_name);
+        self.create_schema_with_options(action_name, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_schema`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_schema_with_options(
+        &self,
+        action_name: &str,
+        params: CreateSchemaParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuditLogSchemaJson, Error> {
+        let path = format!("/audit_logs/actions/{action_name}/schemas");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -148,10 +251,19 @@ impl<'a> AuditLogsApi<'a> {
         &self,
         params: CreateEventParams,
     ) -> Result<AuditLogEventCreateResponse, Error> {
+        self.create_event_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_event`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_event_with_options(
+        &self,
+        params: CreateEventParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuditLogEventCreateResponse, Error> {
         let path = "/audit_logs/events".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -162,23 +274,40 @@ impl<'a> AuditLogsApi<'a> {
         &self,
         params: CreateExportParams,
     ) -> Result<AuditLogExportJson, Error> {
+        self.create_export_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_export`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_export_with_options(
+        &self,
+        params: CreateExportParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuditLogExportJson, Error> {
         let path = "/audit_logs/exports".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get Export
     ///
     /// Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
-    pub async fn get_export(
+    pub async fn get_export(&self, audit_log_export_id: &str) -> Result<AuditLogExportJson, Error> {
+        self.get_export_with_options(audit_log_export_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_export`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_export_with_options(
         &self,
         audit_log_export_id: &str,
-        params: GetExportParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuditLogExportJson, Error> {
-        let path = format!("/audit_logs/exports/{}", audit_log_export_id);
+        let path = format!("/audit_logs/exports/{audit_log_export_id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

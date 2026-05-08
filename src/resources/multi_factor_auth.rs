@@ -14,44 +14,86 @@ pub struct MultiFactorAuthApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct VerifyChallengeParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: AuthenticationChallengesVerifyRequest,
 }
 
+impl VerifyChallengeParams {
+    /// Construct a new `VerifyChallengeParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AuthenticationChallengesVerifyRequest) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct EnrollFactorParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: AuthenticationFactorsCreateRequest,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetFactorParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteFactorParams {}
+impl EnrollFactorParams {
+    /// Construct a new `EnrollFactorParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AuthenticationFactorsCreateRequest) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ChallengeFactorParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: ChallengeAuthenticationFactor,
 }
 
+impl ChallengeFactorParams {
+    /// Construct a new `ChallengeFactorParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ChallengeAuthenticationFactor) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListUserAuthFactorsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateUserAuthFactorParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: EnrollUserAuthenticationFactor,
+}
+
+impl CreateUserAuthFactorParams {
+    /// Construct a new `CreateUserAuthFactorParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: EnrollUserAuthenticationFactor) -> Self {
+        Self { body }
+    }
 }
 
 impl<'a> MultiFactorAuthApi<'a> {
@@ -63,10 +105,20 @@ impl<'a> MultiFactorAuthApi<'a> {
         id: &str,
         params: VerifyChallengeParams,
     ) -> Result<AuthenticationChallengeVerifyResponse, Error> {
-        let path = format!("/auth/challenges/{}/verify", id);
+        self.verify_challenge_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::verify_challenge`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn verify_challenge_with_options(
+        &self,
+        id: &str,
+        params: VerifyChallengeParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthenticationChallengeVerifyResponse, Error> {
+        let path = format!("/auth/challenges/{id}/verify");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -77,37 +129,60 @@ impl<'a> MultiFactorAuthApi<'a> {
         &self,
         params: EnrollFactorParams,
     ) -> Result<AuthenticationFactorEnrolled, Error> {
+        self.enroll_factor_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::enroll_factor`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn enroll_factor_with_options(
+        &self,
+        params: EnrollFactorParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthenticationFactorEnrolled, Error> {
         let path = "/auth/factors/enroll".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get Factor
     ///
     /// Gets an Authentication Factor.
-    pub async fn get_factor(
+    pub async fn get_factor(&self, id: &str) -> Result<AuthenticationFactor, Error> {
+        self.get_factor_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_factor`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_factor_with_options(
         &self,
         id: &str,
-        params: GetFactorParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticationFactor, Error> {
-        let path = format!("/auth/factors/{}", id);
+        let path = format!("/auth/factors/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Delete Factor
     ///
     /// Permanently deletes an Authentication Factor. It cannot be undone.
-    pub async fn delete_factor(
+    pub async fn delete_factor(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_factor_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_factor`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_factor_with_options(
         &self,
         id: &str,
-        params: DeleteFactorParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/auth/factors/{}", id);
+        let path = format!("/auth/factors/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Challenge Factor
@@ -118,10 +193,20 @@ impl<'a> MultiFactorAuthApi<'a> {
         id: &str,
         params: ChallengeFactorParams,
     ) -> Result<AuthenticationChallenge, Error> {
-        let path = format!("/auth/factors/{}/challenge", id);
+        self.challenge_factor_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::challenge_factor`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn challenge_factor_with_options(
+        &self,
+        id: &str,
+        params: ChallengeFactorParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthenticationChallenge, Error> {
+        let path = format!("/auth/factors/{id}/challenge");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -133,9 +218,64 @@ impl<'a> MultiFactorAuthApi<'a> {
         userland_user_id: &str,
         params: ListUserAuthFactorsParams,
     ) -> Result<UserAuthenticationFactorList, Error> {
-        let path = format!("/user_management/users/{}/auth_factors", userland_user_id);
+        self.list_user_auth_factors_with_options(userland_user_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_user_auth_factors`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_user_auth_factors_with_options(
+        &self,
+        userland_user_id: &str,
+        params: ListUserAuthFactorsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserAuthenticationFactorList, Error> {
+        let path = format!("/user_management/users/{userland_user_id}/auth_factors");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AuthenticationFactor`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AuthenticationFactor> = self
+    ///     .list_user_auth_factors_auto_paging(userland_user_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_user_auth_factors_auto_paging(
+        &self,
+        userland_user_id: impl Into<String>,
+        params: ListUserAuthFactorsParams,
+    ) -> impl futures_util::Stream<Item = Result<AuthenticationFactor, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let userland_user_id: String = userland_user_id.into();
+        let initial = (Some(params), userland_user_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, userland_user_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_user_auth_factors(&userland_user_id, params.clone())
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data.into_iter().map(Ok::<AuthenticationFactor, Error>),
+                );
+                Ok::<_, Error>(Some((chunk, (next, userland_user_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// Enroll an authentication factor
@@ -146,10 +286,21 @@ impl<'a> MultiFactorAuthApi<'a> {
         userland_user_id: &str,
         params: CreateUserAuthFactorParams,
     ) -> Result<UserAuthenticationFactorEnrollResponse, Error> {
-        let path = format!("/user_management/users/{}/auth_factors", userland_user_id);
+        self.create_user_auth_factor_with_options(userland_user_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_user_auth_factor`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_user_auth_factor_with_options(
+        &self,
+        userland_user_id: &str,
+        params: CreateUserAuthFactorParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserAuthenticationFactorEnrollResponse, Error> {
+        let path = format!("/user_management/users/{userland_user_id}/auth_factors");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 }

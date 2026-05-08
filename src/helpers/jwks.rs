@@ -106,11 +106,11 @@ impl JwksHelper {
         };
         let resp = self.transport.execute(req).await.map_err(Error::Network)?;
         if !resp.status.is_success() {
-            return Err(Error::Api {
-                status: resp.status.as_u16(),
-                code: None,
-                message: String::from_utf8_lossy(&resp.body).into_owned(),
-            });
+            return Err(Error::Api(Box::new(crate::error::ApiError::from_response(
+                resp.status.as_u16(),
+                &resp.headers,
+                &resp.body,
+            ))));
         }
         let set: JwkSet = serde_json::from_slice(&resp.body).map_err(Error::from)?;
         let arc = Arc::new(set);

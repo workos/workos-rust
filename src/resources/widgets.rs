@@ -14,8 +14,19 @@ pub struct WidgetsApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateTokenParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: WidgetSessionToken,
+}
+
+impl CreateTokenParams {
+    /// Construct a new `CreateTokenParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: WidgetSessionToken) -> Self {
+        Self { body }
+    }
 }
 
 impl<'a> WidgetsApi<'a> {
@@ -26,10 +37,19 @@ impl<'a> WidgetsApi<'a> {
         &self,
         params: CreateTokenParams,
     ) -> Result<WidgetSessionTokenResponse, Error> {
+        self.create_token_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_token`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_token_with_options(
+        &self,
+        params: CreateTokenParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<WidgetSessionTokenResponse, Error> {
         let path = "/widgets/token".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 }

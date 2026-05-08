@@ -14,51 +14,48 @@ pub struct FeatureFlagsApi<'a> {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListFeatureFlagsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
-pub struct GetFeatureFlagParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DisableFeatureFlagParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct EnableFeatureFlagParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct AddFlagTargetParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct RemoveFlagTargetParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
 pub struct ListOrganizationFeatureFlagsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListUserFeatureFlagsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
@@ -71,48 +68,113 @@ impl<'a> FeatureFlagsApi<'a> {
         &self,
         params: ListFeatureFlagsParams,
     ) -> Result<FlagList, Error> {
+        self.list_feature_flags_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_feature_flags`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_feature_flags_with_options(
+        &self,
+        params: ListFeatureFlagsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<FlagList, Error> {
         let path = "/feature-flags".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `Flag`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<Flag> = self
+    ///     .list_feature_flags_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_feature_flags_auto_paging(
+        &self,
+        params: ListFeatureFlagsParams,
+    ) -> impl futures_util::Stream<Item = Result<Flag, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_feature_flags(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(page.data.into_iter().map(Ok::<Flag, Error>));
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Get a feature flag
     ///
     /// Get the details of an existing feature flag by its slug.
-    pub async fn get_feature_flag(
+    pub async fn get_feature_flag(&self, slug: &str) -> Result<Flag, Error> {
+        self.get_feature_flag_with_options(slug, None).await
+    }
+
+    /// Variant of [`Self::get_feature_flag`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_feature_flag_with_options(
         &self,
         slug: &str,
-        params: GetFeatureFlagParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<Flag, Error> {
-        let path = format!("/feature-flags/{}", slug);
+        let path = format!("/feature-flags/{slug}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Disable a feature flag
     ///
     /// Disables a feature flag in the current environment.
-    pub async fn disable_feature_flag(
+    pub async fn disable_feature_flag(&self, slug: &str) -> Result<FeatureFlag, Error> {
+        self.disable_feature_flag_with_options(slug, None).await
+    }
+
+    /// Variant of [`Self::disable_feature_flag`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn disable_feature_flag_with_options(
         &self,
         slug: &str,
-        params: DisableFeatureFlagParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<FeatureFlag, Error> {
-        let path = format!("/feature-flags/{}/disable", slug);
+        let path = format!("/feature-flags/{slug}/disable");
         let method = http::Method::PUT;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Enable a feature flag
     ///
     /// Enables a feature flag in the current environment.
-    pub async fn enable_feature_flag(
+    pub async fn enable_feature_flag(&self, slug: &str) -> Result<FeatureFlag, Error> {
+        self.enable_feature_flag_with_options(slug, None).await
+    }
+
+    /// Variant of [`Self::enable_feature_flag`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn enable_feature_flag_with_options(
         &self,
         slug: &str,
-        params: EnableFeatureFlagParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<FeatureFlag, Error> {
-        let path = format!("/feature-flags/{}/enable", slug);
+        let path = format!("/feature-flags/{slug}/enable");
         let method = http::Method::PUT;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Add a feature flag target
@@ -122,11 +184,23 @@ impl<'a> FeatureFlagsApi<'a> {
         &self,
         resource_id: &str,
         slug: &str,
-        params: AddFlagTargetParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/feature-flags/{}/targets/{}", slug, resource_id);
+        self.add_flag_target_with_options(resource_id, slug, None)
+            .await
+    }
+
+    /// Variant of [`Self::add_flag_target`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn add_flag_target_with_options(
+        &self,
+        resource_id: &str,
+        slug: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/feature-flags/{slug}/targets/{resource_id}");
         let method = http::Method::POST;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Remove a feature flag target
@@ -136,11 +210,23 @@ impl<'a> FeatureFlagsApi<'a> {
         &self,
         resource_id: &str,
         slug: &str,
-        params: RemoveFlagTargetParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/feature-flags/{}/targets/{}", slug, resource_id);
+        self.remove_flag_target_with_options(resource_id, slug, None)
+            .await
+    }
+
+    /// Variant of [`Self::remove_flag_target`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn remove_flag_target_with_options(
+        &self,
+        resource_id: &str,
+        slug: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/feature-flags/{slug}/targets/{resource_id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List enabled feature flags for an organization
@@ -151,9 +237,63 @@ impl<'a> FeatureFlagsApi<'a> {
         organization_id: &str,
         params: ListOrganizationFeatureFlagsParams,
     ) -> Result<FlagList, Error> {
-        let path = format!("/organizations/{}/feature-flags", organization_id);
+        self.list_organization_feature_flags_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_organization_feature_flags`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_organization_feature_flags_with_options(
+        &self,
+        organization_id: &str,
+        params: ListOrganizationFeatureFlagsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<FlagList, Error> {
+        let path = format!("/organizations/{organization_id}/feature-flags");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `Flag`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<Flag> = self
+    ///     .list_organization_feature_flags_auto_paging(organization_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_organization_feature_flags_auto_paging(
+        &self,
+        organization_id: impl Into<String>,
+        params: ListOrganizationFeatureFlagsParams,
+    ) -> impl futures_util::Stream<Item = Result<Flag, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let organization_id: String = organization_id.into();
+        let initial = (Some(params), organization_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, organization_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_organization_feature_flags(&organization_id, params.clone())
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk =
+                    futures_util::stream::iter(page.data.into_iter().map(Ok::<Flag, Error>));
+                Ok::<_, Error>(Some((chunk, (next, organization_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// List enabled feature flags for a user
@@ -164,8 +304,58 @@ impl<'a> FeatureFlagsApi<'a> {
         user_id: &str,
         params: ListUserFeatureFlagsParams,
     ) -> Result<FlagList, Error> {
-        let path = format!("/user_management/users/{}/feature-flags", user_id);
+        self.list_user_feature_flags_with_options(user_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_user_feature_flags`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_user_feature_flags_with_options(
+        &self,
+        user_id: &str,
+        params: ListUserFeatureFlagsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<FlagList, Error> {
+        let path = format!("/user_management/users/{user_id}/feature-flags");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `Flag`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<Flag> = self
+    ///     .list_user_feature_flags_auto_paging(user_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_user_feature_flags_auto_paging(
+        &self,
+        user_id: impl Into<String>,
+        params: ListUserFeatureFlagsParams,
+    ) -> impl futures_util::Stream<Item = Result<Flag, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let user_id: String = user_id.into();
+        let initial = (Some(params), user_id, self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, user_id, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this
+                .list_user_feature_flags(&user_id, params.clone())
+                .await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(page.data.into_iter().map(Ok::<Flag, Error>));
+            Ok::<_, Error>(Some((chunk, (next, user_id, this))))
+        })
+        .try_flatten()
     }
 }

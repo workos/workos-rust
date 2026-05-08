@@ -14,291 +14,544 @@ pub struct AuthorizationApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CheckParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CheckAuthorization,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl CheckParams {
+    /// Construct a new `CheckParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CheckAuthorization) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct ListResourcesForMembershipParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// The permission slug to filter by. Only child resources where the organization membership has this permission are returned.
+    ///
+    /// Required.
     pub permission_slug: String,
+    /// The WorkOS ID of the parent resource. Provide this or both `parent_resource_external_id` and `parent_resource_type_slug`, but not both. Mutually exclusive with `parent_resource_type_slug` and `parent_resource_external_id`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent_resource_id: Option<String>,
+    /// The slug of the parent resource type. Must be provided together with `parent_resource_external_id`. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent_resource_type_slug: Option<String>,
+    /// The application-specific external identifier of the parent resource. Must be provided together with `parent_resource_type_slug`. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent_resource_external_id: Option<String>,
 }
 
+impl ListResourcesForMembershipParams {
+    /// Construct a new `ListResourcesForMembershipParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(permission_slug: impl Into<String>) -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Default::default(),
+            order: Default::default(),
+            permission_slug: permission_slug.into(),
+            parent_resource_id: Default::default(),
+            parent_resource_type_slug: Default::default(),
+            parent_resource_external_id: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListEffectivePermissionsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListEffectivePermissionsByExternalIdParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListRoleAssignmentsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AssignRoleParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: AssignRole,
 }
 
+impl AssignRoleParams {
+    /// Construct a new `AssignRoleParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AssignRole) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct RemoveRoleParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: RemoveRole,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct RemoveRoleAssignmentParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct ListOrganizationRolesParams {}
+impl RemoveRoleParams {
+    /// Construct a new `RemoveRoleParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: RemoveRole) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateOrganizationRoleParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateOrganizationRole,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetOrganizationRoleParams {}
+impl CreateOrganizationRoleParams {
+    /// Construct a new `CreateOrganizationRoleParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateOrganizationRole) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateOrganizationRoleParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateOrganizationRole,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteOrganizationRoleParams {}
+impl UpdateOrganizationRoleParams {
+    /// Construct a new `UpdateOrganizationRoleParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateOrganizationRole) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AddOrganizationRolePermissionParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: AddRolePermission,
 }
 
+impl AddOrganizationRolePermissionParams {
+    /// Construct a new `AddOrganizationRolePermissionParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AddRolePermission) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct SetOrganizationRolePermissionsParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: SetRolePermissions,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct RemoveOrganizationRolePermissionParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetResourceByExternalIdParams {}
+impl SetOrganizationRolePermissionsParams {
+    /// Construct a new `SetOrganizationRolePermissionsParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: SetRolePermissions) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateResourceByExternalIdParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateAuthorizationResource,
 }
 
+impl UpdateResourceByExternalIdParams {
+    /// Construct a new `UpdateResourceByExternalIdParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateAuthorizationResource) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct DeleteResourceByExternalIdParams {
+    /// If true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cascade_delete: Option<bool>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListMembershipsForResourceByExternalIdParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// The permission slug to filter by. Only users with this permission on the resource are returned.
+    ///
+    /// Required.
     pub permission_slug: String,
+    /// Filter by assignment type. Use "direct" for direct assignments only, or "indirect" to include inherited assignments.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assignment: Option<AuthorizationAssignment>,
 }
 
+impl ListMembershipsForResourceByExternalIdParams {
+    /// Construct a new `ListMembershipsForResourceByExternalIdParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(permission_slug: impl Into<String>) -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Default::default(),
+            order: Default::default(),
+            permission_slug: permission_slug.into(),
+            assignment: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListRoleAssignmentsForResourceByExternalIdParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListResourcesParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter resources by organization ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// Filter resources by resource type slug.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource_type_slug: Option<String>,
+    /// Filter resources by external ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource_external_id: Option<String>,
+    /// Filter resources by parent resource ID. Mutually exclusive with `parent_resource_type_slug` and `parent_external_id`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent_resource_id: Option<String>,
+    /// Filter resources by parent resource type slug. Required with `parent_external_id`. Mutually exclusive with `parent_resource_id`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent_resource_type_slug: Option<String>,
+    /// Filter resources by parent external ID. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent_external_id: Option<String>,
+    /// Search resources by name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub search: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateResourceParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateAuthorizationResource,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetResourceParams {}
+impl CreateResourceParams {
+    /// Construct a new `CreateResourceParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateAuthorizationResource) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateResourceParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateAuthorizationResource,
 }
 
+impl UpdateResourceParams {
+    /// Construct a new `UpdateResourceParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateAuthorizationResource) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct DeleteResourceParams {
+    /// If true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cascade_delete: Option<bool>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListMembershipsForResourceParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// The permission slug to filter by. Only users with this permission on the resource are returned.
+    ///
+    /// Required.
     pub permission_slug: String,
+    /// Filter by assignment type. Use `direct` for direct assignments only, or `indirect` to include inherited assignments.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assignment: Option<AuthorizationAssignment>,
 }
 
+impl ListMembershipsForResourceParams {
+    /// Construct a new `ListMembershipsForResourceParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(permission_slug: impl Into<String>) -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Default::default(),
+            order: Default::default(),
+            permission_slug: permission_slug.into(),
+            assignment: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListRoleAssignmentsForResourceParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct ListEnvironmentRolesParams {}
-
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateEnvironmentRoleParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateRole,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetEnvironmentRoleParams {}
+impl CreateEnvironmentRoleParams {
+    /// Construct a new `CreateEnvironmentRoleParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateRole) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateEnvironmentRoleParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateRole,
 }
 
+impl UpdateEnvironmentRoleParams {
+    /// Construct a new `UpdateEnvironmentRoleParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateRole) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct AddEnvironmentRolePermissionParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: AddRolePermission,
 }
 
+impl AddEnvironmentRolePermissionParams {
+    /// Construct a new `AddEnvironmentRolePermissionParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AddRolePermission) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct SetEnvironmentRolePermissionsParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: SetRolePermissions,
 }
 
+impl SetEnvironmentRolePermissionsParams {
+    /// Construct a new `SetEnvironmentRolePermissionsParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: SetRolePermissions) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListPermissionsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreatePermissionParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateAuthorizationPermission,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetPermissionParams {}
+impl CreatePermissionParams {
+    /// Construct a new `CreatePermissionParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateAuthorizationPermission) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdatePermissionParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateAuthorizationPermission,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeletePermissionParams {}
+impl UpdatePermissionParams {
+    /// Construct a new `UpdatePermissionParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateAuthorizationPermission) -> Self {
+        Self { body }
+    }
+}
 
 impl<'a> AuthorizationApi<'a> {
     /// Check authorization
@@ -309,13 +562,22 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: &str,
         params: CheckParams,
     ) -> Result<AuthorizationCheck, Error> {
-        let path = format!(
-            "/authorization/organization_memberships/{}/check",
-            organization_membership_id
-        );
+        self.check_with_options(organization_membership_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::check`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn check_with_options(
+        &self,
+        organization_membership_id: &str,
+        params: CheckParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationCheck, Error> {
+        let path =
+            format!("/authorization/organization_memberships/{organization_membership_id}/check");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -329,12 +591,68 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: &str,
         params: ListResourcesForMembershipParams,
     ) -> Result<AuthorizationResourceList, Error> {
+        self.list_resources_for_membership_with_options(organization_membership_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_resources_for_membership`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_resources_for_membership_with_options(
+        &self,
+        organization_membership_id: &str,
+        params: ListResourcesForMembershipParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationResourceList, Error> {
         let path = format!(
-            "/authorization/organization_memberships/{}/resources",
-            organization_membership_id
+            "/authorization/organization_memberships/{organization_membership_id}/resources"
         );
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AuthorizationResource`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AuthorizationResource> = self
+    ///     .list_resources_for_membership_auto_paging(organization_membership_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_resources_for_membership_auto_paging(
+        &self,
+        organization_membership_id: impl Into<String>,
+        params: ListResourcesForMembershipParams,
+    ) -> impl futures_util::Stream<Item = Result<AuthorizationResource, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let organization_membership_id: String = organization_membership_id.into();
+        let initial = (Some(params), organization_membership_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, organization_membership_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_resources_for_membership(&organization_membership_id, params.clone())
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data
+                        .into_iter()
+                        .map(Ok::<AuthorizationResource, Error>),
+                );
+                Ok::<_, Error>(Some((chunk, (next, organization_membership_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// List effective permissions for an organization membership on a resource
@@ -346,12 +664,83 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: &str,
         params: ListEffectivePermissionsParams,
     ) -> Result<AuthorizationPermissionList, Error> {
+        self.list_effective_permissions_with_options(
+            organization_membership_id,
+            resource_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::list_effective_permissions`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_effective_permissions_with_options(
+        &self,
+        organization_membership_id: &str,
+        resource_id: &str,
+        params: ListEffectivePermissionsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationPermissionList, Error> {
         let path = format!(
-            "/authorization/organization_memberships/{}/resources/{}/permissions",
-            organization_membership_id, resource_id
+            "/authorization/organization_memberships/{organization_membership_id}/resources/{resource_id}/permissions"
         );
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AuthorizationPermission`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AuthorizationPermission> = self
+    ///     .list_effective_permissions_auto_paging(organization_membership_id, resource_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_effective_permissions_auto_paging(
+        &self,
+        organization_membership_id: impl Into<String>,
+        resource_id: impl Into<String>,
+        params: ListEffectivePermissionsParams,
+    ) -> impl futures_util::Stream<Item = Result<AuthorizationPermission, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let organization_membership_id: String = organization_membership_id.into();
+        let resource_id: String = resource_id.into();
+        let initial = (Some(params), organization_membership_id, resource_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, organization_membership_id, resource_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_effective_permissions(
+                        &organization_membership_id,
+                        &resource_id,
+                        params.clone(),
+                    )
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data
+                        .into_iter()
+                        .map(Ok::<AuthorizationPermission, Error>),
+                );
+                Ok::<_, Error>(Some((
+                    chunk,
+                    (next, organization_membership_id, resource_id, this),
+                )))
+            },
+        )
+        .try_flatten()
     }
 
     /// List effective permissions for an organization membership on a resource by external ID
@@ -364,12 +753,106 @@ impl<'a> AuthorizationApi<'a> {
         external_id: &str,
         params: ListEffectivePermissionsByExternalIdParams,
     ) -> Result<AuthorizationPermissionList, Error> {
+        self.list_effective_permissions_by_external_id_with_options(
+            organization_membership_id,
+            resource_type_slug,
+            external_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::list_effective_permissions_by_external_id`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_effective_permissions_by_external_id_with_options(
+        &self,
+        organization_membership_id: &str,
+        resource_type_slug: &str,
+        external_id: &str,
+        params: ListEffectivePermissionsByExternalIdParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationPermissionList, Error> {
         let path = format!(
-            "/authorization/organization_memberships/{}/resources/{}/{}/permissions",
-            organization_membership_id, resource_type_slug, external_id
+            "/authorization/organization_memberships/{organization_membership_id}/resources/{resource_type_slug}/{external_id}/permissions"
         );
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AuthorizationPermission`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AuthorizationPermission> = self
+    ///     .list_effective_permissions_by_external_id_auto_paging(organization_membership_id, resource_type_slug, external_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_effective_permissions_by_external_id_auto_paging(
+        &self,
+        organization_membership_id: impl Into<String>,
+        resource_type_slug: impl Into<String>,
+        external_id: impl Into<String>,
+        params: ListEffectivePermissionsByExternalIdParams,
+    ) -> impl futures_util::Stream<Item = Result<AuthorizationPermission, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let organization_membership_id: String = organization_membership_id.into();
+        let resource_type_slug: String = resource_type_slug.into();
+        let external_id: String = external_id.into();
+        let initial = (
+            Some(params),
+            organization_membership_id,
+            resource_type_slug,
+            external_id,
+            self,
+        );
+        futures_util::stream::try_unfold(
+            initial,
+            move |(
+                maybe_params,
+                organization_membership_id,
+                resource_type_slug,
+                external_id,
+                this,
+            )| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_effective_permissions_by_external_id(
+                        &organization_membership_id,
+                        &resource_type_slug,
+                        &external_id,
+                        params.clone(),
+                    )
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data
+                        .into_iter()
+                        .map(Ok::<AuthorizationPermission, Error>),
+                );
+                Ok::<_, Error>(Some((
+                    chunk,
+                    (
+                        next,
+                        organization_membership_id,
+                        resource_type_slug,
+                        external_id,
+                        this,
+                    ),
+                )))
+            },
+        )
+        .try_flatten()
     }
 
     /// List role assignments
@@ -380,12 +863,66 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: &str,
         params: ListRoleAssignmentsParams,
     ) -> Result<UserRoleAssignmentList, Error> {
+        self.list_role_assignments_with_options(organization_membership_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_role_assignments`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_role_assignments_with_options(
+        &self,
+        organization_membership_id: &str,
+        params: ListRoleAssignmentsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserRoleAssignmentList, Error> {
         let path = format!(
-            "/authorization/organization_memberships/{}/role_assignments",
-            organization_membership_id
+            "/authorization/organization_memberships/{organization_membership_id}/role_assignments"
         );
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `UserRoleAssignment`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<UserRoleAssignment> = self
+    ///     .list_role_assignments_auto_paging(organization_membership_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_role_assignments_auto_paging(
+        &self,
+        organization_membership_id: impl Into<String>,
+        params: ListRoleAssignmentsParams,
+    ) -> impl futures_util::Stream<Item = Result<UserRoleAssignment, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let organization_membership_id: String = organization_membership_id.into();
+        let initial = (Some(params), organization_membership_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, organization_membership_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_role_assignments(&organization_membership_id, params.clone())
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data.into_iter().map(Ok::<UserRoleAssignment, Error>),
+                );
+                Ok::<_, Error>(Some((chunk, (next, organization_membership_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// Assign a role
@@ -396,13 +933,23 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: &str,
         params: AssignRoleParams,
     ) -> Result<UserRoleAssignment, Error> {
+        self.assign_role_with_options(organization_membership_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::assign_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn assign_role_with_options(
+        &self,
+        organization_membership_id: &str,
+        params: AssignRoleParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserRoleAssignment, Error> {
         let path = format!(
-            "/authorization/organization_memberships/{}/role_assignments",
-            organization_membership_id
+            "/authorization/organization_memberships/{organization_membership_id}/role_assignments"
         );
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -414,13 +961,23 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: &str,
         params: RemoveRoleParams,
     ) -> Result<serde_json::Value, Error> {
+        self.remove_role_with_options(organization_membership_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::remove_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn remove_role_with_options(
+        &self,
+        organization_membership_id: &str,
+        params: RemoveRoleParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
         let path = format!(
-            "/authorization/organization_memberships/{}/role_assignments",
-            organization_membership_id
+            "/authorization/organization_memberships/{organization_membership_id}/role_assignments"
         );
         let method = http::Method::DELETE;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -431,27 +988,50 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         organization_membership_id: &str,
         role_assignment_id: &str,
-        params: RemoveRoleAssignmentParams,
+    ) -> Result<serde_json::Value, Error> {
+        self.remove_role_assignment_with_options(
+            organization_membership_id,
+            role_assignment_id,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::remove_role_assignment`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn remove_role_assignment_with_options(
+        &self,
+        organization_membership_id: &str,
+        role_assignment_id: &str,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
         let path = format!(
-            "/authorization/organization_memberships/{}/role_assignments/{}",
-            organization_membership_id, role_assignment_id
+            "/authorization/organization_memberships/{organization_membership_id}/role_assignments/{role_assignment_id}"
         );
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List custom roles
     ///
     /// Get a list of all roles that apply to an organization. This includes both environment roles and custom roles, returned in priority order.
-    pub async fn list_organization_roles(
+    pub async fn list_organization_roles(&self, organization_id: &str) -> Result<RoleList, Error> {
+        self.list_organization_roles_with_options(organization_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_organization_roles`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_organization_roles_with_options(
         &self,
         organization_id: &str,
-        params: ListOrganizationRolesParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<RoleList, Error> {
-        let path = format!("/authorization/organizations/{}/roles", organization_id);
+        let path = format!("/authorization/organizations/{organization_id}/roles");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Create a custom role
@@ -462,10 +1042,21 @@ impl<'a> AuthorizationApi<'a> {
         organization_id: &str,
         params: CreateOrganizationRoleParams,
     ) -> Result<Role, Error> {
-        let path = format!("/authorization/organizations/{}/roles", organization_id);
+        self.create_organization_role_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_organization_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_organization_role_with_options(
+        &self,
+        organization_id: &str,
+        params: CreateOrganizationRoleParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
+        let path = format!("/authorization/organizations/{organization_id}/roles");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -476,14 +1067,23 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         organization_id: &str,
         slug: &str,
-        params: GetOrganizationRoleParams,
     ) -> Result<Role, Error> {
-        let path = format!(
-            "/authorization/organizations/{}/roles/{}",
-            organization_id, slug
-        );
+        self.get_organization_role_with_options(organization_id, slug, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_organization_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_organization_role_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
+        let path = format!("/authorization/organizations/{organization_id}/roles/{slug}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update a custom role
@@ -495,13 +1095,22 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         params: UpdateOrganizationRoleParams,
     ) -> Result<Role, Error> {
-        let path = format!(
-            "/authorization/organizations/{}/roles/{}",
-            organization_id, slug
-        );
+        self.update_organization_role_with_options(organization_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_organization_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_organization_role_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: UpdateOrganizationRoleParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
+        let path = format!("/authorization/organizations/{organization_id}/roles/{slug}");
         let method = http::Method::PATCH;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -512,14 +1121,23 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         organization_id: &str,
         slug: &str,
-        params: DeleteOrganizationRoleParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!(
-            "/authorization/organizations/{}/roles/{}",
-            organization_id, slug
-        );
+        self.delete_organization_role_with_options(organization_id, slug, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_organization_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_organization_role_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/authorization/organizations/{organization_id}/roles/{slug}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Add a permission to a custom role
@@ -531,13 +1149,23 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         params: AddOrganizationRolePermissionParams,
     ) -> Result<Role, Error> {
-        let path = format!(
-            "/authorization/organizations/{}/roles/{}/permissions",
-            organization_id, slug
-        );
+        self.add_organization_role_permission_with_options(organization_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::add_organization_role_permission`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn add_organization_role_permission_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: AddOrganizationRolePermissionParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
+        let path =
+            format!("/authorization/organizations/{organization_id}/roles/{slug}/permissions");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -550,13 +1178,23 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         params: SetOrganizationRolePermissionsParams,
     ) -> Result<Role, Error> {
-        let path = format!(
-            "/authorization/organizations/{}/roles/{}/permissions",
-            organization_id, slug
-        );
+        self.set_organization_role_permissions_with_options(organization_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::set_organization_role_permissions`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn set_organization_role_permissions_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: SetOrganizationRolePermissionsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
+        let path =
+            format!("/authorization/organizations/{organization_id}/roles/{slug}/permissions");
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -568,14 +1206,31 @@ impl<'a> AuthorizationApi<'a> {
         organization_id: &str,
         slug: &str,
         permission_slug: &str,
-        params: RemoveOrganizationRolePermissionParams,
+    ) -> Result<Role, Error> {
+        self.remove_organization_role_permission_with_options(
+            organization_id,
+            slug,
+            permission_slug,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::remove_organization_role_permission`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn remove_organization_role_permission_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        permission_slug: &str,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
         let path = format!(
-            "/authorization/organizations/{}/roles/{}/permissions/{}",
-            organization_id, slug, permission_slug
+            "/authorization/organizations/{organization_id}/roles/{slug}/permissions/{permission_slug}"
         );
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Get a resource by external ID
@@ -586,14 +1241,31 @@ impl<'a> AuthorizationApi<'a> {
         organization_id: &str,
         resource_type_slug: &str,
         external_id: &str,
-        params: GetResourceByExternalIdParams,
+    ) -> Result<AuthorizationResource, Error> {
+        self.get_resource_by_external_id_with_options(
+            organization_id,
+            resource_type_slug,
+            external_id,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::get_resource_by_external_id`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_resource_by_external_id_with_options(
+        &self,
+        organization_id: &str,
+        resource_type_slug: &str,
+        external_id: &str,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationResource, Error> {
         let path = format!(
-            "/authorization/organizations/{}/resources/{}/{}",
-            organization_id, resource_type_slug, external_id
+            "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}"
         );
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update a resource by external ID
@@ -606,13 +1278,31 @@ impl<'a> AuthorizationApi<'a> {
         external_id: &str,
         params: UpdateResourceByExternalIdParams,
     ) -> Result<AuthorizationResource, Error> {
+        self.update_resource_by_external_id_with_options(
+            organization_id,
+            resource_type_slug,
+            external_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::update_resource_by_external_id`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_resource_by_external_id_with_options(
+        &self,
+        organization_id: &str,
+        resource_type_slug: &str,
+        external_id: &str,
+        params: UpdateResourceByExternalIdParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationResource, Error> {
         let path = format!(
-            "/authorization/organizations/{}/resources/{}/{}",
-            organization_id, resource_type_slug, external_id
+            "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}"
         );
         let method = http::Method::PATCH;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -626,12 +1316,32 @@ impl<'a> AuthorizationApi<'a> {
         external_id: &str,
         params: DeleteResourceByExternalIdParams,
     ) -> Result<serde_json::Value, Error> {
+        self.delete_resource_by_external_id_with_options(
+            organization_id,
+            resource_type_slug,
+            external_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::delete_resource_by_external_id`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_resource_by_external_id_with_options(
+        &self,
+        organization_id: &str,
+        resource_type_slug: &str,
+        external_id: &str,
+        params: DeleteResourceByExternalIdParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
         let path = format!(
-            "/authorization/organizations/{}/resources/{}/{}",
-            organization_id, resource_type_slug, external_id
+            "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}"
         );
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// List memberships for a resource by external ID
@@ -644,12 +1354,80 @@ impl<'a> AuthorizationApi<'a> {
         external_id: &str,
         params: ListMembershipsForResourceByExternalIdParams,
     ) -> Result<UserOrganizationMembershipBaseList, Error> {
+        self.list_memberships_for_resource_by_external_id_with_options(
+            organization_id,
+            resource_type_slug,
+            external_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::list_memberships_for_resource_by_external_id`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_memberships_for_resource_by_external_id_with_options(
+        &self,
+        organization_id: &str,
+        resource_type_slug: &str,
+        external_id: &str,
+        params: ListMembershipsForResourceByExternalIdParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserOrganizationMembershipBaseList, Error> {
         let path = format!(
-            "/authorization/organizations/{}/resources/{}/{}/organization_memberships",
-            organization_id, resource_type_slug, external_id
+            "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}/organization_memberships"
         );
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `UserOrganizationMembershipBaseListData`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<UserOrganizationMembershipBaseListData> = self
+    ///     .list_memberships_for_resource_by_external_id_auto_paging(organization_id, resource_type_slug, external_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_memberships_for_resource_by_external_id_auto_paging(
+        &self,
+        organization_id: impl Into<String>,
+        resource_type_slug: impl Into<String>,
+        external_id: impl Into<String>,
+        params: ListMembershipsForResourceByExternalIdParams,
+    ) -> impl futures_util::Stream<Item = Result<UserOrganizationMembershipBaseListData, Error>> + '_
+    {
+        use futures_util::TryStreamExt;
+        let organization_id: String = organization_id.into();
+        let resource_type_slug: String = resource_type_slug.into();
+        let external_id: String = external_id.into();
+        let initial = (
+            Some(params),
+            organization_id,
+            resource_type_slug,
+            external_id,
+            self,
+        );
+        futures_util::stream::try_unfold(initial, move |(maybe_params, organization_id, resource_type_slug, external_id, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_memberships_for_resource_by_external_id(&organization_id, &resource_type_slug, &external_id, params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(
+                page.data.into_iter().map(Ok::<UserOrganizationMembershipBaseListData, Error>),
+            );
+            Ok::<_, Error>(Some((chunk, (next, organization_id, resource_type_slug, external_id, this))))
+        })
+        .try_flatten()
     }
 
     /// List role assignments for a resource by external ID
@@ -662,12 +1440,79 @@ impl<'a> AuthorizationApi<'a> {
         external_id: &str,
         params: ListRoleAssignmentsForResourceByExternalIdParams,
     ) -> Result<UserRoleAssignmentList, Error> {
+        self.list_role_assignments_for_resource_by_external_id_with_options(
+            organization_id,
+            resource_type_slug,
+            external_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::list_role_assignments_for_resource_by_external_id`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_role_assignments_for_resource_by_external_id_with_options(
+        &self,
+        organization_id: &str,
+        resource_type_slug: &str,
+        external_id: &str,
+        params: ListRoleAssignmentsForResourceByExternalIdParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserRoleAssignmentList, Error> {
         let path = format!(
-            "/authorization/organizations/{}/resources/{}/{}/role_assignments",
-            organization_id, resource_type_slug, external_id
+            "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}/role_assignments"
         );
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `UserRoleAssignment`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<UserRoleAssignment> = self
+    ///     .list_role_assignments_for_resource_by_external_id_auto_paging(organization_id, resource_type_slug, external_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_role_assignments_for_resource_by_external_id_auto_paging(
+        &self,
+        organization_id: impl Into<String>,
+        resource_type_slug: impl Into<String>,
+        external_id: impl Into<String>,
+        params: ListRoleAssignmentsForResourceByExternalIdParams,
+    ) -> impl futures_util::Stream<Item = Result<UserRoleAssignment, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let organization_id: String = organization_id.into();
+        let resource_type_slug: String = resource_type_slug.into();
+        let external_id: String = external_id.into();
+        let initial = (
+            Some(params),
+            organization_id,
+            resource_type_slug,
+            external_id,
+            self,
+        );
+        futures_util::stream::try_unfold(initial, move |(maybe_params, organization_id, resource_type_slug, external_id, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_role_assignments_for_resource_by_external_id(&organization_id, &resource_type_slug, &external_id, params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(
+                page.data.into_iter().map(Ok::<UserRoleAssignment, Error>),
+            );
+            Ok::<_, Error>(Some((chunk, (next, organization_id, resource_type_slug, external_id, this))))
+        })
+        .try_flatten()
     }
 
     /// List resources
@@ -677,9 +1522,57 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         params: ListResourcesParams,
     ) -> Result<AuthorizationResourceList, Error> {
+        self.list_resources_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_resources`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_resources_with_options(
+        &self,
+        params: ListResourcesParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationResourceList, Error> {
         let path = "/authorization/resources".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AuthorizationResource`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AuthorizationResource> = self
+    ///     .list_resources_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_resources_auto_paging(
+        &self,
+        params: ListResourcesParams,
+    ) -> impl futures_util::Stream<Item = Result<AuthorizationResource, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_resources(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(
+                page.data
+                    .into_iter()
+                    .map(Ok::<AuthorizationResource, Error>),
+            );
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Create an authorization resource
@@ -689,24 +1582,40 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         params: CreateResourceParams,
     ) -> Result<AuthorizationResource, Error> {
+        self.create_resource_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_resource`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_resource_with_options(
+        &self,
+        params: CreateResourceParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationResource, Error> {
         let path = "/authorization/resources".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get a resource
     ///
     /// Retrieve the details of an authorization resource by its ID.
-    pub async fn get_resource(
+    pub async fn get_resource(&self, resource_id: &str) -> Result<AuthorizationResource, Error> {
+        self.get_resource_with_options(resource_id, None).await
+    }
+
+    /// Variant of [`Self::get_resource`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_resource_with_options(
         &self,
         resource_id: &str,
-        params: GetResourceParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationResource, Error> {
-        let path = format!("/authorization/resources/{}", resource_id);
+        let path = format!("/authorization/resources/{resource_id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update a resource
@@ -717,10 +1626,21 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: &str,
         params: UpdateResourceParams,
     ) -> Result<AuthorizationResource, Error> {
-        let path = format!("/authorization/resources/{}", resource_id);
+        self.update_resource_with_options(resource_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_resource`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_resource_with_options(
+        &self,
+        resource_id: &str,
+        params: UpdateResourceParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationResource, Error> {
+        let path = format!("/authorization/resources/{resource_id}");
         let method = http::Method::PATCH;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -732,9 +1652,22 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: &str,
         params: DeleteResourceParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/authorization/resources/{}", resource_id);
+        self.delete_resource_with_options(resource_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_resource`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_resource_with_options(
+        &self,
+        resource_id: &str,
+        params: DeleteResourceParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/authorization/resources/{resource_id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// List organization memberships for resource
@@ -745,12 +1678,67 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: &str,
         params: ListMembershipsForResourceParams,
     ) -> Result<UserOrganizationMembershipBaseList, Error> {
-        let path = format!(
-            "/authorization/resources/{}/organization_memberships",
-            resource_id
-        );
+        self.list_memberships_for_resource_with_options(resource_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_memberships_for_resource`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_memberships_for_resource_with_options(
+        &self,
+        resource_id: &str,
+        params: ListMembershipsForResourceParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserOrganizationMembershipBaseList, Error> {
+        let path = format!("/authorization/resources/{resource_id}/organization_memberships");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `UserOrganizationMembershipBaseListData`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<UserOrganizationMembershipBaseListData> = self
+    ///     .list_memberships_for_resource_auto_paging(resource_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_memberships_for_resource_auto_paging(
+        &self,
+        resource_id: impl Into<String>,
+        params: ListMembershipsForResourceParams,
+    ) -> impl futures_util::Stream<Item = Result<UserOrganizationMembershipBaseListData, Error>> + '_
+    {
+        use futures_util::TryStreamExt;
+        let resource_id: String = resource_id.into();
+        let initial = (Some(params), resource_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, resource_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_memberships_for_resource(&resource_id, params.clone())
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data
+                        .into_iter()
+                        .map(Ok::<UserOrganizationMembershipBaseListData, Error>),
+                );
+                Ok::<_, Error>(Some((chunk, (next, resource_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// List role assignments for a resource
@@ -761,21 +1749,83 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: &str,
         params: ListRoleAssignmentsForResourceParams,
     ) -> Result<UserRoleAssignmentList, Error> {
-        let path = format!("/authorization/resources/{}/role_assignments", resource_id);
+        self.list_role_assignments_for_resource_with_options(resource_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_role_assignments_for_resource`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_role_assignments_for_resource_with_options(
+        &self,
+        resource_id: &str,
+        params: ListRoleAssignmentsForResourceParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<UserRoleAssignmentList, Error> {
+        let path = format!("/authorization/resources/{resource_id}/role_assignments");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `UserRoleAssignment`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<UserRoleAssignment> = self
+    ///     .list_role_assignments_for_resource_auto_paging(resource_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_role_assignments_for_resource_auto_paging(
+        &self,
+        resource_id: impl Into<String>,
+        params: ListRoleAssignmentsForResourceParams,
+    ) -> impl futures_util::Stream<Item = Result<UserRoleAssignment, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let resource_id: String = resource_id.into();
+        let initial = (Some(params), resource_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, resource_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_role_assignments_for_resource(&resource_id, params.clone())
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data.into_iter().map(Ok::<UserRoleAssignment, Error>),
+                );
+                Ok::<_, Error>(Some((chunk, (next, resource_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// List environment roles
     ///
     /// List all environment roles in priority order.
-    pub async fn list_environment_roles(
+    pub async fn list_environment_roles(&self) -> Result<RoleList, Error> {
+        self.list_environment_roles_with_options(None).await
+    }
+
+    /// Variant of [`Self::list_environment_roles`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_environment_roles_with_options(
         &self,
-        params: ListEnvironmentRolesParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<RoleList, Error> {
         let path = "/authorization/roles".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Create an environment role
@@ -785,24 +1835,41 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         params: CreateEnvironmentRoleParams,
     ) -> Result<Role, Error> {
+        self.create_environment_role_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_environment_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_environment_role_with_options(
+        &self,
+        params: CreateEnvironmentRoleParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
         let path = "/authorization/roles".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get an environment role
     ///
     /// Get an environment role by its slug.
-    pub async fn get_environment_role(
+    pub async fn get_environment_role(&self, slug: &str) -> Result<Role, Error> {
+        self.get_environment_role_with_options(slug, None).await
+    }
+
+    /// Variant of [`Self::get_environment_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_environment_role_with_options(
         &self,
         slug: &str,
-        params: GetEnvironmentRoleParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
-        let path = format!("/authorization/roles/{}", slug);
+        let path = format!("/authorization/roles/{slug}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update an environment role
@@ -813,10 +1880,21 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         params: UpdateEnvironmentRoleParams,
     ) -> Result<Role, Error> {
-        let path = format!("/authorization/roles/{}", slug);
+        self.update_environment_role_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_environment_role`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_environment_role_with_options(
+        &self,
+        slug: &str,
+        params: UpdateEnvironmentRoleParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
+        let path = format!("/authorization/roles/{slug}");
         let method = http::Method::PATCH;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -828,10 +1906,21 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         params: AddEnvironmentRolePermissionParams,
     ) -> Result<Role, Error> {
-        let path = format!("/authorization/roles/{}/permissions", slug);
+        self.add_environment_role_permission_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::add_environment_role_permission`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn add_environment_role_permission_with_options(
+        &self,
+        slug: &str,
+        params: AddEnvironmentRolePermissionParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
+        let path = format!("/authorization/roles/{slug}/permissions");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -843,10 +1932,21 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         params: SetEnvironmentRolePermissionsParams,
     ) -> Result<Role, Error> {
-        let path = format!("/authorization/roles/{}/permissions", slug);
+        self.set_environment_role_permissions_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::set_environment_role_permissions`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn set_environment_role_permissions_with_options(
+        &self,
+        slug: &str,
+        params: SetEnvironmentRolePermissionsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Role, Error> {
+        let path = format!("/authorization/roles/{slug}/permissions");
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -857,9 +1957,57 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         params: ListPermissionsParams,
     ) -> Result<AuthorizationPermissionList, Error> {
+        self.list_permissions_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_permissions`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_permissions_with_options(
+        &self,
+        params: ListPermissionsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationPermissionList, Error> {
         let path = "/authorization/permissions".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AuthorizationPermission`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AuthorizationPermission> = self
+    ///     .list_permissions_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_permissions_auto_paging(
+        &self,
+        params: ListPermissionsParams,
+    ) -> impl futures_util::Stream<Item = Result<AuthorizationPermission, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_permissions(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(
+                page.data
+                    .into_iter()
+                    .map(Ok::<AuthorizationPermission, Error>),
+            );
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Create a permission
@@ -869,24 +2017,40 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         params: CreatePermissionParams,
     ) -> Result<Permission, Error> {
+        self.create_permission_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_permission`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_permission_with_options(
+        &self,
+        params: CreatePermissionParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Permission, Error> {
         let path = "/authorization/permissions".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Get a permission
     ///
     /// Retrieve a permission by its unique slug.
-    pub async fn get_permission(
+    pub async fn get_permission(&self, slug: &str) -> Result<AuthorizationPermission, Error> {
+        self.get_permission_with_options(slug, None).await
+    }
+
+    /// Variant of [`Self::get_permission`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_permission_with_options(
         &self,
         slug: &str,
-        params: GetPermissionParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationPermission, Error> {
-        let path = format!("/authorization/permissions/{}", slug);
+        let path = format!("/authorization/permissions/{slug}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update a permission
@@ -897,23 +2061,41 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         params: UpdatePermissionParams,
     ) -> Result<AuthorizationPermission, Error> {
-        let path = format!("/authorization/permissions/{}", slug);
+        self.update_permission_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_permission`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_permission_with_options(
+        &self,
+        slug: &str,
+        params: UpdatePermissionParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthorizationPermission, Error> {
+        let path = format!("/authorization/permissions/{slug}");
         let method = http::Method::PATCH;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Delete a permission
     ///
     /// Delete an existing permission. System permissions cannot be deleted.
-    pub async fn delete_permission(
+    pub async fn delete_permission(&self, slug: &str) -> Result<serde_json::Value, Error> {
+        self.delete_permission_with_options(slug, None).await
+    }
+
+    /// Variant of [`Self::delete_permission`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_permission_with_options(
         &self,
         slug: &str,
-        params: DeletePermissionParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/authorization/permissions/{}", slug);
+        let path = format!("/authorization/permissions/{slug}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

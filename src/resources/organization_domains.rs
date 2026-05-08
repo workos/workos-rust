@@ -14,18 +14,20 @@ pub struct OrganizationDomainsApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateOrganizationDomainParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateOrganizationDomain,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetOrganizationDomainParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteOrganizationDomainParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct VerifyOrganizationDomainParams {}
+impl CreateOrganizationDomainParams {
+    /// Construct a new `CreateOrganizationDomainParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateOrganizationDomain) -> Self {
+        Self { body }
+    }
+}
 
 impl<'a> OrganizationDomainsApi<'a> {
     /// Create an Organization Domain
@@ -35,10 +37,20 @@ impl<'a> OrganizationDomainsApi<'a> {
         &self,
         params: CreateOrganizationDomainParams,
     ) -> Result<OrganizationDomain, Error> {
+        self.create_organization_domain_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_organization_domain`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_organization_domain_with_options(
+        &self,
+        params: CreateOrganizationDomainParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationDomain, Error> {
         let path = "/organization_domains".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -48,24 +60,41 @@ impl<'a> OrganizationDomainsApi<'a> {
     pub async fn get_organization_domain(
         &self,
         id: &str,
-        params: GetOrganizationDomainParams,
     ) -> Result<OrganizationDomainStandAlone, Error> {
-        let path = format!("/organization_domains/{}", id);
+        self.get_organization_domain_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_organization_domain`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_organization_domain_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationDomainStandAlone, Error> {
+        let path = format!("/organization_domains/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Delete an Organization Domain
     ///
     /// Permanently deletes an organization domain. It cannot be undone.
-    pub async fn delete_organization_domain(
+    pub async fn delete_organization_domain(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_organization_domain_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_organization_domain`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_organization_domain_with_options(
         &self,
         id: &str,
-        params: DeleteOrganizationDomainParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/organization_domains/{}", id);
+        let path = format!("/organization_domains/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Verify an Organization Domain
@@ -74,10 +103,20 @@ impl<'a> OrganizationDomainsApi<'a> {
     pub async fn verify_organization_domain(
         &self,
         id: &str,
-        params: VerifyOrganizationDomainParams,
     ) -> Result<OrganizationDomainStandAlone, Error> {
-        let path = format!("/organization_domains/{}/verify", id);
+        self.verify_organization_domain_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::verify_organization_domain`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn verify_organization_domain_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationDomainStandAlone, Error> {
+        let path = format!("/organization_domains/{id}/verify");
         let method = http::Method::POST;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

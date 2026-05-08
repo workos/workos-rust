@@ -14,43 +14,59 @@ pub struct OrganizationsApi<'a> {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListOrganizationsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// The domains of an Organization. Any Organization with a matching domain will be returned.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub domains: Option<Vec<String>>,
+    /// Searchable text for an Organization. Matches against the organization name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub search: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateOrganizationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: OrganizationInput,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetOrganizationByExternalIdParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetOrganizationParams {}
+impl CreateOrganizationParams {
+    /// Construct a new `CreateOrganizationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: OrganizationInput) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateOrganizationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateOrganization,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteOrganizationParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetAuditLogConfigurationParams {}
+impl UpdateOrganizationParams {
+    /// Construct a new `UpdateOrganizationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateOrganization) -> Self {
+        Self { body }
+    }
+}
 
 impl<'a> OrganizationsApi<'a> {
     /// List Organizations
@@ -60,9 +76,54 @@ impl<'a> OrganizationsApi<'a> {
         &self,
         params: ListOrganizationsParams,
     ) -> Result<OrganizationList, Error> {
+        self.list_organizations_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_organizations`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_organizations_with_options(
+        &self,
+        params: ListOrganizationsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationList, Error> {
         let path = "/organizations".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `Organization`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<Organization> = self
+    ///     .list_organizations_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_organizations_auto_paging(
+        &self,
+        params: ListOrganizationsParams,
+    ) -> impl futures_util::Stream<Item = Result<Organization, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_organizations(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk =
+                futures_util::stream::iter(page.data.into_iter().map(Ok::<Organization, Error>));
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Create an Organization
@@ -72,10 +133,19 @@ impl<'a> OrganizationsApi<'a> {
         &self,
         params: CreateOrganizationParams,
     ) -> Result<Organization, Error> {
+        self.create_organization_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_organization`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_organization_with_options(
+        &self,
+        params: CreateOrganizationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Organization, Error> {
         let path = "/organizations".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -85,24 +155,42 @@ impl<'a> OrganizationsApi<'a> {
     pub async fn get_organization_by_external_id(
         &self,
         external_id: &str,
-        params: GetOrganizationByExternalIdParams,
     ) -> Result<Organization, Error> {
-        let path = format!("/organizations/external_id/{}", external_id);
+        self.get_organization_by_external_id_with_options(external_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_organization_by_external_id`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_organization_by_external_id_with_options(
+        &self,
+        external_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Organization, Error> {
+        let path = format!("/organizations/external_id/{external_id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Get an Organization
     ///
     /// Get the details of an existing organization.
-    pub async fn get_organization(
+    pub async fn get_organization(&self, id: &str) -> Result<Organization, Error> {
+        self.get_organization_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_organization`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_organization_with_options(
         &self,
         id: &str,
-        params: GetOrganizationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<Organization, Error> {
-        let path = format!("/organizations/{}", id);
+        let path = format!("/organizations/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update an Organization
@@ -113,24 +201,42 @@ impl<'a> OrganizationsApi<'a> {
         id: &str,
         params: UpdateOrganizationParams,
     ) -> Result<Organization, Error> {
-        let path = format!("/organizations/{}", id);
+        self.update_organization_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_organization`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_organization_with_options(
+        &self,
+        id: &str,
+        params: UpdateOrganizationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Organization, Error> {
+        let path = format!("/organizations/{id}");
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Delete an Organization
     ///
     /// Permanently deletes an organization in the current environment. It cannot be undone.
-    pub async fn delete_organization(
+    pub async fn delete_organization(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_organization_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_organization`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_organization_with_options(
         &self,
         id: &str,
-        params: DeleteOrganizationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/organizations/{}", id);
+        let path = format!("/organizations/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Get Audit Log Configuration
@@ -139,10 +245,21 @@ impl<'a> OrganizationsApi<'a> {
     pub async fn get_audit_log_configuration(
         &self,
         id: &str,
-        params: GetAuditLogConfigurationParams,
     ) -> Result<AuditLogConfiguration, Error> {
-        let path = format!("/organizations/{}/audit_log_configuration", id);
+        self.get_audit_log_configuration_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_audit_log_configuration`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_audit_log_configuration_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuditLogConfiguration, Error> {
+        let path = format!("/organizations/{id}/audit_log_configuration");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

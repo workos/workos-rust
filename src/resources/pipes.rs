@@ -14,30 +14,55 @@ pub struct PipesApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthorizeDataIntegrationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: DataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
 }
 
+impl AuthorizeDataIntegrationParams {
+    /// Construct a new `AuthorizeDataIntegrationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DataIntegrationsGetDataIntegrationAuthorizeUrlRequest) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateDataIntegrationTokenParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: DataIntegrationsGetUserTokenRequest,
 }
 
+impl CreateDataIntegrationTokenParams {
+    /// Construct a new `CreateDataIntegrationTokenParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DataIntegrationsGetUserTokenRequest) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct GetUserConnectedAccountParams {
+    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct DeleteUserConnectedAccountParams {
+    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListUserDataProvidersParams {
+    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to filter connections for a specific organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
 }
@@ -51,10 +76,21 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: AuthorizeDataIntegrationParams,
     ) -> Result<DataIntegrationAuthorizeUrlResponse, Error> {
-        let path = format!("/data-integrations/{}/authorize", slug);
+        self.authorize_data_integration_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authorize_data_integration`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authorize_data_integration_with_options(
+        &self,
+        slug: &str,
+        params: AuthorizeDataIntegrationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegrationAuthorizeUrlResponse, Error> {
+        let path = format!("/data-integrations/{slug}/authorize");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -66,10 +102,21 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: CreateDataIntegrationTokenParams,
     ) -> Result<DataIntegrationAccessTokenResponse, Error> {
-        let path = format!("/data-integrations/{}/token", slug);
+        self.create_data_integration_token_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_data_integration_token`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_data_integration_token_with_options(
+        &self,
+        slug: &str,
+        params: CreateDataIntegrationTokenParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegrationAccessTokenResponse, Error> {
+        let path = format!("/data-integrations/{slug}/token");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -82,12 +129,23 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: GetUserConnectedAccountParams,
     ) -> Result<ConnectedAccount, Error> {
-        let path = format!(
-            "/user_management/users/{}/connected_accounts/{}",
-            user_id, slug
-        );
+        self.get_user_connected_account_with_options(user_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_user_connected_account`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_user_connected_account_with_options(
+        &self,
+        user_id: &str,
+        slug: &str,
+        params: GetUserConnectedAccountParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// Delete a connected account
@@ -99,12 +157,23 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: DeleteUserConnectedAccountParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!(
-            "/user_management/users/{}/connected_accounts/{}",
-            user_id, slug
-        );
+        self.delete_user_connected_account_with_options(user_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_user_connected_account`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_user_connected_account_with_options(
+        &self,
+        user_id: &str,
+        slug: &str,
+        params: DeleteUserConnectedAccountParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 
     /// List providers
@@ -115,8 +184,21 @@ impl<'a> PipesApi<'a> {
         user_id: &str,
         params: ListUserDataProvidersParams,
     ) -> Result<DataIntegrationsListResponse, Error> {
-        let path = format!("/user_management/users/{}/data_providers", user_id);
+        self.list_user_data_providers_with_options(user_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_user_data_providers`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_user_data_providers_with_options(
+        &self,
+        user_id: &str,
+        params: ListUserDataProvidersParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegrationsListResponse, Error> {
+        let path = format!("/user_management/users/{user_id}/data_providers");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
     }
 }

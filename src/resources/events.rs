@@ -14,20 +14,28 @@ pub struct EventsApi<'a> {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListEventsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter events by one or more event types (e.g. `dsync.user.created`).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub events: Option<Vec<String>>,
+    /// ISO-8601 date string to filter events created after this date.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range_start: Option<String>,
+    /// ISO-8601 date string to filter events created before this date.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range_end: Option<String>,
+    /// Filter events by the [Organization](https://workos.com/docs/reference/organization) that the event is associated with.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
 }
@@ -37,8 +45,53 @@ impl<'a> EventsApi<'a> {
     ///
     /// List events for the current environment.
     pub async fn list_events(&self, params: ListEventsParams) -> Result<EventList, Error> {
+        self.list_events_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_events`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_events_with_options(
+        &self,
+        params: ListEventsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<EventList, Error> {
         let path = "/events".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `EventSchema`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<EventSchema> = self
+    ///     .list_events_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_events_auto_paging(
+        &self,
+        params: ListEventsParams,
+    ) -> impl futures_util::Stream<Item = Result<EventSchema, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_events(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk =
+                futures_util::stream::iter(page.data.into_iter().map(Ok::<EventSchema, Error>));
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 }

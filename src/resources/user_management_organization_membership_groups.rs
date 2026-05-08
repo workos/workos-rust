@@ -14,12 +14,16 @@ pub struct UserManagementOrganizationMembershipGroupsApi<'a> {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListOrganizationMembershipGroupsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
@@ -33,8 +37,58 @@ impl<'a> UserManagementOrganizationMembershipGroupsApi<'a> {
         om_id: &str,
         params: ListOrganizationMembershipGroupsParams,
     ) -> Result<GroupList, Error> {
-        let path = format!("/user_management/organization_memberships/{}/groups", om_id);
+        self.list_organization_membership_groups_with_options(om_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_organization_membership_groups`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_organization_membership_groups_with_options(
+        &self,
+        om_id: &str,
+        params: ListOrganizationMembershipGroupsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<GroupList, Error> {
+        let path = format!("/user_management/organization_memberships/{om_id}/groups");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `Group`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<Group> = self
+    ///     .list_organization_membership_groups_auto_paging(om_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_organization_membership_groups_auto_paging(
+        &self,
+        om_id: impl Into<String>,
+        params: ListOrganizationMembershipGroupsParams,
+    ) -> impl futures_util::Stream<Item = Result<Group, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let om_id: String = om_id.into();
+        let initial = (Some(params), om_id, self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, om_id, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this
+                .list_organization_membership_groups(&om_id, params.clone())
+                .await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(page.data.into_iter().map(Ok::<Group, Error>));
+            Ok::<_, Error>(Some((chunk, (next, om_id, this))))
+        })
+        .try_flatten()
     }
 }

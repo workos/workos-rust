@@ -14,30 +14,53 @@ pub struct ApiKeysApi<'a> {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListOrganizationApiKeysParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateOrganizationApiKeyParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateOrganizationApiKey,
 }
 
+impl CreateOrganizationApiKeyParams {
+    /// Construct a new `CreateOrganizationApiKeyParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateOrganizationApiKey) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateValidationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: ValidateApiKey,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteApiKeyParams {}
+impl CreateValidationParams {
+    /// Construct a new `CreateValidationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ValidateApiKey) -> Self {
+        Self { body }
+    }
+}
 
 impl<'a> ApiKeysApi<'a> {
     /// List API keys for an organization
@@ -48,9 +71,64 @@ impl<'a> ApiKeysApi<'a> {
         organization_id: &str,
         params: ListOrganizationApiKeysParams,
     ) -> Result<OrganizationApiKeyList, Error> {
-        let path = format!("/organizations/{}/api_keys", organization_id);
+        self.list_organization_api_keys_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_organization_api_keys`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_organization_api_keys_with_options(
+        &self,
+        organization_id: &str,
+        params: ListOrganizationApiKeysParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationApiKeyList, Error> {
+        let path = format!("/organizations/{organization_id}/api_keys");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `OrganizationApiKey`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<OrganizationApiKey> = self
+    ///     .list_organization_api_keys_auto_paging(organization_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_organization_api_keys_auto_paging(
+        &self,
+        organization_id: impl Into<String>,
+        params: ListOrganizationApiKeysParams,
+    ) -> impl futures_util::Stream<Item = Result<OrganizationApiKey, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let organization_id: String = organization_id.into();
+        let initial = (Some(params), organization_id, self);
+        futures_util::stream::try_unfold(
+            initial,
+            move |(maybe_params, organization_id, this)| async move {
+                let Some(params) = maybe_params else {
+                    return Ok::<_, Error>(None);
+                };
+                let page = this
+                    .list_organization_api_keys(&organization_id, params.clone())
+                    .await?;
+                let next_after = page.list_metadata.after.clone();
+                let next = next_after.map(|after| {
+                    let mut p = params;
+                    p.after = Some(after);
+                    p
+                });
+                let chunk = futures_util::stream::iter(
+                    page.data.into_iter().map(Ok::<OrganizationApiKey, Error>),
+                );
+                Ok::<_, Error>(Some((chunk, (next, organization_id, this))))
+            },
+        )
+        .try_flatten()
     }
 
     /// Create an API key for an organization
@@ -61,10 +139,21 @@ impl<'a> ApiKeysApi<'a> {
         organization_id: &str,
         params: CreateOrganizationApiKeyParams,
     ) -> Result<OrganizationApiKeyWithValue, Error> {
-        let path = format!("/organizations/{}/api_keys", organization_id);
+        self.create_organization_api_key_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_organization_api_key`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_organization_api_key_with_options(
+        &self,
+        organization_id: &str,
+        params: CreateOrganizationApiKeyParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationApiKeyWithValue, Error> {
+        let path = format!("/organizations/{organization_id}/api_keys");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -75,23 +164,39 @@ impl<'a> ApiKeysApi<'a> {
         &self,
         params: CreateValidationParams,
     ) -> Result<ApiKeyValidationResponse, Error> {
+        self.create_validation_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_validation`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_validation_with_options(
+        &self,
+        params: CreateValidationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ApiKeyValidationResponse, Error> {
         let path = "/api_keys/validations".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Delete an API key
     ///
     /// Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
-    pub async fn delete_api_key(
+    pub async fn delete_api_key(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_api_key_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_api_key`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_api_key_with_options(
         &self,
         id: &str,
-        params: DeleteApiKeyParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/api_keys/{}", id);
+        let path = format!("/api_keys/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

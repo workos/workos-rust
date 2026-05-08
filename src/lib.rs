@@ -58,9 +58,9 @@ pub mod resources;
 pub mod resources_api;
 pub mod transport;
 
-pub use client::{Client, ClientBuilder, DEFAULT_BASE_URL};
+pub use client::{Client, ClientBuilder, DEFAULT_BASE_URL, RequestOptions};
 pub use enums::*;
-pub use error::Error;
+pub use error::{ApiError, Error};
 pub use helpers::*;
 pub use models::*;
 pub use pagination::{ListMetadata, Page, auto_paginate};

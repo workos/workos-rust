@@ -14,30 +14,53 @@ pub struct WebhooksApi<'a> {
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListWebhookEndpointsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateWebhookEndpointParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateWebhookEndpoint,
 }
 
+impl CreateWebhookEndpointParams {
+    /// Construct a new `CreateWebhookEndpointParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateWebhookEndpoint) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateWebhookEndpointParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateWebhookEndpoint,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteWebhookEndpointParams {}
+impl UpdateWebhookEndpointParams {
+    /// Construct a new `UpdateWebhookEndpointParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateWebhookEndpoint) -> Self {
+        Self { body }
+    }
+}
 
 impl<'a> WebhooksApi<'a> {
     /// List Webhook Endpoints
@@ -47,9 +70,55 @@ impl<'a> WebhooksApi<'a> {
         &self,
         params: ListWebhookEndpointsParams,
     ) -> Result<WebhookEndpointList, Error> {
+        self.list_webhook_endpoints_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_webhook_endpoints`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_webhook_endpoints_with_options(
+        &self,
+        params: ListWebhookEndpointsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<WebhookEndpointList, Error> {
         let path = "/webhook_endpoints".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `WebhookEndpointJson`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<WebhookEndpointJson> = self
+    ///     .list_webhook_endpoints_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_webhook_endpoints_auto_paging(
+        &self,
+        params: ListWebhookEndpointsParams,
+    ) -> impl futures_util::Stream<Item = Result<WebhookEndpointJson, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_webhook_endpoints(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(
+                page.data.into_iter().map(Ok::<WebhookEndpointJson, Error>),
+            );
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Create a Webhook Endpoint
@@ -59,10 +128,20 @@ impl<'a> WebhooksApi<'a> {
         &self,
         params: CreateWebhookEndpointParams,
     ) -> Result<WebhookEndpointJson, Error> {
+        self.create_webhook_endpoint_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_webhook_endpoint`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_webhook_endpoint_with_options(
+        &self,
+        params: CreateWebhookEndpointParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<WebhookEndpointJson, Error> {
         let path = "/webhook_endpoints".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -74,23 +153,41 @@ impl<'a> WebhooksApi<'a> {
         id: &str,
         params: UpdateWebhookEndpointParams,
     ) -> Result<WebhookEndpointJson, Error> {
-        let path = format!("/webhook_endpoints/{}", id);
+        self.update_webhook_endpoint_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_webhook_endpoint`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_webhook_endpoint_with_options(
+        &self,
+        id: &str,
+        params: UpdateWebhookEndpointParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<WebhookEndpointJson, Error> {
+        let path = format!("/webhook_endpoints/{id}");
         let method = http::Method::PATCH;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Delete a Webhook Endpoint
     ///
     /// Delete an existing webhook endpoint.
-    pub async fn delete_webhook_endpoint(
+    pub async fn delete_webhook_endpoint(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_webhook_endpoint_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_webhook_endpoint`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_webhook_endpoint_with_options(
         &self,
         id: &str,
-        params: DeleteWebhookEndpointParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/webhook_endpoints/{}", id);
+        let path = format!("/webhook_endpoints/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

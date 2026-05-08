@@ -184,12 +184,14 @@ impl<'a> AuthKitHelper<'a> {
                 .await;
             match result {
                 Ok(resp) => return Ok(resp),
-                Err(Error::Api { ref message, .. })
-                    if message.contains("authorization_pending") =>
-                {
-                    continue;
+                Err(e) => {
+                    if e.api()
+                        .is_some_and(|a| a.message.contains("authorization_pending"))
+                    {
+                        continue;
+                    }
+                    return Err(e);
                 }
-                Err(e) => return Err(e),
             }
         }
     }

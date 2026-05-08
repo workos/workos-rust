@@ -14,8 +14,19 @@ pub struct AdminPortalApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct GenerateLinkParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: GenerateLink,
+}
+
+impl GenerateLinkParams {
+    /// Construct a new `GenerateLinkParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: GenerateLink) -> Self {
+        Self { body }
+    }
 }
 
 impl<'a> AdminPortalApi<'a> {
@@ -26,10 +37,19 @@ impl<'a> AdminPortalApi<'a> {
         &self,
         params: GenerateLinkParams,
     ) -> Result<PortalLinkResponse, Error> {
+        self.generate_link_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::generate_link`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn generate_link_with_options(
+        &self,
+        params: GenerateLinkParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<PortalLinkResponse, Error> {
         let path = "/portal/generate_link".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 }

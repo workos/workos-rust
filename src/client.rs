@@ -3,11 +3,42 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use bytes::Bytes;
-use http::{HeaderMap, HeaderValue, Method, header::AUTHORIZATION, header::USER_AGENT};
+use http::{HeaderMap, HeaderName, HeaderValue, Method, header::AUTHORIZATION, header::USER_AGENT};
 use serde::{Serialize, de::DeserializeOwned};
 
-use crate::error::Error;
+use crate::error::{ApiError, Error};
 use crate::transport::{HttpRequest, SharedTransport};
+
+/// Per-request overrides supplied to the `*_with_options` API methods.
+///
+/// All fields are optional; an empty `RequestOptions` is equivalent to the
+/// default behaviour. Construct via [`RequestOptions::new`] or
+/// [`Default::default`] and chain the builder-style setters.
+#[derive(Debug, Default, Clone)]
+pub struct RequestOptions {
+    /// Sent as the `Idempotency-Key` HTTP header. Stripe-style: pass the same
+    /// key on a retry to make the request safe to repeat.
+    pub idempotency_key: Option<String>,
+    /// Additional headers merged on top of the client's default headers.
+    /// Later entries override the same name from this list.
+    pub extra_headers: Vec<(HeaderName, HeaderValue)>,
+}
+
+impl RequestOptions {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn idempotency_key(mut self, key: impl Into<String>) -> Self {
+        self.idempotency_key = Some(key.into());
+        self
+    }
+
+    pub fn header(mut self, name: HeaderName, value: HeaderValue) -> Self {
+        self.extra_headers.push((name, value));
+        self
+    }
+}
 
 /// Default base URL. Override via [`ClientBuilder::base_url`].
 pub const DEFAULT_BASE_URL: &str = "https://api.workos.com";
@@ -62,18 +93,30 @@ impl Client {
         path: &str,
         params: &P,
     ) -> Result<R, Error> {
-        let req = self.build_request(method, path, Some(params), None::<&()>)?;
+        self.request_with_query_opts(method, path, params, None)
+            .await
+    }
+
+    pub(crate) async fn request_with_query_opts<P: Serialize, R: DeserializeOwned>(
+        &self,
+        method: Method,
+        path: &str,
+        params: &P,
+        opts: Option<&RequestOptions>,
+    ) -> Result<R, Error> {
+        let req = self.build_request(method, path, Some(params), None::<&()>, opts)?;
         self.send(req).await
     }
 
-    pub(crate) async fn request_with_body<P: Serialize, B: Serialize, R: DeserializeOwned>(
+    pub(crate) async fn request_with_body_opts<P: Serialize, B: Serialize, R: DeserializeOwned>(
         &self,
         method: Method,
         path: &str,
         params: &P,
         body: Option<&B>,
+        opts: Option<&RequestOptions>,
     ) -> Result<R, Error> {
-        let req = self.build_request(method, path, Some(params), body)?;
+        let req = self.build_request(method, path, Some(params), body, opts)?;
         self.send(req).await
     }
 
@@ -84,7 +127,7 @@ impl Client {
         path: &str,
         body: &B,
     ) -> Result<R, Error> {
-        let req = self.build_request(method, path, None::<&()>, Some(body))?;
+        let req = self.build_request(method, path, None::<&()>, Some(body), None)?;
         self.send(req).await
     }
 
@@ -95,7 +138,7 @@ impl Client {
         path: &str,
         body: Option<&B>,
     ) -> Result<(), Error> {
-        let req = self.build_request(method, path, None::<&()>, body)?;
+        let req = self.build_request(method, path, None::<&()>, body, None)?;
         self.send_no_body(req).await
     }
 
@@ -168,6 +211,7 @@ impl Client {
         path: &str,
         query: Option<&P>,
         body: Option<&B>,
+        opts: Option<&RequestOptions>,
     ) -> Result<HttpRequest, Error> {
         let mut url = format!("{}{}", self.inner.base_url, path);
         if let Some(p) = query {
@@ -192,6 +236,17 @@ impl Client {
             None
         };
 
+        if let Some(o) = opts {
+            if let Some(key) = &o.idempotency_key {
+                let v = HeaderValue::from_str(key)
+                    .map_err(|e| Error::Builder(format!("invalid idempotency key: {e}")))?;
+                headers.insert(HeaderName::from_static("idempotency-key"), v);
+            }
+            for (name, value) in &o.extra_headers {
+                headers.insert(name.clone(), value.clone());
+            }
+        }
+
         Ok(HttpRequest {
             method,
             url,
@@ -206,11 +261,11 @@ impl Client {
         if (200..300).contains(&status) {
             Ok(())
         } else {
-            Err(Error::Api {
+            Err(Error::Api(Box::new(ApiError::from_response(
                 status,
-                code: None,
-                message: String::from_utf8_lossy(&resp.body).into_owned(),
-            })
+                &resp.headers,
+                &resp.body,
+            ))))
         }
     }
 
@@ -220,11 +275,11 @@ impl Client {
         if (200..300).contains(&status) {
             serde_json::from_slice::<R>(&resp.body).map_err(Error::from)
         } else {
-            Err(Error::Api {
+            Err(Error::Api(Box::new(ApiError::from_response(
                 status,
-                code: None,
-                message: String::from_utf8_lossy(&resp.body).into_owned(),
-            })
+                &resp.headers,
+                &resp.body,
+            ))))
         }
     }
 

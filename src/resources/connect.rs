@@ -14,73 +14,118 @@ pub struct ConnectApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CompleteOAuth2Params {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UserManagementLoginRequest,
 }
 
+impl CompleteOAuth2Params {
+    /// Construct a new `CompleteOAuth2Params` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UserManagementLoginRequest) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct ListApplicationsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter Connect Applications by organization ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct CreateOAuthApplicationParams {
+    /// The name of the application.
+    ///
+    /// Required.
     pub name: String,
+    /// Whether this is a first-party application. Third-party applications require an organization_id.
+    ///
+    /// Required.
     pub is_first_party: bool,
+    /// A description for the application.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// The OAuth scopes granted to the application.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scopes: Option<Vec<String>>,
+    /// Redirect URIs for the application.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redirect_uris: Option<Vec<RedirectUriInput>>,
+    /// Whether the application uses PKCE (Proof Key for Code Exchange).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub uses_pkce: Option<bool>,
+    /// The organization ID this application belongs to. Required when is_first_party is false.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct CreateM2MApplicationParams {
+    /// The name of the application.
+    ///
+    /// Required.
     pub name: String,
+    /// The organization ID this application belongs to.
+    ///
+    /// Required.
     pub organization_id: String,
+    /// A description for the application.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// The OAuth scopes granted to the application.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scopes: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct GetApplicationParams {}
-
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateApplicationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: UpdateOAuthApplication,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteApplicationParams {}
-
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct ListApplicationClientSecretsParams {}
+impl UpdateApplicationParams {
+    /// Construct a new `UpdateApplicationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateOAuthApplication) -> Self {
+        Self { body }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateApplicationClientSecretParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: CreateApplicationSecret,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct DeleteClientSecretParams {}
+impl CreateApplicationClientSecretParams {
+    /// Construct a new `CreateApplicationClientSecretParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateApplicationSecret) -> Self {
+        Self { body }
+    }
+}
 
 impl<'a> ConnectApi<'a> {
     /// Complete external authentication
@@ -99,10 +144,19 @@ impl<'a> ConnectApi<'a> {
         &self,
         params: CompleteOAuth2Params,
     ) -> Result<ExternalAuthCompleteResponse, Error> {
+        self.complete_oauth_2_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::complete_oauth_2`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn complete_oauth_2_with_options(
+        &self,
+        params: CompleteOAuth2Params,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ExternalAuthCompleteResponse, Error> {
         let path = "/authkit/oauth2/complete".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -113,9 +167,55 @@ impl<'a> ConnectApi<'a> {
         &self,
         params: ListApplicationsParams,
     ) -> Result<ConnectApplicationList, Error> {
+        self.list_applications_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_applications`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_applications_with_options(
+        &self,
+        params: ListApplicationsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectApplicationList, Error> {
         let path = "/connect/applications".to_string();
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `ConnectApplication`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<ConnectApplication> = self
+    ///     .list_applications_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_applications_auto_paging(
+        &self,
+        params: ListApplicationsParams,
+    ) -> impl futures_util::Stream<Item = Result<ConnectApplication, Error>> + '_ {
+        use futures_util::TryStreamExt;
+        let initial = (Some(params), self);
+        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
+            let Some(params) = maybe_params else {
+                return Ok::<_, Error>(None);
+            };
+            let page = this.list_applications(params.clone()).await?;
+            let next_after = page.list_metadata.after.clone();
+            let next = next_after.map(|after| {
+                let mut p = params;
+                p.after = Some(after);
+                p
+            });
+            let chunk = futures_util::stream::iter(
+                page.data.into_iter().map(Ok::<ConnectApplication, Error>),
+            );
+            Ok::<_, Error>(Some((chunk, (next, this))))
+        })
+        .try_flatten()
     }
 
     /// Create a Connect Application
@@ -124,6 +224,16 @@ impl<'a> ConnectApi<'a> {
     pub async fn create_oauth_application(
         &self,
         params: CreateOAuthApplicationParams,
+    ) -> Result<ConnectApplication, Error> {
+        self.create_oauth_application_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_oauth_application`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_oauth_application_with_options(
+        &self,
+        params: CreateOAuthApplicationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<ConnectApplication, Error> {
         let path = "/connect/applications".to_string();
         let method = http::Method::POST;
@@ -140,7 +250,7 @@ impl<'a> ConnectApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
@@ -150,6 +260,15 @@ impl<'a> ConnectApi<'a> {
     pub async fn create_m2m_application(
         &self,
         params: CreateM2MApplicationParams,
+    ) -> Result<ConnectApplication, Error> {
+        self.create_m2m_application_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_m2m_application`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_m2m_application_with_options(
+        &self,
+        params: CreateM2MApplicationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<ConnectApplication, Error> {
         let path = "/connect/applications".to_string();
         let method = http::Method::POST;
@@ -163,21 +282,28 @@ impl<'a> ConnectApi<'a> {
         #[derive(Serialize)]
         struct EmptyQuery {}
         self.client
-            .request_with_body(method, &path, &EmptyQuery {}, Some(&body))
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
             .await
     }
 
     /// Get a Connect Application
     ///
     /// Retrieve details for a specific Connect Application by ID or client ID.
-    pub async fn get_application(
+    pub async fn get_application(&self, id: &str) -> Result<ConnectApplication, Error> {
+        self.get_application_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_application`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_application_with_options(
         &self,
         id: &str,
-        params: GetApplicationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<ConnectApplication, Error> {
-        let path = format!("/connect/applications/{}", id);
+        let path = format!("/connect/applications/{id}");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Update a Connect Application
@@ -188,24 +314,41 @@ impl<'a> ConnectApi<'a> {
         id: &str,
         params: UpdateApplicationParams,
     ) -> Result<ConnectApplication, Error> {
-        let path = format!("/connect/applications/{}", id);
+        self.update_application_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::update_application`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_application_with_options(
+        &self,
+        id: &str,
+        params: UpdateApplicationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectApplication, Error> {
+        let path = format!("/connect/applications/{id}");
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Delete a Connect Application
     ///
     /// Delete an existing Connect Application.
-    pub async fn delete_application(
+    pub async fn delete_application(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_application_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_application`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_application_with_options(
         &self,
         id: &str,
-        params: DeleteApplicationParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/connect/applications/{}", id);
+        let path = format!("/connect/applications/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// List Client Secrets for a Connect Application
@@ -214,11 +357,22 @@ impl<'a> ConnectApi<'a> {
     pub async fn list_application_client_secrets(
         &self,
         id: &str,
-        params: ListApplicationClientSecretsParams,
     ) -> Result<Vec<ApplicationCredentialsListItem>, Error> {
-        let path = format!("/connect/applications/{}/client_secrets", id);
+        self.list_application_client_secrets_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_application_client_secrets`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_application_client_secrets_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Vec<ApplicationCredentialsListItem>, Error> {
+        let path = format!("/connect/applications/{id}/client_secrets");
         let method = http::Method::GET;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 
     /// Create a new client secret for a Connect Application
@@ -229,23 +383,41 @@ impl<'a> ConnectApi<'a> {
         id: &str,
         params: CreateApplicationClientSecretParams,
     ) -> Result<NewConnectApplicationSecret, Error> {
-        let path = format!("/connect/applications/{}/client_secrets", id);
+        self.create_application_client_secret_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_application_client_secret`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_application_client_secret_with_options(
+        &self,
+        id: &str,
+        params: CreateApplicationClientSecretParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<NewConnectApplicationSecret, Error> {
+        let path = format!("/connect/applications/{id}/client_secrets");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
     /// Delete a Client Secret
     ///
     /// Delete (revoke) an existing client secret.
-    pub async fn delete_client_secret(
+    pub async fn delete_client_secret(&self, id: &str) -> Result<serde_json::Value, Error> {
+        self.delete_client_secret_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_client_secret`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_client_secret_with_options(
         &self,
         id: &str,
-        params: DeleteClientSecretParams,
+        options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/connect/client_secrets/{}", id);
+        let path = format!("/connect/client_secrets/{id}");
         let method = http::Method::DELETE;
-        self.client.request_with_query(method, &path, &params).await
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
     }
 }

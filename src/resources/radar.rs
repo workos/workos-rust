@@ -14,26 +14,70 @@ pub struct RadarApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateAttemptParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: RadarStandaloneAssessRequest,
 }
 
+impl CreateAttemptParams {
+    /// Construct a new `CreateAttemptParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: RadarStandaloneAssessRequest) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateAttemptParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: RadarStandaloneUpdateRadarAttemptRequest,
 }
 
+impl UpdateAttemptParams {
+    /// Construct a new `UpdateAttemptParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: RadarStandaloneUpdateRadarAttemptRequest) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct AddListEntryParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: RadarStandaloneUpdateRadarListRequest,
 }
 
+impl AddListEntryParams {
+    /// Construct a new `AddListEntryParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: RadarStandaloneUpdateRadarListRequest) -> Self {
+        Self { body }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct RemoveListEntryParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
     #[serde(skip)]
     pub body: RadarStandaloneDeleteRadarListEntryRequest,
+}
+
+impl RemoveListEntryParams {
+    /// Construct a new `RemoveListEntryParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: RadarStandaloneDeleteRadarListEntryRequest) -> Self {
+        Self { body }
+    }
 }
 
 impl<'a> RadarApi<'a> {
@@ -44,10 +88,19 @@ impl<'a> RadarApi<'a> {
         &self,
         params: CreateAttemptParams,
     ) -> Result<RadarStandaloneResponse, Error> {
+        self.create_attempt_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_attempt`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_attempt_with_options(
+        &self,
+        params: CreateAttemptParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<RadarStandaloneResponse, Error> {
         let path = "/radar/attempts".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -59,10 +112,20 @@ impl<'a> RadarApi<'a> {
         id: &str,
         params: UpdateAttemptParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/radar/attempts/{}", id);
+        self.update_attempt_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::update_attempt`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_attempt_with_options(
+        &self,
+        id: &str,
+        params: UpdateAttemptParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/radar/attempts/{id}");
         let method = http::Method::PUT;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -75,10 +138,22 @@ impl<'a> RadarApi<'a> {
         action: &str,
         params: AddListEntryParams,
     ) -> Result<RadarListEntryAlreadyPresentResponse, Error> {
-        let path = format!("/radar/lists/{}/{}", type_, action);
+        self.add_list_entry_with_options(type_, action, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::add_list_entry`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn add_list_entry_with_options(
+        &self,
+        type_: &str,
+        action: &str,
+        params: AddListEntryParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<RadarListEntryAlreadyPresentResponse, Error> {
+        let path = format!("/radar/lists/{type_}/{action}");
         let method = http::Method::POST;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -91,10 +166,22 @@ impl<'a> RadarApi<'a> {
         action: &str,
         params: RemoveListEntryParams,
     ) -> Result<serde_json::Value, Error> {
-        let path = format!("/radar/lists/{}/{}", type_, action);
+        self.remove_list_entry_with_options(type_, action, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::remove_list_entry`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn remove_list_entry_with_options(
+        &self,
+        type_: &str,
+        action: &str,
+        params: RemoveListEntryParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<serde_json::Value, Error> {
+        let path = format!("/radar/lists/{type_}/{action}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_body(method, &path, &params, Some(&params.body))
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 }
