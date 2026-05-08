@@ -79,8 +79,12 @@ impl WebhookVerifier {
 
 /// Computes the HMAC-SHA256 signature for a webhook payload.
 pub fn compute_webhook_signature(secret: &str, timestamp: &str, body: &str) -> String {
-    let mut mac =
-        HmacSha256::new_from_slice(secret.as_bytes()).expect("HMAC-SHA256 accepts any key size");
+    // HMAC accepts keys of any length (RFC 2104); `new_from_slice` only
+    // returns `Err` for fixed-size MACs, so this is infallible for HMAC.
+    let mut mac = match HmacSha256::new_from_slice(secret.as_bytes()) {
+        Ok(mac) => mac,
+        Err(_) => unreachable!(),
+    };
     mac.update(timestamp.as_bytes());
     mac.update(b".");
     mac.update(body.as_bytes());

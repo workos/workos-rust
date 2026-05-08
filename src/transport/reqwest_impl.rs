@@ -25,6 +25,10 @@ impl ReqwestTransport {
     /// Build a transport with the given request timeout and an empty default
     /// header map. Used by [`crate::ClientBuilder::build`] when no custom
     /// transport is supplied.
+    ///
+    /// Panics if the platform TLS backend cannot be initialized — matches the
+    /// behavior of [`reqwest::Client::new`].
+    #[allow(clippy::expect_used)]
     pub fn with_timeout(timeout: Duration) -> Self {
         let inner = reqwest::Client::builder()
             .timeout(timeout)
