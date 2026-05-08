@@ -247,7 +247,7 @@ impl<'a> VaultApi<'a> {
         })
     }
 
-    /// Decrypts data previously encrypted with [`encrypt`]. Calls the API to
+    /// Decrypts data previously encrypted with [`Self::encrypt`]. Calls the API to
     /// decrypt the data key, then performs local AES-GCM decryption.
     pub async fn decrypt(
         &self,

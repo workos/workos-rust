@@ -10,7 +10,7 @@ The WorkOS Rust SDK provides async access to the WorkOS API from Rust applicatio
 
 ## Installation
 
-Requires Rust `1.88+` (edition 2024).
+Requires Rust `1.88+` (edition 2024). The repository pins this via `rust-toolchain.toml`, so a fresh checkout will install the matching toolchain automatically when you run any `cargo` or `./script/ci` command under `rustup`.
 
 ```bash
 cargo add workos

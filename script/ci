@@ -15,5 +15,8 @@ cargo build --all-targets
 echo "==> cargo clippy --all-targets -- -D warnings"
 cargo clippy --all-targets -- -D warnings
 
+echo "==> cargo doc --no-deps (RUSTDOCFLAGS=-D warnings)"
+RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
+
 echo "==> cargo test"
 cargo test
