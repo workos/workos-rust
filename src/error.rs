@@ -1,6 +1,8 @@
 // @oagen-ignore-file
 use thiserror::Error;
 
+use crate::transport::TransportError;
+
 /// All errors produced by the SDK.
 #[derive(Debug, Error)]
 pub enum Error {
@@ -12,9 +14,9 @@ pub enum Error {
         message: String,
     },
 
-    /// A transport-level error from the HTTP client.
+    /// A transport-level error from the configured [`crate::transport::HttpTransport`].
     #[error("network error: {0}")]
-    Network(#[from] reqwest::Error),
+    Network(#[from] TransportError),
 
     /// Failed to decode a JSON payload.
     #[error("decode error: {0}")]
@@ -23,6 +25,26 @@ pub enum Error {
     /// The caller supplied an invalid configuration or parameter.
     #[error("invalid request: {0}")]
     Builder(String),
+
+    /// Webhook signature verification failed.
+    #[error("webhook error: {0}")]
+    Webhook(String),
+
+    /// Sealed session encrypt/decrypt failed.
+    #[error("session error: {0}")]
+    Session(String),
+
+    /// Vault local crypto failed.
+    #[error("vault crypto error: {0}")]
+    VaultCrypto(String),
+
+    /// JWT/JWKS verification failed.
+    #[error("jwt error: {0}")]
+    Jwt(String),
+
+    /// Crypto primitive (HMAC/AES/PKCE) failed.
+    #[error("crypto error: {0}")]
+    Crypto(String),
 }
 
 impl Error {

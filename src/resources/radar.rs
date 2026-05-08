@@ -45,7 +45,7 @@ impl<'a> RadarApi<'a> {
         params: CreateAttemptParams,
     ) -> Result<RadarStandaloneResponse, Error> {
         let path = "/radar/attempts".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -60,7 +60,7 @@ impl<'a> RadarApi<'a> {
         params: UpdateAttemptParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/radar/attempts/{}", id);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -76,7 +76,7 @@ impl<'a> RadarApi<'a> {
         params: AddListEntryParams,
     ) -> Result<RadarListEntryAlreadyPresentResponse, Error> {
         let path = format!("/radar/lists/{}/{}", type_, action);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -92,7 +92,7 @@ impl<'a> RadarApi<'a> {
         params: RemoveListEntryParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/radar/lists/{}/{}", type_, action);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await

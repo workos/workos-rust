@@ -34,7 +34,7 @@ impl<'a> UserManagementOrganizationMembershipGroupsApi<'a> {
         params: ListOrganizationMembershipGroupsParams,
     ) -> Result<GroupList, Error> {
         let path = format!("/user_management/organization_memberships/{}/groups", om_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 }

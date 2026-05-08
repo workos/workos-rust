@@ -52,7 +52,7 @@ impl<'a> PipesApi<'a> {
         params: AuthorizeDataIntegrationParams,
     ) -> Result<DataIntegrationAuthorizeUrlResponse, Error> {
         let path = format!("/data-integrations/{}/authorize", slug);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -67,7 +67,7 @@ impl<'a> PipesApi<'a> {
         params: CreateDataIntegrationTokenParams,
     ) -> Result<DataIntegrationAccessTokenResponse, Error> {
         let path = format!("/data-integrations/{}/token", slug);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -86,7 +86,7 @@ impl<'a> PipesApi<'a> {
             "/user_management/users/{}/connected_accounts/{}",
             user_id, slug
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -103,7 +103,7 @@ impl<'a> PipesApi<'a> {
             "/user_management/users/{}/connected_accounts/{}",
             user_id, slug
         );
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -116,7 +116,7 @@ impl<'a> PipesApi<'a> {
         params: ListUserDataProvidersParams,
     ) -> Result<DataIntegrationsListResponse, Error> {
         let path = format!("/user_management/users/{}/data_providers", user_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 }

@@ -83,7 +83,7 @@ impl<'a> DirectorySyncApi<'a> {
         params: ListDirectoriesParams,
     ) -> Result<DirectoryList, Error> {
         let path = "/directories".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -96,7 +96,7 @@ impl<'a> DirectorySyncApi<'a> {
         params: GetDirectoryParams,
     ) -> Result<Directory, Error> {
         let path = format!("/directories/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -109,7 +109,7 @@ impl<'a> DirectorySyncApi<'a> {
         params: DeleteDirectoryParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/directories/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -118,7 +118,7 @@ impl<'a> DirectorySyncApi<'a> {
     /// Get a list of all of existing directory groups matching the criteria specified.
     pub async fn list_groups(&self, params: ListGroupsParams) -> Result<DirectoryGroupList, Error> {
         let path = "/directory_groups".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -131,7 +131,7 @@ impl<'a> DirectorySyncApi<'a> {
         params: GetGroupParams,
     ) -> Result<DirectoryGroup, Error> {
         let path = format!("/directory_groups/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -140,7 +140,7 @@ impl<'a> DirectorySyncApi<'a> {
     /// Get a list of all of existing Directory Users matching the criteria specified.
     pub async fn list_users(&self, params: ListUsersParams) -> Result<DirectoryUserList, Error> {
         let path = "/directory_users".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -153,7 +153,7 @@ impl<'a> DirectorySyncApi<'a> {
         params: GetUserParams,
     ) -> Result<DirectoryUserWithGroups, Error> {
         let path = format!("/directory_users/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 }

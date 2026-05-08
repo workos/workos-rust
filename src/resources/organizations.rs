@@ -61,7 +61,7 @@ impl<'a> OrganizationsApi<'a> {
         params: ListOrganizationsParams,
     ) -> Result<OrganizationList, Error> {
         let path = "/organizations".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -73,7 +73,7 @@ impl<'a> OrganizationsApi<'a> {
         params: CreateOrganizationParams,
     ) -> Result<Organization, Error> {
         let path = "/organizations".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -88,7 +88,7 @@ impl<'a> OrganizationsApi<'a> {
         params: GetOrganizationByExternalIdParams,
     ) -> Result<Organization, Error> {
         let path = format!("/organizations/external_id/{}", external_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -101,7 +101,7 @@ impl<'a> OrganizationsApi<'a> {
         params: GetOrganizationParams,
     ) -> Result<Organization, Error> {
         let path = format!("/organizations/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -114,7 +114,7 @@ impl<'a> OrganizationsApi<'a> {
         params: UpdateOrganizationParams,
     ) -> Result<Organization, Error> {
         let path = format!("/organizations/{}", id);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -129,7 +129,7 @@ impl<'a> OrganizationsApi<'a> {
         params: DeleteOrganizationParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/organizations/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -142,7 +142,7 @@ impl<'a> OrganizationsApi<'a> {
         params: GetAuditLogConfigurationParams,
     ) -> Result<AuditLogConfiguration, Error> {
         let path = format!("/organizations/{}/audit_log_configuration", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 }

@@ -313,7 +313,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organization_memberships/{}/check",
             organization_membership_id
         );
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -333,7 +333,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organization_memberships/{}/resources",
             organization_membership_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -350,7 +350,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organization_memberships/{}/resources/{}/permissions",
             organization_membership_id, resource_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -368,7 +368,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organization_memberships/{}/resources/{}/{}/permissions",
             organization_membership_id, resource_type_slug, external_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -384,7 +384,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organization_memberships/{}/role_assignments",
             organization_membership_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -400,7 +400,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organization_memberships/{}/role_assignments",
             organization_membership_id
         );
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -418,7 +418,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organization_memberships/{}/role_assignments",
             organization_membership_id
         );
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -437,7 +437,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organization_memberships/{}/role_assignments/{}",
             organization_membership_id, role_assignment_id
         );
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -450,7 +450,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListOrganizationRolesParams,
     ) -> Result<RoleList, Error> {
         let path = format!("/authorization/organizations/{}/roles", organization_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -463,7 +463,7 @@ impl<'a> AuthorizationApi<'a> {
         params: CreateOrganizationRoleParams,
     ) -> Result<Role, Error> {
         let path = format!("/authorization/organizations/{}/roles", organization_id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -482,7 +482,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/roles/{}",
             organization_id, slug
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -499,7 +499,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/roles/{}",
             organization_id, slug
         );
-        let method = reqwest::Method::PATCH;
+        let method = http::Method::PATCH;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -518,7 +518,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/roles/{}",
             organization_id, slug
         );
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -535,7 +535,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/roles/{}/permissions",
             organization_id, slug
         );
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -554,7 +554,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/roles/{}/permissions",
             organization_id, slug
         );
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -574,7 +574,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/roles/{}/permissions/{}",
             organization_id, slug, permission_slug
         );
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -592,7 +592,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/resources/{}/{}",
             organization_id, resource_type_slug, external_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -610,7 +610,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/resources/{}/{}",
             organization_id, resource_type_slug, external_id
         );
-        let method = reqwest::Method::PATCH;
+        let method = http::Method::PATCH;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -630,7 +630,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/resources/{}/{}",
             organization_id, resource_type_slug, external_id
         );
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -648,7 +648,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/resources/{}/{}/organization_memberships",
             organization_id, resource_type_slug, external_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -666,7 +666,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/organizations/{}/resources/{}/{}/role_assignments",
             organization_id, resource_type_slug, external_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -678,7 +678,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListResourcesParams,
     ) -> Result<AuthorizationResourceList, Error> {
         let path = "/authorization/resources".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -690,7 +690,7 @@ impl<'a> AuthorizationApi<'a> {
         params: CreateResourceParams,
     ) -> Result<AuthorizationResource, Error> {
         let path = "/authorization/resources".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -705,7 +705,7 @@ impl<'a> AuthorizationApi<'a> {
         params: GetResourceParams,
     ) -> Result<AuthorizationResource, Error> {
         let path = format!("/authorization/resources/{}", resource_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -718,7 +718,7 @@ impl<'a> AuthorizationApi<'a> {
         params: UpdateResourceParams,
     ) -> Result<AuthorizationResource, Error> {
         let path = format!("/authorization/resources/{}", resource_id);
-        let method = reqwest::Method::PATCH;
+        let method = http::Method::PATCH;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -733,7 +733,7 @@ impl<'a> AuthorizationApi<'a> {
         params: DeleteResourceParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/authorization/resources/{}", resource_id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -749,7 +749,7 @@ impl<'a> AuthorizationApi<'a> {
             "/authorization/resources/{}/organization_memberships",
             resource_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -762,7 +762,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListRoleAssignmentsForResourceParams,
     ) -> Result<UserRoleAssignmentList, Error> {
         let path = format!("/authorization/resources/{}/role_assignments", resource_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -774,7 +774,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListEnvironmentRolesParams,
     ) -> Result<RoleList, Error> {
         let path = "/authorization/roles".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -786,7 +786,7 @@ impl<'a> AuthorizationApi<'a> {
         params: CreateEnvironmentRoleParams,
     ) -> Result<Role, Error> {
         let path = "/authorization/roles".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -801,7 +801,7 @@ impl<'a> AuthorizationApi<'a> {
         params: GetEnvironmentRoleParams,
     ) -> Result<Role, Error> {
         let path = format!("/authorization/roles/{}", slug);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -814,7 +814,7 @@ impl<'a> AuthorizationApi<'a> {
         params: UpdateEnvironmentRoleParams,
     ) -> Result<Role, Error> {
         let path = format!("/authorization/roles/{}", slug);
-        let method = reqwest::Method::PATCH;
+        let method = http::Method::PATCH;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -829,7 +829,7 @@ impl<'a> AuthorizationApi<'a> {
         params: AddEnvironmentRolePermissionParams,
     ) -> Result<Role, Error> {
         let path = format!("/authorization/roles/{}/permissions", slug);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -844,7 +844,7 @@ impl<'a> AuthorizationApi<'a> {
         params: SetEnvironmentRolePermissionsParams,
     ) -> Result<Role, Error> {
         let path = format!("/authorization/roles/{}/permissions", slug);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -858,7 +858,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListPermissionsParams,
     ) -> Result<AuthorizationPermissionList, Error> {
         let path = "/authorization/permissions".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -870,7 +870,7 @@ impl<'a> AuthorizationApi<'a> {
         params: CreatePermissionParams,
     ) -> Result<Permission, Error> {
         let path = "/authorization/permissions".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -885,7 +885,7 @@ impl<'a> AuthorizationApi<'a> {
         params: GetPermissionParams,
     ) -> Result<AuthorizationPermission, Error> {
         let path = format!("/authorization/permissions/{}", slug);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -898,7 +898,7 @@ impl<'a> AuthorizationApi<'a> {
         params: UpdatePermissionParams,
     ) -> Result<AuthorizationPermission, Error> {
         let path = format!("/authorization/permissions/{}", slug);
-        let method = reqwest::Method::PATCH;
+        let method = http::Method::PATCH;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -913,7 +913,7 @@ impl<'a> AuthorizationApi<'a> {
         params: DeletePermissionParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/authorization/permissions/{}", slug);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 }

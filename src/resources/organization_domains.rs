@@ -36,7 +36,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         params: CreateOrganizationDomainParams,
     ) -> Result<OrganizationDomain, Error> {
         let path = "/organization_domains".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -51,7 +51,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         params: GetOrganizationDomainParams,
     ) -> Result<OrganizationDomainStandAlone, Error> {
         let path = format!("/organization_domains/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -64,7 +64,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         params: DeleteOrganizationDomainParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/organization_domains/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -77,7 +77,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         params: VerifyOrganizationDomainParams,
     ) -> Result<OrganizationDomainStandAlone, Error> {
         let path = format!("/organization_domains/{}/verify", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client.request_with_query(method, &path, &params).await
     }
 }

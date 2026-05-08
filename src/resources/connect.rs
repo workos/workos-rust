@@ -100,7 +100,7 @@ impl<'a> ConnectApi<'a> {
         params: CompleteOAuth2Params,
     ) -> Result<ExternalAuthCompleteResponse, Error> {
         let path = "/authkit/oauth2/complete".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -114,7 +114,7 @@ impl<'a> ConnectApi<'a> {
         params: ListApplicationsParams,
     ) -> Result<ConnectApplicationList, Error> {
         let path = "/connect/applications".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -126,7 +126,7 @@ impl<'a> ConnectApi<'a> {
         params: CreateOAuthApplicationParams,
     ) -> Result<ConnectApplication, Error> {
         let path = "/connect/applications".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "application_type": "oauth",
             "name": params.name,
@@ -152,7 +152,7 @@ impl<'a> ConnectApi<'a> {
         params: CreateM2MApplicationParams,
     ) -> Result<ConnectApplication, Error> {
         let path = "/connect/applications".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "application_type": "m2m",
             "name": params.name,
@@ -176,7 +176,7 @@ impl<'a> ConnectApi<'a> {
         params: GetApplicationParams,
     ) -> Result<ConnectApplication, Error> {
         let path = format!("/connect/applications/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -189,7 +189,7 @@ impl<'a> ConnectApi<'a> {
         params: UpdateApplicationParams,
     ) -> Result<ConnectApplication, Error> {
         let path = format!("/connect/applications/{}", id);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -204,7 +204,7 @@ impl<'a> ConnectApi<'a> {
         params: DeleteApplicationParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/connect/applications/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -217,7 +217,7 @@ impl<'a> ConnectApi<'a> {
         params: ListApplicationClientSecretsParams,
     ) -> Result<Vec<ApplicationCredentialsListItem>, Error> {
         let path = format!("/connect/applications/{}/client_secrets", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -230,7 +230,7 @@ impl<'a> ConnectApi<'a> {
         params: CreateApplicationClientSecretParams,
     ) -> Result<NewConnectApplicationSecret, Error> {
         let path = format!("/connect/applications/{}/client_secrets", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -245,7 +245,7 @@ impl<'a> ConnectApi<'a> {
         params: DeleteClientSecretParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/connect/client_secrets/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 }

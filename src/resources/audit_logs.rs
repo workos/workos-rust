@@ -76,7 +76,7 @@ impl<'a> AuditLogsApi<'a> {
         params: GetOrganizationAuditLogsRetentionParams,
     ) -> Result<AuditLogsRetentionJson, Error> {
         let path = format!("/organizations/{}/audit_logs_retention", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -89,7 +89,7 @@ impl<'a> AuditLogsApi<'a> {
         params: UpdateOrganizationAuditLogsRetentionParams,
     ) -> Result<AuditLogsRetentionJson, Error> {
         let path = format!("/organizations/{}/audit_logs_retention", id);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -103,7 +103,7 @@ impl<'a> AuditLogsApi<'a> {
         params: ListActionsParams,
     ) -> Result<Vec<AuditLogActionJson>, Error> {
         let path = "/audit_logs/actions".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -116,7 +116,7 @@ impl<'a> AuditLogsApi<'a> {
         params: ListActionSchemasParams,
     ) -> Result<Vec<AuditLogSchemaJson>, Error> {
         let path = format!("/audit_logs/actions/{}/schemas", action_name);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -129,7 +129,7 @@ impl<'a> AuditLogsApi<'a> {
         params: CreateSchemaParams,
     ) -> Result<AuditLogSchemaJson, Error> {
         let path = format!("/audit_logs/actions/{}/schemas", action_name);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -149,7 +149,7 @@ impl<'a> AuditLogsApi<'a> {
         params: CreateEventParams,
     ) -> Result<AuditLogEventCreateResponse, Error> {
         let path = "/audit_logs/events".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -163,7 +163,7 @@ impl<'a> AuditLogsApi<'a> {
         params: CreateExportParams,
     ) -> Result<AuditLogExportJson, Error> {
         let path = "/audit_logs/exports".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -178,7 +178,7 @@ impl<'a> AuditLogsApi<'a> {
         params: GetExportParams,
     ) -> Result<AuditLogExportJson, Error> {
         let path = format!("/audit_logs/exports/{}", audit_log_export_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 }

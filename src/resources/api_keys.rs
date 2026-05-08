@@ -49,7 +49,7 @@ impl<'a> ApiKeysApi<'a> {
         params: ListOrganizationApiKeysParams,
     ) -> Result<OrganizationApiKeyList, Error> {
         let path = format!("/organizations/{}/api_keys", organization_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -62,7 +62,7 @@ impl<'a> ApiKeysApi<'a> {
         params: CreateOrganizationApiKeyParams,
     ) -> Result<OrganizationApiKeyWithValue, Error> {
         let path = format!("/organizations/{}/api_keys", organization_id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -76,7 +76,7 @@ impl<'a> ApiKeysApi<'a> {
         params: CreateValidationParams,
     ) -> Result<ApiKeyValidationResponse, Error> {
         let path = "/api_keys/validations".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -91,7 +91,7 @@ impl<'a> ApiKeysApi<'a> {
         params: DeleteApiKeyParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/api_keys/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 }

@@ -72,7 +72,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: ListFeatureFlagsParams,
     ) -> Result<FlagList, Error> {
         let path = "/feature-flags".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -85,7 +85,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: GetFeatureFlagParams,
     ) -> Result<Flag, Error> {
         let path = format!("/feature-flags/{}", slug);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -98,7 +98,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: DisableFeatureFlagParams,
     ) -> Result<FeatureFlag, Error> {
         let path = format!("/feature-flags/{}/disable", slug);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -111,7 +111,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: EnableFeatureFlagParams,
     ) -> Result<FeatureFlag, Error> {
         let path = format!("/feature-flags/{}/enable", slug);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -125,7 +125,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: AddFlagTargetParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/feature-flags/{}/targets/{}", slug, resource_id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -139,7 +139,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: RemoveFlagTargetParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/feature-flags/{}/targets/{}", slug, resource_id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -152,7 +152,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: ListOrganizationFeatureFlagsParams,
     ) -> Result<FlagList, Error> {
         let path = format!("/organizations/{}/feature-flags", organization_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -165,7 +165,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: ListUserFeatureFlagsParams,
     ) -> Result<FlagList, Error> {
         let path = format!("/user_management/users/{}/feature-flags", user_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 }

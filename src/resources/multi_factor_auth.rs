@@ -64,7 +64,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: VerifyChallengeParams,
     ) -> Result<AuthenticationChallengeVerifyResponse, Error> {
         let path = format!("/auth/challenges/{}/verify", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -78,7 +78,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: EnrollFactorParams,
     ) -> Result<AuthenticationFactorEnrolled, Error> {
         let path = "/auth/factors/enroll".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -93,7 +93,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: GetFactorParams,
     ) -> Result<AuthenticationFactor, Error> {
         let path = format!("/auth/factors/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -106,7 +106,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: DeleteFactorParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/auth/factors/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -119,7 +119,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: ChallengeFactorParams,
     ) -> Result<AuthenticationChallenge, Error> {
         let path = format!("/auth/factors/{}/challenge", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -134,7 +134,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: ListUserAuthFactorsParams,
     ) -> Result<UserAuthenticationFactorList, Error> {
         let path = format!("/user_management/users/{}/auth_factors", userland_user_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -147,7 +147,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: CreateUserAuthFactorParams,
     ) -> Result<UserAuthenticationFactorEnrollResponse, Error> {
         let path = format!("/user_management/users/{}/auth_factors", userland_user_id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await

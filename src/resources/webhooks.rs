@@ -48,7 +48,7 @@ impl<'a> WebhooksApi<'a> {
         params: ListWebhookEndpointsParams,
     ) -> Result<WebhookEndpointList, Error> {
         let path = "/webhook_endpoints".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -60,7 +60,7 @@ impl<'a> WebhooksApi<'a> {
         params: CreateWebhookEndpointParams,
     ) -> Result<WebhookEndpointJson, Error> {
         let path = "/webhook_endpoints".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -75,7 +75,7 @@ impl<'a> WebhooksApi<'a> {
         params: UpdateWebhookEndpointParams,
     ) -> Result<WebhookEndpointJson, Error> {
         let path = format!("/webhook_endpoints/{}", id);
-        let method = reqwest::Method::PATCH;
+        let method = http::Method::PATCH;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -90,7 +90,7 @@ impl<'a> WebhooksApi<'a> {
         params: DeleteWebhookEndpointParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/webhook_endpoints/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 }

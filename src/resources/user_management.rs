@@ -419,7 +419,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetJwksParams,
     ) -> Result<JwksResponse, Error> {
         let path = format!("/sso/jwks/{}", client_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -431,11 +431,11 @@ impl<'a> UserManagementApi<'a> {
         params: AuthenticateWithPasswordParams,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "grant_type": "password",
-            "client_id": "",
-            "client_secret": "",
+            "client_id": self.client.client_id(),
+            "client_secret": self.client.api_key(),
             "email": params.email,
             "password": params.password,
             "invitation_token": params.invitation_token,
@@ -458,11 +458,11 @@ impl<'a> UserManagementApi<'a> {
         params: AuthenticateWithCodeParams,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "grant_type": "authorization_code",
-            "client_id": "",
-            "client_secret": "",
+            "client_id": self.client.client_id(),
+            "client_secret": self.client.api_key(),
             "code": params.code,
             "code_verifier": params.code_verifier,
             "invitation_token": params.invitation_token,
@@ -485,11 +485,11 @@ impl<'a> UserManagementApi<'a> {
         params: AuthenticateWithRefreshTokenParams,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "grant_type": "refresh_token",
-            "client_id": "",
-            "client_secret": "",
+            "client_id": self.client.client_id(),
+            "client_secret": self.client.api_key(),
             "refresh_token": params.refresh_token,
             "organization_id": params.organization_id,
             "ip_address": params.ip_address,
@@ -511,11 +511,11 @@ impl<'a> UserManagementApi<'a> {
         params: AuthenticateWithMagicAuthParams,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "grant_type": "urn:workos:oauth:grant-type:magic-auth:code",
-            "client_id": "",
-            "client_secret": "",
+            "client_id": self.client.client_id(),
+            "client_secret": self.client.api_key(),
             "code": params.code,
             "email": params.email,
             "invitation_token": params.invitation_token,
@@ -538,11 +538,11 @@ impl<'a> UserManagementApi<'a> {
         params: AuthenticateWithEmailVerificationParams,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "grant_type": "urn:workos:oauth:grant-type:email-verification:code",
-            "client_id": "",
-            "client_secret": "",
+            "client_id": self.client.client_id(),
+            "client_secret": self.client.api_key(),
             "code": params.code,
             "pending_authentication_token": params.pending_authentication_token,
             "ip_address": params.ip_address,
@@ -564,11 +564,11 @@ impl<'a> UserManagementApi<'a> {
         params: AuthenticateWithTotpParams,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "grant_type": "urn:workos:oauth:grant-type:mfa-totp",
-            "client_id": "",
-            "client_secret": "",
+            "client_id": self.client.client_id(),
+            "client_secret": self.client.api_key(),
             "code": params.code,
             "pending_authentication_token": params.pending_authentication_token,
             "authentication_challenge_id": params.authentication_challenge_id,
@@ -591,11 +591,11 @@ impl<'a> UserManagementApi<'a> {
         params: AuthenticateWithOrganizationSelectionParams,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "grant_type": "urn:workos:oauth:grant-type:organization-selection",
-            "client_id": "",
-            "client_secret": "",
+            "client_id": self.client.client_id(),
+            "client_secret": self.client.api_key(),
             "pending_authentication_token": params.pending_authentication_token,
             "organization_id": params.organization_id,
             "ip_address": params.ip_address,
@@ -617,10 +617,10 @@ impl<'a> UserManagementApi<'a> {
         params: AuthenticateWithDeviceCodeParams,
     ) -> Result<AuthenticateResponse, Error> {
         let path = "/user_management/authenticate".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         let body = serde_json::json!({
             "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-            "client_id": "",
+            "client_id": self.client.client_id(),
             "device_code": params.device_code,
             "ip_address": params.ip_address,
             "device_id": params.device_id,
@@ -641,7 +641,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetAuthorizationUrlParams,
     ) -> Result<serde_json::Value, Error> {
         let path = "/user_management/authorize".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -653,7 +653,7 @@ impl<'a> UserManagementApi<'a> {
         params: CreateDeviceParams,
     ) -> Result<DeviceAuthorizationResponse, Error> {
         let path = "/user_management/authorize/device".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -667,7 +667,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetLogoutUrlParams,
     ) -> Result<serde_json::Value, Error> {
         let path = "/user_management/sessions/logout".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -679,7 +679,7 @@ impl<'a> UserManagementApi<'a> {
         params: RevokeSessionParams,
     ) -> Result<serde_json::Value, Error> {
         let path = "/user_management/sessions/revoke".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -693,7 +693,7 @@ impl<'a> UserManagementApi<'a> {
         params: CreateCorsOriginParams,
     ) -> Result<CorsOriginResponse, Error> {
         let path = "/user_management/cors_origins".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -708,7 +708,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetEmailVerificationParams,
     ) -> Result<EmailVerification, Error> {
         let path = format!("/user_management/email_verification/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -720,7 +720,7 @@ impl<'a> UserManagementApi<'a> {
         params: ResetPasswordParams,
     ) -> Result<PasswordReset, Error> {
         let path = "/user_management/password_reset".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -734,7 +734,7 @@ impl<'a> UserManagementApi<'a> {
         params: ConfirmPasswordResetParams,
     ) -> Result<ResetPasswordResponse, Error> {
         let path = "/user_management/password_reset/confirm".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -749,7 +749,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetPasswordResetParams,
     ) -> Result<PasswordReset, Error> {
         let path = format!("/user_management/password_reset/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -758,7 +758,7 @@ impl<'a> UserManagementApi<'a> {
     /// Get a list of all of your existing users matching the criteria specified.
     pub async fn list_users(&self, params: ListUsersParams) -> Result<UserList, Error> {
         let path = "/user_management/users".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -767,7 +767,7 @@ impl<'a> UserManagementApi<'a> {
     /// Create a new user in the current environment.
     pub async fn create_user(&self, params: CreateUserParams) -> Result<User, Error> {
         let path = "/user_management/users".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -782,7 +782,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetUserByExternalIdParams,
     ) -> Result<User, Error> {
         let path = format!("/user_management/users/external_id/{}", external_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -791,7 +791,7 @@ impl<'a> UserManagementApi<'a> {
     /// Get the details of an existing user.
     pub async fn get_user(&self, id: &str, params: GetUserParams) -> Result<User, Error> {
         let path = format!("/user_management/users/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -800,7 +800,7 @@ impl<'a> UserManagementApi<'a> {
     /// Updates properties of a user. The omitted properties will be left unchanged.
     pub async fn update_user(&self, id: &str, params: UpdateUserParams) -> Result<User, Error> {
         let path = format!("/user_management/users/{}", id);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -815,7 +815,7 @@ impl<'a> UserManagementApi<'a> {
         params: DeleteUserParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/user_management/users/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -828,7 +828,7 @@ impl<'a> UserManagementApi<'a> {
         params: ConfirmEmailChangeParams,
     ) -> Result<EmailChangeConfirmation, Error> {
         let path = format!("/user_management/users/{}/email_change/confirm", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -843,7 +843,7 @@ impl<'a> UserManagementApi<'a> {
         params: SendEmailChangeParams,
     ) -> Result<EmailChange, Error> {
         let path = format!("/user_management/users/{}/email_change/send", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -858,7 +858,7 @@ impl<'a> UserManagementApi<'a> {
         params: VerifyEmailParams,
     ) -> Result<VerifyEmailResponse, Error> {
         let path = format!("/user_management/users/{}/email_verification/confirm", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -873,7 +873,7 @@ impl<'a> UserManagementApi<'a> {
         params: SendVerificationEmailParams,
     ) -> Result<SendVerificationEmailResponse, Error> {
         let path = format!("/user_management/users/{}/email_verification/send", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -886,7 +886,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetUserIdentitiesParams,
     ) -> Result<Vec<UserIdentitiesGetItem>, Error> {
         let path = format!("/user_management/users/{}/identities", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -899,7 +899,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListSessionsParams,
     ) -> Result<Vec<UserSessionsListItem>, Error> {
         let path = format!("/user_management/users/{}/sessions", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -911,7 +911,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListInvitationsParams,
     ) -> Result<Vec<UserInvite>, Error> {
         let path = "/user_management/invitations".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -920,7 +920,7 @@ impl<'a> UserManagementApi<'a> {
     /// Sends an invitation email to the recipient.
     pub async fn send_invitation(&self, params: SendInvitationParams) -> Result<UserInvite, Error> {
         let path = "/user_management/invitations".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -935,7 +935,7 @@ impl<'a> UserManagementApi<'a> {
         params: FindInvitationByTokenParams,
     ) -> Result<UserInvite, Error> {
         let path = format!("/user_management/invitations/by_token/{}", token);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -948,7 +948,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetInvitationParams,
     ) -> Result<UserInvite, Error> {
         let path = format!("/user_management/invitations/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -961,7 +961,7 @@ impl<'a> UserManagementApi<'a> {
         params: AcceptInvitationParams,
     ) -> Result<Invitation, Error> {
         let path = format!("/user_management/invitations/{}/accept", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -974,7 +974,7 @@ impl<'a> UserManagementApi<'a> {
         params: ResendInvitationParams,
     ) -> Result<UserInvite, Error> {
         let path = format!("/user_management/invitations/{}/resend", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -989,7 +989,7 @@ impl<'a> UserManagementApi<'a> {
         params: RevokeInvitationParams,
     ) -> Result<Invitation, Error> {
         let path = format!("/user_management/invitations/{}/revoke", id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1001,7 +1001,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListJWTTemplateParams,
     ) -> Result<JWTTemplateResponse, Error> {
         let path = "/user_management/jwt_template".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1013,7 +1013,7 @@ impl<'a> UserManagementApi<'a> {
         params: UpdateJWTTemplateParams,
     ) -> Result<JWTTemplateResponse, Error> {
         let path = "/user_management/jwt_template".to_string();
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -1027,7 +1027,7 @@ impl<'a> UserManagementApi<'a> {
         params: CreateMagicAuthParams,
     ) -> Result<MagicAuth, Error> {
         let path = "/user_management/magic_auth".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -1042,7 +1042,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetMagicAuthParams,
     ) -> Result<MagicAuth, Error> {
         let path = format!("/user_management/magic_auth/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1054,7 +1054,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListOrganizationMembershipsParams,
     ) -> Result<Vec<UserOrganizationMembership>, Error> {
         let path = "/user_management/organization_memberships".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1068,7 +1068,7 @@ impl<'a> UserManagementApi<'a> {
         params: CreateOrganizationMembershipParams,
     ) -> Result<OrganizationMembership, Error> {
         let path = "/user_management/organization_memberships".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -1083,7 +1083,7 @@ impl<'a> UserManagementApi<'a> {
         params: GetOrganizationMembershipParams,
     ) -> Result<UserOrganizationMembership, Error> {
         let path = format!("/user_management/organization_memberships/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1096,7 +1096,7 @@ impl<'a> UserManagementApi<'a> {
         params: UpdateOrganizationMembershipParams,
     ) -> Result<UserOrganizationMembership, Error> {
         let path = format!("/user_management/organization_memberships/{}", id);
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -1111,7 +1111,7 @@ impl<'a> UserManagementApi<'a> {
         params: DeleteOrganizationMembershipParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/user_management/organization_memberships/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1132,7 +1132,7 @@ impl<'a> UserManagementApi<'a> {
             "/user_management/organization_memberships/{}/deactivate",
             id
         );
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1153,7 +1153,7 @@ impl<'a> UserManagementApi<'a> {
             "/user_management/organization_memberships/{}/reactivate",
             id
         );
-        let method = reqwest::Method::PUT;
+        let method = http::Method::PUT;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1165,7 +1165,7 @@ impl<'a> UserManagementApi<'a> {
         params: CreateRedirectUriParams,
     ) -> Result<RedirectUri, Error> {
         let path = "/user_management/redirect_uris".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -1180,7 +1180,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListUserAuthorizedApplicationsParams,
     ) -> Result<AuthorizedConnectApplicationList, Error> {
         let path = format!("/user_management/users/{}/authorized_applications", user_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1197,7 +1197,7 @@ impl<'a> UserManagementApi<'a> {
             "/user_management/users/{}/authorized_applications/{}",
             user_id, application_id
         );
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1210,7 +1210,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListUserApiKeysParams,
     ) -> Result<UserApiKeyList, Error> {
         let path = format!("/user_management/users/{}/api_keys", user_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -1223,7 +1223,7 @@ impl<'a> UserManagementApi<'a> {
         params: CreateUserApiKeyParams,
     ) -> Result<UserApiKeyWithValue, Error> {
         let path = format!("/user_management/users/{}/api_keys", user_id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await

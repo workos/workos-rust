@@ -27,7 +27,7 @@ impl<'a> WidgetsApi<'a> {
         params: CreateTokenParams,
     ) -> Result<WidgetSessionTokenResponse, Error> {
         let path = "/widgets/token".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await

@@ -93,7 +93,7 @@ impl<'a> SSOApi<'a> {
         params: ListConnectionsParams,
     ) -> Result<ConnectionList, Error> {
         let path = "/connections".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -106,7 +106,7 @@ impl<'a> SSOApi<'a> {
         params: GetConnectionParams,
     ) -> Result<Connection, Error> {
         let path = format!("/connections/{}", id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -119,7 +119,7 @@ impl<'a> SSOApi<'a> {
         params: DeleteConnectionParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/connections/{}", id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -131,7 +131,7 @@ impl<'a> SSOApi<'a> {
         params: GetAuthorizationUrlParams,
     ) -> Result<SSOAuthorizeUrlResponse, Error> {
         let path = "/sso/authorize".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -145,7 +145,7 @@ impl<'a> SSOApi<'a> {
         params: GetLogoutUrlParams,
     ) -> Result<serde_json::Value, Error> {
         let path = "/sso/logout".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -157,7 +157,7 @@ impl<'a> SSOApi<'a> {
         params: AuthorizeLogoutParams,
     ) -> Result<SSOLogoutAuthorizeResponse, Error> {
         let path = "/sso/logout/authorize".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -168,7 +168,7 @@ impl<'a> SSOApi<'a> {
     /// Exchange an access token for a user's [Profile](https://workos.com/docs/reference/sso/profile). Because this profile is returned in the [Get a Profile and Token endpoint](https://workos.com/docs/reference/sso/profile/get-profile-and-token) your application usually does not need to call this endpoint. It is available for any authentication flows that require an additional endpoint to retrieve a user's profile.
     pub async fn get_profile(&self, params: GetProfileParams) -> Result<Profile, Error> {
         let path = "/sso/profile".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -180,7 +180,7 @@ impl<'a> SSOApi<'a> {
         params: GetProfileAndTokenParams,
     ) -> Result<SSOTokenResponse, Error> {
         let path = "/sso/token".to_string();
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await

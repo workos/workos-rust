@@ -73,7 +73,7 @@ impl<'a> GroupsApi<'a> {
         params: ListOrganizationGroupsParams,
     ) -> Result<GroupList, Error> {
         let path = format!("/organizations/{}/groups", organization_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -86,7 +86,7 @@ impl<'a> GroupsApi<'a> {
         params: CreateOrganizationGroupParams,
     ) -> Result<Group, Error> {
         let path = format!("/organizations/{}/groups", organization_id);
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -102,7 +102,7 @@ impl<'a> GroupsApi<'a> {
         params: GetOrganizationGroupParams,
     ) -> Result<Group, Error> {
         let path = format!("/organizations/{}/groups/{}", organization_id, group_id);
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -116,7 +116,7 @@ impl<'a> GroupsApi<'a> {
         params: UpdateOrganizationGroupParams,
     ) -> Result<Group, Error> {
         let path = format!("/organizations/{}/groups/{}", organization_id, group_id);
-        let method = reqwest::Method::PATCH;
+        let method = http::Method::PATCH;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -132,7 +132,7 @@ impl<'a> GroupsApi<'a> {
         params: DeleteOrganizationGroupParams,
     ) -> Result<serde_json::Value, Error> {
         let path = format!("/organizations/{}/groups/{}", organization_id, group_id);
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -149,7 +149,7 @@ impl<'a> GroupsApi<'a> {
             "/organizations/{}/groups/{}/organization-memberships",
             organization_id, group_id
         );
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 
@@ -166,7 +166,7 @@ impl<'a> GroupsApi<'a> {
             "/organizations/{}/groups/{}/organization-memberships",
             organization_id, group_id
         );
-        let method = reqwest::Method::POST;
+        let method = http::Method::POST;
         self.client
             .request_with_body(method, &path, &params, Some(&params.body))
             .await
@@ -186,7 +186,7 @@ impl<'a> GroupsApi<'a> {
             "/organizations/{}/groups/{}/organization-memberships/{}",
             organization_id, group_id, om_id
         );
-        let method = reqwest::Method::DELETE;
+        let method = http::Method::DELETE;
         self.client.request_with_query(method, &path, &params).await
     }
 }

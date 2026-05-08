@@ -38,7 +38,7 @@ impl<'a> EventsApi<'a> {
     /// List events for the current environment.
     pub async fn list_events(&self, params: ListEventsParams) -> Result<EventList, Error> {
         let path = "/events".to_string();
-        let method = reqwest::Method::GET;
+        let method = http::Method::GET;
         self.client.request_with_query(method, &path, &params).await
     }
 }
