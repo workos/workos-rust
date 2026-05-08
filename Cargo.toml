@@ -3,8 +3,24 @@
 name = "workos"
 version = "1.0.0"
 edition = "2024"
-description = "Generated SDK for WorkOS"
+rust-version = "1.88"
+description = "Official Rust SDK for the WorkOS API"
 license = "MIT"
+repository = "https://github.com/workos/workos-rust"
+homepage = "https://workos.com"
+documentation = "https://docs.rs/workos"
+readme = "README.md"
+authors = ["WorkOS <sdk@workos.com>"]
+keywords = ["workos", "sso", "authentication", "authkit", "sdk"]
+categories = ["api-bindings", "authentication"]
+exclude = [
+    "tests/**",
+    "script/**",
+    ".github/**",
+    "release-please-config.json",
+    "renovate.json",
+    "CHANGELOG.md",
+]
 
 [features]
 default = ["reqwest", "rustls-tls"]
@@ -48,3 +64,16 @@ hex = "0.4"
 wiremock = "0.6"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 hex = "0.4"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"
+dbg_macro = "warn"
+todo = "warn"
+
+[package.metadata.docs.rs]
+features = ["rustls-tls"]
+rustdoc-args = ["--cfg", "docsrs"]
