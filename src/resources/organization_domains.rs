@@ -81,7 +81,7 @@ impl<'a> OrganizationDomainsApi<'a> {
     /// Delete an Organization Domain
     ///
     /// Permanently deletes an organization domain. It cannot be undone.
-    pub async fn delete_organization_domain(&self, id: &str) -> Result<serde_json::Value, Error> {
+    pub async fn delete_organization_domain(&self, id: &str) -> Result<(), Error> {
         self.delete_organization_domain_with_options(id, None).await
     }
 
@@ -90,12 +90,12 @@ impl<'a> OrganizationDomainsApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/organization_domains/{id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 

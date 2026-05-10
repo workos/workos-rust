@@ -13,7 +13,7 @@ pub struct AuthenticationFactorEnrolledTotp {
     /// The user's account name displayed in their authenticator app. Defaults to the user's email.
     pub user: String,
     /// TOTP secret that can be manually entered into some authenticator apps in place of scanning a QR code.
-    pub secret: String,
+    pub secret: crate::SecretString,
     /// Base64 encoded image containing scannable QR code.
     pub qr_code: String,
     /// The `otpauth` URI that is encoded by the provided `qr_code`.

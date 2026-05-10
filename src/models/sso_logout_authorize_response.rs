@@ -10,5 +10,5 @@ pub struct SSOLogoutAuthorizeResponse {
     /// The URL to redirect the user to in order to log out ([Logout Redirect](https://workos.com/docs/reference/sso/logout) endpoint ready to use).
     pub logout_url: String,
     /// The logout token to be used in the [Logout Redirect](https://workos.com/docs/reference/sso/logout) endpoint.
-    pub logout_token: String,
+    pub logout_token: crate::SecretString,
 }

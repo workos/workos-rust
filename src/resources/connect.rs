@@ -352,7 +352,7 @@ impl<'a> ConnectApi<'a> {
     /// Delete a Connect Application
     ///
     /// Delete an existing Connect Application.
-    pub async fn delete_application(&self, id: &str) -> Result<serde_json::Value, Error> {
+    pub async fn delete_application(&self, id: &str) -> Result<(), Error> {
         self.delete_application_with_options(id, None).await
     }
 
@@ -361,12 +361,12 @@ impl<'a> ConnectApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/connect/applications/{id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
@@ -425,7 +425,7 @@ impl<'a> ConnectApi<'a> {
     /// Delete a Client Secret
     ///
     /// Delete (revoke) an existing client secret.
-    pub async fn delete_client_secret(&self, id: &str) -> Result<serde_json::Value, Error> {
+    pub async fn delete_client_secret(&self, id: &str) -> Result<(), Error> {
         self.delete_client_secret_with_options(id, None).await
     }
 
@@ -434,12 +434,12 @@ impl<'a> ConnectApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/connect/client_secrets/{id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 }

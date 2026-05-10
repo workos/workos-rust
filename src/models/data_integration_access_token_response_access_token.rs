@@ -11,7 +11,7 @@ pub struct DataIntegrationAccessTokenResponseAccessToken {
     /// Distinguishes the access token object.
     pub object: String,
     /// The OAuth access token for the connected integration.
-    pub access_token: String,
+    pub access_token: crate::SecretString,
     /// The ISO-8601 formatted timestamp indicating when the access token expires.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub expires_at: Option<String>,

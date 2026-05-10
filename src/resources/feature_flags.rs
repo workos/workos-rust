@@ -174,11 +174,7 @@ impl<'a> FeatureFlagsApi<'a> {
     /// Add a feature flag target
     ///
     /// Enables a feature flag for a specific target in the current environment. Currently, supported targets include users and organizations.
-    pub async fn add_flag_target(
-        &self,
-        resource_id: &str,
-        slug: &str,
-    ) -> Result<serde_json::Value, Error> {
+    pub async fn add_flag_target(&self, resource_id: &str, slug: &str) -> Result<(), Error> {
         self.add_flag_target_with_options(resource_id, slug, None)
             .await
     }
@@ -189,24 +185,20 @@ impl<'a> FeatureFlagsApi<'a> {
         resource_id: &str,
         slug: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let resource_id = crate::client::path_segment(resource_id);
         let slug = crate::client::path_segment(slug);
         let path = format!("/feature-flags/{slug}/targets/{resource_id}");
         let method = http::Method::POST;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
     /// Remove a feature flag target
     ///
     /// Removes a target from the feature flag's target list in the current environment. Currently, supported targets include users and organizations.
-    pub async fn remove_flag_target(
-        &self,
-        resource_id: &str,
-        slug: &str,
-    ) -> Result<serde_json::Value, Error> {
+    pub async fn remove_flag_target(&self, resource_id: &str, slug: &str) -> Result<(), Error> {
         self.remove_flag_target_with_options(resource_id, slug, None)
             .await
     }
@@ -217,13 +209,13 @@ impl<'a> FeatureFlagsApi<'a> {
         resource_id: &str,
         slug: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let resource_id = crate::client::path_segment(resource_id);
         let slug = crate::client::path_segment(slug);
         let path = format!("/feature-flags/{slug}/targets/{resource_id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 

@@ -106,13 +106,13 @@ pub struct GetLogoutUrlParams {
     /// The logout token returned from the [Logout Authorize](https://workos.com/docs/reference/sso/logout/authorize) endpoint.
     ///
     /// Required.
-    pub token: String,
+    pub token: crate::SecretString,
 }
 
 impl GetLogoutUrlParams {
     /// Construct a new `GetLogoutUrlParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(token: impl Into<String>) -> Self {
+    pub fn new(token: impl Into<crate::SecretString>) -> Self {
         Self {
             token: token.into(),
         }
@@ -232,7 +232,7 @@ impl<'a> SSOApi<'a> {
     /// Delete a Connection
     ///
     /// Permanently deletes an existing connection. It cannot be undone.
-    pub async fn delete_connection(&self, id: &str) -> Result<serde_json::Value, Error> {
+    pub async fn delete_connection(&self, id: &str) -> Result<(), Error> {
         self.delete_connection_with_options(id, None).await
     }
 
@@ -241,12 +241,12 @@ impl<'a> SSOApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/connections/{id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
@@ -278,10 +278,7 @@ impl<'a> SSOApi<'a> {
     /// Logout allows to sign out a user from your application by triggering the identity provider sign out flow. This `GET` endpoint should be a redirection, since the identity provider user will be identified in the browser session.
     ///
     /// Before redirecting to this endpoint, you need to generate a short-lived logout token using the [Logout Authorize](https://workos.com/docs/reference/sso/logout/authorize) endpoint.
-    pub async fn get_logout_url(
-        &self,
-        params: GetLogoutUrlParams,
-    ) -> Result<serde_json::Value, Error> {
+    pub async fn get_logout_url(&self, params: GetLogoutUrlParams) -> Result<(), Error> {
         self.get_logout_url_with_options(params, None).await
     }
 
@@ -290,11 +287,11 @@ impl<'a> SSOApi<'a> {
         &self,
         params: GetLogoutUrlParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let path = "/sso/logout".to_string();
         let method = http::Method::GET;
         self.client
-            .request_with_query_opts(method, &path, &params, options)
+            .request_with_query_opts_empty(method, &path, &params, options)
             .await
     }
 

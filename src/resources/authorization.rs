@@ -886,7 +886,7 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         organization_membership_id: &str,
         params: RemoveRoleParams,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.remove_role_with_options(organization_membership_id, params, None)
             .await
     }
@@ -897,14 +897,14 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: &str,
         params: RemoveRoleParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let organization_membership_id = crate::client::path_segment(organization_membership_id);
         let path = format!(
             "/authorization/organization_memberships/{organization_membership_id}/role_assignments"
         );
         let method = http::Method::DELETE;
         self.client
-            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -915,7 +915,7 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         organization_membership_id: &str,
         role_assignment_id: &str,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.remove_role_assignment_with_options(
             organization_membership_id,
             role_assignment_id,
@@ -930,7 +930,7 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: &str,
         role_assignment_id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let organization_membership_id = crate::client::path_segment(organization_membership_id);
         let role_assignment_id = crate::client::path_segment(role_assignment_id);
         let path = format!(
@@ -938,7 +938,7 @@ impl<'a> AuthorizationApi<'a> {
         );
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
@@ -1056,7 +1056,7 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         organization_id: &str,
         slug: &str,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.delete_organization_role_with_options(organization_id, slug, None)
             .await
     }
@@ -1067,13 +1067,13 @@ impl<'a> AuthorizationApi<'a> {
         organization_id: &str,
         slug: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let organization_id = crate::client::path_segment(organization_id);
         let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/organizations/{organization_id}/roles/{slug}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
@@ -1265,7 +1265,7 @@ impl<'a> AuthorizationApi<'a> {
         resource_type_slug: &str,
         external_id: &str,
         params: DeleteResourceByExternalIdParams,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.delete_resource_by_external_id_with_options(
             organization_id,
             resource_type_slug,
@@ -1284,7 +1284,7 @@ impl<'a> AuthorizationApi<'a> {
         external_id: &str,
         params: DeleteResourceByExternalIdParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let organization_id = crate::client::path_segment(organization_id);
         let resource_type_slug = crate::client::path_segment(resource_type_slug);
         let external_id = crate::client::path_segment(external_id);
@@ -1293,7 +1293,7 @@ impl<'a> AuthorizationApi<'a> {
         );
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &params, options)
+            .request_with_query_opts_empty(method, &path, &params, options)
             .await
     }
 
@@ -1585,7 +1585,7 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         resource_id: &str,
         params: DeleteResourceParams,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.delete_resource_with_options(resource_id, params, None)
             .await
     }
@@ -1596,12 +1596,12 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: &str,
         params: DeleteResourceParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let resource_id = crate::client::path_segment(resource_id);
         let path = format!("/authorization/resources/{resource_id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &params, options)
+            .request_with_query_opts_empty(method, &path, &params, options)
             .await
     }
 
@@ -1984,7 +1984,7 @@ impl<'a> AuthorizationApi<'a> {
     /// Delete a permission
     ///
     /// Delete an existing permission. System permissions cannot be deleted.
-    pub async fn delete_permission(&self, slug: &str) -> Result<serde_json::Value, Error> {
+    pub async fn delete_permission(&self, slug: &str) -> Result<(), Error> {
         self.delete_permission_with_options(slug, None).await
     }
 
@@ -1993,12 +1993,12 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         slug: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/permissions/{slug}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 }

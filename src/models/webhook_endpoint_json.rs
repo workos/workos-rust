@@ -14,7 +14,7 @@ pub struct WebhookEndpointJson {
     /// The URL to which webhooks are sent.
     pub endpoint_url: String,
     /// The secret used to sign webhook payloads.
-    pub secret: String,
+    pub secret: crate::SecretString,
     /// Whether the Webhook Endpoint is enabled or disabled.
     pub status: WebhookEndpointJsonStatus,
     /// The events that the Webhook Endpoint is subscribed to.

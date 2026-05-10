@@ -16,9 +16,9 @@ pub struct AuthenticateResponse {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub authkit_authorization_code: Option<String>,
     /// A JWT containing information about the current session.
-    pub access_token: String,
+    pub access_token: crate::SecretString,
     /// [Exchange this token](https://workos.com/docs/reference/authkit/authentication/refresh-token) for a new access token.
-    pub refresh_token: String,
+    pub refresh_token: crate::SecretString,
     /// The authentication method used to initiate the session.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub authentication_method: Option<AuthenticateResponseAuthenticationMethod>,

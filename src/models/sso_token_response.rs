@@ -10,7 +10,7 @@ pub struct SSOTokenResponse {
     /// The type of token issued.
     pub token_type: String,
     /// An access token that can be exchanged for a user profile. Access tokens are short-lived — see the `expires_in` field for the exact lifetime.
-    pub access_token: String,
+    pub access_token: crate::SecretString,
     /// The lifetime of the access token in seconds.
     pub expires_in: i64,
     /// The user profile returned by the identity provider.

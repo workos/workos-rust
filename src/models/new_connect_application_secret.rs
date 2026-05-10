@@ -21,5 +21,5 @@ pub struct NewConnectApplicationSecret {
     /// An ISO 8601 timestamp.
     pub updated_at: String,
     /// The plaintext secret value. Only returned at creation time and cannot be retrieved later.
-    pub secret: String,
+    pub secret: crate::SecretString,
 }

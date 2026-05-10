@@ -160,7 +160,7 @@ impl<'a> PipesApi<'a> {
         user_id: &str,
         slug: &str,
         params: DeleteUserConnectedAccountParams,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.delete_user_connected_account_with_options(user_id, slug, params, None)
             .await
     }
@@ -172,13 +172,13 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: DeleteUserConnectedAccountParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let user_id = crate::client::path_segment(user_id);
         let slug = crate::client::path_segment(slug);
         let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &params, options)
+            .request_with_query_opts_empty(method, &path, &params, options)
             .await
     }
 

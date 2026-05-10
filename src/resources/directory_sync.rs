@@ -154,7 +154,7 @@ impl<'a> DirectorySyncApi<'a> {
     /// Delete a Directory
     ///
     /// Permanently deletes an existing directory. It cannot be undone.
-    pub async fn delete_directory(&self, id: &str) -> Result<serde_json::Value, Error> {
+    pub async fn delete_directory(&self, id: &str) -> Result<(), Error> {
         self.delete_directory_with_options(id, None).await
     }
 
@@ -163,12 +163,12 @@ impl<'a> DirectorySyncApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/directories/{id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 

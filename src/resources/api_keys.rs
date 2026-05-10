@@ -172,7 +172,7 @@ impl<'a> ApiKeysApi<'a> {
     /// Delete an API key
     ///
     /// Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
-    pub async fn delete_api_key(&self, id: &str) -> Result<serde_json::Value, Error> {
+    pub async fn delete_api_key(&self, id: &str) -> Result<(), Error> {
         self.delete_api_key_with_options(id, None).await
     }
 
@@ -181,12 +181,12 @@ impl<'a> ApiKeysApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/api_keys/{id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 }

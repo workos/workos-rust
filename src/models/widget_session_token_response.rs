@@ -8,5 +8,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WidgetSessionTokenResponse {
     /// The widget session token.
-    pub token: String,
+    pub token: crate::SecretString,
 }

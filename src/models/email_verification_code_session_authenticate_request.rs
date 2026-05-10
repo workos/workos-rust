@@ -10,12 +10,12 @@ pub struct EmailVerificationCodeSessionAuthenticateRequest {
     /// The client ID of the application.
     pub client_id: String,
     /// The client secret of the application.
-    pub client_secret: String,
+    pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The email verification code.
     pub code: String,
     /// The pending authentication token from a previous authentication attempt.
-    pub pending_authentication_token: String,
+    pub pending_authentication_token: crate::SecretString,
     /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub ip_address: Option<String>,

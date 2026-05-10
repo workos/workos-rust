@@ -10,10 +10,10 @@ pub struct OrganizationSelectionSessionAuthenticateRequest {
     /// The client ID of the application.
     pub client_id: String,
     /// The client secret of the application.
-    pub client_secret: String,
+    pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The pending authentication token from a previous authentication attempt.
-    pub pending_authentication_token: String,
+    pub pending_authentication_token: crate::SecretString,
     /// The ID of the organization the user selected.
     pub organization_id: String,
     /// The IP address of the user's request.

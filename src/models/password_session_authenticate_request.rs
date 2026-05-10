@@ -10,15 +10,15 @@ pub struct PasswordSessionAuthenticateRequest {
     /// The client ID of the application.
     pub client_id: String,
     /// The client secret of the application.
-    pub client_secret: String,
+    pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The user's email address.
     pub email: String,
     /// The user's password.
-    pub password: String,
+    pub password: crate::SecretString,
     /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub invitation_token: Option<String>,
+    pub invitation_token: Option<crate::SecretString>,
     /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub ip_address: Option<String>,

@@ -24,7 +24,7 @@ pub struct OrganizationDomainDeletedData {
     pub verification_prefix: Option<String>,
     /// Validation token to be used in DNS TXT record.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub verification_token: Option<String>,
+    pub verification_token: Option<crate::SecretString>,
     /// Strategy used to verify the domain.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub verification_strategy: Option<OrganizationDomainDeletedDataVerificationStrategy>,

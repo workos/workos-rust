@@ -30,10 +30,10 @@ pub struct UpdateUser {
     pub locale: Option<String>,
     /// The password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub password: Option<String>,
+    pub password: Option<crate::SecretString>,
     /// The hashed password to set for the user. Required with `password_hash_type`. Mutually exclusive with `password`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub password_hash: Option<String>,
+    pub password_hash: Option<crate::SecretString>,
     /// The algorithm originally used to hash the password, used when providing a `password_hash`. Required with `password_hash`. Mutually exclusive with `password`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub password_hash_type: Option<UpdateUserPasswordHashType>,

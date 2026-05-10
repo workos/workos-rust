@@ -18,5 +18,5 @@ pub struct EnrollUserAuthenticationFactor {
     pub totp_user: Option<String>,
     /// The Base32-encoded shared secret for TOTP factors. This can be provided when creating the auth factor, otherwise it will be generated. The algorithm used to derive TOTP codes is SHA-1, the code length is 6 digits, and the timestep is 30 seconds – the secret must be compatible with these parameters.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub totp_secret: Option<String>,
+    pub totp_secret: Option<crate::SecretString>,
 }

@@ -10,7 +10,7 @@ pub struct TokenQuery {
     /// The client ID of the WorkOS environment.
     pub client_id: String,
     /// The client secret of the WorkOS environment.
-    pub client_secret: String,
+    pub client_secret: crate::SecretString,
     /// The authorization code received from the authorization callback.
     pub code: String,
     /// The grant type for the token request.

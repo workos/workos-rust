@@ -11,5 +11,5 @@ pub struct CreateMagicCodeAndReturn {
     pub email: String,
     /// The invitation token to associate with this magic code.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub invitation_token: Option<String>,
+    pub invitation_token: Option<crate::SecretString>,
 }

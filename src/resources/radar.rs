@@ -107,11 +107,7 @@ impl<'a> RadarApi<'a> {
     /// Update a Radar attempt
     ///
     /// You may optionally inform Radar that an authentication attempt or challenge was successful using this endpoint. Some Radar controls depend on tracking recent successful attempts, such as impossible travel.
-    pub async fn update_attempt(
-        &self,
-        id: &str,
-        params: UpdateAttemptParams,
-    ) -> Result<serde_json::Value, Error> {
+    pub async fn update_attempt(&self, id: &str, params: UpdateAttemptParams) -> Result<(), Error> {
         self.update_attempt_with_options(id, params, None).await
     }
 
@@ -121,12 +117,12 @@ impl<'a> RadarApi<'a> {
         id: &str,
         params: UpdateAttemptParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/radar/attempts/{id}");
         let method = http::Method::PUT;
         self.client
-            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -168,7 +164,7 @@ impl<'a> RadarApi<'a> {
         type_: &str,
         action: &str,
         params: RemoveListEntryParams,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.remove_list_entry_with_options(type_, action, params, None)
             .await
     }
@@ -180,13 +176,13 @@ impl<'a> RadarApi<'a> {
         action: &str,
         params: RemoveListEntryParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let type_ = crate::client::path_segment(type_);
         let action = crate::client::path_segment(action);
         let path = format!("/radar/lists/{type_}/{action}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
             .await
     }
 }

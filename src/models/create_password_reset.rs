@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreatePasswordReset {
     /// The password reset token.
-    pub token: String,
+    pub token: crate::SecretString,
     /// The new password to set for the user.
-    pub new_password: String,
+    pub new_password: crate::SecretString,
 }

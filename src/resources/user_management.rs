@@ -21,10 +21,10 @@ pub struct AuthenticateWithPasswordParams {
     /// The user's password.
     ///
     /// Required.
-    pub password: String,
+    pub password: crate::SecretString,
     /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub invitation_token: Option<String>,
+    pub invitation_token: Option<crate::SecretString>,
     /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
@@ -38,7 +38,7 @@ pub struct AuthenticateWithPasswordParams {
 
 impl AuthenticateWithPasswordParams {
     /// Construct a new `AuthenticateWithPasswordParams` with the required fields set.
-    pub fn new(email: impl Into<String>, password: impl Into<String>) -> Self {
+    pub fn new(email: impl Into<String>, password: impl Into<crate::SecretString>) -> Self {
         Self {
             email: email.into(),
             password: password.into(),
@@ -61,7 +61,7 @@ pub struct AuthenticateWithCodeParams {
     pub code_verifier: Option<String>,
     /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub invitation_token: Option<String>,
+    pub invitation_token: Option<crate::SecretString>,
     /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
@@ -92,7 +92,7 @@ pub struct AuthenticateWithRefreshTokenParams {
     /// The refresh token to exchange for new tokens.
     ///
     /// Required.
-    pub refresh_token: String,
+    pub refresh_token: crate::SecretString,
     /// The ID of the organization to scope the session to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
@@ -109,7 +109,7 @@ pub struct AuthenticateWithRefreshTokenParams {
 
 impl AuthenticateWithRefreshTokenParams {
     /// Construct a new `AuthenticateWithRefreshTokenParams` with the required fields set.
-    pub fn new(refresh_token: impl Into<String>) -> Self {
+    pub fn new(refresh_token: impl Into<crate::SecretString>) -> Self {
         Self {
             refresh_token: refresh_token.into(),
             organization_id: Default::default(),
@@ -127,7 +127,7 @@ pub struct AuthenticateWithMagicAuthParams {
     /// Required.
     pub email: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub invitation_token: Option<String>,
+    pub invitation_token: Option<crate::SecretString>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -155,7 +155,7 @@ pub struct AuthenticateWithEmailVerificationParams {
     /// Required.
     pub code: String,
     /// Required.
-    pub pending_authentication_token: String,
+    pub pending_authentication_token: crate::SecretString,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -166,7 +166,10 @@ pub struct AuthenticateWithEmailVerificationParams {
 
 impl AuthenticateWithEmailVerificationParams {
     /// Construct a new `AuthenticateWithEmailVerificationParams` with the required fields set.
-    pub fn new(code: impl Into<String>, pending_authentication_token: impl Into<String>) -> Self {
+    pub fn new(
+        code: impl Into<String>,
+        pending_authentication_token: impl Into<crate::SecretString>,
+    ) -> Self {
         Self {
             code: code.into(),
             pending_authentication_token: pending_authentication_token.into(),
@@ -182,7 +185,7 @@ pub struct AuthenticateWithTotpParams {
     /// Required.
     pub code: String,
     /// Required.
-    pub pending_authentication_token: String,
+    pub pending_authentication_token: crate::SecretString,
     /// Required.
     pub authentication_challenge_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -197,7 +200,7 @@ impl AuthenticateWithTotpParams {
     /// Construct a new `AuthenticateWithTotpParams` with the required fields set.
     pub fn new(
         code: impl Into<String>,
-        pending_authentication_token: impl Into<String>,
+        pending_authentication_token: impl Into<crate::SecretString>,
         authentication_challenge_id: impl Into<String>,
     ) -> Self {
         Self {
@@ -214,7 +217,7 @@ impl AuthenticateWithTotpParams {
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithOrganizationSelectionParams {
     /// Required.
-    pub pending_authentication_token: String,
+    pub pending_authentication_token: crate::SecretString,
     /// Required.
     pub organization_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -228,7 +231,7 @@ pub struct AuthenticateWithOrganizationSelectionParams {
 impl AuthenticateWithOrganizationSelectionParams {
     /// Construct a new `AuthenticateWithOrganizationSelectionParams` with the required fields set.
     pub fn new(
-        pending_authentication_token: impl Into<String>,
+        pending_authentication_token: impl Into<crate::SecretString>,
         organization_id: impl Into<String>,
     ) -> Self {
         Self {
@@ -287,7 +290,7 @@ pub struct GetAuthorizationUrlParams {
     pub provider_scopes: Option<Vec<String>>,
     /// A token representing a user invitation to redeem during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub invitation_token: Option<String>,
+    pub invitation_token: Option<crate::SecretString>,
     /// Used to specify which screen to display when the provider is `authkit`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub screen_hint: Option<UserManagementAuthenticationScreenHint>,
@@ -1103,7 +1106,7 @@ impl<'a> UserManagementApi<'a> {
     pub async fn get_authorization_url(
         &self,
         params: GetAuthorizationUrlParams,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.get_authorization_url_with_options(params, None).await
     }
 
@@ -1112,11 +1115,11 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: GetAuthorizationUrlParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let path = "/user_management/authorize".to_string();
         let method = http::Method::GET;
         self.client
-            .request_with_query_opts(method, &path, &params, options)
+            .request_with_query_opts_empty(method, &path, &params, options)
             .await
     }
 
@@ -1146,10 +1149,7 @@ impl<'a> UserManagementApi<'a> {
     /// Logout
     ///
     /// Logout a user from the current [session](https://workos.com/docs/reference/authkit/session).
-    pub async fn get_logout_url(
-        &self,
-        params: GetLogoutUrlParams,
-    ) -> Result<serde_json::Value, Error> {
+    pub async fn get_logout_url(&self, params: GetLogoutUrlParams) -> Result<(), Error> {
         self.get_logout_url_with_options(params, None).await
     }
 
@@ -1158,21 +1158,18 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: GetLogoutUrlParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let path = "/user_management/sessions/logout".to_string();
         let method = http::Method::GET;
         self.client
-            .request_with_query_opts(method, &path, &params, options)
+            .request_with_query_opts_empty(method, &path, &params, options)
             .await
     }
 
     /// Revoke Session
     ///
     /// Revoke a [user session](https://workos.com/docs/reference/authkit/session).
-    pub async fn revoke_session(
-        &self,
-        params: RevokeSessionParams,
-    ) -> Result<serde_json::Value, Error> {
+    pub async fn revoke_session(&self, params: RevokeSessionParams) -> Result<(), Error> {
         self.revoke_session_with_options(params, None).await
     }
 
@@ -1181,11 +1178,11 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: RevokeSessionParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let path = "/user_management/sessions/revoke".to_string();
         let method = http::Method::POST;
         self.client
-            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -1432,7 +1429,7 @@ impl<'a> UserManagementApi<'a> {
     /// Delete a user
     ///
     /// Permanently deletes a user in the current environment. It cannot be undone.
-    pub async fn delete_user(&self, id: &str) -> Result<serde_json::Value, Error> {
+    pub async fn delete_user(&self, id: &str) -> Result<(), Error> {
         self.delete_user_with_options(id, None).await
     }
 
@@ -1441,12 +1438,12 @@ impl<'a> UserManagementApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
@@ -1945,10 +1942,7 @@ impl<'a> UserManagementApi<'a> {
     /// Delete an organization membership
     ///
     /// Permanently deletes an existing organization membership. It cannot be undone.
-    pub async fn delete_organization_membership(
-        &self,
-        id: &str,
-    ) -> Result<serde_json::Value, Error> {
+    pub async fn delete_organization_membership(&self, id: &str) -> Result<(), Error> {
         self.delete_organization_membership_with_options(id, None)
             .await
     }
@@ -1958,12 +1952,12 @@ impl<'a> UserManagementApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/user_management/organization_memberships/{id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
@@ -2114,7 +2108,7 @@ impl<'a> UserManagementApi<'a> {
         &self,
         application_id: &str,
         user_id: &str,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.delete_user_authorized_application_with_options(application_id, user_id, None)
             .await
     }
@@ -2125,14 +2119,14 @@ impl<'a> UserManagementApi<'a> {
         application_id: &str,
         user_id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let application_id = crate::client::path_segment(application_id);
         let user_id = crate::client::path_segment(user_id);
         let path =
             format!("/user_management/users/{user_id}/authorized_applications/{application_id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 

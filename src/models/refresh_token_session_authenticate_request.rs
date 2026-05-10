@@ -10,10 +10,10 @@ pub struct RefreshTokenSessionAuthenticateRequest {
     /// The client ID of the application.
     pub client_id: String,
     /// The client secret of the application.
-    pub client_secret: String,
+    pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The refresh token to exchange for new tokens.
-    pub refresh_token: String,
+    pub refresh_token: crate::SecretString,
     /// The ID of the organization to scope the session to.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub organization_id: Option<String>,

@@ -244,7 +244,7 @@ impl<'a> GroupsApi<'a> {
         &self,
         organization_id: &str,
         group_id: &str,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.delete_organization_group_with_options(organization_id, group_id, None)
             .await
     }
@@ -255,13 +255,13 @@ impl<'a> GroupsApi<'a> {
         organization_id: &str,
         group_id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let organization_id = crate::client::path_segment(organization_id);
         let group_id = crate::client::path_segment(group_id);
         let path = format!("/organizations/{organization_id}/groups/{group_id}");
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
@@ -378,7 +378,7 @@ impl<'a> GroupsApi<'a> {
         organization_id: &str,
         group_id: &str,
         om_id: &str,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         self.delete_group_organization_membership_with_options(
             organization_id,
             group_id,
@@ -395,7 +395,7 @@ impl<'a> GroupsApi<'a> {
         group_id: &str,
         om_id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<serde_json::Value, Error> {
+    ) -> Result<(), Error> {
         let organization_id = crate::client::path_segment(organization_id);
         let group_id = crate::client::path_segment(group_id);
         let om_id = crate::client::path_segment(om_id);
@@ -404,7 +404,7 @@ impl<'a> GroupsApi<'a> {
         );
         let method = http::Method::DELETE;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 }

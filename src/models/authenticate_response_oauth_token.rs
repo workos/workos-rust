@@ -11,9 +11,9 @@ pub struct AuthenticateResponseOAuthToken {
     /// The OAuth provider used for authentication.
     pub provider: String,
     /// The refresh token from the OAuth provider.
-    pub refresh_token: String,
+    pub refresh_token: crate::SecretString,
     /// The access token from the OAuth provider.
-    pub access_token: String,
+    pub access_token: crate::SecretString,
     /// The timestamp at which the access token expires.
     pub expires_at: i64,
     /// A list of OAuth scopes for which the access token is authorized.
