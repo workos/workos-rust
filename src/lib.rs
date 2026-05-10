@@ -59,7 +59,7 @@ pub mod resources_api;
 pub mod secret;
 pub mod transport;
 
-pub use client::{Client, ClientBuilder, DEFAULT_BASE_URL, RequestOptions};
+pub use client::{Client, ClientBuilder, DEFAULT_BASE_URL, RequestOptions, RequestStrategy};
 pub use enums::*;
 pub use error::{ApiError, Error};
 pub use helpers::*;
