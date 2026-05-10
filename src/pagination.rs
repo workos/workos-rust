@@ -54,3 +54,25 @@ where
     })
     .try_flatten()
 }
+
+/// Lower-level cursor-pagination driver. Generated `*_auto_paging` methods
+/// route through this helper because their endpoint-specific response types
+/// don't always shape-match [`Page<T>`]; the closure decomposes a response
+/// into `(items, next_after_cursor)` and the helper handles the rest.
+pub(crate) fn auto_paginate_pages<T, F, Fut>(fetch: F) -> impl Stream<Item = Result<T, Error>>
+where
+    F: FnMut(Option<String>) -> Fut,
+    Fut: Future<Output = Result<(Vec<T>, Option<String>), Error>>,
+{
+    let init: (Option<Option<String>>, F) = (Some(None), fetch);
+    stream::try_unfold(init, |(cursor, mut fetch)| async move {
+        let Some(after) = cursor else {
+            return Ok::<_, Error>(None);
+        };
+        let (data, next_after) = fetch(after).await?;
+        let next_cursor = next_after.map(Some);
+        let chunk = stream::iter(data.into_iter().map(Ok::<T, Error>));
+        Ok(Some((chunk, (next_cursor, fetch))))
+    })
+    .try_flatten()
+}

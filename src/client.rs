@@ -25,19 +25,51 @@ pub struct RequestOptions {
 }
 
 impl RequestOptions {
+    /// Construct an empty [`RequestOptions`]. Equivalent to [`Default::default`].
+    ///
+    /// ```
+    /// use workos::RequestOptions;
+    /// let opts = RequestOptions::new().idempotency_key("ik_42");
+    /// # let _ = opts;
+    /// ```
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Set the `Idempotency-Key` header for this request. Pass the same key
+    /// when retrying a mutating request to make it safe to repeat — WorkOS
+    /// recognises the key on the server side and returns the cached response
+    /// for previously-seen calls instead of re-executing the side effect.
     pub fn idempotency_key(mut self, key: impl Into<String>) -> Self {
         self.idempotency_key = Some(key.into());
         self
     }
 
+    /// Append an arbitrary header to this request. Later entries with the
+    /// same name override earlier ones; entries here override the client's
+    /// default headers when names collide.
     pub fn header(mut self, name: HeaderName, value: HeaderValue) -> Self {
         self.extra_headers.push((name, value));
         self
     }
+}
+
+/// Percent-encode a single URL path segment per RFC 3986. Used by generated
+/// resource code to safely interpolate dynamic path parameters into request
+/// URLs without letting reserved characters (`/`, `?`, `#`, spaces, etc.)
+/// escape the segment they belong to.
+#[doc(hidden)]
+pub fn path_segment(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for &b in s.as_bytes() {
+        match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
+                out.push(b as char);
+            }
+            _ => out.push_str(&format!("%{b:02X}")),
+        }
+    }
+    out
 }
 
 /// Default base URL. Override via [`ClientBuilder::base_url`].

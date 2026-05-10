@@ -135,7 +135,12 @@ pub enum Error {
 }
 
 impl Error {
-    /// Returns the structured API error payload, when this is an API error.
+    /// Returns the structured API error payload when this is an API error
+    /// ([`Error::Api`]), or `None` for transport/decode/builder errors.
+    ///
+    /// Use this to read fields the convenience accessors don't expose, e.g.
+    /// the full [`ApiError::headers`] map or the [`ApiError::raw_body`]
+    /// bytes.
     pub fn api(&self) -> Option<&ApiError> {
         match self {
             Error::Api(e) => Some(e),
@@ -143,34 +148,45 @@ impl Error {
         }
     }
 
+    /// HTTP status code on an API error. `None` for non-API errors.
     pub fn status(&self) -> Option<u16> {
         self.api().map(|e| e.status)
     }
 
+    /// WorkOS error code from the response body, when present (e.g.
+    /// `"organization_not_found"`).
     pub fn code(&self) -> Option<&str> {
         self.api().and_then(|e| e.code.as_deref())
     }
 
+    /// `x-request-id` header value from the failing response. Always include
+    /// this when reporting bugs to WorkOS.
     pub fn request_id(&self) -> Option<&str> {
         self.api().and_then(|e| e.request_id.as_deref())
     }
 
+    /// `Retry-After` interval parsed as a [`Duration`], when present. Common
+    /// on `429` and `503` responses; respect this before retrying.
     pub fn retry_after(&self) -> Option<Duration> {
         self.api().and_then(|e| e.retry_after)
     }
 
+    /// `true` for HTTP 401 responses.
     pub fn is_unauthorized(&self) -> bool {
         matches!(self.status(), Some(401))
     }
 
+    /// `true` for HTTP 404 responses.
     pub fn is_not_found(&self) -> bool {
         matches!(self.status(), Some(404))
     }
 
+    /// `true` for HTTP 429 responses.
     pub fn is_rate_limited(&self) -> bool {
         matches!(self.status(), Some(429))
     }
 
+    /// `true` for any 5xx HTTP response.
     pub fn is_server_error(&self) -> bool {
         matches!(self.status(), Some(s) if (500..=599).contains(&s))
     }
