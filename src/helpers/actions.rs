@@ -98,10 +98,12 @@ impl ActionsHelper {
             return Err(Error::Webhook("webhook not signed".to_string()));
         }
         let (timestamp, signature) = parse_webhook_signature_header(sig_header)?;
-        let ts: i64 = timestamp
+        let ts: u64 = timestamp
             .parse()
             .map_err(|_| Error::Webhook("invalid timestamp in signature header".to_string()))?;
-        let signed_at = UNIX_EPOCH + Duration::from_millis(ts as u64);
+        let signed_at = UNIX_EPOCH
+            .checked_add(Duration::from_millis(ts))
+            .ok_or_else(|| Error::Webhook("invalid timestamp in signature header".to_string()))?;
         let now = (self.now)();
         let diff = match now.duration_since(signed_at) {
             Ok(d) => d,

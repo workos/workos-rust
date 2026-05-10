@@ -82,8 +82,7 @@ struct JwtClaims {
     permissions: Vec<String>,
     #[serde(default)]
     entitlements: Vec<String>,
-    #[serde(default)]
-    exp: i64,
+    exp: Option<i64>,
 }
 
 /// Wrapper for an existing sealed session cookie.
@@ -140,11 +139,17 @@ impl<'a> SessionManager<'a> {
             }
         };
 
+        let Some(exp) = claims.exp else {
+            return SessionState {
+                reason: "invalid_jwt".to_string(),
+                ..Default::default()
+            };
+        };
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map(|d| d.as_secs() as i64)
             .unwrap_or(0);
-        if claims.exp != 0 && now > claims.exp {
+        if now > exp {
             return SessionState {
                 authenticated: false,
                 needs_refresh: true,
@@ -230,7 +235,9 @@ impl<'a> SessionManager<'a> {
             Ok(r) => r,
             Err(e) => {
                 let reason = match e.api() {
-                    Some(api) if api.status == 401 && api.message.contains("invalid_grant") => {
+                    Some(api)
+                        if api.status == 401 && api.code.as_deref() == Some("invalid_grant") =>
+                    {
                         "refresh_token_revoked"
                     }
                     _ => "refresh_failed",
@@ -448,7 +455,7 @@ mod tests {
         let token = format!("h.{payload}.s");
         let claims = parse_jwt_payload(&token).unwrap();
         assert_eq!(claims.sid, "sess_1");
-        assert_eq!(claims.exp, 9_999_999_999);
+        assert_eq!(claims.exp, Some(9_999_999_999));
     }
 
     #[test]

@@ -228,6 +228,20 @@ impl<'a> VaultApi<'a> {
     }
 
     /// Generates a fresh data key and locally encrypts `data` with AES-256-GCM.
+    ///
+    /// # Security
+    ///
+    /// `associated_data` is the **only** binding between the ciphertext
+    /// envelope and the calling application: the encrypted-key prefix
+    /// (`encrypted_keys` and its LEB128 length) sits **outside** the
+    /// AEAD-authenticated region. Callers MUST pass an `associated_data`
+    /// value that is unique per record and unguessable to an attacker
+    /// with write access to the ciphertext store (e.g., the immutable
+    /// record id mixed with an environment-scoped secret). A constant or
+    /// empty value lets an attacker who can replace stored bytes
+    /// substitute a separately-generated envelope — including their own
+    /// `encrypted_keys` and ciphertext — under the same context, and
+    /// `decrypt` will succeed against the attacker-controlled plaintext.
     pub async fn encrypt(
         &self,
         data: &str,
@@ -249,6 +263,14 @@ impl<'a> VaultApi<'a> {
 
     /// Decrypts data previously encrypted with [`Self::encrypt`]. Calls the API to
     /// decrypt the data key, then performs local AES-GCM decryption.
+    ///
+    /// # Security
+    ///
+    /// `associated_data` is the only authenticated binding between this
+    /// envelope and the calling application — see [`Self::encrypt`] for
+    /// the full requirement. If the value passed here is not unique per
+    /// record and unguessable, a successful return does **not** prove
+    /// that the stored bytes were authored by this application.
     pub async fn decrypt(
         &self,
         encrypted_data: &str,
@@ -385,7 +407,17 @@ fn decode_leb128(buf: &[u8]) -> Result<(u32, usize), Error> {
     let mut result: u32 = 0;
     let mut shift: u32 = 0;
     for (i, &b) in buf.iter().enumerate() {
-        result |= ((b & 0x7f) as u32) << shift;
+        let chunk = (b & 0x7f) as u32;
+        // The 5th byte (`shift == 28`) of a u32 LEB128 may only set its
+        // lowest 4 data bits; bits 4-6 would overflow u32. Without this
+        // check the shift would silently drop those bits, accepting
+        // non-canonical encodings.
+        if shift == 28 && (chunk >> 4) != 0 {
+            return Err(Error::VaultCrypto(
+                "LEB128 value too large for uint32".to_string(),
+            ));
+        }
+        result |= chunk << shift;
         if b & 0x80 == 0 {
             return Ok((result, i + 1));
         }

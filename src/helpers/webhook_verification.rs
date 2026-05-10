@@ -49,10 +49,12 @@ impl WebhookVerifier {
 
         let (timestamp, signature) = parse_webhook_signature_header(sig_header)?;
 
-        let ts: i64 = timestamp
+        let ts: u64 = timestamp
             .parse()
             .map_err(|_| Error::Webhook("invalid timestamp in signature header".to_string()))?;
-        let signed_at = UNIX_EPOCH + Duration::from_millis(ts as u64);
+        let signed_at = UNIX_EPOCH
+            .checked_add(Duration::from_millis(ts))
+            .ok_or_else(|| Error::Webhook("invalid timestamp in signature header".to_string()))?;
         let now = (self.now)();
         let diff = match now.duration_since(signed_at) {
             Ok(d) => d,
@@ -107,7 +109,14 @@ pub fn parse_webhook_signature_header(header: &str) -> Result<(String, String), 
         match k.trim() {
             "t" => timestamp = v.trim().to_string(),
             "v1" => signature = v.trim().to_string(),
-            _ => {}
+            // Reject unknown components so the addition of a stronger scheme
+            // (e.g. `v2=`) cannot be silently ignored, which would let an
+            // attacker downgrade verification to a weakened older scheme.
+            _ => {
+                return Err(Error::Webhook(
+                    "unknown webhook signature component".to_string(),
+                ));
+            }
         }
     }
 
