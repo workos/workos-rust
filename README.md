@@ -63,6 +63,8 @@ let client = workos::Client::new(std::env::var("WORKOS_API_KEY").unwrap());
 | `.user_agent(_)`  | Override the `User-Agent` header.                                   |
 | `.transport(_)`   | Plug in a custom `HttpTransport`.                                   |
 
+`build()` panics if the supplied API key or user-agent contains bytes that aren't valid in an HTTP header. Use `.try_build()` to surface those failures as `Err(workos::Error::Builder(_))` instead — useful when the API key comes from untrusted input.
+
 The client is cheap to clone and can be shared across handlers and tasks.
 
 ## API Access
@@ -83,9 +85,27 @@ Every API call returns `Result<_, workos::Error>`. The error type includes API e
 
 See the [crate docs](https://docs.rs/workos) for the full resource list, request and response types, pagination details, and helper APIs.
 
+### Forward-compatible enums
+
+Generated enums are `#[non_exhaustive]` and include an `Unknown(String)` variant for wire values the SDK doesn't recognize yet — WorkOS can add new enum values server-side without breaking deserialization for older SDK builds. Match defensively:
+
+```rust
+use workos::ConnectionType;
+
+match connection.r#type {
+    ConnectionType::GoogleOAuth => { /* ... */ }
+    ConnectionType::Unknown(raw) => {
+        log::warn!("unknown connection type: {raw}");
+    }
+    _ => { /* ... */ }
+}
+```
+
+The original wire string is preserved through round-trips: serializing an `Unknown("FooBar")` re-emits `"FooBar"` verbatim. Each enum also implements `Display`, `FromStr` (infallible), and `AsRef<str>` for ergonomic conversions.
+
 ## Per-Request Options
 
-Each generated method has a `*_with_options` companion that takes a `RequestOptions`. Use it to pass an idempotency key, additional headers, or any other per-call override:
+Each generated method has a `*_with_options` companion that takes a `RequestOptions`. Use it to pass an idempotency key, additional headers, or a per-request retry policy:
 
 ```rust
 use workos::{RequestOptions, organizations::CreateOrganizationParams};
@@ -105,6 +125,30 @@ let org = client
 ```
 
 Replaying a mutating request with the same idempotency key is safe; WorkOS recognises the key on the server side.
+
+### Request strategies
+
+For finer-grained control, attach a `RequestStrategy` to override the client's default retry behavior on a single call:
+
+```rust
+use workos::{RequestOptions, RequestStrategy};
+
+// Send exactly once, regardless of `max_retries`:
+let opts = RequestOptions::new().strategy(RequestStrategy::Once);
+
+// Make a mutation idempotent and retry-eligible (the key is also sent
+// as the `Idempotency-Key` header):
+let opts = RequestOptions::new()
+    .strategy(RequestStrategy::Idempotent("ik_42".into()));
+
+// Custom retry budget with jitter:
+let opts = RequestOptions::new().strategy(RequestStrategy::ExponentialBackoff {
+    max_attempts: 5,
+    jitter: true,
+});
+```
+
+Variants: `Once`, `Idempotent(key)`, `Retry { max_attempts }`, `ExponentialBackoff { max_attempts, jitter }`.
 
 ## Errors
 
@@ -131,18 +175,31 @@ match client.organizations().get_organization("org_missing").await {
 
 `err.api()` returns the full `ApiError` with the raw response headers and body for advanced debugging.
 
-## Retries
+## Sensitive Fields
 
-The client retries `429` and `5xx` responses, plus retryable transport errors, up to `max_retries` times (default `3`) with exponential backoff. Set `0` to disable:
+Fields that hold credentials or tokens — `password`, `client_secret`, `access_token`, `refresh_token`, `token`, `secret`, etc. — are typed as `workos::SecretString`. Their `Debug` representation prints `"<redacted>"`, so secrets don't leak through logs, panic messages, or error reports. Read the underlying value with `.expose()` when you genuinely need it:
 
 ```rust
+let token: &str = session.access_token.expose();
+```
+
+`SecretString` serializes transparently as a JSON string, so the wire format is unchanged. Constructors that accept a sensitive parameter take `impl Into<SecretString>` — passing a `String` or `&str` works without an explicit conversion.
+
+## Retries
+
+The client retries `429` and `5xx` responses (plus retryable transport errors) up to `max_retries` times — default `3` — with exponential backoff and equal-jitter. The `Retry-After` header is honored when present and supersedes the computed backoff.
+
+To preserve at-most-once semantics for state-changing calls, only safe HTTP methods (`GET`/`HEAD`/`OPTIONS`) and requests carrying an `Idempotency-Key` are auto-retried. POST/PUT/PATCH/DELETE without an idempotency key are sent exactly once.
+
+```rust
+// Disable retries entirely for this client:
 let client = workos::Client::builder()
     .api_key(std::env::var("WORKOS_API_KEY").unwrap())
     .max_retries(0)
     .build();
 ```
 
-Pair retries with an idempotency key when the request mutates state, so a redelivered request is processed exactly once.
+Pair mutations with an idempotency key (or `RequestStrategy::Idempotent`) so a redelivered request is processed exactly once on the server.
 
 ## Auto-Paging
 
