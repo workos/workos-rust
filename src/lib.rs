@@ -56,6 +56,7 @@ pub mod models;
 pub mod pagination;
 pub mod resources;
 pub mod resources_api;
+pub mod secret;
 pub mod transport;
 
 pub use client::{Client, ClientBuilder, DEFAULT_BASE_URL, RequestOptions};
@@ -65,3 +66,4 @@ pub use helpers::*;
 pub use models::*;
 pub use pagination::{ListMetadata, Page, auto_paginate};
 pub use resources::*;
+pub use secret::SecretString;

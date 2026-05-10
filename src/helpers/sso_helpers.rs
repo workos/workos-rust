@@ -175,7 +175,7 @@ impl<'a> SsoHelper<'a> {
             .map_err(|e| Error::Builder(format!("invalid base URL: {e}")))?;
         {
             let mut q = url.query_pairs_mut();
-            q.append_pair("token", &resp.logout_token);
+            q.append_pair("token", resp.logout_token.expose());
             if let Some(v) = &params.return_to {
                 q.append_pair("return_to", v);
             }

@@ -21,12 +21,17 @@ use serde::{Deserialize, Serialize};
 use crate::client::Client;
 use crate::error::Error;
 use crate::models::{AuthenticateResponseImpersonator, User};
+use crate::secret::SecretString;
 
 /// Unsealed session cookie payload.
+///
+/// Tokens are wrapped in [`SecretString`] so they don't leak through the
+/// default `Debug` representation. Use [`SecretString::expose`] when the raw
+/// value is required (e.g. parsing JWT claims out of the access token).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SessionData {
-    pub access_token: String,
-    pub refresh_token: String,
+    pub access_token: SecretString,
+    pub refresh_token: SecretString,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub user: Option<User>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -123,13 +128,13 @@ impl<'a> SessionManager<'a> {
                 };
             }
         };
-        if session.access_token.is_empty() {
+        if session.access_token.expose().is_empty() {
             return SessionState {
                 reason: "invalid_jwt".to_string(),
                 ..Default::default()
             };
         }
-        let claims = match parse_jwt_payload(&session.access_token) {
+        let claims = match parse_jwt_payload(session.access_token.expose()) {
             Ok(c) => c,
             Err(_) => {
                 return SessionState {
@@ -202,7 +207,7 @@ impl<'a> SessionManager<'a> {
                 });
             }
         };
-        if session.refresh_token.is_empty() {
+        if session.refresh_token.expose().is_empty() {
             return Ok(SessionRefreshResult {
                 authenticated: false,
                 sealed_session: String::new(),
@@ -215,7 +220,7 @@ impl<'a> SessionManager<'a> {
             .ok_or_else(|| Error::Builder("client is required for session refresh".to_string()))?;
 
         let org_id = opts.organization_id.or_else(|| {
-            parse_jwt_payload(&session.access_token)
+            parse_jwt_payload(session.access_token.expose())
                 .ok()
                 .and_then(|c| (!c.org_id.is_empty()).then_some(c.org_id))
         });
@@ -322,8 +327,8 @@ pub fn unseal_session(sealed: &str, password: &str) -> Result<SessionData, Error
 
 /// Build a sealed session from raw token + user fields.
 pub fn seal_session_from_auth_response(
-    access_token: impl Into<String>,
-    refresh_token: impl Into<String>,
+    access_token: impl Into<SecretString>,
+    refresh_token: impl Into<SecretString>,
     user: Option<User>,
     impersonator: Option<AuthenticateResponseImpersonator>,
     password: &str,
@@ -464,8 +469,8 @@ mod tests {
             URL_SAFE_NO_PAD.encode(br#"{"sid":"sess_1","org_id":"org_1","exp":9999999999}"#);
         let token = format!("h.{payload}.s");
         let session = SessionData {
-            access_token: token,
-            refresh_token: "r".to_string(),
+            access_token: token.into(),
+            refresh_token: "r".into(),
             user: None,
             impersonator: None,
         };
@@ -481,8 +486,8 @@ mod tests {
         let payload = URL_SAFE_NO_PAD.encode(br#"{"sid":"sess_1","exp":1}"#);
         let token = format!("h.{payload}.s");
         let session = SessionData {
-            access_token: token,
-            refresh_token: "r".to_string(),
+            access_token: token.into(),
+            refresh_token: "r".into(),
             user: None,
             impersonator: None,
         };
