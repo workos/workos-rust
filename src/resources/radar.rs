@@ -122,6 +122,7 @@ impl<'a> RadarApi<'a> {
         params: UpdateAttemptParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/radar/attempts/{id}");
         let method = http::Method::PUT;
         self.client
@@ -150,6 +151,8 @@ impl<'a> RadarApi<'a> {
         params: AddListEntryParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<RadarListEntryAlreadyPresentResponse, Error> {
+        let type_ = crate::client::path_segment(type_);
+        let action = crate::client::path_segment(action);
         let path = format!("/radar/lists/{type_}/{action}");
         let method = http::Method::POST;
         self.client
@@ -178,6 +181,8 @@ impl<'a> RadarApi<'a> {
         params: RemoveListEntryParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let type_ = crate::client::path_segment(type_);
+        let action = crate::client::path_segment(action);
         let path = format!("/radar/lists/{type_}/{action}");
         let method = http::Method::DELETE;
         self.client

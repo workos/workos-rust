@@ -10,13 +10,18 @@ async fn directory_sync_list_directories_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directories"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/directory_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.directory_sync();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .directory_sync()
+        .list_directories(workos::directory_sync::ListDirectoriesParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +29,14 @@ async fn directory_sync_get_directory_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directories/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/directory.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.directory_sync();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.directory_sync().get_directory("test_id").await;
 }
 
 #[tokio::test]
@@ -39,12 +45,11 @@ async fn directory_sync_delete_directory_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/directories/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.directory_sync();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.directory_sync().delete_directory("test_id").await;
 }
 
 #[tokio::test]
@@ -52,13 +57,18 @@ async fn directory_sync_list_groups_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directory_groups"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/directory_group_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.directory_sync();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .directory_sync()
+        .list_groups(workos::directory_sync::ListGroupsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -66,13 +76,15 @@ async fn directory_sync_get_group_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directory_groups/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/directory_group.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.directory_sync();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.directory_sync().get_group("test_id").await;
 }
 
 #[tokio::test]
@@ -80,13 +92,18 @@ async fn directory_sync_list_users_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directory_users"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/directory_user_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.directory_sync();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .directory_sync()
+        .list_users(workos::directory_sync::ListUsersParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -94,11 +111,13 @@ async fn directory_sync_get_user_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directory_users/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/directory_user_with_groups.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.directory_sync();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.directory_sync().get_user("test_id").await;
 }

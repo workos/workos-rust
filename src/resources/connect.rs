@@ -48,7 +48,7 @@ pub struct ListApplicationsParams {
     pub organization_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CreateOAuthApplicationParams {
     /// The name of the application.
     ///
@@ -75,7 +75,22 @@ pub struct CreateOAuthApplicationParams {
     pub organization_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl CreateOAuthApplicationParams {
+    /// Construct a new `CreateOAuthApplicationParams` with the required fields set.
+    pub fn new(name: impl Into<String>, is_first_party: bool) -> Self {
+        Self {
+            name: name.into(),
+            is_first_party,
+            description: Default::default(),
+            scopes: Default::default(),
+            redirect_uris: Default::default(),
+            uses_pkce: Default::default(),
+            organization_id: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct CreateM2MApplicationParams {
     /// The name of the application.
     ///
@@ -91,6 +106,18 @@ pub struct CreateM2MApplicationParams {
     /// The OAuth scopes granted to the application.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scopes: Option<Vec<String>>,
+}
+
+impl CreateM2MApplicationParams {
+    /// Construct a new `CreateM2MApplicationParams` with the required fields set.
+    pub fn new(name: impl Into<String>, organization_id: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            organization_id: organization_id.into(),
+            description: Default::default(),
+            scopes: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -197,25 +224,14 @@ impl<'a> ConnectApi<'a> {
         &self,
         params: ListApplicationsParams,
     ) -> impl futures_util::Stream<Item = Result<ConnectApplication, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_applications(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(
-                page.data.into_iter().map(Ok::<ConnectApplication, Error>),
-            );
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_applications(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Create a Connect Application
@@ -299,6 +315,7 @@ impl<'a> ConnectApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<ConnectApplication, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/connect/applications/{id}");
         let method = http::Method::GET;
         self.client
@@ -324,6 +341,7 @@ impl<'a> ConnectApi<'a> {
         params: UpdateApplicationParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<ConnectApplication, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/connect/applications/{id}");
         let method = http::Method::PUT;
         self.client
@@ -344,6 +362,7 @@ impl<'a> ConnectApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/connect/applications/{id}");
         let method = http::Method::DELETE;
         self.client
@@ -368,6 +387,7 @@ impl<'a> ConnectApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Vec<ApplicationCredentialsListItem>, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/connect/applications/{id}/client_secrets");
         let method = http::Method::GET;
         self.client
@@ -394,6 +414,7 @@ impl<'a> ConnectApi<'a> {
         params: CreateApplicationClientSecretParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<NewConnectApplicationSecret, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/connect/applications/{id}/client_secrets");
         let method = http::Method::POST;
         self.client
@@ -414,6 +435,7 @@ impl<'a> ConnectApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/connect/client_secrets/{id}");
         let method = http::Method::DELETE;
         self.client

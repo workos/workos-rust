@@ -82,6 +82,7 @@ impl<'a> ApiKeysApi<'a> {
         params: ListOrganizationApiKeysParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<OrganizationApiKeyList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
         let path = format!("/organizations/{organization_id}/api_keys");
         let method = http::Method::GET;
         self.client
@@ -104,31 +105,18 @@ impl<'a> ApiKeysApi<'a> {
         organization_id: impl Into<String>,
         params: ListOrganizationApiKeysParams,
     ) -> impl futures_util::Stream<Item = Result<OrganizationApiKey, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let organization_id: String = organization_id.into();
-        let initial = (Some(params), organization_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, organization_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_organization_api_keys(&organization_id, params.clone())
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_id = organization_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_organization_api_keys(&organization_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data.into_iter().map(Ok::<OrganizationApiKey, Error>),
-                );
-                Ok::<_, Error>(Some((chunk, (next, organization_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// Create an API key for an organization
@@ -150,6 +138,7 @@ impl<'a> ApiKeysApi<'a> {
         params: CreateOrganizationApiKeyParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<OrganizationApiKeyWithValue, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
         let path = format!("/organizations/{organization_id}/api_keys");
         let method = http::Method::POST;
         self.client
@@ -193,6 +182,7 @@ impl<'a> ApiKeysApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/api_keys/{id}");
         let method = http::Method::DELETE;
         self.client

@@ -115,6 +115,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: VerifyChallengeParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticationChallengeVerifyResponse, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/auth/challenges/{id}/verify");
         let method = http::Method::POST;
         self.client
@@ -158,6 +159,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticationFactor, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/auth/factors/{id}");
         let method = http::Method::GET;
         self.client
@@ -178,6 +180,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/auth/factors/{id}");
         let method = http::Method::DELETE;
         self.client
@@ -203,6 +206,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: ChallengeFactorParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthenticationChallenge, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/auth/factors/{id}/challenge");
         let method = http::Method::POST;
         self.client
@@ -229,6 +233,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: ListUserAuthFactorsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserAuthenticationFactorList, Error> {
+        let userland_user_id = crate::client::path_segment(userland_user_id);
         let path = format!("/user_management/users/{userland_user_id}/auth_factors");
         let method = http::Method::GET;
         self.client
@@ -251,31 +256,18 @@ impl<'a> MultiFactorAuthApi<'a> {
         userland_user_id: impl Into<String>,
         params: ListUserAuthFactorsParams,
     ) -> impl futures_util::Stream<Item = Result<AuthenticationFactor, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let userland_user_id: String = userland_user_id.into();
-        let initial = (Some(params), userland_user_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, userland_user_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_user_auth_factors(&userland_user_id, params.clone())
+        crate::pagination::auto_paginate_pages(move |after| {
+            let userland_user_id = userland_user_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_user_auth_factors(&userland_user_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data.into_iter().map(Ok::<AuthenticationFactor, Error>),
-                );
-                Ok::<_, Error>(Some((chunk, (next, userland_user_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// Enroll an authentication factor
@@ -297,6 +289,7 @@ impl<'a> MultiFactorAuthApi<'a> {
         params: CreateUserAuthFactorParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserAuthenticationFactorEnrollResponse, Error> {
+        let userland_user_id = crate::client::path_segment(userland_user_id);
         let path = format!("/user_management/users/{userland_user_id}/auth_factors");
         let method = http::Method::POST;
         self.client

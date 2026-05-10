@@ -120,24 +120,14 @@ impl<'a> DirectorySyncApi<'a> {
         &self,
         params: ListDirectoriesParams,
     ) -> impl futures_util::Stream<Item = Result<Directory, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_directories(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk =
-                futures_util::stream::iter(page.data.into_iter().map(Ok::<Directory, Error>));
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_directories(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Get a Directory
@@ -153,6 +143,7 @@ impl<'a> DirectorySyncApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Directory, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/directories/{id}");
         let method = http::Method::GET;
         self.client
@@ -173,6 +164,7 @@ impl<'a> DirectorySyncApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/directories/{id}");
         let method = http::Method::DELETE;
         self.client
@@ -214,24 +206,14 @@ impl<'a> DirectorySyncApi<'a> {
         &self,
         params: ListGroupsParams,
     ) -> impl futures_util::Stream<Item = Result<DirectoryGroup, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_groups(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk =
-                futures_util::stream::iter(page.data.into_iter().map(Ok::<DirectoryGroup, Error>));
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_groups(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Get a Directory Group
@@ -247,6 +229,7 @@ impl<'a> DirectorySyncApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<DirectoryGroup, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/directory_groups/{id}");
         let method = http::Method::GET;
         self.client
@@ -288,27 +271,14 @@ impl<'a> DirectorySyncApi<'a> {
         &self,
         params: ListUsersParams,
     ) -> impl futures_util::Stream<Item = Result<DirectoryUserWithGroups, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_users(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(
-                page.data
-                    .into_iter()
-                    .map(Ok::<DirectoryUserWithGroups, Error>),
-            );
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_users(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Get a Directory User
@@ -324,6 +294,7 @@ impl<'a> DirectorySyncApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<DirectoryUserWithGroups, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/directory_users/{id}");
         let method = http::Method::GET;
         self.client

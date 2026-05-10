@@ -10,13 +10,14 @@ async fn user_management_get_jwks_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/sso/jwks/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/jwks_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().get_jwks("test_id").await;
 }
 
 #[tokio::test]
@@ -24,13 +25,23 @@ async fn user_management_authenticate_with_password_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authenticate"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .authenticate_with_password(
+            workos::user_management::AuthenticateWithPasswordParams::new(
+                "stub_email".to_string(),
+                "stub_password".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +49,20 @@ async fn user_management_authenticate_with_code_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authenticate"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .authenticate_with_code(workos::user_management::AuthenticateWithCodeParams::new(
+            "stub_code".to_string(),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -52,13 +70,22 @@ async fn user_management_authenticate_with_refresh_token_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authenticate"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .authenticate_with_refresh_token(
+            workos::user_management::AuthenticateWithRefreshTokenParams::new(
+                "stub_refresh_token".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -66,13 +93,23 @@ async fn user_management_authenticate_with_magic_auth_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authenticate"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .authenticate_with_magic_auth(
+            workos::user_management::AuthenticateWithMagicAuthParams::new(
+                "stub_code".to_string(),
+                "stub_email".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -80,13 +117,23 @@ async fn user_management_authenticate_with_email_verification_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authenticate"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .authenticate_with_email_verification(
+            workos::user_management::AuthenticateWithEmailVerificationParams::new(
+                "stub_code".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -94,13 +141,22 @@ async fn user_management_authenticate_with_totp_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authenticate"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .authenticate_with_totp(workos::user_management::AuthenticateWithTotpParams::new(
+            "stub_code".to_string(),
+            "stub_pending_authentication_token".to_string(),
+            "stub_authentication_challenge_id".to_string(),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -108,13 +164,23 @@ async fn user_management_authenticate_with_organization_selection_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authenticate"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .authenticate_with_organization_selection(
+            workos::user_management::AuthenticateWithOrganizationSelectionParams::new(
+                "stub_pending_authentication_token".to_string(),
+                "stub_organization_id".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -122,13 +188,22 @@ async fn user_management_authenticate_with_device_code_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authenticate"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .authenticate_with_device_code(
+            workos::user_management::AuthenticateWithDeviceCodeParams::new(
+                "stub_device_code".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -137,12 +212,16 @@ async fn user_management_get_authorization_url_round_trip() {
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/authorize"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .get_authorization_url(workos::user_management::GetAuthorizationUrlParams::new(
+            "stub_redirect_uri".to_string(),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -150,13 +229,23 @@ async fn user_management_create_device_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/authorize/device"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/device_authorization_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .create_device(workos::user_management::CreateDeviceParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/sso_device_authorization_request.json"
+            ))
+            .expect("parse fixture for SSODeviceAuthorizationRequest"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -165,12 +254,16 @@ async fn user_management_get_logout_url_round_trip() {
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/sessions/logout"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .get_logout_url(workos::user_management::GetLogoutUrlParams::new(
+            "stub_session_id".to_string(),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -179,12 +272,17 @@ async fn user_management_revoke_session_round_trip() {
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/sessions/revoke"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .revoke_session(workos::user_management::RevokeSessionParams::new(
+            serde_json::from_str(include_str!("fixtures/revoke_session.json"))
+                .expect("parse fixture for RevokeSession"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -192,13 +290,21 @@ async fn user_management_create_cors_origin_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/cors_origins"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/cors_origin_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .create_cors_origin(workos::user_management::CreateCorsOriginParams::new(
+            serde_json::from_str(include_str!("fixtures/create_cors_origin.json"))
+                .expect("parse fixture for CreateCorsOrigin"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -206,13 +312,18 @@ async fn user_management_get_email_verification_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/email_verification/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/email_verification.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .get_email_verification("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -220,13 +331,21 @@ async fn user_management_reset_password_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/password_reset"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/password_reset.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .reset_password(workos::user_management::ResetPasswordParams::new(
+            serde_json::from_str(include_str!("fixtures/create_password_reset_token.json"))
+                .expect("parse fixture for CreatePasswordResetToken"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -234,13 +353,21 @@ async fn user_management_confirm_password_reset_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/password_reset/confirm"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/reset_password_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .confirm_password_reset(workos::user_management::ConfirmPasswordResetParams::new(
+            serde_json::from_str(include_str!("fixtures/create_password_reset.json"))
+                .expect("parse fixture for CreatePasswordReset"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -248,13 +375,15 @@ async fn user_management_get_password_reset_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/password_reset/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/password_reset.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().get_password_reset("test_id").await;
 }
 
 #[tokio::test]
@@ -262,13 +391,17 @@ async fn user_management_list_users_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .list_users(workos::user_management::ListUsersParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -276,13 +409,20 @@ async fn user_management_create_user_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/users"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .create_user(workos::user_management::CreateUserParams::new(
+            serde_json::from_str(include_str!("fixtures/create_user.json"))
+                .expect("parse fixture for CreateUser"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -290,13 +430,17 @@ async fn user_management_get_user_by_external_id_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/external_id/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .get_user_by_external_id("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -304,13 +448,14 @@ async fn user_management_get_user_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().get_user("test_id").await;
 }
 
 #[tokio::test]
@@ -318,13 +463,22 @@ async fn user_management_update_user_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
         .and(path_matcher("/user_management/users/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .update_user(
+            "test_id",
+            workos::user_management::UpdateUserParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateUser"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -333,12 +487,11 @@ async fn user_management_delete_user_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/user_management/users/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().delete_user("test_id").await;
 }
 
 #[tokio::test]
@@ -348,13 +501,24 @@ async fn user_management_confirm_email_change_round_trip() {
         .and(path_matcher(
             "/user_management/users/test_id/email_change/confirm",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/email_change_confirmation.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .confirm_email_change(
+            "test_id",
+            workos::user_management::ConfirmEmailChangeParams::new(
+                serde_json::from_str(include_str!("fixtures/confirm_email_change.json"))
+                    .expect("parse fixture for ConfirmEmailChange"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -364,13 +528,23 @@ async fn user_management_send_email_change_round_trip() {
         .and(path_matcher(
             "/user_management/users/test_id/email_change/send",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/email_change.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .send_email_change(
+            "test_id",
+            workos::user_management::SendEmailChangeParams::new(
+                serde_json::from_str(include_str!("fixtures/send_email_change.json"))
+                    .expect("parse fixture for SendEmailChange"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -380,13 +554,24 @@ async fn user_management_verify_email_round_trip() {
         .and(path_matcher(
             "/user_management/users/test_id/email_verification/confirm",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/verify_email_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .verify_email(
+            "test_id",
+            workos::user_management::VerifyEmailParams::new(
+                serde_json::from_str(include_str!("fixtures/verify_email_address.json"))
+                    .expect("parse fixture for VerifyEmailAddress"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -396,13 +581,17 @@ async fn user_management_send_verification_email_round_trip() {
         .and(path_matcher(
             "/user_management/users/test_id/email_verification/send",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/send_verification_email_response.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .send_verification_email("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -410,13 +599,17 @@ async fn user_management_get_user_identities_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/test_id/identities"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "[{\"idp_id\":\"test_idp_id\",\"type\":\"OAuth\",\"provider\":\"AppleOAuth\"}]",
+        ))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .get_user_identities("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -424,13 +617,18 @@ async fn user_management_list_sessions_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/test_id/sessions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"session\",\"id\":\"test_id\",\"ip_address\":\"test_ip_address\",\"user_agent\":\"test_user_agent\",\"user_id\":\"test_user_id\",\"auth_method\":\"cross_app_auth\",\"status\":\"active\",\"expires_at\":\"2023-01-01T00:00:00.000Z\",\"ended_at\":\"2023-01-01T00:00:00.000Z\",\"created_at\":\"2023-01-01T00:00:00.000Z\",\"updated_at\":\"2023-01-01T00:00:00.000Z\"}]"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .list_sessions(
+            "test_id",
+            workos::user_management::ListSessionsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -438,13 +636,15 @@ async fn user_management_list_invitations_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/invitations"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"invitation\",\"id\":\"test_id\",\"email\":\"test@example.com\",\"state\":\"pending\",\"accepted_at\":\"2023-01-01T00:00:00.000Z\",\"revoked_at\":\"2023-01-01T00:00:00.000Z\",\"expires_at\":\"2023-01-01T00:00:00.000Z\",\"organization_id\":\"test_organization_id\",\"inviter_user_id\":\"test_inviter_user_id\",\"accepted_user_id\":\"test_accepted_user_id\",\"role_slug\":\"test_role_slug\",\"created_at\":\"2023-01-01T00:00:00.000Z\",\"updated_at\":\"2023-01-01T00:00:00.000Z\",\"token\":\"test_token\",\"accept_invitation_url\":\"test_accept_invitation_url\"}]"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .list_invitations(workos::user_management::ListInvitationsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -452,13 +652,20 @@ async fn user_management_send_invitation_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/invitations"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user_invite.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .send_invitation(workos::user_management::SendInvitationParams::new(
+            serde_json::from_str(include_str!("fixtures/create_user_invite_options.json"))
+                .expect("parse fixture for CreateUserInviteOptions"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -468,13 +675,17 @@ async fn user_management_find_invitation_by_token_round_trip() {
         .and(path_matcher(
             "/user_management/invitations/by_token/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user_invite.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .find_invitation_by_token("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -482,13 +693,14 @@ async fn user_management_get_invitation_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/invitations/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user_invite.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().get_invitation("test_id").await;
 }
 
 #[tokio::test]
@@ -496,13 +708,14 @@ async fn user_management_accept_invitation_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/invitations/test_id/accept"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/invitation.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().accept_invitation("test_id").await;
 }
 
 #[tokio::test]
@@ -510,13 +723,22 @@ async fn user_management_resend_invitation_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/invitations/test_id/resend"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user_invite.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .resend_invitation(
+            "test_id",
+            workos::user_management::ResendInvitationParams::new(
+                serde_json::from_str("{}").expect("parse stub for ResendUserInviteOptions"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -524,13 +746,14 @@ async fn user_management_revoke_invitation_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/invitations/test_id/revoke"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/invitation.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().revoke_invitation("test_id").await;
 }
 
 #[tokio::test]
@@ -538,13 +761,15 @@ async fn user_management_list_jwt_template_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/jwt_template"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/jwt_template_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().list_jwt_template().await;
 }
 
 #[tokio::test]
@@ -552,13 +777,21 @@ async fn user_management_update_jwt_template_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
         .and(path_matcher("/user_management/jwt_template"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/jwt_template_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .update_jwt_template(workos::user_management::UpdateJWTTemplateParams::new(
+            serde_json::from_str(include_str!("fixtures/update_jwt_template.json"))
+                .expect("parse fixture for UpdateJWTTemplate"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -566,13 +799,20 @@ async fn user_management_create_magic_auth_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/magic_auth"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/magic_auth.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .create_magic_auth(workos::user_management::CreateMagicAuthParams::new(
+            serde_json::from_str(include_str!("fixtures/create_magic_code_and_return.json"))
+                .expect("parse fixture for CreateMagicCodeAndReturn"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -580,13 +820,14 @@ async fn user_management_get_magic_auth_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/magic_auth/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/magic_auth.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management().get_magic_auth("test_id").await;
 }
 
 #[tokio::test]
@@ -594,13 +835,17 @@ async fn user_management_list_organization_memberships_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/organization_memberships"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"organization_membership\",\"id\":\"test_id\",\"user_id\":\"test_user_id\",\"organization_id\":\"test_organization_id\",\"status\":\"active\",\"directory_managed\":false,\"created_at\":\"2023-01-01T00:00:00.000Z\",\"updated_at\":\"2023-01-01T00:00:00.000Z\",\"role\":{\"slug\":\"test_slug\"},\"user\":{\"object\":\"user\",\"id\":\"test_id\",\"first_name\":\"test_first_name\",\"last_name\":\"test_last_name\",\"profile_picture_url\":\"test_profile_picture_url\",\"email\":\"test@example.com\",\"email_verified\":false,\"external_id\":\"test_external_id\",\"last_sign_in_at\":\"2023-01-01T00:00:00.000Z\",\"created_at\":\"2023-01-01T00:00:00.000Z\",\"updated_at\":\"2023-01-01T00:00:00.000Z\"}}]"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .list_organization_memberships(
+            workos::user_management::ListOrganizationMembershipsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -608,13 +853,25 @@ async fn user_management_create_organization_membership_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/organization_memberships"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/organization_membership.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .create_organization_membership(
+            workos::user_management::CreateOrganizationMembershipParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/create_user_organization_membership.json"
+                ))
+                .expect("parse fixture for CreateUserOrganizationMembership"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -624,13 +881,18 @@ async fn user_management_get_organization_membership_round_trip() {
         .and(path_matcher(
             "/user_management/organization_memberships/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_organization_membership.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .get_organization_membership("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -640,13 +902,24 @@ async fn user_management_update_organization_membership_round_trip() {
         .and(path_matcher(
             "/user_management/organization_memberships/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_organization_membership.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .update_organization_membership(
+            "test_id",
+            workos::user_management::UpdateOrganizationMembershipParams::new(
+                serde_json::from_str("{}")
+                    .expect("parse stub for UpdateUserOrganizationMembership"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -657,12 +930,14 @@ async fn user_management_delete_organization_membership_round_trip() {
             "/user_management/organization_memberships/test_id",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .delete_organization_membership("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -672,13 +947,18 @@ async fn user_management_deactivate_organization_membership_round_trip() {
         .and(path_matcher(
             "/user_management/organization_memberships/test_id/deactivate",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/organization_membership.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .deactivate_organization_membership("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -688,13 +968,18 @@ async fn user_management_reactivate_organization_membership_round_trip() {
         .and(path_matcher(
             "/user_management/organization_memberships/test_id/reactivate",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_organization_membership.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .reactivate_organization_membership("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -702,13 +987,20 @@ async fn user_management_create_redirect_uri_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/redirect_uris"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/redirect_uri.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .create_redirect_uri(workos::user_management::CreateRedirectUriParams::new(
+            serde_json::from_str(include_str!("fixtures/create_redirect_uri.json"))
+                .expect("parse fixture for CreateRedirectUri"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -718,13 +1010,20 @@ async fn user_management_list_user_authorized_applications_round_trip() {
         .and(path_matcher(
             "/user_management/users/test_id/authorized_applications",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/authorized_connect_application_list.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .list_user_authorized_applications(
+            "test_id",
+            workos::user_management::ListUserAuthorizedApplicationsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -735,12 +1034,14 @@ async fn user_management_delete_user_authorized_application_round_trip() {
             "/user_management/users/test_id/authorized_applications/test_id",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .delete_user_authorized_application("test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -748,13 +1049,21 @@ async fn user_management_list_user_api_keys_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/test_id/api_keys"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_api_key_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .list_user_api_keys(
+            "test_id",
+            workos::user_management::ListUserApiKeysParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -762,11 +1071,22 @@ async fn user_management_create_user_api_key_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/users/test_id/api_keys"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_api_key_with_value.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .user_management()
+        .create_user_api_key(
+            "test_id",
+            workos::user_management::CreateUserApiKeyParams::new(
+                serde_json::from_str(include_str!("fixtures/create_user_api_key.json"))
+                    .expect("parse fixture for CreateUserApiKey"),
+            ),
+        )
+        .await;
 }

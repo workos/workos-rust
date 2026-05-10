@@ -130,6 +130,7 @@ impl<'a> AuditLogsApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuditLogsRetentionJson, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organizations/{id}/audit_logs_retention");
         let method = http::Method::GET;
         self.client
@@ -156,6 +157,7 @@ impl<'a> AuditLogsApi<'a> {
         params: UpdateOrganizationAuditLogsRetentionParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuditLogsRetentionJson, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organizations/{id}/audit_logs_retention");
         let method = http::Method::PUT;
         self.client
@@ -205,6 +207,7 @@ impl<'a> AuditLogsApi<'a> {
         params: ListActionSchemasParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Vec<AuditLogSchemaJson>, Error> {
+        let action_name = crate::client::path_segment(action_name);
         let path = format!("/audit_logs/actions/{action_name}/schemas");
         let method = http::Method::GET;
         self.client
@@ -231,6 +234,7 @@ impl<'a> AuditLogsApi<'a> {
         params: CreateSchemaParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuditLogSchemaJson, Error> {
+        let action_name = crate::client::path_segment(action_name);
         let path = format!("/audit_logs/actions/{action_name}/schemas");
         let method = http::Method::POST;
         self.client
@@ -304,6 +308,7 @@ impl<'a> AuditLogsApi<'a> {
         audit_log_export_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuditLogExportJson, Error> {
+        let audit_log_export_id = crate::client::path_segment(audit_log_export_id);
         let path = format!("/audit_logs/exports/{audit_log_export_id}");
         let method = http::Method::GET;
         self.client

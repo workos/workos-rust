@@ -10,13 +10,25 @@ async fn pipes_authorize_data_integration_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/data-integrations/test_id/authorize"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/data_integration_authorize_url_response.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.pipes();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .pipes()
+        .authorize_data_integration(
+            "test_id",
+            workos::pipes::AuthorizeDataIntegrationParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_data_integration_authorize_url_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetDataIntegrationAuthorizeUrlRequest"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -25,12 +37,22 @@ async fn pipes_create_data_integration_token_round_trip() {
     Mock::given(method("POST"))
         .and(path_matcher("/data-integrations/test_id/token"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.pipes();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .pipes()
+        .create_data_integration_token(
+            "test_id",
+            workos::pipes::CreateDataIntegrationTokenParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_user_token_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetUserTokenRequest"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -40,13 +62,22 @@ async fn pipes_get_user_connected_account_round_trip() {
         .and(path_matcher(
             "/user_management/users/test_id/connected_accounts/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connected_account.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.pipes();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .pipes()
+        .get_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetUserConnectedAccountParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -57,12 +88,18 @@ async fn pipes_delete_user_connected_account_round_trip() {
             "/user_management/users/test_id/connected_accounts/test_id",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.pipes();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .pipes()
+        .delete_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteUserConnectedAccountParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -72,11 +109,18 @@ async fn pipes_list_user_data_providers_round_trip() {
         .and(path_matcher(
             "/user_management/users/test_id/data_providers",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/data_integrations_list_response.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.pipes();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .pipes()
+        .list_user_data_providers(
+            "test_id",
+            workos::pipes::ListUserDataProvidersParams::default(),
+        )
+        .await;
 }

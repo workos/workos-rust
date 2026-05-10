@@ -10,13 +10,18 @@ async fn organizations_list_organizations_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organizations"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/organization_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organizations();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organizations()
+        .list_organizations(workos::organizations::ListOrganizationsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +29,20 @@ async fn organizations_create_organization_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/organizations"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/organization.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organizations();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organizations()
+        .create_organization(workos::organizations::CreateOrganizationParams::new(
+            serde_json::from_str(include_str!("fixtures/organization_input.json"))
+                .expect("parse fixture for OrganizationInput"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +50,17 @@ async fn organizations_get_organization_by_external_id_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organizations/external_id/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/organization.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organizations();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organizations()
+        .get_organization_by_external_id("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -52,13 +68,14 @@ async fn organizations_get_organization_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organizations/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/organization.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organizations();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.organizations().get_organization("test_id").await;
 }
 
 #[tokio::test]
@@ -66,13 +83,22 @@ async fn organizations_update_organization_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
         .and(path_matcher("/organizations/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/organization.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organizations();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organizations()
+        .update_organization(
+            "test_id",
+            workos::organizations::UpdateOrganizationParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateOrganization"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -81,12 +107,11 @@ async fn organizations_delete_organization_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/organizations/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organizations();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.organizations().delete_organization("test_id").await;
 }
 
 #[tokio::test]
@@ -96,11 +121,16 @@ async fn organizations_get_audit_log_configuration_round_trip() {
         .and(path_matcher(
             "/organizations/test_id/audit_log_configuration",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/audit_log_configuration.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organizations();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organizations()
+        .get_audit_log_configuration("test_id")
+        .await;
 }

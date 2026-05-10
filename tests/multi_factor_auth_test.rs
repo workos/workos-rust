@@ -10,13 +10,25 @@ async fn multi_factor_auth_verify_challenge_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/auth/challenges/test_id/verify"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/authentication_challenge_verify_response.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.multi_factor_auth();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .multi_factor_auth()
+        .verify_challenge(
+            "test_id",
+            workos::multi_factor_auth::VerifyChallengeParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/authentication_challenges_verify_request.json"
+                ))
+                .expect("parse fixture for AuthenticationChallengesVerifyRequest"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +36,23 @@ async fn multi_factor_auth_enroll_factor_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/auth/factors/enroll"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authentication_factor_enrolled.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.multi_factor_auth();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .multi_factor_auth()
+        .enroll_factor(workos::multi_factor_auth::EnrollFactorParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/authentication_factors_create_request.json"
+            ))
+            .expect("parse fixture for AuthenticationFactorsCreateRequest"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +60,15 @@ async fn multi_factor_auth_get_factor_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/auth/factors/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authentication_factor.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.multi_factor_auth();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.multi_factor_auth().get_factor("test_id").await;
 }
 
 #[tokio::test]
@@ -53,12 +77,11 @@ async fn multi_factor_auth_delete_factor_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/auth/factors/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.multi_factor_auth();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.multi_factor_auth().delete_factor("test_id").await;
 }
 
 #[tokio::test]
@@ -66,13 +89,23 @@ async fn multi_factor_auth_challenge_factor_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/auth/factors/test_id/challenge"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authentication_challenge.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.multi_factor_auth();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .multi_factor_auth()
+        .challenge_factor(
+            "test_id",
+            workos::multi_factor_auth::ChallengeFactorParams::new(
+                serde_json::from_str("{}").expect("parse stub for ChallengeAuthenticationFactor"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -80,13 +113,20 @@ async fn multi_factor_auth_list_user_auth_factors_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/test_id/auth_factors"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/user_authentication_factor_list.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.multi_factor_auth();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .multi_factor_auth()
+        .list_user_auth_factors(
+            "test_id",
+            workos::multi_factor_auth::ListUserAuthFactorsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -94,11 +134,23 @@ async fn multi_factor_auth_create_user_auth_factor_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/users/test_id/auth_factors"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/user_authentication_factor_enroll_response.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.multi_factor_auth();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .multi_factor_auth()
+        .create_user_auth_factor(
+            "test_id",
+            workos::multi_factor_auth::CreateUserAuthFactorParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/enroll_user_authentication_factor.json"
+                ))
+                .expect("parse fixture for EnrollUserAuthenticationFactor"),
+            ),
+        )
+        .await;
 }

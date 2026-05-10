@@ -10,13 +10,23 @@ async fn organization_domains_create_organization_domain_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/organization_domains"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/organization_domain.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organization_domains();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organization_domains()
+        .create_organization_domain(
+            workos::organization_domains::CreateOrganizationDomainParams::new(
+                serde_json::from_str(include_str!("fixtures/create_organization_domain.json"))
+                    .expect("parse fixture for CreateOrganizationDomain"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +34,17 @@ async fn organization_domains_get_organization_domain_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organization_domains/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/organization_domain_stand_alone.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organization_domains();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organization_domains()
+        .get_organization_domain("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -39,12 +53,14 @@ async fn organization_domains_delete_organization_domain_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/organization_domains/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organization_domains();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organization_domains()
+        .delete_organization_domain("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -52,11 +68,15 @@ async fn organization_domains_verify_organization_domain_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/organization_domains/test_id/verify"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/organization_domain_stand_alone.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.organization_domains();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .organization_domains()
+        .verify_organization_domain("test_id")
+        .await;
 }

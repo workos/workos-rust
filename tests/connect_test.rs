@@ -10,13 +10,20 @@ async fn connect_complete_oauth_2_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/authkit/oauth2/complete"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/external_auth_complete_response.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .connect()
+        .complete_oauth_2(workos::connect::CompleteOAuth2Params::new(
+            serde_json::from_str(include_str!("fixtures/user_management_login_request.json"))
+                .expect("parse fixture for UserManagementLoginRequest"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +31,18 @@ async fn connect_list_applications_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/connect/applications"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connect_application_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .connect()
+        .list_applications(workos::connect::ListApplicationsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +50,21 @@ async fn connect_create_oauth_application_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/connect/applications"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connect_application.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .connect()
+        .create_oauth_application(workos::connect::CreateOAuthApplicationParams::new(
+            "stub_name".to_string(),
+            serde_json::from_str("false").expect("parse stub"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -52,13 +72,21 @@ async fn connect_create_m2m_application_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/connect/applications"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connect_application.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .connect()
+        .create_m2m_application(workos::connect::CreateM2MApplicationParams::new(
+            "stub_name".to_string(),
+            "stub_organization_id".to_string(),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -66,13 +94,15 @@ async fn connect_get_application_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/connect/applications/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connect_application.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.connect().get_application("test_id").await;
 }
 
 #[tokio::test]
@@ -80,13 +110,23 @@ async fn connect_update_application_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
         .and(path_matcher("/connect/applications/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connect_application.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .connect()
+        .update_application(
+            "test_id",
+            workos::connect::UpdateApplicationParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateOAuthApplication"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -95,12 +135,11 @@ async fn connect_delete_application_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/connect/applications/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.connect().delete_application("test_id").await;
 }
 
 #[tokio::test]
@@ -108,13 +147,15 @@ async fn connect_list_application_client_secrets_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/connect/applications/test_id/client_secrets"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"connect_application_secret\",\"id\":\"test_id\",\"secret_hint\":\"test_secret_hint\",\"last_used_at\":\"test_last_used_at\",\"created_at\":\"2023-01-01T00:00:00.000Z\",\"updated_at\":\"2023-01-01T00:00:00.000Z\"}]"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .connect()
+        .list_application_client_secrets("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -122,13 +163,23 @@ async fn connect_create_application_client_secret_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/connect/applications/test_id/client_secrets"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/new_connect_application_secret.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .connect()
+        .create_application_client_secret(
+            "test_id",
+            workos::connect::CreateApplicationClientSecretParams::new(
+                serde_json::from_str("{}").expect("parse stub for CreateApplicationSecret"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -137,10 +188,9 @@ async fn connect_delete_client_secret_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/connect/client_secrets/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.connect();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.connect().delete_client_secret("test_id").await;
 }

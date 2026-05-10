@@ -48,6 +48,7 @@ impl<'a> UserManagementOrganizationMembershipGroupsApi<'a> {
         params: ListOrganizationMembershipGroupsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<GroupList, Error> {
+        let om_id = crate::client::path_segment(om_id);
         let path = format!("/user_management/organization_memberships/{om_id}/groups");
         let method = http::Method::GET;
         self.client
@@ -70,25 +71,17 @@ impl<'a> UserManagementOrganizationMembershipGroupsApi<'a> {
         om_id: impl Into<String>,
         params: ListOrganizationMembershipGroupsParams,
     ) -> impl futures_util::Stream<Item = Result<Group, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let om_id: String = om_id.into();
-        let initial = (Some(params), om_id, self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, om_id, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this
-                .list_organization_membership_groups(&om_id, params.clone())
-                .await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(page.data.into_iter().map(Ok::<Group, Error>));
-            Ok::<_, Error>(Some((chunk, (next, om_id, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let om_id = om_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_organization_membership_groups(&om_id, params)
+                    .await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 }

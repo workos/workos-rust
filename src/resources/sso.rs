@@ -198,24 +198,14 @@ impl<'a> SSOApi<'a> {
         &self,
         params: ListConnectionsParams,
     ) -> impl futures_util::Stream<Item = Result<Connection, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_connections(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk =
-                futures_util::stream::iter(page.data.into_iter().map(Ok::<Connection, Error>));
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_connections(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Get a Connection
@@ -231,6 +221,7 @@ impl<'a> SSOApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Connection, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/connections/{id}");
         let method = http::Method::GET;
         self.client
@@ -251,6 +242,7 @@ impl<'a> SSOApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/connections/{id}");
         let method = http::Method::DELETE;
         self.client

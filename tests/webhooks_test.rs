@@ -10,13 +10,18 @@ async fn webhooks_list_webhook_endpoints_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/webhook_endpoints"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/webhook_endpoint_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.webhooks();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .webhooks()
+        .list_webhook_endpoints(workos::webhooks::ListWebhookEndpointsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +29,21 @@ async fn webhooks_create_webhook_endpoint_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/webhook_endpoints"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/webhook_endpoint_json.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.webhooks();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .webhooks()
+        .create_webhook_endpoint(workos::webhooks::CreateWebhookEndpointParams::new(
+            serde_json::from_str(include_str!("fixtures/create_webhook_endpoint.json"))
+                .expect("parse fixture for CreateWebhookEndpoint"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +51,23 @@ async fn webhooks_update_webhook_endpoint_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PATCH"))
         .and(path_matcher("/webhook_endpoints/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/webhook_endpoint_json.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.webhooks();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .webhooks()
+        .update_webhook_endpoint(
+            "test_id",
+            workos::webhooks::UpdateWebhookEndpointParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateWebhookEndpoint"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -53,10 +76,9 @@ async fn webhooks_delete_webhook_endpoint_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/webhook_endpoints/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.webhooks();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.webhooks().delete_webhook_endpoint("test_id").await;
 }

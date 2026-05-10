@@ -10,11 +10,19 @@ async fn admin_portal_generate_link_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/portal/generate_link"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/portal_link_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.admin_portal();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .admin_portal()
+        .generate_link(workos::admin_portal::GenerateLinkParams::new(
+            serde_json::from_str(include_str!("fixtures/generate_link.json"))
+                .expect("parse fixture for GenerateLink"),
+        ))
+        .await;
 }

@@ -10,13 +10,17 @@ async fn feature_flags_list_feature_flags_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/feature-flags"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/flag_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.feature_flags();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .feature_flags()
+        .list_feature_flags(workos::feature_flags::ListFeatureFlagsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +28,14 @@ async fn feature_flags_get_feature_flag_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/feature-flags/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/flag.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.feature_flags();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.feature_flags().get_feature_flag("test_id").await;
 }
 
 #[tokio::test]
@@ -38,13 +43,14 @@ async fn feature_flags_disable_feature_flag_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
         .and(path_matcher("/feature-flags/test_id/disable"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/feature_flag.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.feature_flags();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.feature_flags().disable_feature_flag("test_id").await;
 }
 
 #[tokio::test]
@@ -52,13 +58,14 @@ async fn feature_flags_enable_feature_flag_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
         .and(path_matcher("/feature-flags/test_id/enable"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/feature_flag.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.feature_flags();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.feature_flags().enable_feature_flag("test_id").await;
 }
 
 #[tokio::test]
@@ -67,12 +74,14 @@ async fn feature_flags_add_flag_target_round_trip() {
     Mock::given(method("POST"))
         .and(path_matcher("/feature-flags/test_id/targets/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.feature_flags();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .feature_flags()
+        .add_flag_target("test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -81,12 +90,14 @@ async fn feature_flags_remove_flag_target_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/feature-flags/test_id/targets/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.feature_flags();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .feature_flags()
+        .remove_flag_target("test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -94,13 +105,20 @@ async fn feature_flags_list_organization_feature_flags_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organizations/test_id/feature-flags"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/flag_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.feature_flags();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .feature_flags()
+        .list_organization_feature_flags(
+            "test_id",
+            workos::feature_flags::ListOrganizationFeatureFlagsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -108,11 +126,18 @@ async fn feature_flags_list_user_feature_flags_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/test_id/feature-flags"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/flag_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.feature_flags();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .feature_flags()
+        .list_user_feature_flags(
+            "test_id",
+            workos::feature_flags::ListUserFeatureFlagsParams::default(),
+        )
+        .await;
 }

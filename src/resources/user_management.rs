@@ -12,7 +12,7 @@ pub struct UserManagementApi<'a> {
     pub(crate) client: &'a Client,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithPasswordParams {
     /// The user's email address.
     ///
@@ -36,7 +36,21 @@ pub struct AuthenticateWithPasswordParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl AuthenticateWithPasswordParams {
+    /// Construct a new `AuthenticateWithPasswordParams` with the required fields set.
+    pub fn new(email: impl Into<String>, password: impl Into<String>) -> Self {
+        Self {
+            email: email.into(),
+            password: password.into(),
+            invitation_token: Default::default(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithCodeParams {
     /// The authorization code received from the redirect.
     ///
@@ -59,7 +73,21 @@ pub struct AuthenticateWithCodeParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl AuthenticateWithCodeParams {
+    /// Construct a new `AuthenticateWithCodeParams` with the required fields set.
+    pub fn new(code: impl Into<String>) -> Self {
+        Self {
+            code: code.into(),
+            code_verifier: Default::default(),
+            invitation_token: Default::default(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithRefreshTokenParams {
     /// The refresh token to exchange for new tokens.
     ///
@@ -79,7 +107,20 @@ pub struct AuthenticateWithRefreshTokenParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl AuthenticateWithRefreshTokenParams {
+    /// Construct a new `AuthenticateWithRefreshTokenParams` with the required fields set.
+    pub fn new(refresh_token: impl Into<String>) -> Self {
+        Self {
+            refresh_token: refresh_token.into(),
+            organization_id: Default::default(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithMagicAuthParams {
     /// Required.
     pub code: String,
@@ -95,7 +136,21 @@ pub struct AuthenticateWithMagicAuthParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl AuthenticateWithMagicAuthParams {
+    /// Construct a new `AuthenticateWithMagicAuthParams` with the required fields set.
+    pub fn new(code: impl Into<String>, email: impl Into<String>) -> Self {
+        Self {
+            code: code.into(),
+            email: email.into(),
+            invitation_token: Default::default(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithEmailVerificationParams {
     /// Required.
     pub code: String,
@@ -109,7 +164,20 @@ pub struct AuthenticateWithEmailVerificationParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl AuthenticateWithEmailVerificationParams {
+    /// Construct a new `AuthenticateWithEmailVerificationParams` with the required fields set.
+    pub fn new(code: impl Into<String>, pending_authentication_token: impl Into<String>) -> Self {
+        Self {
+            code: code.into(),
+            pending_authentication_token: pending_authentication_token.into(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithTotpParams {
     /// Required.
     pub code: String,
@@ -125,7 +193,25 @@ pub struct AuthenticateWithTotpParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl AuthenticateWithTotpParams {
+    /// Construct a new `AuthenticateWithTotpParams` with the required fields set.
+    pub fn new(
+        code: impl Into<String>,
+        pending_authentication_token: impl Into<String>,
+        authentication_challenge_id: impl Into<String>,
+    ) -> Self {
+        Self {
+            code: code.into(),
+            pending_authentication_token: pending_authentication_token.into(),
+            authentication_challenge_id: authentication_challenge_id.into(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithOrganizationSelectionParams {
     /// Required.
     pub pending_authentication_token: String,
@@ -139,7 +225,23 @@ pub struct AuthenticateWithOrganizationSelectionParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl AuthenticateWithOrganizationSelectionParams {
+    /// Construct a new `AuthenticateWithOrganizationSelectionParams` with the required fields set.
+    pub fn new(
+        pending_authentication_token: impl Into<String>,
+        organization_id: impl Into<String>,
+    ) -> Self {
+        Self {
+            pending_authentication_token: pending_authentication_token.into(),
+            organization_id: organization_id.into(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithDeviceCodeParams {
     /// Required.
     pub device_code: String,
@@ -149,6 +251,18 @@ pub struct AuthenticateWithDeviceCodeParams {
     pub device_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
+}
+
+impl AuthenticateWithDeviceCodeParams {
+    /// Construct a new `AuthenticateWithDeviceCodeParams` with the required fields set.
+    pub fn new(device_code: impl Into<String>) -> Self {
+        Self {
+            device_code: device_code.into(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -687,6 +801,7 @@ impl<'a> UserManagementApi<'a> {
         client_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<JwksResponse, Error> {
+        let client_id = crate::client::path_segment(client_id);
         let path = format!("/sso/jwks/{client_id}");
         let method = http::Method::GET;
         self.client
@@ -1110,6 +1225,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<EmailVerification, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/email_verification/{id}");
         let method = http::Method::GET;
         self.client
@@ -1176,6 +1292,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<PasswordReset, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/password_reset/{id}");
         let method = http::Method::GET;
         self.client
@@ -1217,23 +1334,14 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: ListUsersParams,
     ) -> impl futures_util::Stream<Item = Result<User, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_users(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(page.data.into_iter().map(Ok::<User, Error>));
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_users(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Create a user
@@ -1270,6 +1378,7 @@ impl<'a> UserManagementApi<'a> {
         external_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<User, Error> {
+        let external_id = crate::client::path_segment(external_id);
         let path = format!("/user_management/users/external_id/{external_id}");
         let method = http::Method::GET;
         self.client
@@ -1290,6 +1399,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<User, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}");
         let method = http::Method::GET;
         self.client
@@ -1311,6 +1421,7 @@ impl<'a> UserManagementApi<'a> {
         params: UpdateUserParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<User, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}");
         let method = http::Method::PUT;
         self.client
@@ -1331,6 +1442,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}");
         let method = http::Method::DELETE;
         self.client
@@ -1357,6 +1469,7 @@ impl<'a> UserManagementApi<'a> {
         params: ConfirmEmailChangeParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<EmailChangeConfirmation, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}/email_change/confirm");
         let method = http::Method::POST;
         self.client
@@ -1382,6 +1495,7 @@ impl<'a> UserManagementApi<'a> {
         params: SendEmailChangeParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<EmailChange, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}/email_change/send");
         let method = http::Method::POST;
         self.client
@@ -1407,6 +1521,7 @@ impl<'a> UserManagementApi<'a> {
         params: VerifyEmailParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<VerifyEmailResponse, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}/email_verification/confirm");
         let method = http::Method::POST;
         self.client
@@ -1430,6 +1545,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<SendVerificationEmailResponse, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}/email_verification/send");
         let method = http::Method::POST;
         self.client
@@ -1450,6 +1566,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Vec<UserIdentitiesGetItem>, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}/identities");
         let method = http::Method::GET;
         self.client
@@ -1475,6 +1592,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListSessionsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Vec<UserSessionsListItem>, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}/sessions");
         let method = http::Method::GET;
         self.client
@@ -1539,6 +1657,7 @@ impl<'a> UserManagementApi<'a> {
         token: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserInvite, Error> {
+        let token = crate::client::path_segment(token);
         let path = format!("/user_management/invitations/by_token/{token}");
         let method = http::Method::GET;
         self.client
@@ -1559,6 +1678,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserInvite, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/invitations/{id}");
         let method = http::Method::GET;
         self.client
@@ -1579,6 +1699,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Invitation, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/invitations/{id}/accept");
         let method = http::Method::POST;
         self.client
@@ -1604,6 +1725,7 @@ impl<'a> UserManagementApi<'a> {
         params: ResendInvitationParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserInvite, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/invitations/{id}/resend");
         let method = http::Method::POST;
         self.client
@@ -1624,6 +1746,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Invitation, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/invitations/{id}/revoke");
         let method = http::Method::POST;
         self.client
@@ -1709,6 +1832,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<MagicAuth, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/magic_auth/{id}");
         let method = http::Method::GET;
         self.client
@@ -1783,6 +1907,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserOrganizationMembership, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/organization_memberships/{id}");
         let method = http::Method::GET;
         self.client
@@ -1809,6 +1934,7 @@ impl<'a> UserManagementApi<'a> {
         params: UpdateOrganizationMembershipParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserOrganizationMembership, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/organization_memberships/{id}");
         let method = http::Method::PUT;
         self.client
@@ -1833,6 +1959,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/organization_memberships/{id}");
         let method = http::Method::DELETE;
         self.client
@@ -1862,6 +1989,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<OrganizationMembership, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/organization_memberships/{id}/deactivate");
         let method = http::Method::PUT;
         self.client
@@ -1891,6 +2019,7 @@ impl<'a> UserManagementApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserOrganizationMembership, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/user_management/organization_memberships/{id}/reactivate");
         let method = http::Method::PUT;
         self.client
@@ -1940,6 +2069,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListUserAuthorizedApplicationsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizedConnectApplicationList, Error> {
+        let user_id = crate::client::path_segment(user_id);
         let path = format!("/user_management/users/{user_id}/authorized_applications");
         let method = http::Method::GET;
         self.client
@@ -1963,30 +2093,18 @@ impl<'a> UserManagementApi<'a> {
         params: ListUserAuthorizedApplicationsParams,
     ) -> impl futures_util::Stream<Item = Result<AuthorizedConnectApplicationListData, Error>> + '_
     {
-        use futures_util::TryStreamExt;
         let user_id: String = user_id.into();
-        let initial = (Some(params), user_id, self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, user_id, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this
-                .list_user_authorized_applications(&user_id, params.clone())
-                .await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(
-                page.data
-                    .into_iter()
-                    .map(Ok::<AuthorizedConnectApplicationListData, Error>),
-            );
-            Ok::<_, Error>(Some((chunk, (next, user_id, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let user_id = user_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_user_authorized_applications(&user_id, params)
+                    .await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Delete an authorized application
@@ -2008,6 +2126,8 @@ impl<'a> UserManagementApi<'a> {
         user_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let application_id = crate::client::path_segment(application_id);
+        let user_id = crate::client::path_segment(user_id);
         let path =
             format!("/user_management/users/{user_id}/authorized_applications/{application_id}");
         let method = http::Method::DELETE;
@@ -2035,6 +2155,7 @@ impl<'a> UserManagementApi<'a> {
         params: ListUserApiKeysParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserApiKeyList, Error> {
+        let user_id = crate::client::path_segment(user_id);
         let path = format!("/user_management/users/{user_id}/api_keys");
         let method = http::Method::GET;
         self.client
@@ -2057,25 +2178,16 @@ impl<'a> UserManagementApi<'a> {
         user_id: impl Into<String>,
         params: ListUserApiKeysParams,
     ) -> impl futures_util::Stream<Item = Result<UserApiKey, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let user_id: String = user_id.into();
-        let initial = (Some(params), user_id, self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, user_id, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_user_api_keys(&user_id, params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk =
-                futures_util::stream::iter(page.data.into_iter().map(Ok::<UserApiKey, Error>));
-            Ok::<_, Error>(Some((chunk, (next, user_id, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let user_id = user_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_user_api_keys(&user_id, params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Create an API key for a user
@@ -2097,6 +2209,7 @@ impl<'a> UserManagementApi<'a> {
         params: CreateUserApiKeyParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserApiKeyWithValue, Error> {
+        let user_id = crate::client::path_segment(user_id);
         let path = format!("/user_management/users/{user_id}/api_keys");
         let method = http::Method::POST;
         self.client

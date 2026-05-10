@@ -10,13 +10,20 @@ async fn groups_list_organization_groups_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organizations/test_id/groups"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/group_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .groups()
+        .list_organization_groups(
+            "test_id",
+            workos::groups::ListOrganizationGroupsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +31,23 @@ async fn groups_create_organization_group_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/organizations/test_id/groups"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/group.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .groups()
+        .create_organization_group(
+            "test_id",
+            workos::groups::CreateOrganizationGroupParams::new(
+                serde_json::from_str(include_str!("fixtures/create_group.json"))
+                    .expect("parse fixture for CreateGroup"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +55,17 @@ async fn groups_get_organization_group_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organizations/test_id/groups/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/group.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .groups()
+        .get_organization_group("test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -52,13 +73,23 @@ async fn groups_update_organization_group_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PATCH"))
         .and(path_matcher("/organizations/test_id/groups/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/group.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .groups()
+        .update_organization_group(
+            "test_id",
+            "test_id",
+            workos::groups::UpdateOrganizationGroupParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateGroup"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -67,12 +98,14 @@ async fn groups_delete_organization_group_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/organizations/test_id/groups/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .groups()
+        .delete_organization_group("test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -82,13 +115,21 @@ async fn groups_list_group_organization_memberships_round_trip() {
         .and(path_matcher(
             "/organizations/test_id/groups/test_id/organization-memberships",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/user_organization_membership_base_list.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .groups()
+        .list_group_organization_memberships(
+            "test_id",
+            "test_id",
+            workos::groups::ListGroupOrganizationMembershipsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -98,13 +139,24 @@ async fn groups_create_group_organization_membership_round_trip() {
         .and(path_matcher(
             "/organizations/test_id/groups/test_id/organization-memberships",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/group.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .groups()
+        .create_group_organization_membership(
+            "test_id",
+            "test_id",
+            workos::groups::CreateGroupOrganizationMembershipParams::new(
+                serde_json::from_str(include_str!("fixtures/create_group_membership.json"))
+                    .expect("parse fixture for CreateGroupMembership"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -115,10 +167,12 @@ async fn groups_delete_group_organization_membership_round_trip() {
             "/organizations/test_id/groups/test_id/organization-memberships/test_id",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .groups()
+        .delete_group_organization_membership("test_id", "test_id", "test_id")
+        .await;
 }

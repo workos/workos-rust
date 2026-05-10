@@ -87,6 +87,7 @@ impl<'a> PipesApi<'a> {
         params: AuthorizeDataIntegrationParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<DataIntegrationAuthorizeUrlResponse, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/data-integrations/{slug}/authorize");
         let method = http::Method::POST;
         self.client
@@ -113,6 +114,7 @@ impl<'a> PipesApi<'a> {
         params: CreateDataIntegrationTokenParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<DataIntegrationAccessTokenResponse, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/data-integrations/{slug}/token");
         let method = http::Method::POST;
         self.client
@@ -141,6 +143,8 @@ impl<'a> PipesApi<'a> {
         params: GetUserConnectedAccountParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<ConnectedAccount, Error> {
+        let user_id = crate::client::path_segment(user_id);
+        let slug = crate::client::path_segment(slug);
         let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");
         let method = http::Method::GET;
         self.client
@@ -169,6 +173,8 @@ impl<'a> PipesApi<'a> {
         params: DeleteUserConnectedAccountParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let user_id = crate::client::path_segment(user_id);
+        let slug = crate::client::path_segment(slug);
         let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");
         let method = http::Method::DELETE;
         self.client
@@ -195,6 +201,7 @@ impl<'a> PipesApi<'a> {
         params: ListUserDataProvidersParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<DataIntegrationsListResponse, Error> {
+        let user_id = crate::client::path_segment(user_id);
         let path = format!("/user_management/users/{user_id}/data_providers");
         let method = http::Method::GET;
         self.client

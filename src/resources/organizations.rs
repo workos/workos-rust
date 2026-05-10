@@ -106,24 +106,14 @@ impl<'a> OrganizationsApi<'a> {
         &self,
         params: ListOrganizationsParams,
     ) -> impl futures_util::Stream<Item = Result<Organization, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_organizations(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk =
-                futures_util::stream::iter(page.data.into_iter().map(Ok::<Organization, Error>));
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_organizations(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Create an Organization
@@ -166,6 +156,7 @@ impl<'a> OrganizationsApi<'a> {
         external_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Organization, Error> {
+        let external_id = crate::client::path_segment(external_id);
         let path = format!("/organizations/external_id/{external_id}");
         let method = http::Method::GET;
         self.client
@@ -186,6 +177,7 @@ impl<'a> OrganizationsApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Organization, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organizations/{id}");
         let method = http::Method::GET;
         self.client
@@ -212,6 +204,7 @@ impl<'a> OrganizationsApi<'a> {
         params: UpdateOrganizationParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Organization, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organizations/{id}");
         let method = http::Method::PUT;
         self.client
@@ -232,6 +225,7 @@ impl<'a> OrganizationsApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organizations/{id}");
         let method = http::Method::DELETE;
         self.client
@@ -256,6 +250,7 @@ impl<'a> OrganizationsApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuditLogConfiguration, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organizations/{id}/audit_log_configuration");
         let method = http::Method::GET;
         self.client

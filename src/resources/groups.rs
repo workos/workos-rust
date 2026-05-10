@@ -115,6 +115,7 @@ impl<'a> GroupsApi<'a> {
         params: ListOrganizationGroupsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<GroupList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
         let path = format!("/organizations/{organization_id}/groups");
         let method = http::Method::GET;
         self.client
@@ -137,30 +138,18 @@ impl<'a> GroupsApi<'a> {
         organization_id: impl Into<String>,
         params: ListOrganizationGroupsParams,
     ) -> impl futures_util::Stream<Item = Result<Group, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let organization_id: String = organization_id.into();
-        let initial = (Some(params), organization_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, organization_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_organization_groups(&organization_id, params.clone())
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_id = organization_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_organization_groups(&organization_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk =
-                    futures_util::stream::iter(page.data.into_iter().map(Ok::<Group, Error>));
-                Ok::<_, Error>(Some((chunk, (next, organization_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// Create a group
@@ -182,6 +171,7 @@ impl<'a> GroupsApi<'a> {
         params: CreateOrganizationGroupParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Group, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
         let path = format!("/organizations/{organization_id}/groups");
         let method = http::Method::POST;
         self.client
@@ -208,6 +198,8 @@ impl<'a> GroupsApi<'a> {
         group_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Group, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let group_id = crate::client::path_segment(group_id);
         let path = format!("/organizations/{organization_id}/groups/{group_id}");
         let method = http::Method::GET;
         self.client
@@ -236,6 +228,8 @@ impl<'a> GroupsApi<'a> {
         params: UpdateOrganizationGroupParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Group, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let group_id = crate::client::path_segment(group_id);
         let path = format!("/organizations/{organization_id}/groups/{group_id}");
         let method = http::Method::PATCH;
         self.client
@@ -262,6 +256,8 @@ impl<'a> GroupsApi<'a> {
         group_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let group_id = crate::client::path_segment(group_id);
         let path = format!("/organizations/{organization_id}/groups/{group_id}");
         let method = http::Method::DELETE;
         self.client
@@ -295,6 +291,8 @@ impl<'a> GroupsApi<'a> {
         params: ListGroupOrganizationMembershipsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserOrganizationMembershipBaseList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let group_id = crate::client::path_segment(group_id);
         let path =
             format!("/organizations/{organization_id}/groups/{group_id}/organization-memberships");
         let method = http::Method::GET;
@@ -320,38 +318,20 @@ impl<'a> GroupsApi<'a> {
         params: ListGroupOrganizationMembershipsParams,
     ) -> impl futures_util::Stream<Item = Result<UserOrganizationMembershipBaseListData, Error>> + '_
     {
-        use futures_util::TryStreamExt;
         let organization_id: String = organization_id.into();
         let group_id: String = group_id.into();
-        let initial = (Some(params), organization_id, group_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, organization_id, group_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_group_organization_memberships(
-                        &organization_id,
-                        &group_id,
-                        params.clone(),
-                    )
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_id = organization_id.clone();
+            let group_id = group_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_group_organization_memberships(&organization_id, &group_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data
-                        .into_iter()
-                        .map(Ok::<UserOrganizationMembershipBaseListData, Error>),
-                );
-                Ok::<_, Error>(Some((chunk, (next, organization_id, group_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// Add a member to a Group
@@ -380,6 +360,8 @@ impl<'a> GroupsApi<'a> {
         params: CreateGroupOrganizationMembershipParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Group, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let group_id = crate::client::path_segment(group_id);
         let path =
             format!("/organizations/{organization_id}/groups/{group_id}/organization-memberships");
         let method = http::Method::POST;
@@ -414,6 +396,9 @@ impl<'a> GroupsApi<'a> {
         om_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let group_id = crate::client::path_segment(group_id);
+        let om_id = crate::client::path_segment(om_id);
         let path = format!(
             "/organizations/{organization_id}/groups/{group_id}/organization-memberships/{om_id}"
         );

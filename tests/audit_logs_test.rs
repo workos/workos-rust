@@ -10,13 +10,18 @@ async fn audit_logs_get_organization_audit_logs_retention_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organizations/test_id/audit_logs_retention"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/audit_logs_retention_json.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.audit_logs();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .audit_logs()
+        .get_organization_audit_logs_retention("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +29,24 @@ async fn audit_logs_update_organization_audit_logs_retention_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
         .and(path_matcher("/organizations/test_id/audit_logs_retention"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/audit_logs_retention_json.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.audit_logs();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .audit_logs()
+        .update_organization_audit_logs_retention(
+            "test_id",
+            workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
+                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
+                    .expect("parse fixture for UpdateAuditLogsRetention"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +54,15 @@ async fn audit_logs_list_actions_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/audit_logs/actions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"audit_log_action\",\"name\":\"test_name\",\"schema\":{\"object\":\"audit_log_schema\",\"version\":0,\"targets\":[{\"type\":\"test_type\"}],\"created_at\":\"2023-01-01T00:00:00.000Z\"},\"created_at\":\"2023-01-01T00:00:00.000Z\",\"updated_at\":\"2023-01-01T00:00:00.000Z\"}]"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.audit_logs();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .audit_logs()
+        .list_actions(workos::audit_logs::ListActionsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -52,13 +70,18 @@ async fn audit_logs_list_action_schemas_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/audit_logs/actions/test_id/schemas"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"audit_log_schema\",\"version\":0,\"targets\":[{\"type\":\"test_type\"}],\"created_at\":\"2023-01-01T00:00:00.000Z\"}]"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.audit_logs();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .audit_logs()
+        .list_action_schemas(
+            "test_id",
+            workos::audit_logs::ListActionSchemasParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -66,13 +89,24 @@ async fn audit_logs_create_schema_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/audit_logs/actions/test_id/schemas"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/audit_log_schema_json.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.audit_logs();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .audit_logs()
+        .create_schema(
+            "test_id",
+            workos::audit_logs::CreateSchemaParams::new(
+                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
+                    .expect("parse fixture for AuditLogSchema"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -80,13 +114,20 @@ async fn audit_logs_create_event_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/audit_logs/events"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/audit_log_event_create_response.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.audit_logs();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .audit_logs()
+        .create_event(workos::audit_logs::CreateEventParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_event_ingestion.json"))
+                .expect("parse fixture for AuditLogEventIngestion"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -94,13 +135,21 @@ async fn audit_logs_create_export_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/audit_logs/exports"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/audit_log_export_json.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.audit_logs();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .audit_logs()
+        .create_export(workos::audit_logs::CreateExportParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_export_creation.json"))
+                .expect("parse fixture for AuditLogExportCreation"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -108,11 +157,13 @@ async fn audit_logs_get_export_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/audit_logs/exports/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/audit_log_export_json.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.audit_logs();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.audit_logs().get_export("test_id").await;
 }

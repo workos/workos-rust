@@ -98,23 +98,14 @@ impl<'a> FeatureFlagsApi<'a> {
         &self,
         params: ListFeatureFlagsParams,
     ) -> impl futures_util::Stream<Item = Result<Flag, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_feature_flags(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(page.data.into_iter().map(Ok::<Flag, Error>));
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_feature_flags(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Get a feature flag
@@ -130,6 +121,7 @@ impl<'a> FeatureFlagsApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Flag, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/feature-flags/{slug}");
         let method = http::Method::GET;
         self.client
@@ -150,6 +142,7 @@ impl<'a> FeatureFlagsApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<FeatureFlag, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/feature-flags/{slug}/disable");
         let method = http::Method::PUT;
         self.client
@@ -170,6 +163,7 @@ impl<'a> FeatureFlagsApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<FeatureFlag, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/feature-flags/{slug}/enable");
         let method = http::Method::PUT;
         self.client
@@ -196,6 +190,8 @@ impl<'a> FeatureFlagsApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let resource_id = crate::client::path_segment(resource_id);
+        let slug = crate::client::path_segment(slug);
         let path = format!("/feature-flags/{slug}/targets/{resource_id}");
         let method = http::Method::POST;
         self.client
@@ -222,6 +218,8 @@ impl<'a> FeatureFlagsApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let resource_id = crate::client::path_segment(resource_id);
+        let slug = crate::client::path_segment(slug);
         let path = format!("/feature-flags/{slug}/targets/{resource_id}");
         let method = http::Method::DELETE;
         self.client
@@ -248,6 +246,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: ListOrganizationFeatureFlagsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<FlagList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
         let path = format!("/organizations/{organization_id}/feature-flags");
         let method = http::Method::GET;
         self.client
@@ -270,30 +269,18 @@ impl<'a> FeatureFlagsApi<'a> {
         organization_id: impl Into<String>,
         params: ListOrganizationFeatureFlagsParams,
     ) -> impl futures_util::Stream<Item = Result<Flag, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let organization_id: String = organization_id.into();
-        let initial = (Some(params), organization_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, organization_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_organization_feature_flags(&organization_id, params.clone())
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_id = organization_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_organization_feature_flags(&organization_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk =
-                    futures_util::stream::iter(page.data.into_iter().map(Ok::<Flag, Error>));
-                Ok::<_, Error>(Some((chunk, (next, organization_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// List enabled feature flags for a user
@@ -315,6 +302,7 @@ impl<'a> FeatureFlagsApi<'a> {
         params: ListUserFeatureFlagsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<FlagList, Error> {
+        let user_id = crate::client::path_segment(user_id);
         let path = format!("/user_management/users/{user_id}/feature-flags");
         let method = http::Method::GET;
         self.client
@@ -337,25 +325,15 @@ impl<'a> FeatureFlagsApi<'a> {
         user_id: impl Into<String>,
         params: ListUserFeatureFlagsParams,
     ) -> impl futures_util::Stream<Item = Result<Flag, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let user_id: String = user_id.into();
-        let initial = (Some(params), user_id, self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, user_id, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this
-                .list_user_feature_flags(&user_id, params.clone())
-                .await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(page.data.into_iter().map(Ok::<Flag, Error>));
-            Ok::<_, Error>(Some((chunk, (next, user_id, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let user_id = user_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_user_feature_flags(&user_id, params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 }

@@ -10,13 +10,21 @@ async fn api_keys_list_organization_api_keys_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organizations/test_id/api_keys"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/organization_api_key_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.api_keys();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .api_keys()
+        .list_organization_api_keys(
+            "test_id",
+            workos::api_keys::ListOrganizationApiKeysParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +32,23 @@ async fn api_keys_create_organization_api_key_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/organizations/test_id/api_keys"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/organization_api_key_with_value.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.api_keys();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .api_keys()
+        .create_organization_api_key(
+            "test_id",
+            workos::api_keys::CreateOrganizationApiKeyParams::new(
+                serde_json::from_str(include_str!("fixtures/create_organization_api_key.json"))
+                    .expect("parse fixture for CreateOrganizationApiKey"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +56,21 @@ async fn api_keys_create_validation_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/api_keys/validations"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/api_key_validation_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.api_keys();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .api_keys()
+        .create_validation(workos::api_keys::CreateValidationParams::new(
+            serde_json::from_str(include_str!("fixtures/validate_api_key.json"))
+                .expect("parse fixture for ValidateApiKey"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -53,10 +79,9 @@ async fn api_keys_delete_api_key_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/api_keys/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.api_keys();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.api_keys().delete_api_key("test_id").await;
 }

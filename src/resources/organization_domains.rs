@@ -70,6 +70,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<OrganizationDomainStandAlone, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organization_domains/{id}");
         let method = http::Method::GET;
         self.client
@@ -90,6 +91,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organization_domains/{id}");
         let method = http::Method::DELETE;
         self.client
@@ -113,6 +115,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<OrganizationDomainStandAlone, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/organization_domains/{id}/verify");
         let method = http::Method::POST;
         self.client

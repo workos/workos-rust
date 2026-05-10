@@ -12,13 +12,24 @@ async fn authorization_check_round_trip() {
         .and(path_matcher(
             "/authorization/organization_memberships/test_id/check",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_check.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .check(
+            "test_id",
+            workos::authorization::CheckParams::new(
+                serde_json::from_str(include_str!("fixtures/check_authorization.json"))
+                    .expect("parse fixture for CheckAuthorization"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -28,13 +39,23 @@ async fn authorization_list_resources_for_membership_round_trip() {
         .and(path_matcher(
             "/authorization/organization_memberships/test_id/resources",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_resource_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_resources_for_membership(
+            "test_id",
+            workos::authorization::ListResourcesForMembershipParams::new(
+                "stub_permission_slug".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -44,13 +65,22 @@ async fn authorization_list_effective_permissions_round_trip() {
         .and(path_matcher(
             "/authorization/organization_memberships/test_id/resources/test_id/permissions",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_permission_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_effective_permissions(
+            "test_id",
+            "test_id",
+            workos::authorization::ListEffectivePermissionsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -60,13 +90,23 @@ async fn authorization_list_effective_permissions_by_external_id_round_trip() {
         .and(path_matcher(
             "/authorization/organization_memberships/test_id/resources/test_id/test_id/permissions",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_permission_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_effective_permissions_by_external_id(
+            "test_id",
+            "test_id",
+            "test_id",
+            workos::authorization::ListEffectivePermissionsByExternalIdParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -76,13 +116,21 @@ async fn authorization_list_role_assignments_round_trip() {
         .and(path_matcher(
             "/authorization/organization_memberships/test_id/role_assignments",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_role_assignment_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_role_assignments(
+            "test_id",
+            workos::authorization::ListRoleAssignmentsParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -92,13 +140,24 @@ async fn authorization_assign_role_round_trip() {
         .and(path_matcher(
             "/authorization/organization_memberships/test_id/role_assignments",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_role_assignment.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .assign_role(
+            "test_id",
+            workos::authorization::AssignRoleParams::new(
+                serde_json::from_str(include_str!("fixtures/assign_role.json"))
+                    .expect("parse fixture for AssignRole"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -109,12 +168,20 @@ async fn authorization_remove_role_round_trip() {
             "/authorization/organization_memberships/test_id/role_assignments",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .remove_role(
+            "test_id",
+            workos::authorization::RemoveRoleParams::new(
+                serde_json::from_str(include_str!("fixtures/remove_role.json"))
+                    .expect("parse fixture for RemoveRole"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -125,12 +192,14 @@ async fn authorization_remove_role_assignment_round_trip() {
             "/authorization/organization_memberships/test_id/role_assignments/test_id",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .remove_role_assignment("test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -138,13 +207,17 @@ async fn authorization_list_organization_roles_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/authorization/organizations/test_id/roles"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_organization_roles("test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -152,13 +225,23 @@ async fn authorization_create_organization_role_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/authorization/organizations/test_id/roles"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .create_organization_role(
+            "test_id",
+            workos::authorization::CreateOrganizationRoleParams::new(
+                serde_json::from_str(include_str!("fixtures/create_organization_role.json"))
+                    .expect("parse fixture for CreateOrganizationRole"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -168,13 +251,17 @@ async fn authorization_get_organization_role_round_trip() {
         .and(path_matcher(
             "/authorization/organizations/test_id/roles/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .get_organization_role("test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -184,13 +271,23 @@ async fn authorization_update_organization_role_round_trip() {
         .and(path_matcher(
             "/authorization/organizations/test_id/roles/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .update_organization_role(
+            "test_id",
+            "test_id",
+            workos::authorization::UpdateOrganizationRoleParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateOrganizationRole"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -201,12 +298,14 @@ async fn authorization_delete_organization_role_round_trip() {
             "/authorization/organizations/test_id/roles/test_id",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .delete_organization_role("test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -216,13 +315,24 @@ async fn authorization_add_organization_role_permission_round_trip() {
         .and(path_matcher(
             "/authorization/organizations/test_id/roles/test_id/permissions",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .add_organization_role_permission(
+            "test_id",
+            "test_id",
+            workos::authorization::AddOrganizationRolePermissionParams::new(
+                serde_json::from_str(include_str!("fixtures/add_role_permission.json"))
+                    .expect("parse fixture for AddRolePermission"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -232,13 +342,24 @@ async fn authorization_set_organization_role_permissions_round_trip() {
         .and(path_matcher(
             "/authorization/organizations/test_id/roles/test_id/permissions",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .set_organization_role_permissions(
+            "test_id",
+            "test_id",
+            workos::authorization::SetOrganizationRolePermissionsParams::new(
+                serde_json::from_str(include_str!("fixtures/set_role_permissions.json"))
+                    .expect("parse fixture for SetRolePermissions"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -248,13 +369,17 @@ async fn authorization_remove_organization_role_permission_round_trip() {
         .and(path_matcher(
             "/authorization/organizations/test_id/roles/test_id/permissions/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .remove_organization_role_permission("test_id", "test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -264,13 +389,18 @@ async fn authorization_get_resource_by_external_id_round_trip() {
         .and(path_matcher(
             "/authorization/organizations/test_id/resources/test_id/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_resource.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .get_resource_by_external_id("test_id", "test_id", "test_id")
+        .await;
 }
 
 #[tokio::test]
@@ -280,13 +410,25 @@ async fn authorization_update_resource_by_external_id_round_trip() {
         .and(path_matcher(
             "/authorization/organizations/test_id/resources/test_id/test_id",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_resource.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .update_resource_by_external_id(
+            "test_id",
+            "test_id",
+            "test_id",
+            workos::authorization::UpdateResourceByExternalIdParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateAuthorizationResource"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -297,28 +439,42 @@ async fn authorization_delete_resource_by_external_id_round_trip() {
             "/authorization/organizations/test_id/resources/test_id/test_id",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .delete_resource_by_external_id(
+            "test_id",
+            "test_id",
+            "test_id",
+            workos::authorization::DeleteResourceByExternalIdParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
 async fn authorization_list_memberships_for_resource_by_external_id_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path_matcher(
-            "/authorization/organizations/test_id/resources/test_id/test_id/organization_memberships",
-        ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .and(path_matcher("/authorization/organizations/test_id/resources/test_id/test_id/organization_memberships"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!("fixtures/user_organization_membership_base_list.json")))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_memberships_for_resource_by_external_id(
+            "test_id",
+            "test_id",
+            "test_id",
+            workos::authorization::ListMembershipsForResourceByExternalIdParams::new(
+                "stub_permission_slug".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -328,13 +484,23 @@ async fn authorization_list_role_assignments_for_resource_by_external_id_round_t
         .and(path_matcher(
             "/authorization/organizations/test_id/resources/test_id/test_id/role_assignments",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_role_assignment_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_role_assignments_for_resource_by_external_id(
+            "test_id",
+            "test_id",
+            "test_id",
+            workos::authorization::ListRoleAssignmentsForResourceByExternalIdParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -342,13 +508,18 @@ async fn authorization_list_resources_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/authorization/resources"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_resource_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_resources(workos::authorization::ListResourcesParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -356,13 +527,21 @@ async fn authorization_create_resource_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/authorization/resources"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_resource.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .create_resource(workos::authorization::CreateResourceParams::new(
+            serde_json::from_str(include_str!("fixtures/create_authorization_resource.json"))
+                .expect("parse fixture for CreateAuthorizationResource"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -370,13 +549,15 @@ async fn authorization_get_resource_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/authorization/resources/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_resource.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.authorization().get_resource("test_id").await;
 }
 
 #[tokio::test]
@@ -384,13 +565,23 @@ async fn authorization_update_resource_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PATCH"))
         .and(path_matcher("/authorization/resources/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_resource.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .update_resource(
+            "test_id",
+            workos::authorization::UpdateResourceParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateAuthorizationResource"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -399,12 +590,17 @@ async fn authorization_delete_resource_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/authorization/resources/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .delete_resource(
+            "test_id",
+            workos::authorization::DeleteResourceParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -414,13 +610,22 @@ async fn authorization_list_memberships_for_resource_round_trip() {
         .and(path_matcher(
             "/authorization/resources/test_id/organization_memberships",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/user_organization_membership_base_list.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_memberships_for_resource(
+            "test_id",
+            workos::authorization::ListMembershipsForResourceParams::new(
+                "stub_permission_slug".to_string(),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -430,13 +635,21 @@ async fn authorization_list_role_assignments_for_resource_round_trip() {
         .and(path_matcher(
             "/authorization/resources/test_id/role_assignments",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_role_assignment_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_role_assignments_for_resource(
+            "test_id",
+            workos::authorization::ListRoleAssignmentsForResourceParams::default(),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -444,13 +657,14 @@ async fn authorization_list_environment_roles_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/authorization/roles"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.authorization().list_environment_roles().await;
 }
 
 #[tokio::test]
@@ -458,13 +672,20 @@ async fn authorization_create_environment_role_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/authorization/roles"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .create_environment_role(workos::authorization::CreateEnvironmentRoleParams::new(
+            serde_json::from_str(include_str!("fixtures/create_role.json"))
+                .expect("parse fixture for CreateRole"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -472,13 +693,14 @@ async fn authorization_get_environment_role_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/authorization/roles/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.authorization().get_environment_role("test_id").await;
 }
 
 #[tokio::test]
@@ -486,13 +708,22 @@ async fn authorization_update_environment_role_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PATCH"))
         .and(path_matcher("/authorization/roles/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .update_environment_role(
+            "test_id",
+            workos::authorization::UpdateEnvironmentRoleParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateRole"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -500,13 +731,23 @@ async fn authorization_add_environment_role_permission_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/authorization/roles/test_id/permissions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .add_environment_role_permission(
+            "test_id",
+            workos::authorization::AddEnvironmentRolePermissionParams::new(
+                serde_json::from_str(include_str!("fixtures/add_role_permission.json"))
+                    .expect("parse fixture for AddRolePermission"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -514,13 +755,23 @@ async fn authorization_set_environment_role_permissions_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
         .and(path_matcher("/authorization/roles/test_id/permissions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/role.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .set_environment_role_permissions(
+            "test_id",
+            workos::authorization::SetEnvironmentRolePermissionsParams::new(
+                serde_json::from_str(include_str!("fixtures/set_role_permissions.json"))
+                    .expect("parse fixture for SetRolePermissions"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -528,13 +779,18 @@ async fn authorization_list_permissions_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/authorization/permissions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_permission_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .list_permissions(workos::authorization::ListPermissionsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -542,13 +798,22 @@ async fn authorization_create_permission_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/authorization/permissions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/permission.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .create_permission(workos::authorization::CreatePermissionParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/create_authorization_permission.json"
+            ))
+            .expect("parse fixture for CreateAuthorizationPermission"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -556,13 +821,15 @@ async fn authorization_get_permission_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/authorization/permissions/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_permission.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.authorization().get_permission("test_id").await;
 }
 
 #[tokio::test]
@@ -570,13 +837,23 @@ async fn authorization_update_permission_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PATCH"))
         .and(path_matcher("/authorization/permissions/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authorization_permission.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .authorization()
+        .update_permission(
+            "test_id",
+            workos::authorization::UpdatePermissionParams::new(
+                serde_json::from_str("{}").expect("parse stub for UpdateAuthorizationPermission"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -585,10 +862,9 @@ async fn authorization_delete_permission_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/authorization/permissions/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.authorization();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.authorization().delete_permission("test_id").await;
 }

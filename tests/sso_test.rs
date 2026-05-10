@@ -10,13 +10,18 @@ async fn sso_list_connections_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/connections"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connection_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.sso();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .sso()
+        .list_connections(workos::sso::ListConnectionsParams::default())
+        .await;
 }
 
 #[tokio::test]
@@ -24,13 +29,14 @@ async fn sso_get_connection_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/connections/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/connection.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.sso();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.sso().get_connection("test_id").await;
 }
 
 #[tokio::test]
@@ -39,12 +45,11 @@ async fn sso_delete_connection_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/connections/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.sso();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.sso().delete_connection("test_id").await;
 }
 
 #[tokio::test]
@@ -52,13 +57,20 @@ async fn sso_get_authorization_url_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/sso/authorize"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/sso_authorize_url_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.sso();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .sso()
+        .get_authorization_url(workos::sso::GetAuthorizationUrlParams::new(
+            "stub_redirect_uri".to_string(),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -67,12 +79,16 @@ async fn sso_get_logout_url_round_trip() {
     Mock::given(method("GET"))
         .and(path_matcher("/sso/logout"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.sso();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .sso()
+        .get_logout_url(workos::sso::GetLogoutUrlParams::new(
+            "stub_token".to_string(),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -80,13 +96,21 @@ async fn sso_authorize_logout_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/sso/logout/authorize"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/sso_logout_authorize_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.sso();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .sso()
+        .authorize_logout(workos::sso::AuthorizeLogoutParams::new(
+            serde_json::from_str(include_str!("fixtures/sso_logout_authorize_request.json"))
+                .expect("parse fixture for SSOLogoutAuthorizeRequest"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -94,13 +118,14 @@ async fn sso_get_profile_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/sso/profile"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/profile.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.sso();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.sso().get_profile().await;
 }
 
 #[tokio::test]
@@ -108,11 +133,20 @@ async fn sso_get_profile_and_token_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/sso/token"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/sso_token_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.sso();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .sso()
+        .get_profile_and_token(workos::sso::GetProfileAndTokenParams::new(
+            "stub_code".to_string(),
+            serde_json::from_str(include_str!("fixtures/token_query.json"))
+                .expect("parse fixture for TokenQuery"),
+        ))
+        .await;
 }

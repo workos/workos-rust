@@ -10,11 +10,19 @@ async fn widgets_create_token_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/widgets/token"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/widget_session_token_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.widgets();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .widgets()
+        .create_token(workos::widgets::CreateTokenParams::new(
+            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
+                .expect("parse fixture for WidgetSessionToken"),
+        ))
+        .await;
 }

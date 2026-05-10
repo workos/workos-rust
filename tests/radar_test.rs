@@ -10,13 +10,23 @@ async fn radar_create_attempt_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/radar/attempts"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/radar_standalone_response.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.radar();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .radar()
+        .create_attempt(workos::radar::CreateAttemptParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/radar_standalone_assess_request.json"
+            ))
+            .expect("parse fixture for RadarStandaloneAssessRequest"),
+        ))
+        .await;
 }
 
 #[tokio::test]
@@ -25,12 +35,20 @@ async fn radar_update_attempt_round_trip() {
     Mock::given(method("PUT"))
         .and(path_matcher("/radar/attempts/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.radar();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .radar()
+        .update_attempt(
+            "test_id",
+            workos::radar::UpdateAttemptParams::new(
+                serde_json::from_str("{}")
+                    .expect("parse stub for RadarStandaloneUpdateRadarAttemptRequest"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -38,13 +56,26 @@ async fn radar_add_list_entry_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/radar/lists/test_id/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/radar_list_entry_already_present_response.json"
+        )))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.radar();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .radar()
+        .add_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::AddListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_update_radar_list_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneUpdateRadarListRequest"),
+            ),
+        )
+        .await;
 }
 
 #[tokio::test]
@@ -53,10 +84,21 @@ async fn radar_remove_list_entry_round_trip() {
     Mock::given(method("DELETE"))
         .and(path_matcher("/radar/lists/test_id/test_id"))
         .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.radar();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client
+        .radar()
+        .remove_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::RemoveListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_delete_radar_list_entry_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneDeleteRadarListEntryRequest"),
+            ),
+        )
+        .await;
 }

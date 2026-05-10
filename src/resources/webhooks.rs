@@ -100,25 +100,14 @@ impl<'a> WebhooksApi<'a> {
         &self,
         params: ListWebhookEndpointsParams,
     ) -> impl futures_util::Stream<Item = Result<WebhookEndpointJson, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_webhook_endpoints(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(
-                page.data.into_iter().map(Ok::<WebhookEndpointJson, Error>),
-            );
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_webhook_endpoints(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Create a Webhook Endpoint
@@ -164,6 +153,7 @@ impl<'a> WebhooksApi<'a> {
         params: UpdateWebhookEndpointParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<WebhookEndpointJson, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/webhook_endpoints/{id}");
         let method = http::Method::PATCH;
         self.client
@@ -184,6 +174,7 @@ impl<'a> WebhooksApi<'a> {
         id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let id = crate::client::path_segment(id);
         let path = format!("/webhook_endpoints/{id}");
         let method = http::Method::DELETE;
         self.client

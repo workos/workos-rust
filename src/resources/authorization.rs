@@ -573,6 +573,7 @@ impl<'a> AuthorizationApi<'a> {
         params: CheckParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationCheck, Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
         let path =
             format!("/authorization/organization_memberships/{organization_membership_id}/check");
         let method = http::Method::POST;
@@ -602,6 +603,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListResourcesForMembershipParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationResourceList, Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
         let path = format!(
             "/authorization/organization_memberships/{organization_membership_id}/resources"
         );
@@ -626,33 +628,18 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: impl Into<String>,
         params: ListResourcesForMembershipParams,
     ) -> impl futures_util::Stream<Item = Result<AuthorizationResource, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let organization_membership_id: String = organization_membership_id.into();
-        let initial = (Some(params), organization_membership_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, organization_membership_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_resources_for_membership(&organization_membership_id, params.clone())
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_membership_id = organization_membership_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_resources_for_membership(&organization_membership_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data
-                        .into_iter()
-                        .map(Ok::<AuthorizationResource, Error>),
-                );
-                Ok::<_, Error>(Some((chunk, (next, organization_membership_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// List effective permissions for an organization membership on a resource
@@ -681,6 +668,8 @@ impl<'a> AuthorizationApi<'a> {
         params: ListEffectivePermissionsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationPermissionList, Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
+        let resource_id = crate::client::path_segment(resource_id);
         let path = format!(
             "/authorization/organization_memberships/{organization_membership_id}/resources/{resource_id}/permissions"
         );
@@ -706,41 +695,20 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: impl Into<String>,
         params: ListEffectivePermissionsParams,
     ) -> impl futures_util::Stream<Item = Result<AuthorizationPermission, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let organization_membership_id: String = organization_membership_id.into();
         let resource_id: String = resource_id.into();
-        let initial = (Some(params), organization_membership_id, resource_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, organization_membership_id, resource_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_effective_permissions(
-                        &organization_membership_id,
-                        &resource_id,
-                        params.clone(),
-                    )
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_membership_id = organization_membership_id.clone();
+            let resource_id = resource_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_effective_permissions(&organization_membership_id, &resource_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data
-                        .into_iter()
-                        .map(Ok::<AuthorizationPermission, Error>),
-                );
-                Ok::<_, Error>(Some((
-                    chunk,
-                    (next, organization_membership_id, resource_id, this),
-                )))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// List effective permissions for an organization membership on a resource by external ID
@@ -772,6 +740,9 @@ impl<'a> AuthorizationApi<'a> {
         params: ListEffectivePermissionsByExternalIdParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationPermissionList, Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
+        let resource_type_slug = crate::client::path_segment(resource_type_slug);
+        let external_id = crate::client::path_segment(external_id);
         let path = format!(
             "/authorization/organization_memberships/{organization_membership_id}/resources/{resource_type_slug}/{external_id}/permissions"
         );
@@ -798,61 +769,27 @@ impl<'a> AuthorizationApi<'a> {
         external_id: impl Into<String>,
         params: ListEffectivePermissionsByExternalIdParams,
     ) -> impl futures_util::Stream<Item = Result<AuthorizationPermission, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let organization_membership_id: String = organization_membership_id.into();
         let resource_type_slug: String = resource_type_slug.into();
         let external_id: String = external_id.into();
-        let initial = (
-            Some(params),
-            organization_membership_id,
-            resource_type_slug,
-            external_id,
-            self,
-        );
-        futures_util::stream::try_unfold(
-            initial,
-            move |(
-                maybe_params,
-                organization_membership_id,
-                resource_type_slug,
-                external_id,
-                this,
-            )| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_membership_id = organization_membership_id.clone();
+            let resource_type_slug = resource_type_slug.clone();
+            let external_id = external_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
                     .list_effective_permissions_by_external_id(
                         &organization_membership_id,
                         &resource_type_slug,
                         &external_id,
-                        params.clone(),
+                        params,
                     )
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data
-                        .into_iter()
-                        .map(Ok::<AuthorizationPermission, Error>),
-                );
-                Ok::<_, Error>(Some((
-                    chunk,
-                    (
-                        next,
-                        organization_membership_id,
-                        resource_type_slug,
-                        external_id,
-                        this,
-                    ),
-                )))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// List role assignments
@@ -874,6 +811,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListRoleAssignmentsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserRoleAssignmentList, Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
         let path = format!(
             "/authorization/organization_memberships/{organization_membership_id}/role_assignments"
         );
@@ -898,31 +836,18 @@ impl<'a> AuthorizationApi<'a> {
         organization_membership_id: impl Into<String>,
         params: ListRoleAssignmentsParams,
     ) -> impl futures_util::Stream<Item = Result<UserRoleAssignment, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let organization_membership_id: String = organization_membership_id.into();
-        let initial = (Some(params), organization_membership_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, organization_membership_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_role_assignments(&organization_membership_id, params.clone())
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_membership_id = organization_membership_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_role_assignments(&organization_membership_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data.into_iter().map(Ok::<UserRoleAssignment, Error>),
-                );
-                Ok::<_, Error>(Some((chunk, (next, organization_membership_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// Assign a role
@@ -944,6 +869,7 @@ impl<'a> AuthorizationApi<'a> {
         params: AssignRoleParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserRoleAssignment, Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
         let path = format!(
             "/authorization/organization_memberships/{organization_membership_id}/role_assignments"
         );
@@ -972,6 +898,7 @@ impl<'a> AuthorizationApi<'a> {
         params: RemoveRoleParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
         let path = format!(
             "/authorization/organization_memberships/{organization_membership_id}/role_assignments"
         );
@@ -1004,6 +931,8 @@ impl<'a> AuthorizationApi<'a> {
         role_assignment_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
+        let role_assignment_id = crate::client::path_segment(role_assignment_id);
         let path = format!(
             "/authorization/organization_memberships/{organization_membership_id}/role_assignments/{role_assignment_id}"
         );
@@ -1027,6 +956,7 @@ impl<'a> AuthorizationApi<'a> {
         organization_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<RoleList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
         let path = format!("/authorization/organizations/{organization_id}/roles");
         let method = http::Method::GET;
         self.client
@@ -1053,6 +983,7 @@ impl<'a> AuthorizationApi<'a> {
         params: CreateOrganizationRoleParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
         let path = format!("/authorization/organizations/{organization_id}/roles");
         let method = http::Method::POST;
         self.client
@@ -1079,6 +1010,8 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/organizations/{organization_id}/roles/{slug}");
         let method = http::Method::GET;
         self.client
@@ -1107,6 +1040,8 @@ impl<'a> AuthorizationApi<'a> {
         params: UpdateOrganizationRoleParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/organizations/{organization_id}/roles/{slug}");
         let method = http::Method::PATCH;
         self.client
@@ -1133,6 +1068,8 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/organizations/{organization_id}/roles/{slug}");
         let method = http::Method::DELETE;
         self.client
@@ -1161,6 +1098,8 @@ impl<'a> AuthorizationApi<'a> {
         params: AddOrganizationRolePermissionParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
         let path =
             format!("/authorization/organizations/{organization_id}/roles/{slug}/permissions");
         let method = http::Method::POST;
@@ -1190,6 +1129,8 @@ impl<'a> AuthorizationApi<'a> {
         params: SetOrganizationRolePermissionsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
         let path =
             format!("/authorization/organizations/{organization_id}/roles/{slug}/permissions");
         let method = http::Method::PUT;
@@ -1224,6 +1165,9 @@ impl<'a> AuthorizationApi<'a> {
         permission_slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
+        let permission_slug = crate::client::path_segment(permission_slug);
         let path = format!(
             "/authorization/organizations/{organization_id}/roles/{slug}/permissions/{permission_slug}"
         );
@@ -1259,6 +1203,9 @@ impl<'a> AuthorizationApi<'a> {
         external_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationResource, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let resource_type_slug = crate::client::path_segment(resource_type_slug);
+        let external_id = crate::client::path_segment(external_id);
         let path = format!(
             "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}"
         );
@@ -1297,6 +1244,9 @@ impl<'a> AuthorizationApi<'a> {
         params: UpdateResourceByExternalIdParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationResource, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let resource_type_slug = crate::client::path_segment(resource_type_slug);
+        let external_id = crate::client::path_segment(external_id);
         let path = format!(
             "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}"
         );
@@ -1335,6 +1285,9 @@ impl<'a> AuthorizationApi<'a> {
         params: DeleteResourceByExternalIdParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let resource_type_slug = crate::client::path_segment(resource_type_slug);
+        let external_id = crate::client::path_segment(external_id);
         let path = format!(
             "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}"
         );
@@ -1373,6 +1326,9 @@ impl<'a> AuthorizationApi<'a> {
         params: ListMembershipsForResourceByExternalIdParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserOrganizationMembershipBaseList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let resource_type_slug = crate::client::path_segment(resource_type_slug);
+        let external_id = crate::client::path_segment(external_id);
         let path = format!(
             "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}/organization_memberships"
         );
@@ -1400,34 +1356,27 @@ impl<'a> AuthorizationApi<'a> {
         params: ListMembershipsForResourceByExternalIdParams,
     ) -> impl futures_util::Stream<Item = Result<UserOrganizationMembershipBaseListData, Error>> + '_
     {
-        use futures_util::TryStreamExt;
         let organization_id: String = organization_id.into();
         let resource_type_slug: String = resource_type_slug.into();
         let external_id: String = external_id.into();
-        let initial = (
-            Some(params),
-            organization_id,
-            resource_type_slug,
-            external_id,
-            self,
-        );
-        futures_util::stream::try_unfold(initial, move |(maybe_params, organization_id, resource_type_slug, external_id, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_memberships_for_resource_by_external_id(&organization_id, &resource_type_slug, &external_id, params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(
-                page.data.into_iter().map(Ok::<UserOrganizationMembershipBaseListData, Error>),
-            );
-            Ok::<_, Error>(Some((chunk, (next, organization_id, resource_type_slug, external_id, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_id = organization_id.clone();
+            let resource_type_slug = resource_type_slug.clone();
+            let external_id = external_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_memberships_for_resource_by_external_id(
+                        &organization_id,
+                        &resource_type_slug,
+                        &external_id,
+                        params,
+                    )
+                    .await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// List role assignments for a resource by external ID
@@ -1459,6 +1408,9 @@ impl<'a> AuthorizationApi<'a> {
         params: ListRoleAssignmentsForResourceByExternalIdParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserRoleAssignmentList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let resource_type_slug = crate::client::path_segment(resource_type_slug);
+        let external_id = crate::client::path_segment(external_id);
         let path = format!(
             "/authorization/organizations/{organization_id}/resources/{resource_type_slug}/{external_id}/role_assignments"
         );
@@ -1485,34 +1437,27 @@ impl<'a> AuthorizationApi<'a> {
         external_id: impl Into<String>,
         params: ListRoleAssignmentsForResourceByExternalIdParams,
     ) -> impl futures_util::Stream<Item = Result<UserRoleAssignment, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let organization_id: String = organization_id.into();
         let resource_type_slug: String = resource_type_slug.into();
         let external_id: String = external_id.into();
-        let initial = (
-            Some(params),
-            organization_id,
-            resource_type_slug,
-            external_id,
-            self,
-        );
-        futures_util::stream::try_unfold(initial, move |(maybe_params, organization_id, resource_type_slug, external_id, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_role_assignments_for_resource_by_external_id(&organization_id, &resource_type_slug, &external_id, params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(
-                page.data.into_iter().map(Ok::<UserRoleAssignment, Error>),
-            );
-            Ok::<_, Error>(Some((chunk, (next, organization_id, resource_type_slug, external_id, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_id = organization_id.clone();
+            let resource_type_slug = resource_type_slug.clone();
+            let external_id = external_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_role_assignments_for_resource_by_external_id(
+                        &organization_id,
+                        &resource_type_slug,
+                        &external_id,
+                        params,
+                    )
+                    .await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// List resources
@@ -1552,27 +1497,14 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         params: ListResourcesParams,
     ) -> impl futures_util::Stream<Item = Result<AuthorizationResource, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_resources(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(
-                page.data
-                    .into_iter()
-                    .map(Ok::<AuthorizationResource, Error>),
-            );
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_resources(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Create an authorization resource
@@ -1611,6 +1543,7 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationResource, Error> {
+        let resource_id = crate::client::path_segment(resource_id);
         let path = format!("/authorization/resources/{resource_id}");
         let method = http::Method::GET;
         self.client
@@ -1637,6 +1570,7 @@ impl<'a> AuthorizationApi<'a> {
         params: UpdateResourceParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationResource, Error> {
+        let resource_id = crate::client::path_segment(resource_id);
         let path = format!("/authorization/resources/{resource_id}");
         let method = http::Method::PATCH;
         self.client
@@ -1663,6 +1597,7 @@ impl<'a> AuthorizationApi<'a> {
         params: DeleteResourceParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let resource_id = crate::client::path_segment(resource_id);
         let path = format!("/authorization/resources/{resource_id}");
         let method = http::Method::DELETE;
         self.client
@@ -1689,6 +1624,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListMembershipsForResourceParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserOrganizationMembershipBaseList, Error> {
+        let resource_id = crate::client::path_segment(resource_id);
         let path = format!("/authorization/resources/{resource_id}/organization_memberships");
         let method = http::Method::GET;
         self.client
@@ -1712,33 +1648,18 @@ impl<'a> AuthorizationApi<'a> {
         params: ListMembershipsForResourceParams,
     ) -> impl futures_util::Stream<Item = Result<UserOrganizationMembershipBaseListData, Error>> + '_
     {
-        use futures_util::TryStreamExt;
         let resource_id: String = resource_id.into();
-        let initial = (Some(params), resource_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, resource_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_memberships_for_resource(&resource_id, params.clone())
+        crate::pagination::auto_paginate_pages(move |after| {
+            let resource_id = resource_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_memberships_for_resource(&resource_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data
-                        .into_iter()
-                        .map(Ok::<UserOrganizationMembershipBaseListData, Error>),
-                );
-                Ok::<_, Error>(Some((chunk, (next, resource_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// List role assignments for a resource
@@ -1760,6 +1681,7 @@ impl<'a> AuthorizationApi<'a> {
         params: ListRoleAssignmentsForResourceParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<UserRoleAssignmentList, Error> {
+        let resource_id = crate::client::path_segment(resource_id);
         let path = format!("/authorization/resources/{resource_id}/role_assignments");
         let method = http::Method::GET;
         self.client
@@ -1782,31 +1704,18 @@ impl<'a> AuthorizationApi<'a> {
         resource_id: impl Into<String>,
         params: ListRoleAssignmentsForResourceParams,
     ) -> impl futures_util::Stream<Item = Result<UserRoleAssignment, Error>> + '_ {
-        use futures_util::TryStreamExt;
         let resource_id: String = resource_id.into();
-        let initial = (Some(params), resource_id, self);
-        futures_util::stream::try_unfold(
-            initial,
-            move |(maybe_params, resource_id, this)| async move {
-                let Some(params) = maybe_params else {
-                    return Ok::<_, Error>(None);
-                };
-                let page = this
-                    .list_role_assignments_for_resource(&resource_id, params.clone())
+        crate::pagination::auto_paginate_pages(move |after| {
+            let resource_id = resource_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_role_assignments_for_resource(&resource_id, params)
                     .await?;
-                let next_after = page.list_metadata.after.clone();
-                let next = next_after.map(|after| {
-                    let mut p = params;
-                    p.after = Some(after);
-                    p
-                });
-                let chunk = futures_util::stream::iter(
-                    page.data.into_iter().map(Ok::<UserRoleAssignment, Error>),
-                );
-                Ok::<_, Error>(Some((chunk, (next, resource_id, this))))
-            },
-        )
-        .try_flatten()
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// List environment roles
@@ -1865,6 +1774,7 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/roles/{slug}");
         let method = http::Method::GET;
         self.client
@@ -1891,6 +1801,7 @@ impl<'a> AuthorizationApi<'a> {
         params: UpdateEnvironmentRoleParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/roles/{slug}");
         let method = http::Method::PATCH;
         self.client
@@ -1917,6 +1828,7 @@ impl<'a> AuthorizationApi<'a> {
         params: AddEnvironmentRolePermissionParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/roles/{slug}/permissions");
         let method = http::Method::POST;
         self.client
@@ -1943,6 +1855,7 @@ impl<'a> AuthorizationApi<'a> {
         params: SetEnvironmentRolePermissionsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Role, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/roles/{slug}/permissions");
         let method = http::Method::PUT;
         self.client
@@ -1987,27 +1900,14 @@ impl<'a> AuthorizationApi<'a> {
         &self,
         params: ListPermissionsParams,
     ) -> impl futures_util::Stream<Item = Result<AuthorizationPermission, Error>> + '_ {
-        use futures_util::TryStreamExt;
-        let initial = (Some(params), self);
-        futures_util::stream::try_unfold(initial, move |(maybe_params, this)| async move {
-            let Some(params) = maybe_params else {
-                return Ok::<_, Error>(None);
-            };
-            let page = this.list_permissions(params.clone()).await?;
-            let next_after = page.list_metadata.after.clone();
-            let next = next_after.map(|after| {
-                let mut p = params;
-                p.after = Some(after);
-                p
-            });
-            let chunk = futures_util::stream::iter(
-                page.data
-                    .into_iter()
-                    .map(Ok::<AuthorizationPermission, Error>),
-            );
-            Ok::<_, Error>(Some((chunk, (next, this))))
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_permissions(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
         })
-        .try_flatten()
     }
 
     /// Create a permission
@@ -2046,6 +1946,7 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationPermission, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/permissions/{slug}");
         let method = http::Method::GET;
         self.client
@@ -2072,6 +1973,7 @@ impl<'a> AuthorizationApi<'a> {
         params: UpdatePermissionParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<AuthorizationPermission, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/permissions/{slug}");
         let method = http::Method::PATCH;
         self.client
@@ -2092,6 +1994,7 @@ impl<'a> AuthorizationApi<'a> {
         slug: &str,
         options: Option<&crate::RequestOptions>,
     ) -> Result<serde_json::Value, Error> {
+        let slug = crate::client::path_segment(slug);
         let path = format!("/authorization/permissions/{slug}");
         let method = http::Method::DELETE;
         self.client

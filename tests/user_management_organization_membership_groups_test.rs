@@ -13,11 +13,12 @@ async fn user_management_organization_membership_groups_list_organization_member
         .and(path_matcher(
             "/user_management/organization_memberships/test_id/groups",
         ))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/group_list.json")),
+        )
+        .expect(1)
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client.user_management_organization_membership_groups();
-    // Smoke: client + service handle compile and resolve.
-    assert!(server.uri().starts_with("http"));
+    let _ = client.user_management_organization_membership_groups().list_organization_membership_groups("test_id", workos::user_management_organization_membership_groups::ListOrganizationMembershipGroupsParams::default()).await;
 }

@@ -17,20 +17,26 @@ pub enum AuditLogEventActorMetadataOneOf {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ApiKeyOwnerOneOf {
+    #[serde(rename = "organization")]
     ApiKeyOwner(ApiKeyOwner),
+    #[serde(rename = "user")]
     UserApiKeyOwner(UserApiKeyOwner),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ApiKeyCreatedDataOwnerOneOf {
+    #[serde(rename = "organization")]
     ApiKeyCreatedDataOwner(ApiKeyCreatedDataOwner),
+    #[serde(rename = "user")]
     UserApiKeyCreatedDataOwner(UserApiKeyCreatedDataOwner),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ApiKeyRevokedDataOwnerOneOf {
+    #[serde(rename = "organization")]
     ApiKeyRevokedDataOwner(ApiKeyRevokedDataOwner),
+    #[serde(rename = "user")]
     UserApiKeyRevokedDataOwner(UserApiKeyRevokedDataOwner),
 }
