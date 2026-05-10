@@ -83,6 +83,84 @@ Every API call returns `Result<_, workos::Error>`. The error type includes API e
 
 See the [crate docs](https://docs.rs/workos) for the full resource list, request and response types, pagination details, and helper APIs.
 
+## Per-Request Options
+
+Each generated method has a `*_with_options` companion that takes a `RequestOptions`. Use it to pass an idempotency key, additional headers, or any other per-call override:
+
+```rust
+use workos::{RequestOptions, organizations::CreateOrganizationParams};
+
+let opts = RequestOptions::new().idempotency_key("ik_create_acme_42");
+
+let org = client
+    .organizations()
+    .create_organization_with_options(
+        CreateOrganizationParams::new(workos::OrganizationInput {
+            name: "Acme".into(),
+            ..Default::default()
+        }),
+        Some(&opts),
+    )
+    .await?;
+```
+
+Replaying a mutating request with the same idempotency key is safe; WorkOS recognises the key on the server side.
+
+## Errors
+
+API errors carry structured metadata. Always log `request_id()` when reporting bugs to WorkOS:
+
+```rust
+match client.organizations().get_organization("org_missing").await {
+    Ok(org) => println!("{org:?}"),
+    Err(err) if err.is_not_found() => println!("not found"),
+    Err(err) => {
+        eprintln!(
+            "API error {} (code={:?}, request_id={:?}): {}",
+            err.status().unwrap_or(0),
+            err.code(),
+            err.request_id(),
+            err.api().map(|a| a.message.as_str()).unwrap_or(""),
+        );
+        if let Some(after) = err.retry_after() {
+            eprintln!("retry after {after:?}");
+        }
+    }
+}
+```
+
+`err.api()` returns the full `ApiError` with the raw response headers and body for advanced debugging.
+
+## Retries
+
+The client retries `429` and `5xx` responses, plus retryable transport errors, up to `max_retries` times (default `3`) with exponential backoff. Set `0` to disable:
+
+```rust
+let client = workos::Client::builder()
+    .api_key(std::env::var("WORKOS_API_KEY").unwrap())
+    .max_retries(0)
+    .build();
+```
+
+Pair retries with an idempotency key when the request mutates state, so a redelivered request is processed exactly once.
+
+## Auto-Paging
+
+Every list endpoint generates a `*_auto_paging` companion that returns a `futures_util::Stream`, advancing the `after` cursor under the hood:
+
+```rust
+use futures_util::TryStreamExt;
+use workos::organizations::ListOrganizationsParams;
+
+let all: Vec<workos::Organization> = client
+    .organizations()
+    .list_organizations_auto_paging(ListOrganizationsParams::default())
+    .try_collect()
+    .await?;
+```
+
+For custom paginated flows the crate also re-exports the lower-level `auto_paginate(fetch)` helper, which drives any `(after) -> Result<Page<T>, _>` closure to exhaustion.
+
 ## Helpers
 
 The SDK includes hand-maintained helpers for:
