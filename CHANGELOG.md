@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0](https://github.com/workos/workos-rust/compare/v0.8.1...v1.0.0) (2026-05-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* prep for v1
+
+### Features
+
+* Add ApiError, RequestOptions, and auto-paging streams ([a1a66ba](https://github.com/workos/workos-rust/commit/a1a66ba8cad6f8d79456c4f951cd00b1c0d8b108))
+* **client:** Add path_segment encoder and shared auto-paging driver ([7f1c2d3](https://github.com/workos/workos-rust/commit/7f1c2d3b2490b588bf32abb8b5c76e1c0598e9e4))
+* **client:** Gate retries by safety and add per-request RequestStrategy ([1fb9b1c](https://github.com/workos/workos-rust/commit/1fb9b1c8835daeb77f603b689418b0860352de6c))
+* prep for v1 ([9b42e77](https://github.com/workos/workos-rust/commit/9b42e7753ae5b73ebcfb7cba9cebd9967a49c94f))
+* **secret:** Add SecretString wrapper for sensitive fields ([d3729a9](https://github.com/workos/workos-rust/commit/d3729a98c9ce6c9bf654779e8c252c7887f83cd5))
+
+
+### Bug Fixes
+
+* **helpers:** Harden webhook, session, and vault crypto paths ([98b8a59](https://github.com/workos/workos-rust/commit/98b8a59781d461a78b429c4757224d86a4bb68be))
+
 ## [Unreleased]
 
 ## [1.0.0]
