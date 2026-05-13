@@ -4,6 +4,7 @@ mod common;
 
 use wiremock::matchers::{method, path as path_matcher};
 use wiremock::{Mock, MockServer, ResponseTemplate};
+use workos::Error;
 
 #[tokio::test]
 async fn audit_logs_get_organization_audit_logs_retention_round_trip() {
@@ -22,6 +23,101 @@ async fn audit_logs_get_organization_audit_logs_retention_round_trip() {
         .audit_logs()
         .get_organization_audit_logs_retention("test_id")
         .await;
+}
+
+#[tokio::test]
+async fn audit_logs_get_organization_audit_logs_retention_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .get_organization_audit_logs_retention("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn audit_logs_get_organization_audit_logs_retention_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .get_organization_audit_logs_retention("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn audit_logs_get_organization_audit_logs_retention_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .get_organization_audit_logs_retention("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn audit_logs_get_organization_audit_logs_retention_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .get_organization_audit_logs_retention("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
 }
 
 #[tokio::test]
@@ -50,11 +146,190 @@ async fn audit_logs_update_organization_audit_logs_retention_round_trip() {
 }
 
 #[tokio::test]
+async fn audit_logs_update_organization_audit_logs_retention_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .update_organization_audit_logs_retention(
+            "test_id",
+            workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
+                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
+                    .expect("parse fixture for UpdateAuditLogsRetention"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn audit_logs_update_organization_audit_logs_retention_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .update_organization_audit_logs_retention(
+            "test_id",
+            workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
+                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
+                    .expect("parse fixture for UpdateAuditLogsRetention"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn audit_logs_update_organization_audit_logs_retention_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .update_organization_audit_logs_retention(
+            "test_id",
+            workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
+                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
+                    .expect("parse fixture for UpdateAuditLogsRetention"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn audit_logs_update_organization_audit_logs_retention_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .update_organization_audit_logs_retention(
+            "test_id",
+            workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
+                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
+                    .expect("parse fixture for UpdateAuditLogsRetention"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn audit_logs_update_organization_audit_logs_retention_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .update_organization_audit_logs_retention(
+            "test_id",
+            workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
+                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
+                    .expect("parse fixture for UpdateAuditLogsRetention"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn audit_logs_update_organization_audit_logs_retention_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/organizations/test_id/audit_logs_retention"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .update_organization_audit_logs_retention(
+            "test_id",
+            workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
+                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
+                    .expect("parse fixture for UpdateAuditLogsRetention"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn audit_logs_list_actions_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/audit_logs/actions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"audit_log_action\",\"name\":\"test_name\",\"schema\":{\"object\":\"audit_log_schema\",\"version\":0,\"targets\":[{\"type\":\"test_type\"}],\"created_at\":\"2023-01-01T00:00:00.000Z\"},\"created_at\":\"2023-01-01T00:00:00.000Z\",\"updated_at\":\"2023-01-01T00:00:00.000Z\"}]"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"audit_log_action\",\"name\":\"user.viewed_invoice\",\"schema\":{\"object\":\"audit_log_schema\",\"version\":1,\"targets\":[{\"type\":\"invoice\"}],\"created_at\":\"2026-01-15T12:00:00.000Z\"},\"created_at\":\"2026-01-15T12:00:00.000Z\",\"updated_at\":\"2026-01-15T12:00:00.000Z\"}]"))
         .expect(1)
         .mount(&server)
         .await;
@@ -66,11 +341,124 @@ async fn audit_logs_list_actions_round_trip() {
 }
 
 #[tokio::test]
+async fn audit_logs_list_actions_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .list_actions(workos::audit_logs::ListActionsParams::default())
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn audit_logs_list_actions_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .list_actions(workos::audit_logs::ListActionsParams::default())
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn audit_logs_list_actions_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .list_actions(workos::audit_logs::ListActionsParams::default())
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn audit_logs_list_actions_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .list_actions(workos::audit_logs::ListActionsParams::default())
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn audit_logs_list_actions_empty_page() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[]"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let resp = client
+        .audit_logs()
+        .list_actions(workos::audit_logs::ListActionsParams::default())
+        .await
+        .expect("expected success");
+    assert!(resp.is_empty(), "expected empty data array");
+}
+
+#[tokio::test]
 async fn audit_logs_list_action_schemas_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/audit_logs/actions/test_id/schemas"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"audit_log_schema\",\"version\":0,\"targets\":[{\"type\":\"test_type\"}],\"created_at\":\"2023-01-01T00:00:00.000Z\"}]"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"audit_log_schema\",\"version\":1,\"targets\":[{\"type\":\"invoice\"}],\"created_at\":\"2026-01-15T12:00:00.000Z\"}]"))
         .expect(1)
         .mount(&server)
         .await;
@@ -82,6 +470,134 @@ async fn audit_logs_list_action_schemas_round_trip() {
             workos::audit_logs::ListActionSchemasParams::default(),
         )
         .await;
+}
+
+#[tokio::test]
+async fn audit_logs_list_action_schemas_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .list_action_schemas(
+            "test_id",
+            workos::audit_logs::ListActionSchemasParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn audit_logs_list_action_schemas_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .list_action_schemas(
+            "test_id",
+            workos::audit_logs::ListActionSchemasParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn audit_logs_list_action_schemas_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .list_action_schemas(
+            "test_id",
+            workos::audit_logs::ListActionSchemasParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn audit_logs_list_action_schemas_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .list_action_schemas(
+            "test_id",
+            workos::audit_logs::ListActionSchemasParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn audit_logs_list_action_schemas_empty_page() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[]"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let resp = client
+        .audit_logs()
+        .list_action_schemas(
+            "test_id",
+            workos::audit_logs::ListActionSchemasParams::default(),
+        )
+        .await
+        .expect("expected success");
+    assert!(resp.is_empty(), "expected empty data array");
 }
 
 #[tokio::test]
@@ -110,6 +626,185 @@ async fn audit_logs_create_schema_round_trip() {
 }
 
 #[tokio::test]
+async fn audit_logs_create_schema_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_schema(
+            "test_id",
+            workos::audit_logs::CreateSchemaParams::new(
+                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
+                    .expect("parse fixture for AuditLogSchema"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn audit_logs_create_schema_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_schema(
+            "test_id",
+            workos::audit_logs::CreateSchemaParams::new(
+                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
+                    .expect("parse fixture for AuditLogSchema"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn audit_logs_create_schema_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_schema(
+            "test_id",
+            workos::audit_logs::CreateSchemaParams::new(
+                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
+                    .expect("parse fixture for AuditLogSchema"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn audit_logs_create_schema_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_schema(
+            "test_id",
+            workos::audit_logs::CreateSchemaParams::new(
+                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
+                    .expect("parse fixture for AuditLogSchema"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn audit_logs_create_schema_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_schema(
+            "test_id",
+            workos::audit_logs::CreateSchemaParams::new(
+                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
+                    .expect("parse fixture for AuditLogSchema"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn audit_logs_create_schema_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/actions/test_id/schemas"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_schema(
+            "test_id",
+            workos::audit_logs::CreateSchemaParams::new(
+                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
+                    .expect("parse fixture for AuditLogSchema"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn audit_logs_create_event_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
@@ -128,6 +823,167 @@ async fn audit_logs_create_event_round_trip() {
                 .expect("parse fixture for AuditLogEventIngestion"),
         ))
         .await;
+}
+
+#[tokio::test]
+async fn audit_logs_create_event_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/events"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_event(workos::audit_logs::CreateEventParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_event_ingestion.json"))
+                .expect("parse fixture for AuditLogEventIngestion"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn audit_logs_create_event_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/events"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_event(workos::audit_logs::CreateEventParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_event_ingestion.json"))
+                .expect("parse fixture for AuditLogEventIngestion"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn audit_logs_create_event_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/events"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_event(workos::audit_logs::CreateEventParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_event_ingestion.json"))
+                .expect("parse fixture for AuditLogEventIngestion"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn audit_logs_create_event_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/events"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_event(workos::audit_logs::CreateEventParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_event_ingestion.json"))
+                .expect("parse fixture for AuditLogEventIngestion"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn audit_logs_create_event_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/events"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_event(workos::audit_logs::CreateEventParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_event_ingestion.json"))
+                .expect("parse fixture for AuditLogEventIngestion"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn audit_logs_create_event_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/events"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_event(workos::audit_logs::CreateEventParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_event_ingestion.json"))
+                .expect("parse fixture for AuditLogEventIngestion"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }
 
 #[tokio::test]
@@ -153,6 +1009,167 @@ async fn audit_logs_create_export_round_trip() {
 }
 
 #[tokio::test]
+async fn audit_logs_create_export_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/exports"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_export(workos::audit_logs::CreateExportParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_export_creation.json"))
+                .expect("parse fixture for AuditLogExportCreation"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn audit_logs_create_export_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/exports"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_export(workos::audit_logs::CreateExportParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_export_creation.json"))
+                .expect("parse fixture for AuditLogExportCreation"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn audit_logs_create_export_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/exports"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_export(workos::audit_logs::CreateExportParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_export_creation.json"))
+                .expect("parse fixture for AuditLogExportCreation"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn audit_logs_create_export_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/exports"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_export(workos::audit_logs::CreateExportParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_export_creation.json"))
+                .expect("parse fixture for AuditLogExportCreation"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn audit_logs_create_export_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/exports"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_export(workos::audit_logs::CreateExportParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_export_creation.json"))
+                .expect("parse fixture for AuditLogExportCreation"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn audit_logs_create_export_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/audit_logs/exports"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .create_export(workos::audit_logs::CreateExportParams::new(
+            serde_json::from_str(include_str!("fixtures/audit_log_export_creation.json"))
+                .expect("parse fixture for AuditLogExportCreation"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn audit_logs_get_export_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
@@ -166,4 +1183,99 @@ async fn audit_logs_get_export_round_trip() {
         .await;
     let client = common::test_client(&server).await;
     let _ = client.audit_logs().get_export("test_id").await;
+}
+
+#[tokio::test]
+async fn audit_logs_get_export_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/exports/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .get_export("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn audit_logs_get_export_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/exports/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .get_export("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn audit_logs_get_export_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/exports/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .get_export("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn audit_logs_get_export_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/audit_logs/exports/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .audit_logs()
+        .get_export("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
 }

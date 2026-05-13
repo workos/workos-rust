@@ -1,10 +1,10 @@
 {
-  "auth_method": "test_auth_method",
+  "auth_method": "password",
   "action": "signup",
-  "control": "test_control",
-  "blocklist_type": "test_blocklist_type",
-  "ip_address": "test_ip_address",
-  "user_agent": "test_user_agent",
-  "user_id": "test_user_id",
-  "email": "test@example.com"
+  "control": "block",
+  "blocklist_type": "ip",
+  "ip_address": "203.0.113.42",
+  "user_agent": "Mozilla/5.0",
+  "user_id": "user_01E4ZCR3C56J083X43JQXF3JK5",
+  "email": "user@example.com"
 }

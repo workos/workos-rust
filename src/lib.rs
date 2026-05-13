@@ -54,6 +54,7 @@ pub mod error;
 pub mod helpers;
 pub mod models;
 pub mod pagination;
+pub mod query;
 pub mod resources;
 pub mod resources_api;
 pub mod secret;

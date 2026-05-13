@@ -4,6 +4,7 @@ mod common;
 
 use wiremock::matchers::{method, path as path_matcher};
 use wiremock::{Mock, MockServer, ResponseTemplate};
+use workos::Error;
 
 #[tokio::test]
 async fn widgets_create_token_round_trip() {
@@ -25,4 +26,165 @@ async fn widgets_create_token_round_trip() {
                 .expect("parse fixture for WidgetSessionToken"),
         ))
         .await;
+}
+
+#[tokio::test]
+async fn widgets_create_token_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/widgets/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .widgets()
+        .create_token(workos::widgets::CreateTokenParams::new(
+            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
+                .expect("parse fixture for WidgetSessionToken"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn widgets_create_token_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/widgets/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .widgets()
+        .create_token(workos::widgets::CreateTokenParams::new(
+            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
+                .expect("parse fixture for WidgetSessionToken"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn widgets_create_token_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/widgets/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .widgets()
+        .create_token(workos::widgets::CreateTokenParams::new(
+            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
+                .expect("parse fixture for WidgetSessionToken"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn widgets_create_token_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/widgets/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .widgets()
+        .create_token(workos::widgets::CreateTokenParams::new(
+            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
+                .expect("parse fixture for WidgetSessionToken"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn widgets_create_token_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/widgets/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .widgets()
+        .create_token(workos::widgets::CreateTokenParams::new(
+            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
+                .expect("parse fixture for WidgetSessionToken"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn widgets_create_token_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/widgets/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .widgets()
+        .create_token(workos::widgets::CreateTokenParams::new(
+            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
+                .expect("parse fixture for WidgetSessionToken"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }

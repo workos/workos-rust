@@ -4,6 +4,7 @@ mod common;
 
 use wiremock::matchers::{method, path as path_matcher};
 use wiremock::{Mock, MockServer, ResponseTemplate};
+use workos::Error;
 
 #[tokio::test]
 async fn multi_factor_auth_verify_challenge_round_trip() {
@@ -32,6 +33,197 @@ async fn multi_factor_auth_verify_challenge_round_trip() {
 }
 
 #[tokio::test]
+async fn multi_factor_auth_verify_challenge_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/challenges/test_id/verify"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .verify_challenge(
+            "test_id",
+            workos::multi_factor_auth::VerifyChallengeParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/authentication_challenges_verify_request.json"
+                ))
+                .expect("parse fixture for AuthenticationChallengesVerifyRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_verify_challenge_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/challenges/test_id/verify"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .verify_challenge(
+            "test_id",
+            workos::multi_factor_auth::VerifyChallengeParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/authentication_challenges_verify_request.json"
+                ))
+                .expect("parse fixture for AuthenticationChallengesVerifyRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_verify_challenge_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/challenges/test_id/verify"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .verify_challenge(
+            "test_id",
+            workos::multi_factor_auth::VerifyChallengeParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/authentication_challenges_verify_request.json"
+                ))
+                .expect("parse fixture for AuthenticationChallengesVerifyRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_verify_challenge_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/challenges/test_id/verify"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .verify_challenge(
+            "test_id",
+            workos::multi_factor_auth::VerifyChallengeParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/authentication_challenges_verify_request.json"
+                ))
+                .expect("parse fixture for AuthenticationChallengesVerifyRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_verify_challenge_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/challenges/test_id/verify"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .verify_challenge(
+            "test_id",
+            workos::multi_factor_auth::VerifyChallengeParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/authentication_challenges_verify_request.json"
+                ))
+                .expect("parse fixture for AuthenticationChallengesVerifyRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_verify_challenge_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/challenges/test_id/verify"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .verify_challenge(
+            "test_id",
+            workos::multi_factor_auth::VerifyChallengeParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/authentication_challenges_verify_request.json"
+                ))
+                .expect("parse fixture for AuthenticationChallengesVerifyRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn multi_factor_auth_enroll_factor_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
@@ -56,6 +248,179 @@ async fn multi_factor_auth_enroll_factor_round_trip() {
 }
 
 #[tokio::test]
+async fn multi_factor_auth_enroll_factor_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/enroll"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .enroll_factor(workos::multi_factor_auth::EnrollFactorParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/authentication_factors_create_request.json"
+            ))
+            .expect("parse fixture for AuthenticationFactorsCreateRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_enroll_factor_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/enroll"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .enroll_factor(workos::multi_factor_auth::EnrollFactorParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/authentication_factors_create_request.json"
+            ))
+            .expect("parse fixture for AuthenticationFactorsCreateRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_enroll_factor_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/enroll"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .enroll_factor(workos::multi_factor_auth::EnrollFactorParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/authentication_factors_create_request.json"
+            ))
+            .expect("parse fixture for AuthenticationFactorsCreateRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_enroll_factor_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/enroll"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .enroll_factor(workos::multi_factor_auth::EnrollFactorParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/authentication_factors_create_request.json"
+            ))
+            .expect("parse fixture for AuthenticationFactorsCreateRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_enroll_factor_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/enroll"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .enroll_factor(workos::multi_factor_auth::EnrollFactorParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/authentication_factors_create_request.json"
+            ))
+            .expect("parse fixture for AuthenticationFactorsCreateRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_enroll_factor_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/enroll"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .enroll_factor(workos::multi_factor_auth::EnrollFactorParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/authentication_factors_create_request.json"
+            ))
+            .expect("parse fixture for AuthenticationFactorsCreateRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn multi_factor_auth_get_factor_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
@@ -72,6 +437,101 @@ async fn multi_factor_auth_get_factor_round_trip() {
 }
 
 #[tokio::test]
+async fn multi_factor_auth_get_factor_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .get_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_get_factor_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .get_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_get_factor_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .get_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_get_factor_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .get_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
 async fn multi_factor_auth_delete_factor_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("DELETE"))
@@ -82,6 +542,149 @@ async fn multi_factor_auth_delete_factor_round_trip() {
         .await;
     let client = common::test_client(&server).await;
     let _ = client.multi_factor_auth().delete_factor("test_id").await;
+}
+
+#[tokio::test]
+async fn multi_factor_auth_delete_factor_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .delete_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_delete_factor_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .delete_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_delete_factor_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .delete_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_delete_factor_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .delete_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_delete_factor_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .delete_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_delete_factor_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/auth/factors/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .delete_factor("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }
 
 #[tokio::test]
@@ -109,6 +712,179 @@ async fn multi_factor_auth_challenge_factor_round_trip() {
 }
 
 #[tokio::test]
+async fn multi_factor_auth_challenge_factor_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/test_id/challenge"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .challenge_factor(
+            "test_id",
+            workos::multi_factor_auth::ChallengeFactorParams::new(
+                serde_json::from_str("{}").expect("parse stub for ChallengeAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_challenge_factor_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/test_id/challenge"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .challenge_factor(
+            "test_id",
+            workos::multi_factor_auth::ChallengeFactorParams::new(
+                serde_json::from_str("{}").expect("parse stub for ChallengeAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_challenge_factor_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/test_id/challenge"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .challenge_factor(
+            "test_id",
+            workos::multi_factor_auth::ChallengeFactorParams::new(
+                serde_json::from_str("{}").expect("parse stub for ChallengeAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_challenge_factor_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/test_id/challenge"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .challenge_factor(
+            "test_id",
+            workos::multi_factor_auth::ChallengeFactorParams::new(
+                serde_json::from_str("{}").expect("parse stub for ChallengeAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_challenge_factor_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/test_id/challenge"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .challenge_factor(
+            "test_id",
+            workos::multi_factor_auth::ChallengeFactorParams::new(
+                serde_json::from_str("{}").expect("parse stub for ChallengeAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_challenge_factor_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/auth/factors/test_id/challenge"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .challenge_factor(
+            "test_id",
+            workos::multi_factor_auth::ChallengeFactorParams::new(
+                serde_json::from_str("{}").expect("parse stub for ChallengeAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn multi_factor_auth_list_user_auth_factors_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
@@ -127,6 +903,136 @@ async fn multi_factor_auth_list_user_auth_factors_round_trip() {
             workos::multi_factor_auth::ListUserAuthFactorsParams::default(),
         )
         .await;
+}
+
+#[tokio::test]
+async fn multi_factor_auth_list_user_auth_factors_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .list_user_auth_factors(
+            "test_id",
+            workos::multi_factor_auth::ListUserAuthFactorsParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_list_user_auth_factors_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .list_user_auth_factors(
+            "test_id",
+            workos::multi_factor_auth::ListUserAuthFactorsParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_list_user_auth_factors_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .list_user_auth_factors(
+            "test_id",
+            workos::multi_factor_auth::ListUserAuthFactorsParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_list_user_auth_factors_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .list_user_auth_factors(
+            "test_id",
+            workos::multi_factor_auth::ListUserAuthFactorsParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_list_user_auth_factors_empty_page() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let resp = client
+        .multi_factor_auth()
+        .list_user_auth_factors(
+            "test_id",
+            workos::multi_factor_auth::ListUserAuthFactorsParams::default(),
+        )
+        .await
+        .expect("expected success");
+    assert!(resp.data.is_empty(), "expected empty data array");
 }
 
 #[tokio::test]
@@ -153,4 +1059,195 @@ async fn multi_factor_auth_create_user_auth_factor_round_trip() {
             ),
         )
         .await;
+}
+
+#[tokio::test]
+async fn multi_factor_auth_create_user_auth_factor_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .create_user_auth_factor(
+            "test_id",
+            workos::multi_factor_auth::CreateUserAuthFactorParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/enroll_user_authentication_factor.json"
+                ))
+                .expect("parse fixture for EnrollUserAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_create_user_auth_factor_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .create_user_auth_factor(
+            "test_id",
+            workos::multi_factor_auth::CreateUserAuthFactorParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/enroll_user_authentication_factor.json"
+                ))
+                .expect("parse fixture for EnrollUserAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_create_user_auth_factor_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .create_user_auth_factor(
+            "test_id",
+            workos::multi_factor_auth::CreateUserAuthFactorParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/enroll_user_authentication_factor.json"
+                ))
+                .expect("parse fixture for EnrollUserAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_create_user_auth_factor_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .create_user_auth_factor(
+            "test_id",
+            workos::multi_factor_auth::CreateUserAuthFactorParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/enroll_user_authentication_factor.json"
+                ))
+                .expect("parse fixture for EnrollUserAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn multi_factor_auth_create_user_auth_factor_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .create_user_auth_factor(
+            "test_id",
+            workos::multi_factor_auth::CreateUserAuthFactorParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/enroll_user_authentication_factor.json"
+                ))
+                .expect("parse fixture for EnrollUserAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn multi_factor_auth_create_user_auth_factor_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/users/test_id/auth_factors"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .multi_factor_auth()
+        .create_user_auth_factor(
+            "test_id",
+            workos::multi_factor_auth::CreateUserAuthFactorParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/enroll_user_authentication_factor.json"
+                ))
+                .expect("parse fixture for EnrollUserAuthenticationFactor"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }

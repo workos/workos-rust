@@ -1,19 +1,22 @@
 {
-  "id": "test_id",
+  "id": "event_01EHZNVPK3SFK441A1RGBFSHRT",
   "event": "dsync.user.created",
   "data": {
     "object": "directory_user",
-    "id": "test_id",
-    "directory_id": "test_directory_id",
-    "organization_id": "test_organization_id",
-    "idp_id": "test_idp_id",
-    "email": "test@example.com",
+    "id": "directory_user_01E1JG7J09H96KYP8HM9B0G5SJ",
+    "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+    "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
+    "idp_id": "2836",
+    "email": "marcelina.davis@example.com",
     "state": "active",
     "raw_attributes": {},
-    "custom_attributes": {},
-    "created_at": "2023-01-01T00:00:00.000Z",
-    "updated_at": "2023-01-01T00:00:00.000Z"
+    "custom_attributes": {
+      "department": "Engineering",
+      "job_title": "Software Engineer"
+    },
+    "created_at": "2026-01-15T12:00:00.000Z",
+    "updated_at": "2026-01-15T12:00:00.000Z"
   },
-  "created_at": "2023-01-01T00:00:00.000Z",
+  "created_at": "2026-01-15T12:00:00.000Z",
   "object": "event"
 }

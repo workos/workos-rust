@@ -63,7 +63,7 @@ impl ChallengeFactorParams {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListUserAuthFactorsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -72,11 +72,27 @@ pub struct ListUserAuthFactorsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListUserAuthFactorsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]

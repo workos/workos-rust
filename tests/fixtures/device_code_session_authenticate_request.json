@@ -1,5 +1,5 @@
 {
-  "client_id": "test_client_id",
+  "client_id": "client_01HXYZ123456789ABCDEFGHIJ",
   "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-  "device_code": "test_device_code"
+  "device_code": "Ao4fMrDS..."
 }

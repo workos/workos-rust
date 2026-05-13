@@ -12,7 +12,7 @@ pub struct OrganizationsApi<'a> {
     pub(crate) client: &'a Client,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListOrganizationsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,17 +21,36 @@ pub struct ListOrganizationsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// The domains of an Organization. Any Organization with a matching domain will be returned.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "crate::query::serialize_comma_separated_opt")]
     pub domains: Option<Vec<String>>,
     /// Searchable text for an Organization. Matches against the organization name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub search: Option<String>,
+}
+
+impl Default for ListOrganizationsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            domains: Default::default(),
+            search: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]

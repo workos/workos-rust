@@ -1,7 +1,7 @@
 {
-  "client_id": "test_client_id",
-  "client_secret": "test_client_secret",
+  "client_id": "client_01HXYZ123456789ABCDEFGHIJ",
+  "client_secret": "sk_test_....",
   "grant_type": "urn:workos:oauth:grant-type:email-verification:code",
-  "code": "test_code",
-  "pending_authentication_token": "test_pending_authentication_token"
+  "code": "123456",
+  "pending_authentication_token": "cTDQJTTkTkkVYxbn..."
 }

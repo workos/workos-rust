@@ -1,7 +1,7 @@
 {
-  "claim": "test_claim",
+  "claim": "tos_accepted",
   "type": "enum",
-  "label": "test_label",
+  "label": "Terms of Service",
   "choices": [
     {}
   ]

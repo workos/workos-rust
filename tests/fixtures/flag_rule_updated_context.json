@@ -1,22 +1,22 @@
 {
-  "client_id": "test_client_id",
+  "client_id": "client_01EHWNCE74X7JSDV0X3SZ3KJNY",
   "actor": {
-    "id": "test_id",
+    "id": "user_01EHWNCE74X7JSDV0X3SZ3KJNY",
     "source": "api",
-    "name": "test_name"
+    "name": "Jane Doe"
   },
   "access_type": "none",
   "configured_targets": {
     "organizations": [
       {
-        "id": "test_id",
-        "name": "test_name"
+        "id": "org_01EHWNCE74X7JSDV0X3SZ3KJNY",
+        "name": "Acme Corp"
       }
     ],
     "users": [
       {
-        "id": "test_id",
-        "email": "test@example.com"
+        "id": "user_01EHWNCE74X7JSDV0X3SZ3KJNY",
+        "email": "user@example.com"
       }
     ]
   },

@@ -1,7 +1,7 @@
 {
   "targets": [
     {
-      "type": "test_type"
+      "type": "invoice"
     }
   ]
 }

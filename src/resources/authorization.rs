@@ -12,19 +12,208 @@ pub struct AuthorizationApi<'a> {
     pub(crate) client: &'a Client,
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum ResourceTarget {
+    ById {
+        resource_id: String,
+    },
+    ByExternalId {
+        resource_external_id: String,
+        resource_type_slug: String,
+    },
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum ParentResource {
+    ById {
+        parent_resource_id: String,
+    },
+    ByExternalId {
+        parent_resource_type_slug: String,
+        parent_resource_external_id: String,
+    },
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum Parent {
+    ById {
+        parent_resource_id: String,
+    },
+    ByExternalId {
+        parent_resource_type_slug: String,
+        parent_external_id: String,
+    },
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CheckParamsBody {
+    /// The slug of the permission to check.
+    ///
+    /// Required.
+    pub permission_slug: String,
+    #[serde(flatten)]
+    pub resource_target: ResourceTarget,
+}
+
+impl CheckParamsBody {
+    /// Construct a new `CheckParamsBody` with the required fields set.
+    pub fn new(permission_slug: impl Into<String>, resource_target: ResourceTarget) -> Self {
+        Self {
+            permission_slug: permission_slug.into(),
+            resource_target,
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct AssignRoleParamsBody {
+    /// The slug of the role to assign.
+    ///
+    /// Required.
+    pub role_slug: String,
+    #[serde(flatten)]
+    pub resource_target: ResourceTarget,
+}
+
+impl AssignRoleParamsBody {
+    /// Construct a new `AssignRoleParamsBody` with the required fields set.
+    pub fn new(role_slug: impl Into<String>, resource_target: ResourceTarget) -> Self {
+        Self {
+            role_slug: role_slug.into(),
+            resource_target,
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct RemoveRoleParamsBody {
+    /// The slug of the role to remove.
+    ///
+    /// Required.
+    pub role_slug: String,
+    #[serde(flatten)]
+    pub resource_target: ResourceTarget,
+}
+
+impl RemoveRoleParamsBody {
+    /// Construct a new `RemoveRoleParamsBody` with the required fields set.
+    pub fn new(role_slug: impl Into<String>, resource_target: ResourceTarget) -> Self {
+        Self {
+            role_slug: role_slug.into(),
+            resource_target,
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
+pub struct UpdateResourceByExternalIdParamsBody {
+    /// A display name for the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// An optional description of the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent_resource: Option<ParentResource>,
+}
+
+impl UpdateResourceByExternalIdParamsBody {
+    /// Construct a new `UpdateResourceByExternalIdParamsBody` with the required fields set.
+    pub fn new() -> Self {
+        Self {
+            name: Default::default(),
+            description: Default::default(),
+            parent_resource: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CreateResourceParamsBody {
+    /// An external identifier for the resource.
+    ///
+    /// Required.
+    pub external_id: String,
+    /// A display name for the resource.
+    ///
+    /// Required.
+    pub name: String,
+    /// An optional description of the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// The slug of the resource type.
+    ///
+    /// Required.
+    pub resource_type_slug: String,
+    /// The ID of the organization this resource belongs to.
+    ///
+    /// Required.
+    pub organization_id: String,
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent_resource: Option<ParentResource>,
+}
+
+impl CreateResourceParamsBody {
+    /// Construct a new `CreateResourceParamsBody` with the required fields set.
+    pub fn new(
+        external_id: impl Into<String>,
+        name: impl Into<String>,
+        resource_type_slug: impl Into<String>,
+        organization_id: impl Into<String>,
+    ) -> Self {
+        Self {
+            external_id: external_id.into(),
+            name: name.into(),
+            description: Default::default(),
+            resource_type_slug: resource_type_slug.into(),
+            organization_id: organization_id.into(),
+            parent_resource: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
+pub struct UpdateResourceParamsBody {
+    /// A display name for the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// An optional description of the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent_resource: Option<ParentResource>,
+}
+
+impl UpdateResourceParamsBody {
+    /// Construct a new `UpdateResourceParamsBody` with the required fields set.
+    pub fn new() -> Self {
+        Self {
+            name: Default::default(),
+            description: Default::default(),
+            parent_resource: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct CheckParams {
     /// Request body sent with this call.
     ///
     /// Required.
     #[serde(skip)]
-    pub body: CheckAuthorization,
+    pub body: CheckParamsBody,
 }
 
 impl CheckParams {
     /// Construct a new `CheckParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: CheckAuthorization) -> Self {
+    pub fn new(body: CheckParamsBody) -> Self {
         Self { body }
     }
 }
@@ -38,44 +227,39 @@ pub struct ListResourcesForMembershipParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// The permission slug to filter by. Only child resources where the organization membership has this permission are returned.
     ///
     /// Required.
     pub permission_slug: String,
-    /// The WorkOS ID of the parent resource. Provide this or both `parent_resource_external_id` and `parent_resource_type_slug`, but not both. Mutually exclusive with `parent_resource_type_slug` and `parent_resource_external_id`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_resource_id: Option<String>,
-    /// The slug of the parent resource type. Must be provided together with `parent_resource_external_id`. Required with `parent_resource_external_id`. Mutually exclusive with `parent_resource_id`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_resource_type_slug: Option<String>,
-    /// The application-specific external identifier of the parent resource. Must be provided together with `parent_resource_type_slug`. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_resource_external_id: Option<String>,
+    #[serde(flatten)]
+    pub parent_resource: ParentResource,
 }
 
 impl ListResourcesForMembershipParams {
     /// Construct a new `ListResourcesForMembershipParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(permission_slug: impl Into<String>) -> Self {
+    pub fn new(permission_slug: impl Into<String>, parent_resource: ParentResource) -> Self {
         Self {
             before: Default::default(),
             after: Default::default(),
-            limit: Default::default(),
-            order: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
             permission_slug: permission_slug.into(),
-            parent_resource_id: Default::default(),
-            parent_resource_type_slug: Default::default(),
-            parent_resource_external_id: Default::default(),
+            parent_resource,
         }
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListEffectivePermissionsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -84,14 +268,30 @@ pub struct ListEffectivePermissionsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl Default for ListEffectivePermissionsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct ListEffectivePermissionsByExternalIdParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -100,14 +300,30 @@ pub struct ListEffectivePermissionsByExternalIdParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl Default for ListEffectivePermissionsByExternalIdParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct ListRoleAssignmentsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -116,11 +332,27 @@ pub struct ListRoleAssignmentsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListRoleAssignmentsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -129,13 +361,13 @@ pub struct AssignRoleParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: AssignRole,
+    pub body: AssignRoleParamsBody,
 }
 
 impl AssignRoleParams {
     /// Construct a new `AssignRoleParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: AssignRole) -> Self {
+    pub fn new(body: AssignRoleParamsBody) -> Self {
         Self { body }
     }
 }
@@ -146,13 +378,13 @@ pub struct RemoveRoleParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: RemoveRole,
+    pub body: RemoveRoleParamsBody,
 }
 
 impl RemoveRoleParams {
     /// Construct a new `RemoveRoleParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: RemoveRole) -> Self {
+    pub fn new(body: RemoveRoleParamsBody) -> Self {
         Self { body }
     }
 }
@@ -231,22 +463,33 @@ pub struct UpdateResourceByExternalIdParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: UpdateAuthorizationResource,
+    pub body: UpdateResourceByExternalIdParamsBody,
 }
 
 impl UpdateResourceByExternalIdParams {
     /// Construct a new `UpdateResourceByExternalIdParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: UpdateAuthorizationResource) -> Self {
+    pub fn new(body: UpdateResourceByExternalIdParamsBody) -> Self {
         Self { body }
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct DeleteResourceByExternalIdParams {
     /// If true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
+    ///
+    /// Defaults to `false`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cascade_delete: Option<bool>,
+}
+
+impl Default for DeleteResourceByExternalIdParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            cascade_delete: Some(false),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -258,9 +501,13 @@ pub struct ListMembershipsForResourceByExternalIdParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// The permission slug to filter by. Only users with this permission on the resource are returned.
@@ -279,15 +526,15 @@ impl ListMembershipsForResourceByExternalIdParams {
         Self {
             before: Default::default(),
             after: Default::default(),
-            limit: Default::default(),
-            order: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
             permission_slug: permission_slug.into(),
             assignment: Default::default(),
         }
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListRoleAssignmentsForResourceByExternalIdParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -296,14 +543,30 @@ pub struct ListRoleAssignmentsForResourceByExternalIdParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl Default for ListRoleAssignmentsForResourceByExternalIdParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct ListResourcesParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -312,9 +575,13 @@ pub struct ListResourcesParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// Filter resources by organization ID.
@@ -326,18 +593,29 @@ pub struct ListResourcesParams {
     /// Filter resources by external ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource_external_id: Option<String>,
-    /// Filter resources by parent resource ID. Mutually exclusive with `parent_resource_type_slug` and `parent_external_id`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_resource_id: Option<String>,
-    /// Filter resources by parent resource type slug. Required with `parent_external_id`. Mutually exclusive with `parent_resource_id`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_resource_type_slug: Option<String>,
-    /// Filter resources by parent external ID. Required with `parent_resource_type_slug`. Mutually exclusive with `parent_resource_id`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_external_id: Option<String>,
     /// Search resources by name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub search: Option<String>,
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent: Option<Parent>,
+}
+
+impl Default for ListResourcesParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            organization_id: Default::default(),
+            resource_type_slug: Default::default(),
+            resource_external_id: Default::default(),
+            search: Default::default(),
+            parent: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -346,13 +624,13 @@ pub struct CreateResourceParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: CreateAuthorizationResource,
+    pub body: CreateResourceParamsBody,
 }
 
 impl CreateResourceParams {
     /// Construct a new `CreateResourceParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: CreateAuthorizationResource) -> Self {
+    pub fn new(body: CreateResourceParamsBody) -> Self {
         Self { body }
     }
 }
@@ -363,22 +641,33 @@ pub struct UpdateResourceParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: UpdateAuthorizationResource,
+    pub body: UpdateResourceParamsBody,
 }
 
 impl UpdateResourceParams {
     /// Construct a new `UpdateResourceParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: UpdateAuthorizationResource) -> Self {
+    pub fn new(body: UpdateResourceParamsBody) -> Self {
         Self { body }
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct DeleteResourceParams {
     /// If true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
+    ///
+    /// Defaults to `false`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cascade_delete: Option<bool>,
+}
+
+impl Default for DeleteResourceParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            cascade_delete: Some(false),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -390,9 +679,13 @@ pub struct ListMembershipsForResourceParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// The permission slug to filter by. Only users with this permission on the resource are returned.
@@ -411,15 +704,15 @@ impl ListMembershipsForResourceParams {
         Self {
             before: Default::default(),
             after: Default::default(),
-            limit: Default::default(),
-            order: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
             permission_slug: permission_slug.into(),
             assignment: Default::default(),
         }
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListRoleAssignmentsForResourceParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -428,11 +721,27 @@ pub struct ListRoleAssignmentsForResourceParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListRoleAssignmentsForResourceParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -503,7 +812,7 @@ impl SetEnvironmentRolePermissionsParams {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListPermissionsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -512,11 +821,27 @@ pub struct ListPermissionsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListPermissionsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]

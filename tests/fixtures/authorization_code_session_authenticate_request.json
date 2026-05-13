@@ -1,6 +1,6 @@
 {
-  "client_id": "test_client_id",
-  "client_secret": "test_client_secret",
+  "client_id": "client_01HXYZ123456789ABCDEFGHIJ",
+  "client_secret": "sk_test_....",
   "grant_type": "authorization_code",
-  "code": "test_code"
+  "code": "vBqZKaPpsnJlPfXiDqN7b6VTz"
 }

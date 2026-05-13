@@ -1,5 +1,5 @@
 {
-  "name": "test_name",
+  "name": "My Application",
   "application_type": "oauth",
-  "is_first_party": false
+  "is_first_party": true
 }

@@ -351,8 +351,7 @@ impl Client {
     ) -> Result<HttpRequest, Error> {
         let mut url = format!("{}{}", self.inner.base_url, path);
         if let Some(p) = query {
-            let qs = serde_urlencoded::to_string(p)
-                .map_err(|e| Error::Builder(format!("query encode failed: {e}")))?;
+            let qs = crate::query::encode_query(p)?;
             if !qs.is_empty() {
                 let sep = if url.contains('?') { '&' } else { '?' };
                 url.push(sep);
@@ -573,7 +572,7 @@ impl ClientBuilder {
         self
     }
 
-    /// Override the `User-Agent` header (default `"workos-rust"`).
+    /// Override the `User-Agent` header (default `"workos-rust/<version>"`).
     pub fn user_agent(mut self, ua: impl Into<String>) -> Self {
         self.user_agent = Some(ua.into());
         self
@@ -616,7 +615,10 @@ impl ClientBuilder {
                 .map_err(|e| Error::Builder(format!("invalid API key: {e}")))?;
             headers.insert(AUTHORIZATION, v);
         }
-        let ua = self.user_agent.as_deref().unwrap_or("workos-rust");
+        let ua = self
+            .user_agent
+            .as_deref()
+            .unwrap_or(concat!("workos-rust/", env!("CARGO_PKG_VERSION")));
         let v = HeaderValue::from_str(ua)
             .map_err(|e| Error::Builder(format!("invalid user-agent: {e}")))?;
         headers.insert(USER_AGENT, v);

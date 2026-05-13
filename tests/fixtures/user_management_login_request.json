@@ -1,7 +1,7 @@
 {
-  "external_auth_id": "test_external_auth_id",
+  "external_auth_id": "ext_auth_01HXYZ123456789ABCDEFGHIJ",
   "user": {
-    "id": "test_id",
-    "email": "test@example.com"
+    "id": "user_12345",
+    "email": "marcelina.davis@example.com"
   }
 }

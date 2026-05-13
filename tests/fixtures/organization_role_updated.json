@@ -1,19 +1,20 @@
 {
-  "id": "test_id",
+  "id": "event_01EHZNVPK3SFK441A1RGBFSHRT",
   "event": "organization_role.updated",
   "data": {
     "object": "organization_role",
-    "organization_id": "test_organization_id",
-    "slug": "test_slug",
-    "name": "test_name",
-    "description": "test_description",
-    "resource_type_slug": "test_resource_type_slug",
+    "organization_id": "org_01EHWNCE74X7JSDV0X3SZ3KJNY",
+    "slug": "billing-admin",
+    "name": "Billing Administrator",
+    "description": "Can manage billing settings.",
+    "resource_type_slug": "organization",
     "permissions": [
-      "test_permissions"
+      "users:read",
+      "users:write"
     ],
-    "created_at": "2023-01-01T00:00:00.000Z",
-    "updated_at": "2023-01-01T00:00:00.000Z"
+    "created_at": "2026-01-15T12:00:00.000Z",
+    "updated_at": "2026-01-15T12:00:00.000Z"
   },
-  "created_at": "2023-01-01T00:00:00.000Z",
+  "created_at": "2026-01-15T12:00:00.000Z",
   "object": "event"
 }

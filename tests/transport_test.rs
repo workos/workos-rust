@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -45,9 +46,11 @@ async fn custom_transport_replaces_reqwest() {
         .expect("call should succeed via the custom transport");
 
     assert_eq!(transport.calls.load(Ordering::SeqCst), 1);
+    // `ListOrganizationsParams::default()` materialises the spec-level
+    // defaults (`limit=10`, `order=desc`) so the wire URL carries them.
     assert_eq!(
         transport.last_url.lock().await.as_deref(),
-        Some("https://example.test/organizations")
+        Some("https://example.test/organizations?limit=10&order=desc")
     );
     assert_eq!(
         transport.last_method.lock().await.as_ref(),

@@ -1,7 +1,7 @@
 {
   "object": "role",
-  "slug": "test_slug",
-  "resource_type_slug": "test_resource_type_slug",
-  "created_at": "2023-01-01T00:00:00.000Z",
-  "updated_at": "2023-01-01T00:00:00.000Z"
+  "slug": "admin",
+  "resource_type_slug": "organization",
+  "created_at": "2026-01-15T12:00:00.000Z",
+  "updated_at": "2026-01-15T12:00:00.000Z"
 }

@@ -1,7 +1,7 @@
 {
-  "client_id": "test_client_id",
-  "client_secret": "test_client_secret",
+  "client_id": "client_01HXYZ123456789ABCDEFGHIJ",
+  "client_secret": "sk_test_....",
   "grant_type": "urn:workos:oauth:grant-type:magic-auth:code",
-  "code": "test_code",
-  "email": "test@example.com"
+  "code": "123456",
+  "email": "user@example.com"
 }

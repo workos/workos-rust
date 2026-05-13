@@ -1,6 +1,7 @@
 {
-  "endpoint_url": "test_endpoint_url",
+  "endpoint_url": "https://example.com/webhooks",
   "events": [
-    "authentication.email_verification_succeeded"
+    "user.created",
+    "dsync.user.created"
   ]
 }

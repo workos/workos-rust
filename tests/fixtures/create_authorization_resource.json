@@ -1,6 +1,6 @@
 {
-  "external_id": "test_external_id",
-  "name": "test_name",
-  "resource_type_slug": "test_resource_type_slug",
-  "organization_id": "test_organization_id"
+  "external_id": "my-workspace-01",
+  "name": "Acme Workspace",
+  "resource_type_slug": "workspace",
+  "organization_id": "org_01EHQMYV6MBK39QC5PZXHY59C3"
 }

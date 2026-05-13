@@ -1,4 +1,4 @@
 {
-  "before": "test_before",
-  "after": "test_after"
+  "before": "conn_01HXYZ123456789ABCDEFGHIJ",
+  "after": "conn_01HXYZ987654321KJIHGFEDCBA"
 }

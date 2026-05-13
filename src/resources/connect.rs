@@ -29,7 +29,7 @@ impl CompleteOAuth2Params {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListApplicationsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -38,14 +38,31 @@ pub struct ListApplicationsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// Filter Connect Applications by organization ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+}
+
+impl Default for ListApplicationsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            organization_id: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]

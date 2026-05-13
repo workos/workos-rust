@@ -4,6 +4,7 @@ mod common;
 
 use wiremock::matchers::{method, path as path_matcher};
 use wiremock::{Mock, MockServer, ResponseTemplate};
+use workos::Error;
 
 #[tokio::test]
 async fn pipes_authorize_data_integration_round_trip() {
@@ -32,6 +33,197 @@ async fn pipes_authorize_data_integration_round_trip() {
 }
 
 #[tokio::test]
+async fn pipes_authorize_data_integration_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/authorize"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .authorize_data_integration(
+            "test_id",
+            workos::pipes::AuthorizeDataIntegrationParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_data_integration_authorize_url_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetDataIntegrationAuthorizeUrlRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_authorize_data_integration_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/authorize"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .authorize_data_integration(
+            "test_id",
+            workos::pipes::AuthorizeDataIntegrationParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_data_integration_authorize_url_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetDataIntegrationAuthorizeUrlRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_authorize_data_integration_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/authorize"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .authorize_data_integration(
+            "test_id",
+            workos::pipes::AuthorizeDataIntegrationParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_data_integration_authorize_url_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetDataIntegrationAuthorizeUrlRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_authorize_data_integration_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/authorize"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .authorize_data_integration(
+            "test_id",
+            workos::pipes::AuthorizeDataIntegrationParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_data_integration_authorize_url_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetDataIntegrationAuthorizeUrlRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_authorize_data_integration_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/authorize"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .authorize_data_integration(
+            "test_id",
+            workos::pipes::AuthorizeDataIntegrationParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_data_integration_authorize_url_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetDataIntegrationAuthorizeUrlRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn pipes_authorize_data_integration_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/authorize"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .authorize_data_integration(
+            "test_id",
+            workos::pipes::AuthorizeDataIntegrationParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_data_integration_authorize_url_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetDataIntegrationAuthorizeUrlRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn pipes_create_data_integration_token_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
@@ -53,6 +245,197 @@ async fn pipes_create_data_integration_token_round_trip() {
             ),
         )
         .await;
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_token_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_token(
+            "test_id",
+            workos::pipes::CreateDataIntegrationTokenParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_user_token_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetUserTokenRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_token_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_token(
+            "test_id",
+            workos::pipes::CreateDataIntegrationTokenParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_user_token_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetUserTokenRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_token_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_token(
+            "test_id",
+            workos::pipes::CreateDataIntegrationTokenParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_user_token_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetUserTokenRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_token_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_token(
+            "test_id",
+            workos::pipes::CreateDataIntegrationTokenParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_user_token_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetUserTokenRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_token_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_token(
+            "test_id",
+            workos::pipes::CreateDataIntegrationTokenParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_user_token_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetUserTokenRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_token_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/token"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_token(
+            "test_id",
+            workos::pipes::CreateDataIntegrationTokenParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_get_user_token_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsGetUserTokenRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }
 
 #[tokio::test]
@@ -81,6 +464,125 @@ async fn pipes_get_user_connected_account_round_trip() {
 }
 
 #[tokio::test]
+async fn pipes_get_user_connected_account_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .get_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_get_user_connected_account_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .get_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_get_user_connected_account_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .get_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_get_user_connected_account_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .get_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
 async fn pipes_delete_user_connected_account_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("DELETE"))
@@ -100,6 +602,185 @@ async fn pipes_delete_user_connected_account_round_trip() {
             workos::pipes::DeleteUserConnectedAccountParams::default(),
         )
         .await;
+}
+
+#[tokio::test]
+async fn pipes_delete_user_connected_account_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_delete_user_connected_account_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_delete_user_connected_account_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_delete_user_connected_account_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_delete_user_connected_account_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn pipes_delete_user_connected_account_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/users/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_user_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteUserConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }
 
 #[tokio::test]
@@ -123,4 +804,119 @@ async fn pipes_list_user_data_providers_round_trip() {
             workos::pipes::ListUserDataProvidersParams::default(),
         )
         .await;
+}
+
+#[tokio::test]
+async fn pipes_list_user_data_providers_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/user_management/users/test_id/data_providers",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .list_user_data_providers(
+            "test_id",
+            workos::pipes::ListUserDataProvidersParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_list_user_data_providers_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/user_management/users/test_id/data_providers",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .list_user_data_providers(
+            "test_id",
+            workos::pipes::ListUserDataProvidersParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_list_user_data_providers_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/user_management/users/test_id/data_providers",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .list_user_data_providers(
+            "test_id",
+            workos::pipes::ListUserDataProvidersParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_list_user_data_providers_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/user_management/users/test_id/data_providers",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .list_user_data_providers(
+            "test_id",
+            workos::pipes::ListUserDataProvidersParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
 }

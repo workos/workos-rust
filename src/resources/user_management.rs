@@ -12,6 +12,152 @@ pub struct UserManagementApi<'a> {
     pub(crate) client: &'a Client,
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum Password {
+    Plaintext {
+        password: String,
+    },
+    Hashed {
+        password_hash: String,
+        password_hash_type: String,
+    },
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum Role {
+    Single { role_slug: String },
+    Multiple { role_slugs: String },
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CreateUserParamsBody {
+    /// The email address of the user.
+    ///
+    /// Required.
+    pub email: String,
+    /// The first name of the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub first_name: Option<String>,
+    /// The last name of the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_name: Option<String>,
+    /// Whether the user's email has been verified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email_verified: Option<bool>,
+    /// Object containing metadata key/value pairs associated with the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<std::collections::HashMap<String, String>>,
+    /// The external ID of the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_id: Option<String>,
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub password: Option<Password>,
+}
+
+impl CreateUserParamsBody {
+    /// Construct a new `CreateUserParamsBody` with the required fields set.
+    pub fn new(email: impl Into<String>) -> Self {
+        Self {
+            email: email.into(),
+            first_name: Default::default(),
+            last_name: Default::default(),
+            email_verified: Default::default(),
+            metadata: Default::default(),
+            external_id: Default::default(),
+            password: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
+pub struct UpdateUserParamsBody {
+    /// The email address of the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+    /// The first name of the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub first_name: Option<String>,
+    /// The last name of the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_name: Option<String>,
+    /// Whether the user's email has been verified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email_verified: Option<bool>,
+    /// Object containing metadata key/value pairs associated with the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<std::collections::HashMap<String, String>>,
+    /// The external ID of the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_id: Option<String>,
+    /// The user's preferred locale.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub locale: Option<String>,
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub password: Option<Password>,
+}
+
+impl UpdateUserParamsBody {
+    /// Construct a new `UpdateUserParamsBody` with the required fields set.
+    pub fn new() -> Self {
+        Self {
+            email: Default::default(),
+            first_name: Default::default(),
+            last_name: Default::default(),
+            email_verified: Default::default(),
+            metadata: Default::default(),
+            external_id: Default::default(),
+            locale: Default::default(),
+            password: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CreateOrganizationMembershipParamsBody {
+    /// The ID of the [user](https://workos.com/docs/reference/authkit/user).
+    ///
+    /// Required.
+    pub user_id: String,
+    /// The ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
+    ///
+    /// Required.
+    pub organization_id: String,
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role: Option<Role>,
+}
+
+impl CreateOrganizationMembershipParamsBody {
+    /// Construct a new `CreateOrganizationMembershipParamsBody` with the required fields set.
+    pub fn new(user_id: impl Into<String>, organization_id: impl Into<String>) -> Self {
+        Self {
+            user_id: user_id.into(),
+            organization_id: organization_id.into(),
+            role: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
+pub struct UpdateOrganizationMembershipParamsBody {
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role: Option<Role>,
+}
+
+impl UpdateOrganizationMembershipParamsBody {
+    /// Construct a new `UpdateOrganizationMembershipParamsBody` with the required fields set.
+    pub fn new() -> Self {
+        Self {
+            role: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithPasswordParams {
     /// The user's email address.
@@ -287,11 +433,14 @@ pub struct GetAuthorizationUrlParams {
     pub provider_query_params: Option<std::collections::HashMap<String, String>>,
     /// Additional OAuth scopes to request from the identity provider.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "crate::query::serialize_comma_separated_opt")]
     pub provider_scopes: Option<Vec<String>>,
     /// A token representing a user invitation to redeem during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invitation_token: Option<crate::SecretString>,
     /// Used to specify which screen to display when the provider is `authkit`.
+    ///
+    /// Defaults to `sign-in`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub screen_hint: Option<UserManagementAuthenticationScreenHint>,
     /// A hint to the authorization server about the login identifier the user might use.
@@ -327,7 +476,7 @@ impl GetAuthorizationUrlParams {
             provider_query_params: Default::default(),
             provider_scopes: Default::default(),
             invitation_token: Default::default(),
-            screen_hint: Default::default(),
+            screen_hint: Some(UserManagementAuthenticationScreenHint::SignIn),
             login_hint: Default::default(),
             provider: Default::default(),
             prompt: Default::default(),
@@ -445,7 +594,7 @@ impl ConfirmPasswordResetParams {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListUsersParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -454,9 +603,13 @@ pub struct ListUsersParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// Filter users by the organization they are a member of. Deprecated in favor of `organization_id`.
@@ -471,19 +624,34 @@ pub struct ListUsersParams {
     pub email: Option<String>,
 }
 
+impl Default for ListUsersParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            organization: Default::default(),
+            organization_id: Default::default(),
+            email: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct CreateUserParams {
     /// Request body sent with this call.
     ///
     /// Required.
     #[serde(skip)]
-    pub body: CreateUser,
+    pub body: CreateUserParamsBody,
 }
 
 impl CreateUserParams {
     /// Construct a new `CreateUserParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: CreateUser) -> Self {
+    pub fn new(body: CreateUserParamsBody) -> Self {
         Self { body }
     }
 }
@@ -494,13 +662,13 @@ pub struct UpdateUserParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: UpdateUser,
+    pub body: UpdateUserParamsBody,
 }
 
 impl UpdateUserParams {
     /// Construct a new `UpdateUserParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: UpdateUser) -> Self {
+    pub fn new(body: UpdateUserParamsBody) -> Self {
         Self { body }
     }
 }
@@ -556,7 +724,7 @@ impl VerifyEmailParams {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListSessionsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -565,14 +733,30 @@ pub struct ListSessionsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl Default for ListSessionsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct ListInvitationsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -581,9 +765,13 @@ pub struct ListInvitationsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// The ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join.
@@ -592,6 +780,20 @@ pub struct ListInvitationsParams {
     /// The email address of the recipient.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
+}
+
+impl Default for ListInvitationsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            organization_id: Default::default(),
+            email: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -662,7 +864,7 @@ impl CreateMagicAuthParams {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListOrganizationMembershipsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -671,9 +873,13 @@ pub struct ListOrganizationMembershipsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// The ID of the [organization](https://workos.com/docs/reference/organization) which the user belongs to.
@@ -681,10 +887,26 @@ pub struct ListOrganizationMembershipsParams {
     pub organization_id: Option<String>,
     /// Filter by the status of the organization membership. Array including any of `active`, `inactive`, or `pending`.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "crate::query::serialize_comma_separated_opt")]
     pub statuses: Option<Vec<UserManagementOrganizationMembershipStatuses>>,
     /// The ID of the [user](https://workos.com/docs/reference/authkit/user).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_id: Option<String>,
+}
+
+impl Default for ListOrganizationMembershipsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            organization_id: Default::default(),
+            statuses: Default::default(),
+            user_id: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -693,13 +915,13 @@ pub struct CreateOrganizationMembershipParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: CreateUserOrganizationMembership,
+    pub body: CreateOrganizationMembershipParamsBody,
 }
 
 impl CreateOrganizationMembershipParams {
     /// Construct a new `CreateOrganizationMembershipParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: CreateUserOrganizationMembership) -> Self {
+    pub fn new(body: CreateOrganizationMembershipParamsBody) -> Self {
         Self { body }
     }
 }
@@ -710,13 +932,13 @@ pub struct UpdateOrganizationMembershipParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: UpdateUserOrganizationMembership,
+    pub body: UpdateOrganizationMembershipParamsBody,
 }
 
 impl UpdateOrganizationMembershipParams {
     /// Construct a new `UpdateOrganizationMembershipParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: UpdateUserOrganizationMembership) -> Self {
+    pub fn new(body: UpdateOrganizationMembershipParamsBody) -> Self {
         Self { body }
     }
 }
@@ -738,7 +960,7 @@ impl CreateRedirectUriParams {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListUserAuthorizedApplicationsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -747,14 +969,30 @@ pub struct ListUserAuthorizedApplicationsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+impl Default for ListUserAuthorizedApplicationsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct ListUserApiKeysParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -763,14 +1001,31 @@ pub struct ListUserApiKeysParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// The ID of the organization to filter user API keys by. When provided, only API keys created against that organization membership are returned.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+}
+
+impl Default for ListUserApiKeysParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            organization_id: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -1103,24 +1358,32 @@ impl<'a> UserManagementApi<'a> {
     /// Get an authorization URL
     ///
     /// Generates an OAuth 2.0 authorization URL to authenticate a user with AuthKit or SSO.
-    pub async fn get_authorization_url(
+    pub fn get_authorization_url(
         &self,
         params: GetAuthorizationUrlParams,
-    ) -> Result<(), Error> {
-        self.get_authorization_url_with_options(params, None).await
-    }
-
-    /// Variant of [`Self::get_authorization_url`] that accepts per-request [`crate::RequestOptions`].
-    pub async fn get_authorization_url_with_options(
-        &self,
-        params: GetAuthorizationUrlParams,
-        options: Option<&crate::RequestOptions>,
-    ) -> Result<(), Error> {
+    ) -> Result<String, Error> {
         let path = "/user_management/authorize".to_string();
-        let method = http::Method::GET;
-        self.client
-            .request_with_query_opts_empty(method, &path, &params, options)
-            .await
+        let mut overlay = serde_json::Map::new();
+        overlay.insert("response_type".to_string(), serde_json::json!("code"));
+        overlay.insert(
+            "client_id".to_string(),
+            serde_json::Value::String(self.client.client_id().to_string()),
+        );
+        let params_value = serde_json::to_value(&params)
+            .map_err(|e| Error::Builder(format!("query encode failed: {e}")))?;
+        if let serde_json::Value::Object(map) = params_value {
+            for (k, v) in map {
+                overlay.insert(k, v);
+            }
+        }
+        let merged = serde_json::Value::Object(overlay);
+        let qs = crate::query::encode_query(&merged)?;
+        let url = if qs.is_empty() {
+            format!("{}{}", self.client.base_url(), path)
+        } else {
+            format!("{}{}?{}", self.client.base_url(), path, qs)
+        };
+        Ok(url)
     }
 
     /// Get device authorization URL
@@ -1149,21 +1412,15 @@ impl<'a> UserManagementApi<'a> {
     /// Logout
     ///
     /// Logout a user from the current [session](https://workos.com/docs/reference/authkit/session).
-    pub async fn get_logout_url(&self, params: GetLogoutUrlParams) -> Result<(), Error> {
-        self.get_logout_url_with_options(params, None).await
-    }
-
-    /// Variant of [`Self::get_logout_url`] that accepts per-request [`crate::RequestOptions`].
-    pub async fn get_logout_url_with_options(
-        &self,
-        params: GetLogoutUrlParams,
-        options: Option<&crate::RequestOptions>,
-    ) -> Result<(), Error> {
+    pub fn get_logout_url(&self, params: GetLogoutUrlParams) -> Result<String, Error> {
         let path = "/user_management/sessions/logout".to_string();
-        let method = http::Method::GET;
-        self.client
-            .request_with_query_opts_empty(method, &path, &params, options)
-            .await
+        let qs = crate::query::encode_query(&params)?;
+        let url = if qs.is_empty() {
+            format!("{}{}", self.client.base_url(), path)
+        } else {
+            format!("{}{}?{}", self.client.base_url(), path, qs)
+        };
+        Ok(url)
     }
 
     /// Revoke Session

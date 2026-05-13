@@ -1,15 +1,15 @@
 {
   "user": {
     "object": "user",
-    "id": "test_id",
-    "first_name": "test_first_name",
-    "last_name": "test_last_name",
-    "profile_picture_url": "test_profile_picture_url",
-    "email": "test@example.com",
-    "email_verified": false,
-    "external_id": "test_external_id",
-    "last_sign_in_at": "2023-01-01T00:00:00.000Z",
-    "created_at": "2023-01-01T00:00:00.000Z",
-    "updated_at": "2023-01-01T00:00:00.000Z"
+    "id": "user_01E4ZCR3C56J083X43JQXF3JK5",
+    "first_name": "Marcelina",
+    "last_name": "Davis",
+    "profile_picture_url": "https://workoscdn.com/images/v1/123abc",
+    "email": "marcelina.davis@example.com",
+    "email_verified": true,
+    "external_id": "f1ffa2b2-c20b-4d39-be5c-212726e11222",
+    "last_sign_in_at": "2025-06-25T19:07:33.155Z",
+    "created_at": "2026-01-15T12:00:00.000Z",
+    "updated_at": "2026-01-15T12:00:00.000Z"
   }
 }

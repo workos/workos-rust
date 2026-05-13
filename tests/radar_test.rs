@@ -4,6 +4,7 @@ mod common;
 
 use wiremock::matchers::{method, path as path_matcher};
 use wiremock::{Mock, MockServer, ResponseTemplate};
+use workos::Error;
 
 #[tokio::test]
 async fn radar_create_attempt_round_trip() {
@@ -30,6 +31,179 @@ async fn radar_create_attempt_round_trip() {
 }
 
 #[tokio::test]
+async fn radar_create_attempt_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/attempts"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .create_attempt(workos::radar::CreateAttemptParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/radar_standalone_assess_request.json"
+            ))
+            .expect("parse fixture for RadarStandaloneAssessRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn radar_create_attempt_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/attempts"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .create_attempt(workos::radar::CreateAttemptParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/radar_standalone_assess_request.json"
+            ))
+            .expect("parse fixture for RadarStandaloneAssessRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn radar_create_attempt_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/attempts"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .create_attempt(workos::radar::CreateAttemptParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/radar_standalone_assess_request.json"
+            ))
+            .expect("parse fixture for RadarStandaloneAssessRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn radar_create_attempt_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/attempts"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .create_attempt(workos::radar::CreateAttemptParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/radar_standalone_assess_request.json"
+            ))
+            .expect("parse fixture for RadarStandaloneAssessRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn radar_create_attempt_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/attempts"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .create_attempt(workos::radar::CreateAttemptParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/radar_standalone_assess_request.json"
+            ))
+            .expect("parse fixture for RadarStandaloneAssessRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn radar_create_attempt_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/attempts"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .create_attempt(workos::radar::CreateAttemptParams::new(
+            serde_json::from_str(include_str!(
+                "fixtures/radar_standalone_assess_request.json"
+            ))
+            .expect("parse fixture for RadarStandaloneAssessRequest"),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn radar_update_attempt_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
@@ -49,6 +223,185 @@ async fn radar_update_attempt_round_trip() {
             ),
         )
         .await;
+}
+
+#[tokio::test]
+async fn radar_update_attempt_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/radar/attempts/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .update_attempt(
+            "test_id",
+            workos::radar::UpdateAttemptParams::new(
+                serde_json::from_str("{}")
+                    .expect("parse stub for RadarStandaloneUpdateRadarAttemptRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn radar_update_attempt_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/radar/attempts/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .update_attempt(
+            "test_id",
+            workos::radar::UpdateAttemptParams::new(
+                serde_json::from_str("{}")
+                    .expect("parse stub for RadarStandaloneUpdateRadarAttemptRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn radar_update_attempt_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/radar/attempts/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .update_attempt(
+            "test_id",
+            workos::radar::UpdateAttemptParams::new(
+                serde_json::from_str("{}")
+                    .expect("parse stub for RadarStandaloneUpdateRadarAttemptRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn radar_update_attempt_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/radar/attempts/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .update_attempt(
+            "test_id",
+            workos::radar::UpdateAttemptParams::new(
+                serde_json::from_str("{}")
+                    .expect("parse stub for RadarStandaloneUpdateRadarAttemptRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn radar_update_attempt_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/radar/attempts/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .update_attempt(
+            "test_id",
+            workos::radar::UpdateAttemptParams::new(
+                serde_json::from_str("{}")
+                    .expect("parse stub for RadarStandaloneUpdateRadarAttemptRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn radar_update_attempt_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher("/radar/attempts/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .update_attempt(
+            "test_id",
+            workos::radar::UpdateAttemptParams::new(
+                serde_json::from_str("{}")
+                    .expect("parse stub for RadarStandaloneUpdateRadarAttemptRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }
 
 #[tokio::test]
@@ -79,6 +432,203 @@ async fn radar_add_list_entry_round_trip() {
 }
 
 #[tokio::test]
+async fn radar_add_list_entry_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .add_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::AddListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_update_radar_list_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneUpdateRadarListRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn radar_add_list_entry_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .add_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::AddListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_update_radar_list_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneUpdateRadarListRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn radar_add_list_entry_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .add_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::AddListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_update_radar_list_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneUpdateRadarListRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn radar_add_list_entry_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .add_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::AddListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_update_radar_list_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneUpdateRadarListRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn radar_add_list_entry_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .add_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::AddListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_update_radar_list_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneUpdateRadarListRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn radar_add_list_entry_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .add_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::AddListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_update_radar_list_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneUpdateRadarListRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn radar_remove_list_entry_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("DELETE"))
@@ -101,4 +651,201 @@ async fn radar_remove_list_entry_round_trip() {
             ),
         )
         .await;
+}
+
+#[tokio::test]
+async fn radar_remove_list_entry_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .remove_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::RemoveListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_delete_radar_list_entry_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneDeleteRadarListEntryRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn radar_remove_list_entry_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .remove_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::RemoveListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_delete_radar_list_entry_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneDeleteRadarListEntryRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn radar_remove_list_entry_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .remove_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::RemoveListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_delete_radar_list_entry_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneDeleteRadarListEntryRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn radar_remove_list_entry_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .remove_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::RemoveListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_delete_radar_list_entry_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneDeleteRadarListEntryRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn radar_remove_list_entry_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .remove_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::RemoveListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_delete_radar_list_entry_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneDeleteRadarListEntryRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn radar_remove_list_entry_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/radar/lists/test_id/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .radar()
+        .remove_list_entry(
+            "test_id",
+            "test_id",
+            workos::radar::RemoveListEntryParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/radar_standalone_delete_radar_list_entry_request.json"
+                ))
+                .expect("parse fixture for RadarStandaloneDeleteRadarListEntryRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }

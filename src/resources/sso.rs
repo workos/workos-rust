@@ -12,7 +12,7 @@ pub struct SSOApi<'a> {
     pub(crate) client: &'a Client,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ListConnectionsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,9 +21,13 @@ pub struct ListConnectionsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
     /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Order the results by the creation time.
+    ///
+    /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// Filter Connections by their type.
@@ -40,10 +44,27 @@ pub struct ListConnectionsParams {
     pub search: Option<String>,
 }
 
+impl Default for ListConnectionsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            connection_type: Default::default(),
+            domain: Default::default(),
+            organization_id: Default::default(),
+            search: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct GetAuthorizationUrlParams {
     /// Additional scopes to request from the identity provider. Applicable when using OAuth or OpenID Connect connections.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "crate::query::serialize_comma_separated_opt")]
     pub provider_scopes: Option<Vec<String>>,
     /// Key/value pairs of query parameters to pass to the OAuth provider. Only applicable when using OAuth connections.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -253,24 +274,32 @@ impl<'a> SSOApi<'a> {
     /// Initiate SSO
     ///
     /// Initiates the single sign-on flow.
-    pub async fn get_authorization_url(
+    pub fn get_authorization_url(
         &self,
         params: GetAuthorizationUrlParams,
-    ) -> Result<SSOAuthorizeUrlResponse, Error> {
-        self.get_authorization_url_with_options(params, None).await
-    }
-
-    /// Variant of [`Self::get_authorization_url`] that accepts per-request [`crate::RequestOptions`].
-    pub async fn get_authorization_url_with_options(
-        &self,
-        params: GetAuthorizationUrlParams,
-        options: Option<&crate::RequestOptions>,
-    ) -> Result<SSOAuthorizeUrlResponse, Error> {
+    ) -> Result<String, Error> {
         let path = "/sso/authorize".to_string();
-        let method = http::Method::GET;
-        self.client
-            .request_with_query_opts(method, &path, &params, options)
-            .await
+        let mut overlay = serde_json::Map::new();
+        overlay.insert("response_type".to_string(), serde_json::json!("code"));
+        overlay.insert(
+            "client_id".to_string(),
+            serde_json::Value::String(self.client.client_id().to_string()),
+        );
+        let params_value = serde_json::to_value(&params)
+            .map_err(|e| Error::Builder(format!("query encode failed: {e}")))?;
+        if let serde_json::Value::Object(map) = params_value {
+            for (k, v) in map {
+                overlay.insert(k, v);
+            }
+        }
+        let merged = serde_json::Value::Object(overlay);
+        let qs = crate::query::encode_query(&merged)?;
+        let url = if qs.is_empty() {
+            format!("{}{}", self.client.base_url(), path)
+        } else {
+            format!("{}{}?{}", self.client.base_url(), path, qs)
+        };
+        Ok(url)
     }
 
     /// Logout Redirect
@@ -278,21 +307,15 @@ impl<'a> SSOApi<'a> {
     /// Logout allows to sign out a user from your application by triggering the identity provider sign out flow. This `GET` endpoint should be a redirection, since the identity provider user will be identified in the browser session.
     ///
     /// Before redirecting to this endpoint, you need to generate a short-lived logout token using the [Logout Authorize](https://workos.com/docs/reference/sso/logout/authorize) endpoint.
-    pub async fn get_logout_url(&self, params: GetLogoutUrlParams) -> Result<(), Error> {
-        self.get_logout_url_with_options(params, None).await
-    }
-
-    /// Variant of [`Self::get_logout_url`] that accepts per-request [`crate::RequestOptions`].
-    pub async fn get_logout_url_with_options(
-        &self,
-        params: GetLogoutUrlParams,
-        options: Option<&crate::RequestOptions>,
-    ) -> Result<(), Error> {
+    pub fn get_logout_url(&self, params: GetLogoutUrlParams) -> Result<String, Error> {
         let path = "/sso/logout".to_string();
-        let method = http::Method::GET;
-        self.client
-            .request_with_query_opts_empty(method, &path, &params, options)
-            .await
+        let qs = crate::query::encode_query(&params)?;
+        let url = if qs.is_empty() {
+            format!("{}{}", self.client.base_url(), path)
+        } else {
+            format!("{}{}?{}", self.client.base_url(), path, qs)
+        };
+        Ok(url)
     }
 
     /// Logout Authorize
@@ -321,17 +344,26 @@ impl<'a> SSOApi<'a> {
     /// Get a User Profile
     ///
     /// Exchange an access token for a user's [Profile](https://workos.com/docs/reference/sso/profile). Because this profile is returned in the [Get a Profile and Token endpoint](https://workos.com/docs/reference/sso/profile/get-profile-and-token) your application usually does not need to call this endpoint. It is available for any authentication flows that require an additional endpoint to retrieve a user's profile.
-    pub async fn get_profile(&self) -> Result<Profile, Error> {
-        self.get_profile_with_options(None).await
+    pub async fn get_profile(&self, access_token: impl Into<String>) -> Result<Profile, Error> {
+        self.get_profile_with_options(access_token, None).await
     }
 
     /// Variant of [`Self::get_profile`] that accepts per-request [`crate::RequestOptions`].
     pub async fn get_profile_with_options(
         &self,
+        access_token: impl Into<String>,
         options: Option<&crate::RequestOptions>,
     ) -> Result<Profile, Error> {
         let path = "/sso/profile".to_string();
         let method = http::Method::GET;
+        let access_token: String = access_token.into();
+        let auth = http::HeaderValue::from_str(&format!("Bearer {access_token}"))
+            .map_err(|e| Error::Builder(format!("invalid bearer token: {e}")))?;
+        let mut merged = options.cloned().unwrap_or_default();
+        merged
+            .extra_headers
+            .push((http::header::AUTHORIZATION, auth));
+        let options = Some(&merged);
         self.client
             .request_with_query_opts(method, &path, &(), options)
             .await

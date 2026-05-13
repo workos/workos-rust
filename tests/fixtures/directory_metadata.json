@@ -1,7 +1,7 @@
 {
   "users": {
-    "active": 0,
-    "inactive": 0
+    "active": 42,
+    "inactive": 3
   },
-  "groups": 0
+  "groups": 5
 }
