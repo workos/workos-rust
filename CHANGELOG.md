@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0](https://github.com/workos/workos-rust/compare/v1.0.1...v2.0.0) (2026-05-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **organization_membership:** Split organization membership operations from user_management into dedicated service ([#97](https://github.com/workos/workos-rust/issues/97))
+* **radar:** Remove deprecated action and control fields from Radar standalone assessment ([#97](https://github.com/workos/workos-rust/issues/97))
+
+### Features
+
+* **api_key:** Add expires_at field to API key models ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **organization_membership:** Split organization membership operations from user_management into dedicated service ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **radar:** Remove deprecated action and control fields from Radar standalone assessment ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **vault:** Add Vault service with key management and object storage APIs ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **webhooks:** Add Pipes connected account events to webhook subscriptions ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+
+
+### Bug Fixes
+
+* **connect:** Fix last_used_at field type in application credentials ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **generated:** Standardize type names and fix parameter defaults in authorization service ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **sso:** Expand login_hint documentation to include custom SAML ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+
 ## [1.0.1](https://github.com/workos/workos-rust/compare/v1.0.0...v1.0.1) (2026-05-13)
 
 
