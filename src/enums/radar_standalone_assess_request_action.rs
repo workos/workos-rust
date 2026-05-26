@@ -7,8 +7,6 @@ use std::str::FromStr;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum RadarStandaloneAssessRequestAction {
-    Login,
-    Signup,
     SignUp,
     SignIn,
     /// Wire value not recognized by this SDK version. The original
@@ -24,8 +22,6 @@ impl RadarStandaloneAssessRequestAction {
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
-            Self::Login => "login",
-            Self::Signup => "signup",
             Self::SignUp => "sign-up",
             Self::SignIn => "sign-in",
             Self::Unknown(s) => s.as_str(),
@@ -50,14 +46,8 @@ impl FromStr for RadarStandaloneAssessRequestAction {
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "login" => Self::Login,
-            "signup" => Self::Signup,
             "sign-up" => Self::SignUp,
-            "sign_up" => Self::SignUp,
-            "sign up" => Self::SignUp,
             "sign-in" => Self::SignIn,
-            "sign_in" => Self::SignIn,
-            "sign in" => Self::SignIn,
             other => Self::Unknown(other.to_string()),
         })
     }
