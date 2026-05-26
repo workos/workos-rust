@@ -878,7 +878,7 @@ async fn vault_get_name_round_trip() {
     Mock::given(method("GET"))
         .and(path_matcher("/vault/v1/kv/name/test_id"))
         .respond_with(
-            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/object.json")),
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/vault_object.json")),
         )
         .expect(1)
         .mount(&server)
@@ -988,7 +988,7 @@ async fn vault_get_kv_round_trip() {
     Mock::given(method("GET"))
         .and(path_matcher("/vault/v1/kv/test_id"))
         .respond_with(
-            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/object.json")),
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/vault_object.json")),
         )
         .expect(1)
         .mount(&server)

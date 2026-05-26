@@ -6,11 +6,13 @@ use super::*;
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AuditLogSchemaJsonTarget {
-    /// The type of the target resource.
-    #[serde(rename = "type")]
-    pub type_: String,
-    /// Additional data associated with the event or entity.
+pub struct AuditLogSchemaInput {
+    /// The metadata schema for the actor.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub actor: Option<AuditLogSchemaActorInput>,
+    /// The list of targets for the schema.
+    pub targets: Vec<AuditLogSchemaTargetInput>,
+    /// Optional JSON schema for event metadata.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub metadata: Option<std::collections::HashMap<String, serde_json::Value>>,
 }

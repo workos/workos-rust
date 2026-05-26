@@ -280,7 +280,7 @@ impl<'a> VaultApi<'a> {
     /// Read an object by name
     ///
     /// Fetch and decrypt an object by its unique name.
-    pub async fn get_name(&self, name: &str) -> Result<Object, Error> {
+    pub async fn get_name(&self, name: &str) -> Result<VaultObject, Error> {
         self.get_name_with_options(name, None).await
     }
 
@@ -289,7 +289,7 @@ impl<'a> VaultApi<'a> {
         &self,
         name: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<Object, Error> {
+    ) -> Result<VaultObject, Error> {
         let name = crate::client::path_segment(name);
         let path = format!("/vault/v1/kv/name/{name}");
         let method = http::Method::GET;
@@ -301,7 +301,7 @@ impl<'a> VaultApi<'a> {
     /// Read an object by ID
     ///
     /// Fetch and decrypt an object by its unique identifier.
-    pub async fn get_kv(&self, id: &str) -> Result<Object, Error> {
+    pub async fn get_kv(&self, id: &str) -> Result<VaultObject, Error> {
         self.get_kv_with_options(id, None).await
     }
 
@@ -310,7 +310,7 @@ impl<'a> VaultApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<Object, Error> {
+    ) -> Result<VaultObject, Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/vault/v1/kv/{id}");
         let method = http::Method::GET;

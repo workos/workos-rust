@@ -7,7 +7,7 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 /// An encrypted object with its decrypted value and metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Object {
+pub struct VaultObject {
     /// Unique identifier of the object.
     pub id: String,
     pub metadata: ObjectMetadata,

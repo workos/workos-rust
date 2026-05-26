@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
-pub enum RadarType {
+pub enum RadarListType {
     IpAddress,
     Domain,
     Email,
@@ -21,7 +21,7 @@ pub enum RadarType {
     Unknown(String),
 }
 
-impl RadarType {
+impl RadarListType {
     /// Canonical wire string for this value. For [`Self::Unknown`] returns the
     /// original wire value as received from the API.
     #[allow(deprecated)]
@@ -39,19 +39,19 @@ impl RadarType {
     }
 }
 
-impl fmt::Display for RadarType {
+impl fmt::Display for RadarListType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl AsRef<str> for RadarType {
+impl AsRef<str> for RadarListType {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl FromStr for RadarType {
+impl FromStr for RadarListType {
     type Err = std::convert::Infallible;
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -68,7 +68,7 @@ impl FromStr for RadarType {
     }
 }
 
-impl From<String> for RadarType {
+impl From<String> for RadarListType {
     fn from(s: String) -> Self {
         // Reuse the original `String` allocation in the fallback branch.
         match Self::from_str(&s) {
@@ -78,19 +78,19 @@ impl From<String> for RadarType {
     }
 }
 
-impl From<&str> for RadarType {
+impl From<&str> for RadarListType {
     fn from(s: &str) -> Self {
         Self::from_str(s).unwrap_or_else(|_| Self::Unknown(s.to_string()))
     }
 }
 
-impl Serialize for RadarType {
+impl Serialize for RadarListType {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
-impl<'de> Deserialize<'de> for RadarType {
+impl<'de> Deserialize<'de> for RadarListType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))

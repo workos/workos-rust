@@ -7,6 +7,8 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlagCreated {
+    /// Distinguishes the Event object.
+    pub object: String,
     /// Unique identifier for the event.
     pub id: String,
     pub event: String,
@@ -16,6 +18,4 @@ pub struct FlagCreated {
     pub created_at: String,
     /// Additional context about the event.
     pub context: FlagCreatedContext,
-    /// Distinguishes the Event object.
-    pub object: String,
 }

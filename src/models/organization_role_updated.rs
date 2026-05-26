@@ -7,6 +7,8 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrganizationRoleUpdated {
+    /// Distinguishes the Event object.
+    pub object: String,
     /// Unique identifier for the event.
     pub id: String,
     pub event: String,
@@ -16,6 +18,4 @@ pub struct OrganizationRoleUpdated {
     pub created_at: String,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub context: Option<EventContext>,
-    /// Distinguishes the Event object.
-    pub object: String,
 }

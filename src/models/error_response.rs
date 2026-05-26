@@ -7,7 +7,7 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 /// Error response body.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Error {
+pub struct ErrorResponse {
     /// A human-readable description of the error.
     pub error: String,
 }

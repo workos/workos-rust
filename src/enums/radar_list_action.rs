@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
-pub enum RadarAction {
+pub enum RadarListAction {
     Block,
     Allow,
     /// Wire value not recognized by this SDK version. The original
@@ -16,7 +16,7 @@ pub enum RadarAction {
     Unknown(String),
 }
 
-impl RadarAction {
+impl RadarListAction {
     /// Canonical wire string for this value. For [`Self::Unknown`] returns the
     /// original wire value as received from the API.
     #[allow(deprecated)]
@@ -29,19 +29,19 @@ impl RadarAction {
     }
 }
 
-impl fmt::Display for RadarAction {
+impl fmt::Display for RadarListAction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl AsRef<str> for RadarAction {
+impl AsRef<str> for RadarListAction {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl FromStr for RadarAction {
+impl FromStr for RadarListAction {
     type Err = std::convert::Infallible;
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -53,7 +53,7 @@ impl FromStr for RadarAction {
     }
 }
 
-impl From<String> for RadarAction {
+impl From<String> for RadarListAction {
     fn from(s: String) -> Self {
         // Reuse the original `String` allocation in the fallback branch.
         match Self::from_str(&s) {
@@ -63,19 +63,19 @@ impl From<String> for RadarAction {
     }
 }
 
-impl From<&str> for RadarAction {
+impl From<&str> for RadarListAction {
     fn from(s: &str) -> Self {
         Self::from_str(s).unwrap_or_else(|_| Self::Unknown(s.to_string()))
     }
 }
 
-impl Serialize for RadarAction {
+impl Serialize for RadarListAction {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
-impl<'de> Deserialize<'de> for RadarAction {
+impl<'de> Deserialize<'de> for RadarListAction {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))

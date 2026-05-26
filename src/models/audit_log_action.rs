@@ -12,7 +12,7 @@ pub struct AuditLogAction {
     /// Identifier of what action was taken.
     pub name: String,
     /// The schema associated with the action.
-    pub schema: AuditLogSchemaJson,
+    pub schema: AuditLogSchema,
     /// An ISO 8601 timestamp.
     pub created_at: String,
     /// An ISO 8601 timestamp.

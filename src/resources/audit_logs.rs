@@ -99,13 +99,13 @@ pub struct CreateSchemaParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: AuditLogSchemaDto,
+    pub body: AuditLogSchemaInput,
 }
 
 impl CreateSchemaParams {
     /// Construct a new `CreateSchemaParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: AuditLogSchemaDto) -> Self {
+    pub fn new(body: AuditLogSchemaInput) -> Self {
         Self { body }
     }
 }
@@ -227,7 +227,7 @@ impl<'a> AuditLogsApi<'a> {
         &self,
         action_name: &str,
         params: ListActionSchemasParams,
-    ) -> Result<Vec<AuditLogSchemaJson>, Error> {
+    ) -> Result<Vec<AuditLogSchema>, Error> {
         self.list_action_schemas_with_options(action_name, params, None)
             .await
     }
@@ -238,7 +238,7 @@ impl<'a> AuditLogsApi<'a> {
         action_name: &str,
         params: ListActionSchemasParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<Vec<AuditLogSchemaJson>, Error> {
+    ) -> Result<Vec<AuditLogSchema>, Error> {
         let action_name = crate::client::path_segment(action_name);
         let path = format!("/audit_logs/actions/{action_name}/schemas");
         let method = http::Method::GET;
@@ -254,7 +254,7 @@ impl<'a> AuditLogsApi<'a> {
         &self,
         action_name: &str,
         params: CreateSchemaParams,
-    ) -> Result<AuditLogSchemaJson, Error> {
+    ) -> Result<AuditLogSchema, Error> {
         self.create_schema_with_options(action_name, params, None)
             .await
     }
@@ -265,7 +265,7 @@ impl<'a> AuditLogsApi<'a> {
         action_name: &str,
         params: CreateSchemaParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<AuditLogSchemaJson, Error> {
+    ) -> Result<AuditLogSchema, Error> {
         let action_name = crate::client::path_segment(action_name);
         let path = format!("/audit_logs/actions/{action_name}/schemas");
         let method = http::Method::POST;
