@@ -102,12 +102,12 @@ impl<'a> WebhooksApi<'a> {
             .await
     }
 
-    /// Returns an async [`futures_util::Stream`] that yields every `WebhookEndpointJson`
+    /// Returns an async [`futures_util::Stream`] that yields every `WebhookEndpoint`
     /// across all pages, advancing the `after` cursor under the hood.
     ///
     /// ```ignore
     /// use futures_util::TryStreamExt;
-    /// let all: Vec<WebhookEndpointJson> = self
+    /// let all: Vec<WebhookEndpoint> = self
     ///     .list_webhook_endpoints_auto_paging(params)
     ///     .try_collect()
     ///     .await?;
@@ -115,7 +115,7 @@ impl<'a> WebhooksApi<'a> {
     pub fn list_webhook_endpoints_auto_paging(
         &self,
         params: ListWebhookEndpointsParams,
-    ) -> impl futures_util::Stream<Item = Result<WebhookEndpointJson, Error>> + '_ {
+    ) -> impl futures_util::Stream<Item = Result<WebhookEndpoint, Error>> + '_ {
         crate::pagination::auto_paginate_pages(move |after| {
             let mut params = params.clone();
             params.after = after;
@@ -132,7 +132,7 @@ impl<'a> WebhooksApi<'a> {
     pub async fn create_webhook_endpoint(
         &self,
         params: CreateWebhookEndpointParams,
-    ) -> Result<WebhookEndpointJson, Error> {
+    ) -> Result<WebhookEndpoint, Error> {
         self.create_webhook_endpoint_with_options(params, None)
             .await
     }
@@ -142,7 +142,7 @@ impl<'a> WebhooksApi<'a> {
         &self,
         params: CreateWebhookEndpointParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<WebhookEndpointJson, Error> {
+    ) -> Result<WebhookEndpoint, Error> {
         let path = "/webhook_endpoints".to_string();
         let method = http::Method::POST;
         self.client
@@ -157,7 +157,7 @@ impl<'a> WebhooksApi<'a> {
         &self,
         id: &str,
         params: UpdateWebhookEndpointParams,
-    ) -> Result<WebhookEndpointJson, Error> {
+    ) -> Result<WebhookEndpoint, Error> {
         self.update_webhook_endpoint_with_options(id, params, None)
             .await
     }
@@ -168,7 +168,7 @@ impl<'a> WebhooksApi<'a> {
         id: &str,
         params: UpdateWebhookEndpointParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<WebhookEndpointJson, Error> {
+    ) -> Result<WebhookEndpoint, Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/webhook_endpoints/{id}");
         let method = http::Method::PATCH;
