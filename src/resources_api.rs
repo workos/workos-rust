@@ -12,12 +12,13 @@ use crate::resources::FeatureFlagsApi;
 use crate::resources::GroupsApi;
 use crate::resources::MultiFactorAuthApi;
 use crate::resources::OrganizationDomainsApi;
+use crate::resources::OrganizationMembershipApi;
 use crate::resources::OrganizationsApi;
 use crate::resources::PipesApi;
 use crate::resources::RadarApi;
 use crate::resources::SSOApi;
 use crate::resources::UserManagementApi;
-use crate::resources::UserManagementOrganizationMembershipGroupsApi;
+use crate::resources::VaultApi;
 use crate::resources::WebhooksApi;
 use crate::resources::WidgetsApi;
 
@@ -77,6 +78,11 @@ impl Client {
         OrganizationDomainsApi { client: self }
     }
 
+    /// Access the `organization_membership` resource.
+    pub fn organization_membership(&self) -> OrganizationMembershipApi<'_> {
+        OrganizationMembershipApi { client: self }
+    }
+
     /// Access the `organizations` resource.
     pub fn organizations(&self) -> OrganizationsApi<'_> {
         OrganizationsApi { client: self }
@@ -102,11 +108,9 @@ impl Client {
         UserManagementApi { client: self }
     }
 
-    /// Access the `user_management_organization_membership_groups` resource.
-    pub fn user_management_organization_membership_groups(
-        &self,
-    ) -> UserManagementOrganizationMembershipGroupsApi<'_> {
-        UserManagementOrganizationMembershipGroupsApi { client: self }
+    /// Access the `vault` resource.
+    pub fn vault(&self) -> VaultApi<'_> {
+        VaultApi { client: self }
     }
 
     /// Access the `webhooks` resource.

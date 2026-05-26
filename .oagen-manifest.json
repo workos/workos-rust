@@ -1,12 +1,12 @@
 {
   "version": 2,
   "language": "rust",
-  "generatedAt": "2026-05-13T13:56:55.168Z",
+  "generatedAt": "2026-05-26T13:22:40.395Z",
   "files": [
     "src/enums/audit_log_configuration_log_stream_state.rs",
     "src/enums/audit_log_configuration_log_stream_type.rs",
     "src/enums/audit_log_configuration_state.rs",
-    "src/enums/audit_log_export_json_state.rs",
+    "src/enums/audit_log_export_state.rs",
     "src/enums/authenticate_response_authentication_method.rs",
     "src/enums/authentication_factor_enrolled_type.rs",
     "src/enums/authentication_factor_type.rs",
@@ -86,6 +86,7 @@
     "src/enums/organization_updated_data_domain_state.rs",
     "src/enums/organization_updated_data_domain_verification_strategy.rs",
     "src/enums/pagination_order.rs",
+    "src/enums/pipe_connected_account_state.rs",
     "src/enums/profile_connection_type.rs",
     "src/enums/radar_action.rs",
     "src/enums/radar_standalone_assess_request_action.rs",
@@ -123,14 +124,16 @@
     "src/enums/vault_kek_created_data_actor_source.rs",
     "src/enums/vault_metadata_read_data_actor_source.rs",
     "src/enums/vault_names_listed_data_actor_source.rs",
+    "src/enums/vault_order.rs",
     "src/enums/waitlist_user_state.rs",
-    "src/enums/webhook_endpoint_json_status.rs",
+    "src/enums/webhook_endpoint_status.rs",
     "src/enums/widget_session_token_scopes.rs",
     "src/models/_unions.rs",
     "src/models/action_authentication_denied.rs",
     "src/models/action_authentication_denied_data.rs",
     "src/models/action_user_registration_denied.rs",
     "src/models/action_user_registration_denied_data.rs",
+    "src/models/actor.rs",
     "src/models/add_role_permission.rs",
     "src/models/api_key.rs",
     "src/models/api_key_created.rs",
@@ -143,7 +146,7 @@
     "src/models/api_key_validation_response.rs",
     "src/models/application_credentials_list_item.rs",
     "src/models/assign_role.rs",
-    "src/models/audit_log_action_json.rs",
+    "src/models/audit_log_action.rs",
     "src/models/audit_log_configuration.rs",
     "src/models/audit_log_configuration_log_stream.rs",
     "src/models/audit_log_event.rs",
@@ -152,15 +155,15 @@
     "src/models/audit_log_event_create_response.rs",
     "src/models/audit_log_event_ingestion.rs",
     "src/models/audit_log_event_target.rs",
+    "src/models/audit_log_export.rs",
     "src/models/audit_log_export_creation.rs",
-    "src/models/audit_log_export_json.rs",
-    "src/models/audit_log_schema.rs",
     "src/models/audit_log_schema_actor.rs",
+    "src/models/audit_log_schema_dto.rs",
     "src/models/audit_log_schema_json.rs",
     "src/models/audit_log_schema_json_actor.rs",
     "src/models/audit_log_schema_json_target.rs",
     "src/models/audit_log_schema_target.rs",
-    "src/models/audit_logs_retention_json.rs",
+    "src/models/audit_logs_retention.rs",
     "src/models/authenticate_response.rs",
     "src/models/authenticate_response_impersonator.rs",
     "src/models/authenticate_response_oauth_token.rs",
@@ -264,11 +267,14 @@
     "src/models/create_authorization_permission.rs",
     "src/models/create_authorization_resource.rs",
     "src/models/create_cors_origin.rs",
+    "src/models/create_data_key_request.rs",
+    "src/models/create_data_key_response.rs",
     "src/models/create_group.rs",
     "src/models/create_group_membership.rs",
     "src/models/create_m2m_application.rs",
     "src/models/create_magic_code_and_return.rs",
     "src/models/create_oauth_application.rs",
+    "src/models/create_object_request.rs",
     "src/models/create_organization_api_key.rs",
     "src/models/create_organization_domain.rs",
     "src/models/create_organization_role.rs",
@@ -289,6 +295,9 @@
     "src/models/data_integrations_list_response.rs",
     "src/models/data_integrations_list_response_data.rs",
     "src/models/data_integrations_list_response_data_connected_account.rs",
+    "src/models/decrypt_request.rs",
+    "src/models/decrypt_response.rs",
+    "src/models/delete_object_response.rs",
     "src/models/device_authorization_response.rs",
     "src/models/device_code_session_authenticate_request.rs",
     "src/models/directory.rs",
@@ -335,6 +344,7 @@
     "src/models/email_verification_created.rs",
     "src/models/email_verification_created_data.rs",
     "src/models/enroll_user_authentication_factor.rs",
+    "src/models/error.rs",
     "src/models/event_context.rs",
     "src/models/event_context_actor.rs",
     "src/models/event_context_google_analytics_session.rs",
@@ -403,6 +413,7 @@
     "src/models/jwks_response.rs",
     "src/models/jwks_response_keys.rs",
     "src/models/jwt_template_response.rs",
+    "src/models/list_metadata.rs",
     "src/models/magic_auth.rs",
     "src/models/magic_auth_code_session_authenticate_request.rs",
     "src/models/magic_auth_created.rs",
@@ -410,6 +421,12 @@
     "src/models/mfa_totp_session_authenticate_request.rs",
     "src/models/mod.rs",
     "src/models/new_connect_application_secret.rs",
+    "src/models/object.rs",
+    "src/models/object_list_response.rs",
+    "src/models/object_metadata.rs",
+    "src/models/object_summary.rs",
+    "src/models/object_version.rs",
+    "src/models/object_without_value.rs",
     "src/models/organization.rs",
     "src/models/organization_api_key.rs",
     "src/models/organization_api_key_list.rs",
@@ -470,6 +487,10 @@
     "src/models/permission_deleted_data.rs",
     "src/models/permission_updated.rs",
     "src/models/permission_updated_data.rs",
+    "src/models/pipe_connected_account.rs",
+    "src/models/pipes_connected_account_connected.rs",
+    "src/models/pipes_connected_account_disconnected.rs",
+    "src/models/pipes_connected_account_reauthorization_needed.rs",
     "src/models/portal_link_response.rs",
     "src/models/profile.rs",
     "src/models/radar_list_entry_already_present_response.rs",
@@ -481,6 +502,7 @@
     "src/models/redirect_uri.rs",
     "src/models/redirect_uri_input.rs",
     "src/models/refresh_token_session_authenticate_request.rs",
+    "src/models/rekey_request.rs",
     "src/models/remove_role.rs",
     "src/models/resend_user_invite_options.rs",
     "src/models/reset_password_response.rs",
@@ -517,6 +539,7 @@
     "src/models/update_group.rs",
     "src/models/update_jwt_template.rs",
     "src/models/update_oauth_application.rs",
+    "src/models/update_object_request.rs",
     "src/models/update_organization.rs",
     "src/models/update_organization_role.rs",
     "src/models/update_role.rs",
@@ -581,11 +604,12 @@
     "src/models/vault_names_listed_data.rs",
     "src/models/verify_email_address.rs",
     "src/models/verify_email_response.rs",
+    "src/models/version_list_response.rs",
     "src/models/waitlist_user.rs",
     "src/models/waitlist_user_approved.rs",
     "src/models/waitlist_user_created.rs",
     "src/models/waitlist_user_denied.rs",
-    "src/models/webhook_endpoint_json.rs",
+    "src/models/webhook_endpoint.rs",
     "src/models/webhook_endpoint_list.rs",
     "src/models/webhook_endpoint_list_list_metadata.rs",
     "src/models/widget_session_token.rs",
@@ -602,12 +626,13 @@
     "src/resources/mod.rs",
     "src/resources/multi_factor_auth.rs",
     "src/resources/organization_domains.rs",
+    "src/resources/organization_membership.rs",
     "src/resources/organizations.rs",
     "src/resources/pipes.rs",
     "src/resources/radar.rs",
     "src/resources/sso.rs",
     "src/resources/user_management.rs",
-    "src/resources/user_management_organization_membership_groups.rs",
+    "src/resources/vault.rs",
     "src/resources/webhooks.rs",
     "src/resources/widgets.rs",
     "src/resources_api.rs",
@@ -624,6 +649,7 @@
     "tests/fixtures/action_authentication_denied_data.json",
     "tests/fixtures/action_user_registration_denied.json",
     "tests/fixtures/action_user_registration_denied_data.json",
+    "tests/fixtures/actor.json",
     "tests/fixtures/add_role_permission.json",
     "tests/fixtures/api_key.json",
     "tests/fixtures/api_key_created.json",
@@ -636,7 +662,7 @@
     "tests/fixtures/api_key_validation_response.json",
     "tests/fixtures/application_credentials_list_item.json",
     "tests/fixtures/assign_role.json",
-    "tests/fixtures/audit_log_action_json.json",
+    "tests/fixtures/audit_log_action.json",
     "tests/fixtures/audit_log_configuration.json",
     "tests/fixtures/audit_log_configuration_log_stream.json",
     "tests/fixtures/audit_log_event.json",
@@ -645,15 +671,15 @@
     "tests/fixtures/audit_log_event_create_response.json",
     "tests/fixtures/audit_log_event_ingestion.json",
     "tests/fixtures/audit_log_event_target.json",
+    "tests/fixtures/audit_log_export.json",
     "tests/fixtures/audit_log_export_creation.json",
-    "tests/fixtures/audit_log_export_json.json",
-    "tests/fixtures/audit_log_schema.json",
     "tests/fixtures/audit_log_schema_actor.json",
+    "tests/fixtures/audit_log_schema_dto.json",
     "tests/fixtures/audit_log_schema_json.json",
     "tests/fixtures/audit_log_schema_json_actor.json",
     "tests/fixtures/audit_log_schema_json_target.json",
     "tests/fixtures/audit_log_schema_target.json",
-    "tests/fixtures/audit_logs_retention_json.json",
+    "tests/fixtures/audit_logs_retention.json",
     "tests/fixtures/authenticate_response.json",
     "tests/fixtures/authenticate_response_impersonator.json",
     "tests/fixtures/authenticate_response_oauth_token.json",
@@ -756,11 +782,14 @@
     "tests/fixtures/create_authorization_permission.json",
     "tests/fixtures/create_authorization_resource.json",
     "tests/fixtures/create_cors_origin.json",
+    "tests/fixtures/create_data_key_request.json",
+    "tests/fixtures/create_data_key_response.json",
     "tests/fixtures/create_group.json",
     "tests/fixtures/create_group_membership.json",
     "tests/fixtures/create_m2m_application.json",
     "tests/fixtures/create_magic_code_and_return.json",
     "tests/fixtures/create_oauth_application.json",
+    "tests/fixtures/create_object_request.json",
     "tests/fixtures/create_organization_api_key.json",
     "tests/fixtures/create_organization_domain.json",
     "tests/fixtures/create_organization_role.json",
@@ -781,6 +810,9 @@
     "tests/fixtures/data_integrations_list_response.json",
     "tests/fixtures/data_integrations_list_response_data.json",
     "tests/fixtures/data_integrations_list_response_data_connected_account.json",
+    "tests/fixtures/decrypt_request.json",
+    "tests/fixtures/decrypt_response.json",
+    "tests/fixtures/delete_object_response.json",
     "tests/fixtures/device_authorization_response.json",
     "tests/fixtures/device_code_session_authenticate_request.json",
     "tests/fixtures/directory.json",
@@ -827,6 +859,7 @@
     "tests/fixtures/email_verification_created.json",
     "tests/fixtures/email_verification_created_data.json",
     "tests/fixtures/enroll_user_authentication_factor.json",
+    "tests/fixtures/error.json",
     "tests/fixtures/event_context.json",
     "tests/fixtures/event_context_actor.json",
     "tests/fixtures/event_context_google_analytics_session.json",
@@ -895,12 +928,19 @@
     "tests/fixtures/jwks_response.json",
     "tests/fixtures/jwks_response_keys.json",
     "tests/fixtures/jwt_template_response.json",
+    "tests/fixtures/list_metadata.json",
     "tests/fixtures/magic_auth.json",
     "tests/fixtures/magic_auth_code_session_authenticate_request.json",
     "tests/fixtures/magic_auth_created.json",
     "tests/fixtures/magic_auth_created_data.json",
     "tests/fixtures/mfa_totp_session_authenticate_request.json",
     "tests/fixtures/new_connect_application_secret.json",
+    "tests/fixtures/object.json",
+    "tests/fixtures/object_list_response.json",
+    "tests/fixtures/object_metadata.json",
+    "tests/fixtures/object_summary.json",
+    "tests/fixtures/object_version.json",
+    "tests/fixtures/object_without_value.json",
     "tests/fixtures/organization.json",
     "tests/fixtures/organization_api_key.json",
     "tests/fixtures/organization_api_key_list.json",
@@ -961,6 +1001,10 @@
     "tests/fixtures/permission_deleted_data.json",
     "tests/fixtures/permission_updated.json",
     "tests/fixtures/permission_updated_data.json",
+    "tests/fixtures/pipe_connected_account.json",
+    "tests/fixtures/pipes_connected_account_connected.json",
+    "tests/fixtures/pipes_connected_account_disconnected.json",
+    "tests/fixtures/pipes_connected_account_reauthorization_needed.json",
     "tests/fixtures/portal_link_response.json",
     "tests/fixtures/profile.json",
     "tests/fixtures/radar_list_entry_already_present_response.json",
@@ -972,6 +1016,7 @@
     "tests/fixtures/redirect_uri.json",
     "tests/fixtures/redirect_uri_input.json",
     "tests/fixtures/refresh_token_session_authenticate_request.json",
+    "tests/fixtures/rekey_request.json",
     "tests/fixtures/remove_role.json",
     "tests/fixtures/resend_user_invite_options.json",
     "tests/fixtures/reset_password_response.json",
@@ -1008,6 +1053,7 @@
     "tests/fixtures/update_group.json",
     "tests/fixtures/update_jwt_template.json",
     "tests/fixtures/update_oauth_application.json",
+    "tests/fixtures/update_object_request.json",
     "tests/fixtures/update_organization.json",
     "tests/fixtures/update_organization_role.json",
     "tests/fixtures/update_role.json",
@@ -1072,11 +1118,12 @@
     "tests/fixtures/vault_names_listed_data.json",
     "tests/fixtures/verify_email_address.json",
     "tests/fixtures/verify_email_response.json",
+    "tests/fixtures/version_list_response.json",
     "tests/fixtures/waitlist_user.json",
     "tests/fixtures/waitlist_user_approved.json",
     "tests/fixtures/waitlist_user_created.json",
     "tests/fixtures/waitlist_user_denied.json",
-    "tests/fixtures/webhook_endpoint_json.json",
+    "tests/fixtures/webhook_endpoint.json",
     "tests/fixtures/webhook_endpoint_list.json",
     "tests/fixtures/webhook_endpoint_list_list_metadata.json",
     "tests/fixtures/widget_session_token.json",
@@ -1084,12 +1131,13 @@
     "tests/groups_test.rs",
     "tests/multi_factor_auth_test.rs",
     "tests/organization_domains_test.rs",
+    "tests/organization_membership_test.rs",
     "tests/organizations_test.rs",
     "tests/pipes_test.rs",
     "tests/radar_test.rs",
     "tests/sso_test.rs",
-    "tests/user_management_organization_membership_groups_test.rs",
     "tests/user_management_test.rs",
+    "tests/vault_test.rs",
     "tests/webhooks_test.rs",
     "tests/widgets_test.rs"
   ],
@@ -1710,34 +1758,6 @@
       "sdkMethod": "get_magic_auth",
       "service": "user_management"
     },
-    "GET /user_management/organization_memberships": {
-      "sdkMethod": "list_organization_memberships",
-      "service": "user_management"
-    },
-    "POST /user_management/organization_memberships": {
-      "sdkMethod": "create_organization_membership",
-      "service": "user_management"
-    },
-    "GET /user_management/organization_memberships/{id}": {
-      "sdkMethod": "get_organization_membership",
-      "service": "user_management"
-    },
-    "PUT /user_management/organization_memberships/{id}": {
-      "sdkMethod": "update_organization_membership",
-      "service": "user_management"
-    },
-    "DELETE /user_management/organization_memberships/{id}": {
-      "sdkMethod": "delete_organization_membership",
-      "service": "user_management"
-    },
-    "PUT /user_management/organization_memberships/{id}/deactivate": {
-      "sdkMethod": "deactivate_organization_membership",
-      "service": "user_management"
-    },
-    "PUT /user_management/organization_memberships/{id}/reactivate": {
-      "sdkMethod": "reactivate_organization_membership",
-      "service": "user_management"
-    },
     "POST /user_management/redirect_uris": {
       "sdkMethod": "create_redirect_uri",
       "service": "user_management"
@@ -1758,9 +1778,81 @@
       "sdkMethod": "create_user_api_key",
       "service": "user_management"
     },
+    "GET /user_management/organization_memberships": {
+      "sdkMethod": "list_organization_memberships",
+      "service": "organization_membership"
+    },
+    "POST /user_management/organization_memberships": {
+      "sdkMethod": "create_organization_membership",
+      "service": "organization_membership"
+    },
+    "GET /user_management/organization_memberships/{id}": {
+      "sdkMethod": "get_organization_membership",
+      "service": "organization_membership"
+    },
+    "PUT /user_management/organization_memberships/{id}": {
+      "sdkMethod": "update_organization_membership",
+      "service": "organization_membership"
+    },
+    "DELETE /user_management/organization_memberships/{id}": {
+      "sdkMethod": "delete_organization_membership",
+      "service": "organization_membership"
+    },
+    "PUT /user_management/organization_memberships/{id}/deactivate": {
+      "sdkMethod": "deactivate_organization_membership",
+      "service": "organization_membership"
+    },
+    "PUT /user_management/organization_memberships/{id}/reactivate": {
+      "sdkMethod": "reactivate_organization_membership",
+      "service": "organization_membership"
+    },
     "GET /user_management/organization_memberships/{omId}/groups": {
       "sdkMethod": "list_organization_membership_groups",
-      "service": "user_management_organization_membership_groups"
+      "service": "organization_membership"
+    },
+    "POST /vault/v1/keys/data-key": {
+      "sdkMethod": "create_data_key",
+      "service": "vault"
+    },
+    "POST /vault/v1/keys/decrypt": {
+      "sdkMethod": "create_decrypt",
+      "service": "vault"
+    },
+    "POST /vault/v1/keys/rekey": {
+      "sdkMethod": "create_rekey",
+      "service": "vault"
+    },
+    "GET /vault/v1/kv": {
+      "sdkMethod": "list_kv",
+      "service": "vault"
+    },
+    "POST /vault/v1/kv": {
+      "sdkMethod": "create_kv",
+      "service": "vault"
+    },
+    "GET /vault/v1/kv/name/{name}": {
+      "sdkMethod": "get_name",
+      "service": "vault"
+    },
+    "GET /vault/v1/kv/{id}": {
+      "sdkMethod": "get_kv",
+      "service": "vault"
+    },
+    "PUT /vault/v1/kv/{id}": {
+      "sdkMethod": "update_kv",
+      "service": "vault"
+    },
+    "DELETE /vault/v1/kv/{id}": {
+      "sdkMethod": "delete_kv",
+      "service": "vault"
+    },
+    "GET /vault/v1/kv/{id}/metadata": {
+      "sdkMethod": "list_kv_metadata",
+      "service": "vault"
+    },
+    "GET /vault/v1/kv/{id}/versions": {
+      "sdkMethod": "list_kv_versions",
+      "service": "vault"
     },
     "GET /webhook_endpoints": {
       "sdkMethod": "list_webhook_endpoints",
