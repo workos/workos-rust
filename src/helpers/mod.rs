@@ -14,7 +14,7 @@ pub mod public_client;
 pub mod session;
 pub mod sso_helpers;
 mod util;
-
+pub mod vault_crypto;
 pub mod webhook_verification;
 
 pub use actions::{ActionSignedResponse, ActionType, ActionVerdict, ActionsHelper};
@@ -36,6 +36,7 @@ pub use sso_helpers::{
     SsoAuthorizationUrlParams, SsoHelper, SsoLogoutUrlParams, SsoPkceAuthorizationUrl,
     SsoPkceCodeExchangeParams,
 };
+pub use vault_crypto::{VaultEncryptResult, extract_encrypted_keys, local_decrypt, local_encrypt};
 pub use webhook_verification::{
     WebhookVerifier, compute_webhook_signature, parse_webhook_signature_header,
 };

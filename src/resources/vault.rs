@@ -392,6 +392,75 @@ impl<'a> VaultApi<'a> {
             .await
     }
 
+    // @oagen-ignore-start
+    /// Generates a fresh data key and locally encrypts `data` with AES-256-GCM.
+    ///
+    /// # Security
+    ///
+    /// `associated_data` is the **only** binding between the ciphertext
+    /// envelope and the calling application: the encrypted-key prefix
+    /// (`encrypted_keys` and its LEB128 length) sits **outside** the
+    /// AEAD-authenticated region. Callers MUST pass an `associated_data`
+    /// value that is unique per record and unguessable to an attacker
+    /// with write access to the ciphertext store (e.g., the immutable
+    /// record id mixed with an environment-scoped secret). A constant or
+    /// empty value lets an attacker who can replace stored bytes
+    /// substitute a separately-generated envelope — including their own
+    /// `encrypted_keys` and ciphertext — under the same context, and
+    /// `decrypt` will succeed against the attacker-controlled plaintext.
+    pub async fn encrypt(
+        &self,
+        data: &str,
+        context: std::collections::HashMap<String, String>,
+        associated_data: &str,
+    ) -> Result<crate::helpers::vault_crypto::VaultEncryptResult, Error> {
+        let pair = self
+            .create_data_key(CreateDataKeyParams::new(CreateDataKeyRequest { context }))
+            .await?;
+        let encrypted = crate::helpers::vault_crypto::local_encrypt(
+            data,
+            pair.data_key.expose(),
+            pair.encrypted_keys.expose(),
+            associated_data,
+        )?;
+        Ok(crate::helpers::vault_crypto::VaultEncryptResult {
+            encrypted_data: encrypted,
+            context: pair.context,
+            encrypted_keys: pair.encrypted_keys.expose().to_string(),
+        })
+    }
+
+    /// Decrypts data previously encrypted with [`Self::encrypt`]. Calls the API to
+    /// decrypt the data key, then performs local AES-GCM decryption.
+    ///
+    /// # Security
+    ///
+    /// `associated_data` is the only authenticated binding between this
+    /// envelope and the calling application — see [`Self::encrypt`] for
+    /// the full requirement. If the value passed here is not unique per
+    /// record and unguessable, a successful return does **not** prove
+    /// that the stored bytes were authored by this application.
+    pub async fn decrypt(
+        &self,
+        encrypted_data: &str,
+        associated_data: &str,
+    ) -> Result<String, Error> {
+        let encrypted_keys_b64 =
+            crate::helpers::vault_crypto::extract_encrypted_keys(encrypted_data)?;
+
+        let dk = self
+            .create_decrypt(CreateDecryptParams::new(DecryptRequest {
+                keys: encrypted_keys_b64,
+            }))
+            .await?;
+        crate::helpers::vault_crypto::local_decrypt(
+            encrypted_data,
+            dk.data_key.expose(),
+            associated_data,
+        )
+    }
+    // @oagen-ignore-end
+
     /// List object versions
     ///
     /// Retrieve all versions for a specific object.
