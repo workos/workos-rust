@@ -7,26 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0](https://github.com/workos/workos-rust/compare/v1.0.1...v2.0.0) (2026-05-26)
 
+* [#97](https://github.com/workos/workos-rust/pull/97) feat(generated)!: regenerate from spec (8 changes)
 
-### ⚠ BREAKING CHANGES
+  **⚠️ Breaking**
+  * **organization_membership:** Split organization membership operations from user_management into dedicated service
+    * New `OrganizationMembershipApi` service with full CRUD and role management for organization memberships
+    * Moved from `UserManagementApi`: list/create/get/update/delete/deactivate/reactivate operations
+    * Breaking change: symbols removed from `user_management` and moved to `organization_membership` (see compat_breaking list)
+    * `Role` enum (`Single`/`Multiple` variants) moved from `user_management` to `organization_membership`
+    * `client.user_management_organization_membership_groups()` removed; use `client.organization_membership().list_organization_membership_groups()` instead
+    * Group membership listing now accessible via `organization_membership.list_organization_membership_groups`
+  * **radar:** Remove deprecated action and control fields from Radar standalone assessment
+    * Removed deprecated enum variants: `RadarStandaloneAssessRequestAction::Login`, `RadarStandaloneAssessRequestAction::Signup`, `RadarStandaloneResponseControl::CredentialStuffing`, `RadarStandaloneResponseControl::IpSignUpRateLimit`
+    * Removed lenient parsing aliases for `SignUp` (`"sign up"`, `"sign_up"`) and `SignIn` (`"sign in"`, `"sign_in"`); only canonical wire values `"sign-up"` and `"sign-in"` are accepted
+    * Removed fields from `RadarStandaloneAssessRequest`: `device_fingerprint` and `bot_score` (marked breaking in spec)
+  * **vault:** Replaced hand-written `helpers::VaultApi` with generated `resources::VaultApi`
+    * `client.vault()` now returns `resources::VaultApi` instead of `helpers::VaultApi`
+    * Old custom types removed: `DataKeyPair`, `DataKey`, `KeyContext`, `ObjectMetadata`, `VaultObject`, `VaultObjectDigest`, `VaultObjectVersion`, `VaultListObjectsParams`, `VaultListObjectsResponse`, `VaultCreateDataKeyParams`, `VaultCreateObjectParams`, `VaultUpdateObjectParams`, `VaultDecryptDataKeyParams`
+    * Replaced by generated types: `CreateDataKeyRequest`, `CreateDataKeyResponse`, `DecryptRequest`, `DecryptResponse`, `RekeyRequest`, `CreateObjectRequest`, `UpdateObjectRequest`, `VaultObject`, `ObjectMetadata`, `ObjectSummary`, `ObjectVersion`, `ObjectListResponse`, `VersionListResponse`
+    * Local `encrypt`/`decrypt` convenience methods preserved on `resources::VaultApi` with the same behavior
+    * Crypto helpers moved from `helpers::vault` to `helpers::vault_crypto` (re-exported: `VaultEncryptResult`, `local_encrypt`, `local_decrypt`, `extract_encrypted_keys`)
+  * **generated:** Rename types to remove `Json` suffix and standardize naming
+    * `AuditLogExportJsonState` → `AuditLogExportState`
+    * `AuditLogActionJson` → `AuditLogAction`
+    * `AuditLogExportJson` → `AuditLogExport`
+    * `AuditLogsRetentionJson` → `AuditLogsRetention`
+    * `WebhookEndpointJson` → `WebhookEndpoint`, `WebhookEndpointJsonStatus` → `WebhookEndpointStatus`
+    * `RadarAction` → `RadarListAction`, `RadarType` → `RadarListType`
+    * `AuditLogSchema` renamed to `AuditLogSchemaDto`; new `AuditLogSchemaInput`, `AuditLogSchemaActorInput`, `AuditLogSchemaTargetInput` types added
 
-* **organization_membership:** Split organization membership operations from user_management into dedicated service ([#97](https://github.com/workos/workos-rust/issues/97))
-* **radar:** Remove deprecated action and control fields from Radar standalone assessment ([#97](https://github.com/workos/workos-rust/issues/97))
+  **Features**
+  * **vault:** Add Vault service with key management and object storage APIs
+    * New `VaultApi` service providing encryption key management and encrypted object storage
+    * Key management: `create_data_key`, `create_decrypt`, `create_rekey` for cryptographic operations
+    * Object storage: `list_kv`, `create_kv`, `get_kv`, `get_name`, `update_kv`, `delete_kv` for managing encrypted key-value pairs
+    * Metadata operations: `list_kv_metadata` and `list_kv_versions` for inspecting object history without decryption
+  * **api_key:** Add expires_at field to API key models
+    * New optional `expires_at` field added to `ApiKey`, `OrganizationApiKey`, `OrganizationApiKeyWithValue`, `UserApiKey`, `UserApiKeyWithValue` models
+    * Allows setting expiration timestamps on API keys; null means no expiration
+    * Event data models updated: `ApiKeyCreatedData` and `ApiKeyRevokedData` now include `expires_at`
+    * New optional parameter `expires_at` in `CreateOrganizationApiKey` and `CreateUserApiKey` request bodies
+  * **webhooks:** Add Pipes connected account events to webhook subscriptions
+    * Three new webhook event types for Pipes integrations: `PIPES_CONNECTED_ACCOUNT_CONNECTED`, `PIPES_CONNECTED_ACCOUNT_DISCONNECTED`, `PIPES_CONNECTED_ACCOUNT_REAUTHORIZATION_NEEDED`
+    * New model types: `PipeConnectedAccount`, `PipesConnectedAccountConnected`, `PipesConnectedAccountDisconnected`, `PipesConnectedAccountReauthorizationNeeded`
+    * New enum `PipeConnectedAccountState` for connected account status tracking
+  * **connect:** Add typed connect application models and new fields
+    * New `ConnectApplicationM2M` and `ConnectApplicationOAuth` model types for M2M and OAuth applications
+    * New fields on `ConnectApplication`: `redirect_uris`, `uses_pkce`, `is_first_party`, `was_dynamically_registered`
+    * New `ConnectApplicationRedirectUri` and `ConnectApplicationOAuthRedirectUris` types
+  * **generated:** Add new general-purpose models
+    * New `Actor` model for representing users or API keys that performed actions
+    * New `ErrorResponse` model for structured error response bodies
+    * New `ListMetadata` model for cursor-based pagination metadata
+    * New `VaultOrder` enum for ordering vault list results
 
-### Features
-
-* **api_key:** Add expires_at field to API key models ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
-* **organization_membership:** Split organization membership operations from user_management into dedicated service ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
-* **radar:** Remove deprecated action and control fields from Radar standalone assessment ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
-* **vault:** Add Vault service with key management and object storage APIs ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
-* **webhooks:** Add Pipes connected account events to webhook subscriptions ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
-
-
-### Bug Fixes
-
-* **connect:** Fix last_used_at field type in application credentials ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
-* **generated:** Standardize type names and fix parameter defaults in authorization service ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
-* **sso:** Expand login_hint documentation to include custom SAML ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+  **Fixes**
+  * **generated:** Standardize type names and fix parameter defaults in authorization service
+    * Added `resource_id`, `resource_external_id`, and `resource_type_slug` filters to `ListRoleAssignmentsParams` for more granular assignment filtering
+    * Added `role_slug` filter to `ListRoleAssignmentsForResourceParams` and `ListRoleAssignmentsForResourceByExternalIdParams`
+    * Removed `search` parameter from `ListResourcesParams` (deprecated)
+  * **connect:** Fix last_used_at field type in application credentials
+    * `NewConnectApplicationSecret.last_used_at` type changed from invalid string value to ISO 8601 timestamp
+    * `ApplicationCredentialsListItem.last_used_at` type changed from invalid string value to ISO 8601 timestamp
+    * Ensures consistency with API contract for credential timestamp tracking
+  * **sso:** Expand login_hint documentation to include custom SAML
+    * Updated `GetAuthorizationUrlParams.login_hint` documentation to indicate support for custom SAML connections in addition to existing OAuth/OpenID Connect/Okta/Entra ID support
 
 ## [1.0.1](https://github.com/workos/workos-rust/compare/v1.0.0...v1.0.1) (2026-05-13)
 
