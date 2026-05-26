@@ -147,7 +147,7 @@ async fn webhooks_create_webhook_endpoint_round_trip() {
         .and(path_matcher("/webhook_endpoints"))
         .respond_with(
             ResponseTemplate::new(200)
-                .set_body_string(include_str!("fixtures/webhook_endpoint_json.json")),
+                .set_body_string(include_str!("fixtures/webhook_endpoint.json")),
         )
         .expect(1)
         .mount(&server)
@@ -330,7 +330,7 @@ async fn webhooks_update_webhook_endpoint_round_trip() {
         .and(path_matcher("/webhook_endpoints/test_id"))
         .respond_with(
             ResponseTemplate::new(200)
-                .set_body_string(include_str!("fixtures/webhook_endpoint_json.json")),
+                .set_body_string(include_str!("fixtures/webhook_endpoint.json")),
         )
         .expect(1)
         .mount(&server)

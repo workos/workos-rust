@@ -27,6 +27,18 @@ pub struct ConnectApplication {
     /// The type of the application.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub application_type: Option<String>,
+    /// The redirect URIs configured for this application.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub redirect_uris: Option<Vec<ConnectApplicationRedirectUri>>,
+    /// Whether the application uses PKCE for authorization.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub uses_pkce: Option<bool>,
+    /// Whether the application is a first-party application.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub is_first_party: Option<bool>,
+    /// Whether the application was dynamically registered.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub was_dynamically_registered: Option<bool>,
     /// The ID of the organization the application belongs to.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub organization_id: Option<String>,

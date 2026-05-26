@@ -341,6 +341,15 @@ pub struct ListRoleAssignmentsParams {
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter assignments by the ID of the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_id: Option<String>,
+    /// Filter assignments by the external ID of the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_external_id: Option<String>,
+    /// Filter assignments by the slug of the resource type.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_type_slug: Option<String>,
 }
 
 impl Default for ListRoleAssignmentsParams {
@@ -351,6 +360,9 @@ impl Default for ListRoleAssignmentsParams {
             after: Default::default(),
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
+            resource_id: Default::default(),
+            resource_external_id: Default::default(),
+            resource_type_slug: Default::default(),
         }
     }
 }
@@ -552,6 +564,9 @@ pub struct ListRoleAssignmentsForResourceByExternalIdParams {
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter assignments by the slug of the role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role_slug: Option<String>,
 }
 
 impl Default for ListRoleAssignmentsForResourceByExternalIdParams {
@@ -562,6 +577,7 @@ impl Default for ListRoleAssignmentsForResourceByExternalIdParams {
             after: Default::default(),
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
+            role_slug: Default::default(),
         }
     }
 }
@@ -593,9 +609,6 @@ pub struct ListResourcesParams {
     /// Filter resources by external ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource_external_id: Option<String>,
-    /// Search resources by name.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub search: Option<String>,
     #[serde(flatten)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<Parent>,
@@ -612,7 +625,6 @@ impl Default for ListResourcesParams {
             organization_id: Default::default(),
             resource_type_slug: Default::default(),
             resource_external_id: Default::default(),
-            search: Default::default(),
             parent: Default::default(),
         }
     }
@@ -730,6 +742,9 @@ pub struct ListRoleAssignmentsForResourceParams {
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter assignments by the slug of the role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role_slug: Option<String>,
 }
 
 impl Default for ListRoleAssignmentsForResourceParams {
@@ -740,6 +755,7 @@ impl Default for ListRoleAssignmentsForResourceParams {
             after: Default::default(),
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
+            role_slug: Default::default(),
         }
     }
 }

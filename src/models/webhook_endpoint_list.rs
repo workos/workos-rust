@@ -10,7 +10,7 @@ pub struct WebhookEndpointList {
     /// Indicates this is a list response.
     pub object: String,
     /// The list of records for the current page.
-    pub data: Vec<WebhookEndpointJson>,
+    pub data: Vec<WebhookEndpoint>,
     /// Pagination cursors for navigating between pages of results.
     pub list_metadata: WebhookEndpointListListMetadata,
 }

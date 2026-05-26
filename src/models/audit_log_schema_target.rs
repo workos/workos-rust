@@ -10,7 +10,7 @@ pub struct AuditLogSchemaTarget {
     /// The type of the target resource.
     #[serde(rename = "type")]
     pub type_: String,
-    /// Optional JSON schema for target metadata.
+    /// Additional data associated with the event or entity.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub metadata: Option<std::collections::HashMap<String, serde_json::Value>>,
 }

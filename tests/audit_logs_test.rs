@@ -13,7 +13,7 @@ async fn audit_logs_get_organization_audit_logs_retention_round_trip() {
         .and(path_matcher("/organizations/test_id/audit_logs_retention"))
         .respond_with(
             ResponseTemplate::new(200)
-                .set_body_string(include_str!("fixtures/audit_logs_retention_json.json")),
+                .set_body_string(include_str!("fixtures/audit_logs_retention.json")),
         )
         .expect(1)
         .mount(&server)
@@ -127,7 +127,7 @@ async fn audit_logs_update_organization_audit_logs_retention_round_trip() {
         .and(path_matcher("/organizations/test_id/audit_logs_retention"))
         .respond_with(
             ResponseTemplate::new(200)
-                .set_body_string(include_str!("fixtures/audit_logs_retention_json.json")),
+                .set_body_string(include_str!("fixtures/audit_logs_retention.json")),
         )
         .expect(1)
         .mount(&server)
@@ -607,7 +607,7 @@ async fn audit_logs_create_schema_round_trip() {
         .and(path_matcher("/audit_logs/actions/test_id/schemas"))
         .respond_with(
             ResponseTemplate::new(200)
-                .set_body_string(include_str!("fixtures/audit_log_schema_json.json")),
+                .set_body_string(include_str!("fixtures/audit_log_schema.json")),
         )
         .expect(1)
         .mount(&server)
@@ -618,8 +618,8 @@ async fn audit_logs_create_schema_round_trip() {
         .create_schema(
             "test_id",
             workos::audit_logs::CreateSchemaParams::new(
-                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
-                    .expect("parse fixture for AuditLogSchema"),
+                serde_json::from_str(include_str!("fixtures/audit_log_schema_input.json"))
+                    .expect("parse fixture for AuditLogSchemaInput"),
             ),
         )
         .await;
@@ -641,8 +641,8 @@ async fn audit_logs_create_schema_unauthorized() {
         .create_schema(
             "test_id",
             workos::audit_logs::CreateSchemaParams::new(
-                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
-                    .expect("parse fixture for AuditLogSchema"),
+                serde_json::from_str(include_str!("fixtures/audit_log_schema_input.json"))
+                    .expect("parse fixture for AuditLogSchemaInput"),
             ),
         )
         .await
@@ -670,8 +670,8 @@ async fn audit_logs_create_schema_not_found() {
         .create_schema(
             "test_id",
             workos::audit_logs::CreateSchemaParams::new(
-                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
-                    .expect("parse fixture for AuditLogSchema"),
+                serde_json::from_str(include_str!("fixtures/audit_log_schema_input.json"))
+                    .expect("parse fixture for AuditLogSchemaInput"),
             ),
         )
         .await
@@ -701,8 +701,8 @@ async fn audit_logs_create_schema_rate_limited() {
         .create_schema(
             "test_id",
             workos::audit_logs::CreateSchemaParams::new(
-                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
-                    .expect("parse fixture for AuditLogSchema"),
+                serde_json::from_str(include_str!("fixtures/audit_log_schema_input.json"))
+                    .expect("parse fixture for AuditLogSchemaInput"),
             ),
         )
         .await
@@ -731,8 +731,8 @@ async fn audit_logs_create_schema_server_error() {
         .create_schema(
             "test_id",
             workos::audit_logs::CreateSchemaParams::new(
-                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
-                    .expect("parse fixture for AuditLogSchema"),
+                serde_json::from_str(include_str!("fixtures/audit_log_schema_input.json"))
+                    .expect("parse fixture for AuditLogSchemaInput"),
             ),
         )
         .await
@@ -761,8 +761,8 @@ async fn audit_logs_create_schema_bad_request() {
         .create_schema(
             "test_id",
             workos::audit_logs::CreateSchemaParams::new(
-                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
-                    .expect("parse fixture for AuditLogSchema"),
+                serde_json::from_str(include_str!("fixtures/audit_log_schema_input.json"))
+                    .expect("parse fixture for AuditLogSchemaInput"),
             ),
         )
         .await
@@ -791,8 +791,8 @@ async fn audit_logs_create_schema_unprocessable() {
         .create_schema(
             "test_id",
             workos::audit_logs::CreateSchemaParams::new(
-                serde_json::from_str(include_str!("fixtures/audit_log_schema.json"))
-                    .expect("parse fixture for AuditLogSchema"),
+                serde_json::from_str(include_str!("fixtures/audit_log_schema_input.json"))
+                    .expect("parse fixture for AuditLogSchemaInput"),
             ),
         )
         .await
@@ -993,7 +993,7 @@ async fn audit_logs_create_export_round_trip() {
         .and(path_matcher("/audit_logs/exports"))
         .respond_with(
             ResponseTemplate::new(200)
-                .set_body_string(include_str!("fixtures/audit_log_export_json.json")),
+                .set_body_string(include_str!("fixtures/audit_log_export.json")),
         )
         .expect(1)
         .mount(&server)
@@ -1176,7 +1176,7 @@ async fn audit_logs_get_export_round_trip() {
         .and(path_matcher("/audit_logs/exports/test_id"))
         .respond_with(
             ResponseTemplate::new(200)
-                .set_body_string(include_str!("fixtures/audit_log_export_json.json")),
+                .set_body_string(include_str!("fixtures/audit_log_export.json")),
         )
         .expect(1)
         .mount(&server)

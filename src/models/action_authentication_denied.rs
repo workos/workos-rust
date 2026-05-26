@@ -7,15 +7,15 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActionAuthenticationDenied {
+    /// Distinguishes the Event object.
+    pub object: String,
     /// Unique identifier for the event.
     pub id: String,
     pub event: String,
     /// The event payload.
     pub data: ActionAuthenticationDeniedData,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub context: Option<EventContext>,
     /// An ISO 8601 timestamp.
     pub created_at: String,
-    /// Distinguishes the Event object.
-    pub object: String,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub context: Option<EventContext>,
 }

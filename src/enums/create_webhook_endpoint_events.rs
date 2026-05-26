@@ -79,6 +79,9 @@ pub enum CreateWebhookEndpointEvents {
     PermissionCreated,
     PermissionDeleted,
     PermissionUpdated,
+    PipesConnectedAccountConnected,
+    PipesConnectedAccountDisconnected,
+    PipesConnectedAccountReauthorizationNeeded,
     SessionCreated,
     SessionRevoked,
     WaitlistUserApproved,
@@ -173,6 +176,11 @@ impl CreateWebhookEndpointEvents {
             Self::PermissionCreated => "permission.created",
             Self::PermissionDeleted => "permission.deleted",
             Self::PermissionUpdated => "permission.updated",
+            Self::PipesConnectedAccountConnected => "pipes.connected_account.connected",
+            Self::PipesConnectedAccountDisconnected => "pipes.connected_account.disconnected",
+            Self::PipesConnectedAccountReauthorizationNeeded => {
+                "pipes.connected_account.reauthorization_needed"
+            }
             Self::SessionCreated => "session.created",
             Self::SessionRevoked => "session.revoked",
             Self::WaitlistUserApproved => "waitlist_user.approved",
@@ -276,6 +284,11 @@ impl FromStr for CreateWebhookEndpointEvents {
             "permission.created" => Self::PermissionCreated,
             "permission.deleted" => Self::PermissionDeleted,
             "permission.updated" => Self::PermissionUpdated,
+            "pipes.connected_account.connected" => Self::PipesConnectedAccountConnected,
+            "pipes.connected_account.disconnected" => Self::PipesConnectedAccountDisconnected,
+            "pipes.connected_account.reauthorization_needed" => {
+                Self::PipesConnectedAccountReauthorizationNeeded
+            }
             "session.created" => Self::SessionCreated,
             "session.revoked" => Self::SessionRevoked,
             "waitlist_user.approved" => Self::WaitlistUserApproved,

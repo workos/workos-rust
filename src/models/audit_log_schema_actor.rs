@@ -5,8 +5,9 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The metadata schema for the actor.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditLogSchemaActor {
-    /// JSON schema for actor metadata.
+    /// The JSON Schema definition for actor metadata.
     pub metadata: std::collections::HashMap<String, serde_json::Value>,
 }

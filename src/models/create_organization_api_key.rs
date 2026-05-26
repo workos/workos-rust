@@ -12,4 +12,7 @@ pub struct CreateOrganizationApiKey {
     /// The permission slugs to assign to the API key.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub permissions: Option<Vec<String>>,
+    /// The timestamp when the API key should expire. Must be a future timestamp. If omitted, the key does not expire.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub expires_at: Option<String>,
 }

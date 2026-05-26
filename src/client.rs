@@ -195,16 +195,6 @@ impl Client {
         ClientBuilder::default()
     }
 
-    pub(crate) async fn request_with_query<P: Serialize, R: DeserializeOwned>(
-        &self,
-        method: Method,
-        path: &str,
-        params: &P,
-    ) -> Result<R, Error> {
-        self.request_with_query_opts(method, path, params, None)
-            .await
-    }
-
     pub(crate) async fn request_with_query_opts<P: Serialize, R: DeserializeOwned>(
         &self,
         method: Method,
@@ -309,11 +299,6 @@ impl Client {
     /// Passwordless (magic-link) helper.
     pub fn passwordless(&self) -> crate::helpers::PasswordlessApi<'_> {
         crate::helpers::PasswordlessApi { client: self }
-    }
-
-    /// Vault — KV operations + local AES-GCM crypto.
-    pub fn vault(&self) -> crate::helpers::VaultApi<'_> {
-        crate::helpers::VaultApi { client: self }
     }
 
     /// AuthKit helpers (URL builder, PKCE flows, device flow).

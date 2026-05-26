@@ -17,10 +17,4 @@ pub struct RadarStandaloneAssessRequest {
     pub auth_method: RadarStandaloneAssessRequestAuthMethod,
     /// The action being performed.
     pub action: RadarStandaloneAssessRequestAction,
-    /// An optional device fingerprint for the request.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub device_fingerprint: Option<String>,
-    /// An optional bot detection score for the request.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub bot_score: Option<String>,
 }

@@ -1157,7 +1157,7 @@ async fn connect_list_application_client_secrets_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/connect/applications/test_id/client_secrets"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"connect_application_secret\",\"id\":\"secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q\",\"secret_hint\":\"abc123\",\"last_used_at\":\"test_last_used_at\",\"created_at\":\"2026-01-15T12:00:00.000Z\",\"updated_at\":\"2026-01-15T12:00:00.000Z\"}]"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"connect_application_secret\",\"id\":\"secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q\",\"secret_hint\":\"abc123\",\"last_used_at\":\"2023-01-01T00:00:00.000Z\",\"created_at\":\"2026-01-15T12:00:00.000Z\",\"updated_at\":\"2026-01-15T12:00:00.000Z\"}]"))
         .expect(1)
         .mount(&server)
         .await;
