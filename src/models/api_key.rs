@@ -20,6 +20,9 @@ pub struct ApiKey {
     /// Timestamp of when the API Key was last used.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub last_used_at: Option<String>,
+    /// Timestamp when the API Key expires. Null means the key does not expire.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub expires_at: Option<String>,
     /// The permission slugs assigned to the API Key.
     pub permissions: Vec<String>,
     /// An ISO 8601 timestamp.
