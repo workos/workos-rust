@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1](https://github.com/workos/workos-rust/compare/v2.0.0...v2.0.1) (2026-05-28)
+
+
+### Bug Fixes
+
+* **renovate:** explicitly enable minor and patch updates ([#99](https://github.com/workos/workos-rust/issues/99)) ([2639af6](https://github.com/workos/workos-rust/commit/2639af6f0749120a134dd292ef40af3df09e7fd6))
+* **sdk:** omit defaulted screen_hint from auth URLs ([#102](https://github.com/workos/workos-rust/issues/102)) ([2dc6fa4](https://github.com/workos/workos-rust/commit/2dc6fa4a3bfc17a5ef399c6683c406f839f5083b))
+
 ## [2.0.0](https://github.com/workos/workos-rust/compare/v1.0.1...v2.0.0) (2026-05-26)
 
 * [#97](https://github.com/workos/workos-rust/pull/97) feat(generated)!: regenerate from spec (8 changes)
