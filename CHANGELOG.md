@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0](https://github.com/workos/workos-rust/compare/v2.0.1...v3.0.0) (2026-05-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **organization_membership:** Split organization membership operations from user_management into dedicated service ([#97](https://github.com/workos/workos-rust/issues/97))
+* **radar:** Remove deprecated action and control fields from Radar standalone assessment ([#97](https://github.com/workos/workos-rust/issues/97))
+* prep for v1
+
+### Features
+
+* Add ApiError, RequestOptions, and auto-paging streams ([a1a66ba](https://github.com/workos/workos-rust/commit/a1a66ba8cad6f8d79456c4f951cd00b1c0d8b108))
+* **api_key:** Add expires_at field to API key models ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **client:** Add path_segment encoder and shared auto-paging driver ([7f1c2d3](https://github.com/workos/workos-rust/commit/7f1c2d3b2490b588bf32abb8b5c76e1c0598e9e4))
+* **client:** Gate retries by safety and add per-request RequestStrategy ([1fb9b1c](https://github.com/workos/workos-rust/commit/1fb9b1c8835daeb77f603b689418b0860352de6c))
+* **organization_membership:** Split organization membership operations from user_management into dedicated service ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* prep for v1 ([9b42e77](https://github.com/workos/workos-rust/commit/9b42e7753ae5b73ebcfb7cba9cebd9967a49c94f))
+* **radar:** Remove deprecated action and control fields from Radar standalone assessment ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **secret:** Add SecretString wrapper for sensitive fields ([d3729a9](https://github.com/workos/workos-rust/commit/d3729a98c9ce6c9bf654779e8c252c7887f83cd5))
+* **vault:** Add Vault service with key management and object storage APIs ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **webhooks:** Add Pipes connected account events to webhook subscriptions ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+
+
+### Bug Fixes
+
+* **connect:** Fix last_used_at field type in application credentials ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **generated:** Regenerate from oagen with query encoder + typed param bodies ([e63d620](https://github.com/workos/workos-rust/commit/e63d620673b1e0b1270b1ca0ad7539d462c94e51))
+* **generated:** Standardize type names and fix parameter defaults in authorization service ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+* **helpers:** Harden webhook, session, and vault crypto paths ([98b8a59](https://github.com/workos/workos-rust/commit/98b8a59781d461a78b429c4757224d86a4bb68be))
+* **renovate:** explicitly enable minor and patch updates ([#99](https://github.com/workos/workos-rust/issues/99)) ([2639af6](https://github.com/workos/workos-rust/commit/2639af6f0749120a134dd292ef40af3df09e7fd6))
+* **sdk:** omit defaulted screen_hint from auth URLs ([#102](https://github.com/workos/workos-rust/issues/102)) ([2dc6fa4](https://github.com/workos/workos-rust/commit/2dc6fa4a3bfc17a5ef399c6683c406f839f5083b))
+* **sso:** Expand login_hint documentation to include custom SAML ([#97](https://github.com/workos/workos-rust/issues/97)) ([b5d9685](https://github.com/workos/workos-rust/commit/b5d9685090c6e041d763a47b519cf80126a30b0b))
+
 ## [2.0.1](https://github.com/workos/workos-rust/compare/v2.0.0...v2.0.1) (2026-05-28)
 
 
