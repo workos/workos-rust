@@ -427,7 +427,7 @@ impl GetAuthorizationUrlParams {
             provider_query_params: Default::default(),
             provider_scopes: Default::default(),
             invitation_token: Default::default(),
-            screen_hint: Some(UserManagementAuthenticationScreenHint::SignIn),
+            screen_hint: Default::default(),
             login_hint: Default::default(),
             provider: Default::default(),
             prompt: Default::default(),
