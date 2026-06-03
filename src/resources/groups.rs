@@ -25,7 +25,7 @@ pub struct ListOrganizationGroupsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -91,7 +91,7 @@ pub struct ListGroupOrganizationMembershipsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -231,7 +231,7 @@ pub struct ListResourcesForMembershipParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -272,7 +272,7 @@ pub struct ListEffectivePermissionsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -304,7 +304,7 @@ pub struct ListEffectivePermissionsByExternalIdParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -336,7 +336,7 @@ pub struct ListRoleAssignmentsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -517,7 +517,7 @@ pub struct ListMembershipsForResourceByExternalIdParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -559,7 +559,7 @@ pub struct ListRoleAssignmentsForResourceByExternalIdParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -595,7 +595,7 @@ pub struct ListResourcesParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -695,7 +695,7 @@ pub struct ListMembershipsForResourceParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -737,7 +737,7 @@ pub struct ListRoleAssignmentsForResourceParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -841,7 +841,7 @@ pub struct ListPermissionsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
