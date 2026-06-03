@@ -40,3 +40,12 @@ pub enum ApiKeyRevokedDataOwnerOneOf {
     #[serde(rename = "user")]
     UserApiKeyRevokedDataOwner(UserApiKeyRevokedDataOwner),
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ApiKeyUpdatedDataOwnerOneOf {
+    #[serde(rename = "organization")]
+    ApiKeyUpdatedDataOwner(ApiKeyUpdatedDataOwner),
+    #[serde(rename = "user")]
+    UserApiKeyUpdatedDataOwner(UserApiKeyUpdatedDataOwner),
+}

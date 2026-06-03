@@ -699,3 +699,199 @@ async fn api_keys_delete_api_key_unprocessable() {
     };
     assert_eq!(api.status, 422);
 }
+
+#[tokio::test]
+async fn api_keys_create_api_key_expire_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/api_keys/test_id/expire"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/api_key.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .api_keys()
+        .create_api_key_expire(
+            "test_id",
+            workos::api_keys::CreateApiKeyExpireParams::new(
+                serde_json::from_str("{}").expect("parse stub for ExpireApiKey"),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn api_keys_create_api_key_expire_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/api_keys/test_id/expire"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .api_keys()
+        .create_api_key_expire(
+            "test_id",
+            workos::api_keys::CreateApiKeyExpireParams::new(
+                serde_json::from_str("{}").expect("parse stub for ExpireApiKey"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn api_keys_create_api_key_expire_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/api_keys/test_id/expire"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .api_keys()
+        .create_api_key_expire(
+            "test_id",
+            workos::api_keys::CreateApiKeyExpireParams::new(
+                serde_json::from_str("{}").expect("parse stub for ExpireApiKey"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn api_keys_create_api_key_expire_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/api_keys/test_id/expire"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .api_keys()
+        .create_api_key_expire(
+            "test_id",
+            workos::api_keys::CreateApiKeyExpireParams::new(
+                serde_json::from_str("{}").expect("parse stub for ExpireApiKey"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn api_keys_create_api_key_expire_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/api_keys/test_id/expire"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .api_keys()
+        .create_api_key_expire(
+            "test_id",
+            workos::api_keys::CreateApiKeyExpireParams::new(
+                serde_json::from_str("{}").expect("parse stub for ExpireApiKey"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn api_keys_create_api_key_expire_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/api_keys/test_id/expire"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .api_keys()
+        .create_api_key_expire(
+            "test_id",
+            workos::api_keys::CreateApiKeyExpireParams::new(
+                serde_json::from_str("{}").expect("parse stub for ExpireApiKey"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn api_keys_create_api_key_expire_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/api_keys/test_id/expire"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .api_keys()
+        .create_api_key_expire(
+            "test_id",
+            workos::api_keys::CreateApiKeyExpireParams::new(
+                serde_json::from_str("{}").expect("parse stub for ExpireApiKey"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
