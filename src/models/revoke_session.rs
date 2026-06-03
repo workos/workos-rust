@@ -9,7 +9,4 @@ use serde::{Deserialize, Serialize};
 pub struct RevokeSession {
     /// The ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
     pub session_id: String,
-    /// The URL to redirect the user to after session revocation.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub return_to: Option<String>,
 }
