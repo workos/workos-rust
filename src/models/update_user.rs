@@ -16,6 +16,9 @@ pub struct UpdateUser {
     /// The last name of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub last_name: Option<String>,
+    /// The user's full name.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub name: Option<String>,
     /// Whether the user's email has been verified.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub email_verified: Option<bool>,

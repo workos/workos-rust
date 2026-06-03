@@ -18,6 +18,9 @@ pub struct User {
     /// The last name of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub last_name: Option<String>,
+    /// The user's full name.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub name: Option<String>,
     /// A URL reference to an image representing the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub profile_picture_url: Option<String>,
