@@ -25,6 +25,9 @@ pub struct DataIntegrationsListResponseData {
     /// The OAuth scopes configured for this provider, or `null` if none are configured.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub scopes: Option<Vec<String>>,
+    /// The authentication methods supported by this provider (`oauth`, `api_key`, or both). Defaults to `["oauth"]` if absent.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub auth_methods: Option<Vec<DataIntegrationsListResponseDataAuthMethods>>,
     /// Whether the provider is owned by a user or organization.
     pub ownership: DataIntegrationsListResponseDataOwnership,
     /// The timestamp when the provider was created.

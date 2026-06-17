@@ -179,7 +179,7 @@ impl<'a> OrganizationMembershipApi<'a> {
     pub async fn list_organization_memberships(
         &self,
         params: ListOrganizationMembershipsParams,
-    ) -> Result<Vec<UserOrganizationMembership>, Error> {
+    ) -> Result<UserOrganizationMembershipList, Error> {
         self.list_organization_memberships_with_options(params, None)
             .await
     }
@@ -189,12 +189,36 @@ impl<'a> OrganizationMembershipApi<'a> {
         &self,
         params: ListOrganizationMembershipsParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<Vec<UserOrganizationMembership>, Error> {
+    ) -> Result<UserOrganizationMembershipList, Error> {
         let path = "/user_management/organization_memberships".to_string();
         let method = http::Method::GET;
         self.client
             .request_with_query_opts(method, &path, &params, options)
             .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `UserOrganizationMembership`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<UserOrganizationMembership> = self
+    ///     .list_organization_memberships_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_organization_memberships_auto_paging(
+        &self,
+        params: ListOrganizationMembershipsParams,
+    ) -> impl futures_util::Stream<Item = Result<UserOrganizationMembership, Error>> + '_ {
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_organization_memberships(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// Create an organization membership

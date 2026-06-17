@@ -11,7 +11,9 @@ async fn organization_membership_list_organization_memberships_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/organization_memberships"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"organization_membership\",\"id\":\"om_01HXYZ123456789ABCDEFGHIJ\",\"user_id\":\"user_01E4ZCR3C56J083X43JQXF3JK5\",\"organization_id\":\"org_01EHZNVPK3SFK441A1RGBFSHRT\",\"status\":\"active\",\"directory_managed\":false,\"created_at\":\"2026-01-15T12:00:00.000Z\",\"updated_at\":\"2026-01-15T12:00:00.000Z\",\"role\":{\"slug\":\"admin\"},\"user\":{\"object\":\"user\",\"id\":\"user_01E4ZCR3C56J083X43JQXF3JK5\",\"first_name\":\"Marcelina\",\"last_name\":\"Davis\",\"profile_picture_url\":\"https://workoscdn.com/images/v1/123abc\",\"email\":\"marcelina.davis@example.com\",\"email_verified\":true,\"external_id\":\"f1ffa2b2-c20b-4d39-be5c-212726e11222\",\"last_sign_in_at\":\"2025-06-25T19:07:33.155Z\",\"created_at\":\"2026-01-15T12:00:00.000Z\",\"updated_at\":\"2026-01-15T12:00:00.000Z\"}}]"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/user_organization_membership_list.json"
+        )))
         .expect(1)
         .mount(&server)
         .await;
@@ -132,7 +134,9 @@ async fn organization_membership_list_organization_memberships_empty_page() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/organization_memberships"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[]"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
         .expect(1)
         .mount(&server)
         .await;
@@ -144,7 +148,7 @@ async fn organization_membership_list_organization_memberships_empty_page() {
         )
         .await
         .expect("expected success");
-    assert!(resp.is_empty(), "expected empty data array");
+    assert!(resp.data.is_empty(), "expected empty data array");
 }
 
 #[tokio::test]
