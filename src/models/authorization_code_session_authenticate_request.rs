@@ -9,8 +9,9 @@ use serde::{Deserialize, Serialize};
 pub struct AuthorizationCodeSessionAuthenticateRequest {
     /// The client ID of the application.
     pub client_id: String,
-    /// The client secret of the application.
-    pub client_secret: crate::SecretString,
+    /// The client secret of the application. May be omitted by public clients that authenticate through other means, such as a PKCE `code_verifier`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub client_secret: Option<crate::SecretString>,
     pub grant_type: String,
     /// The authorization code received from the redirect.
     pub code: String,

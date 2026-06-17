@@ -202,6 +202,89 @@ impl UpdateResourceParamsBody {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct ListGroupRoleAssignmentsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListGroupRoleAssignmentsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateGroupRoleAssignmentParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: CreateGroupRoleAssignment,
+}
+
+impl CreateGroupRoleAssignmentParams {
+    /// Construct a new `CreateGroupRoleAssignmentParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateGroupRoleAssignment) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct UpdateGroupRoleAssignmentsParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: ReplaceGroupRoleAssignments,
+}
+
+impl UpdateGroupRoleAssignmentsParams {
+    /// Construct a new `UpdateGroupRoleAssignmentsParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ReplaceGroupRoleAssignments) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct DeleteGroupRoleAssignmentsParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: DeleteGroupRoleAssignmentsByCriteria,
+}
+
+impl DeleteGroupRoleAssignmentsParams {
+    /// Construct a new `DeleteGroupRoleAssignmentsParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DeleteGroupRoleAssignmentsByCriteria) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct CheckParams {
     /// Request body sent with this call.
     ///
@@ -895,6 +978,199 @@ impl UpdatePermissionParams {
 }
 
 impl<'a> AuthorizationApi<'a> {
+    /// List role assignments for a group
+    ///
+    /// List all role assignments granted to a group. Each assignment represents a role granted to the group on a resource.
+    pub async fn list_group_role_assignments(
+        &self,
+        group_id: &str,
+        params: ListGroupRoleAssignmentsParams,
+    ) -> Result<GroupRoleAssignmentList, Error> {
+        self.list_group_role_assignments_with_options(group_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_group_role_assignments`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_group_role_assignments_with_options(
+        &self,
+        group_id: &str,
+        params: ListGroupRoleAssignmentsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<GroupRoleAssignmentList, Error> {
+        let group_id = crate::client::path_segment(group_id);
+        let path = format!("/authorization/groups/{group_id}/role_assignments");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `GroupRoleAssignment`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<GroupRoleAssignment> = self
+    ///     .list_group_role_assignments_auto_paging(group_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_group_role_assignments_auto_paging(
+        &self,
+        group_id: impl Into<String>,
+        params: ListGroupRoleAssignmentsParams,
+    ) -> impl futures_util::Stream<Item = Result<GroupRoleAssignment, Error>> + '_ {
+        let group_id: String = group_id.into();
+        crate::pagination::auto_paginate_pages(move |after| {
+            let group_id = group_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_group_role_assignments(&group_id, params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Assign a role to a group
+    ///
+    /// Assign a role to a group on a specific resource.
+    pub async fn create_group_role_assignment(
+        &self,
+        group_id: &str,
+        params: CreateGroupRoleAssignmentParams,
+    ) -> Result<GroupRoleAssignment, Error> {
+        self.create_group_role_assignment_with_options(group_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_group_role_assignment`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_group_role_assignment_with_options(
+        &self,
+        group_id: &str,
+        params: CreateGroupRoleAssignmentParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<GroupRoleAssignment, Error> {
+        let group_id = crate::client::path_segment(group_id);
+        let path = format!("/authorization/groups/{group_id}/role_assignments");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Replace all role assignments for a group
+    ///
+    /// Replace all role assignments for a group with the provided list. Existing assignments not in the list will be removed.
+    pub async fn update_group_role_assignments(
+        &self,
+        group_id: &str,
+        params: UpdateGroupRoleAssignmentsParams,
+    ) -> Result<GroupRoleAssignmentList, Error> {
+        self.update_group_role_assignments_with_options(group_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_group_role_assignments`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_group_role_assignments_with_options(
+        &self,
+        group_id: &str,
+        params: UpdateGroupRoleAssignmentsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<GroupRoleAssignmentList, Error> {
+        let group_id = crate::client::path_segment(group_id);
+        let path = format!("/authorization/groups/{group_id}/role_assignments");
+        let method = http::Method::PUT;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Remove group role assignments by criteria
+    ///
+    /// Remove role assignments from a group that match the provided criteria. Returns 404 when no matching active assignment is found.
+    pub async fn delete_group_role_assignments(
+        &self,
+        group_id: &str,
+        params: DeleteGroupRoleAssignmentsParams,
+    ) -> Result<(), Error> {
+        self.delete_group_role_assignments_with_options(group_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_group_role_assignments`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_group_role_assignments_with_options(
+        &self,
+        group_id: &str,
+        params: DeleteGroupRoleAssignmentsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let group_id = crate::client::path_segment(group_id);
+        let path = format!("/authorization/groups/{group_id}/role_assignments");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Get a group role assignment
+    ///
+    /// Get a specific role assignment for a group by its ID.
+    pub async fn get_group_role_assignment(
+        &self,
+        group_id: &str,
+        role_assignment_id: &str,
+    ) -> Result<GroupRoleAssignment, Error> {
+        self.get_group_role_assignment_with_options(group_id, role_assignment_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_group_role_assignment`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_group_role_assignment_with_options(
+        &self,
+        group_id: &str,
+        role_assignment_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<GroupRoleAssignment, Error> {
+        let group_id = crate::client::path_segment(group_id);
+        let role_assignment_id = crate::client::path_segment(role_assignment_id);
+        let path =
+            format!("/authorization/groups/{group_id}/role_assignments/{role_assignment_id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Remove a group role assignment
+    ///
+    /// Remove a specific role assignment from a group by its ID.
+    pub async fn delete_group_role_assignment(
+        &self,
+        group_id: &str,
+        role_assignment_id: &str,
+    ) -> Result<(), Error> {
+        self.delete_group_role_assignment_with_options(group_id, role_assignment_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_group_role_assignment`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_group_role_assignment_with_options(
+        &self,
+        group_id: &str,
+        role_assignment_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let group_id = crate::client::path_segment(group_id);
+        let role_assignment_id = crate::client::path_segment(role_assignment_id);
+        let path =
+            format!("/authorization/groups/{group_id}/role_assignments/{role_assignment_id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
     /// Check authorization
     ///
     /// Check if an organization membership has a specific permission on a resource. Supports identification by resource_id OR by resource_external_id + resource_type_slug.
