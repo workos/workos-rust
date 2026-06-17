@@ -24,6 +24,7 @@ pub enum CreateWebhookEndpointEvents {
     AuthenticationRadarRiskDetected,
     ApiKeyCreated,
     ApiKeyRevoked,
+    ApiKeyUpdated,
     ConnectionActivated,
     ConnectionDeactivated,
     ConnectionSAMLCertificateRenewalRequired,
@@ -119,6 +120,7 @@ impl CreateWebhookEndpointEvents {
             Self::AuthenticationRadarRiskDetected => "authentication.radar_risk_detected",
             Self::ApiKeyCreated => "api_key.created",
             Self::ApiKeyRevoked => "api_key.revoked",
+            Self::ApiKeyUpdated => "api_key.updated",
             Self::ConnectionActivated => "connection.activated",
             Self::ConnectionDeactivated => "connection.deactivated",
             Self::ConnectionSAMLCertificateRenewalRequired => {
@@ -227,6 +229,7 @@ impl FromStr for CreateWebhookEndpointEvents {
             "authentication.radar_risk_detected" => Self::AuthenticationRadarRiskDetected,
             "api_key.created" => Self::ApiKeyCreated,
             "api_key.revoked" => Self::ApiKeyRevoked,
+            "api_key.updated" => Self::ApiKeyUpdated,
             "connection.activated" => Self::ConnectionActivated,
             "connection.deactivated" => Self::ConnectionDeactivated,
             "connection.saml_certificate_renewal_required" => {

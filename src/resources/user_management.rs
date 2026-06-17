@@ -36,6 +36,9 @@ pub struct CreateUserParamsBody {
     /// The last name of the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_name: Option<String>,
+    /// The user's full name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     /// Whether the user's email has been verified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email_verified: Option<bool>,
@@ -57,6 +60,7 @@ impl CreateUserParamsBody {
             email: email.into(),
             first_name: Default::default(),
             last_name: Default::default(),
+            name: Default::default(),
             email_verified: Default::default(),
             metadata: Default::default(),
             external_id: Default::default(),
@@ -76,6 +80,9 @@ pub struct UpdateUserParamsBody {
     /// The last name of the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_name: Option<String>,
+    /// The user's full name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     /// Whether the user's email has been verified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email_verified: Option<bool>,
@@ -100,6 +107,7 @@ impl UpdateUserParamsBody {
             email: Default::default(),
             first_name: Default::default(),
             last_name: Default::default(),
+            name: Default::default(),
             email_verified: Default::default(),
             metadata: Default::default(),
             external_id: Default::default(),
@@ -457,11 +465,11 @@ impl CreateDeviceParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct GetLogoutUrlParams {
-    /// The ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
+    /// The ID of the session. This can be extracted from the `sid` claim of the access token.
     ///
     /// Required.
     pub session_id: String,
-    /// The URL to redirect the user to after session revocation.
+    /// The URL to redirect the user to after logout.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_to: Option<String>,
 }
@@ -558,7 +566,7 @@ pub struct ListUsersParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -688,7 +696,7 @@ pub struct ListSessionsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -720,7 +728,7 @@ pub struct ListInvitationsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -845,7 +853,7 @@ pub struct ListUserAuthorizedApplicationsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records). Defaults to descending.
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
     ///
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]

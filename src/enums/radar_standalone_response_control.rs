@@ -9,7 +9,6 @@ use std::str::FromStr;
 pub enum RadarStandaloneResponseControl {
     BotDetection,
     BruteForceAttack,
-    DomainSignUpRateLimit,
     ImpossibleTravel,
     RepeatSignUp,
     StaleAccount,
@@ -30,7 +29,6 @@ impl RadarStandaloneResponseControl {
         match self {
             Self::BotDetection => "bot_detection",
             Self::BruteForceAttack => "brute_force_attack",
-            Self::DomainSignUpRateLimit => "domain_sign_up_rate_limit",
             Self::ImpossibleTravel => "impossible_travel",
             Self::RepeatSignUp => "repeat_sign_up",
             Self::StaleAccount => "stale_account",
@@ -60,7 +58,6 @@ impl FromStr for RadarStandaloneResponseControl {
         Ok(match s {
             "bot_detection" => Self::BotDetection,
             "brute_force_attack" => Self::BruteForceAttack,
-            "domain_sign_up_rate_limit" => Self::DomainSignUpRateLimit,
             "impossible_travel" => Self::ImpossibleTravel,
             "repeat_sign_up" => Self::RepeatSignUp,
             "stale_account" => Self::StaleAccount,

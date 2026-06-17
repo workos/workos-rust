@@ -78,6 +78,23 @@ impl CreateValidationParams {
     }
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateApiKeyExpireParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: ExpireApiKey,
+}
+
+impl CreateApiKeyExpireParams {
+    /// Construct a new `CreateApiKeyExpireParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ExpireApiKey) -> Self {
+        Self { body }
+    }
+}
+
 impl<'a> ApiKeysApi<'a> {
     /// List API keys for an organization
     ///
@@ -203,6 +220,33 @@ impl<'a> ApiKeysApi<'a> {
         let method = http::Method::DELETE;
         self.client
             .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
+    /// Expire an API key
+    ///
+    /// Expire an API key immediately, schedule a future expiration, or clear a scheduled future expiration.
+    pub async fn create_api_key_expire(
+        &self,
+        id: &str,
+        params: CreateApiKeyExpireParams,
+    ) -> Result<ApiKey, Error> {
+        self.create_api_key_expire_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_api_key_expire`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_api_key_expire_with_options(
+        &self,
+        id: &str,
+        params: CreateApiKeyExpireParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ApiKey, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/api_keys/{id}/expire");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 }

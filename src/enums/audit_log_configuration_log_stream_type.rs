@@ -12,6 +12,7 @@ pub enum AuditLogConfigurationLogStreamType {
     GenericHttps,
     GoogleCloudStorage,
     S3,
+    Snowflake,
     Splunk,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
@@ -31,6 +32,7 @@ impl AuditLogConfigurationLogStreamType {
             Self::GenericHttps => "GenericHttps",
             Self::GoogleCloudStorage => "GoogleCloudStorage",
             Self::S3 => "S3",
+            Self::Snowflake => "Snowflake",
             Self::Splunk => "Splunk",
             Self::Unknown(s) => s.as_str(),
         }
@@ -59,6 +61,7 @@ impl FromStr for AuditLogConfigurationLogStreamType {
             "GenericHttps" => Self::GenericHttps,
             "GoogleCloudStorage" => Self::GoogleCloudStorage,
             "S3" => Self::S3,
+            "Snowflake" => Self::Snowflake,
             "Splunk" => Self::Splunk,
             other => Self::Unknown(other.to_string()),
         })

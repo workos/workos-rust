@@ -6,11 +6,10 @@ use super::*;
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DsyncDeactivatedDataDomain {
-    /// Distinguishes the organization domain object.
-    pub object: String,
-    /// Unique identifier of the organization domain.
+pub struct ApiKeyUpdatedDataOwner {
+    /// The type of the API key owner.
+    #[serde(rename = "type")]
+    pub type_: String,
+    /// The unique identifier of the API key owner.
     pub id: String,
-    /// The domain value.
-    pub domain: String,
 }

@@ -6,14 +6,14 @@ use super::*;
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DsyncDeactivated {
+pub struct ApiKeyUpdated {
     /// Distinguishes the Event object.
     pub object: String,
     /// Unique identifier for the event.
     pub id: String,
     pub event: String,
     /// The event payload.
-    pub data: DsyncDeactivatedData,
+    pub data: ApiKeyUpdatedData,
     /// An ISO 8601 timestamp.
     pub created_at: String,
     #[serde(skip_serializing_if = "Option::is_none", default)]

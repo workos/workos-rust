@@ -17,6 +17,9 @@ pub struct UserObject {
     /// The user's last name.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub last_name: Option<String>,
+    /// The user's full name.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub name: Option<String>,
     /// A set of key-value pairs to attach to the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub metadata: Option<std::collections::HashMap<String, String>>,
