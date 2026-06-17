@@ -7,17 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.0](https://github.com/workos/workos-rust/compare/v2.0.1...v2.1.0) (2026-06-17)
 
+- [#105](https://github.com/workos/workos-rust/pull/105) feat(generated)!: regenerate from spec (10 changes)
 
-### Features
+  **⚠️ Breaking**
+  - **[api_keys](https://workos.com/docs/reference/authkit/api-keys)**:
+    - Made `expires_at` required in API key models
+  - **[directory_sync](https://workos.com/docs/reference/directory-sync)**:
+    - Removed model `DsyncDeactivated`
+    - Removed model `DsyncDeactivatedData`
+    - Removed model `DsyncDeactivatedDataDomain`
+    - Removed enum `DsyncDeactivatedDataType`
+    - Removed enum `DsyncDeactivatedDataState`
+  - **[radar](https://workos.com/docs/reference/radar)**:
+    - Removed `domain_sign_up_rate_limit` from `RadarStandaloneResponseControl`
+  - **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    - Removed `return_to` from `RevokeSession`
 
-* **api_keys:** Add expire endpoint and API key updated event ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
-* **api_keys:** Make expires_at required in API key events ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
-* **audit_log_configuration:** Add Snowflake log stream type ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
-* **authorization:** Remove DomainSignUpRateLimit enum value ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
-* **directory_sync:** Add directory token lifecycle events ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
-* **directory_sync:** Remove deactivation event models ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
-* **user_management:** Add name field to user models ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
-* **user_management:** Remove return_to field from RevokeSession ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+  **Features**
+  - **[api_keys](https://workos.com/docs/reference/authkit/api-keys)**:
+    - Added model `ExpireApiKey`
+    - Added model `ApiKeyUpdated`
+    - Added model `ApiKeyUpdatedData`
+    - Added model `ApiKeyUpdatedDataOwner`
+    - Added model `UserApiKeyUpdatedDataOwner`
+    - Added model `ApiKeyUpdatedDataPreviousAttribute`
+    - Added endpoint `POST /api_keys/{id}/expire`
+  - **[audit_logs](https://workos.com/docs/reference/audit-logs)**:
+    - Added `Snowflake` to `AuditLogConfigurationLogStreamType`
+  - **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    - Added `name` to `UserObject`
+  - **[directory_sync](https://workos.com/docs/reference/directory-sync)**:
+    - Added model `DsyncTokenCreated`
+    - Added model `DsyncTokenCreatedData`
+    - Added model `DsyncTokenRevoked`
+    - Added model `DsyncTokenRevokedData`
+  - **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    - Added `name` to user management models
+  - **[webhooks](https://workos.com/docs/reference/webhooks)**:
+    - Added `api_key.updated` to `CreateWebhookEndpointEvents`
+    - Added `api_key.updated` to `UpdateWebhookEndpointEvents`
 
 ## [2.0.1](https://github.com/workos/workos-rust/compare/v2.0.0...v2.0.1) (2026-05-28)
 
