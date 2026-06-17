@@ -4649,7 +4649,9 @@ async fn user_management_list_sessions_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/test_id/sessions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"session\",\"id\":\"session_01H93ZY4F80QPBEZ1R5B2SHQG8\",\"ip_address\":\"198.51.100.42\",\"user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36\",\"user_id\":\"user_01E4ZCR3C56J083X43JQXF3JK5\",\"auth_method\":\"sso\",\"status\":\"active\",\"expires_at\":\"2026-01-15T12:00:00.000Z\",\"ended_at\":\"2023-01-01T00:00:00.000Z\",\"created_at\":\"2026-01-15T12:00:00.000Z\",\"updated_at\":\"2026-01-15T12:00:00.000Z\"}]"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
         .expect(1)
         .mount(&server)
         .await;
@@ -4775,7 +4777,9 @@ async fn user_management_list_sessions_empty_page() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/users/test_id/sessions"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[]"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
         .expect(1)
         .mount(&server)
         .await;
@@ -4788,7 +4792,7 @@ async fn user_management_list_sessions_empty_page() {
         )
         .await
         .expect("expected success");
-    assert!(resp.is_empty(), "expected empty data array");
+    assert!(resp.data.is_empty(), "expected empty data array");
 }
 
 #[tokio::test]
@@ -4796,7 +4800,10 @@ async fn user_management_list_invitations_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/invitations"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[{\"object\":\"invitation\",\"id\":\"invitation_01E4ZCR3C56J083X43JQXF3JK5\",\"email\":\"marcelina.davis@example.com\",\"state\":\"pending\",\"accepted_at\":\"2023-01-01T00:00:00.000Z\",\"revoked_at\":\"2023-01-01T00:00:00.000Z\",\"expires_at\":\"2026-01-15T12:00:00.000Z\",\"organization_id\":\"org_01E4ZCR3C56J083X43JQXF3JK5\",\"inviter_user_id\":\"user_01HYGBX8ZGD19949T3BM4FW1C3\",\"accepted_user_id\":\"test_accepted_user_id\",\"role_slug\":\"admin\",\"created_at\":\"2026-01-15T12:00:00.000Z\",\"updated_at\":\"2026-01-15T12:00:00.000Z\",\"token\":\"Z1uX3RbwcIl5fIGJJJCXXisdI\",\"accept_invitation_url\":\"https://your-app.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI\"}]"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_invite_list.json")),
+        )
         .expect(1)
         .mount(&server)
         .await;
@@ -4907,7 +4914,9 @@ async fn user_management_list_invitations_empty_page() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/invitations"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("[]"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
         .expect(1)
         .mount(&server)
         .await;
@@ -4917,7 +4926,7 @@ async fn user_management_list_invitations_empty_page() {
         .list_invitations(workos::user_management::ListInvitationsParams::default())
         .await
         .expect("expected success");
-    assert!(resp.is_empty(), "expected empty data array");
+    assert!(resp.data.is_empty(), "expected empty data array");
 }
 
 #[tokio::test]
