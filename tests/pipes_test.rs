@@ -224,7 +224,7 @@ async fn pipes_authorize_data_integration_unprocessable() {
 }
 
 #[tokio::test]
-async fn pipes_create_data_integration_token_round_trip() {
+async fn pipes_get_access_token_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/data-integrations/test_id/token"))
@@ -235,9 +235,9 @@ async fn pipes_create_data_integration_token_round_trip() {
     let client = common::test_client(&server).await;
     let _ = client
         .pipes()
-        .create_data_integration_token(
+        .get_access_token(
             "test_id",
-            workos::pipes::CreateDataIntegrationTokenParams::new(
+            workos::pipes::GetAccessTokenParams::new(
                 serde_json::from_str(include_str!(
                     "fixtures/data_integrations_get_user_token_request.json"
                 ))
@@ -248,7 +248,7 @@ async fn pipes_create_data_integration_token_round_trip() {
 }
 
 #[tokio::test]
-async fn pipes_create_data_integration_token_unauthorized() {
+async fn pipes_get_access_token_unauthorized() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
     Mock::given(method("POST"))
@@ -260,9 +260,9 @@ async fn pipes_create_data_integration_token_unauthorized() {
     let client = common::test_client(&server).await;
     let err = client
         .pipes()
-        .create_data_integration_token(
+        .get_access_token(
             "test_id",
-            workos::pipes::CreateDataIntegrationTokenParams::new(
+            workos::pipes::GetAccessTokenParams::new(
                 serde_json::from_str(include_str!(
                     "fixtures/data_integrations_get_user_token_request.json"
                 ))
@@ -279,7 +279,7 @@ async fn pipes_create_data_integration_token_unauthorized() {
 }
 
 #[tokio::test]
-async fn pipes_create_data_integration_token_not_found() {
+async fn pipes_get_access_token_not_found() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
     Mock::given(method("POST"))
@@ -291,9 +291,9 @@ async fn pipes_create_data_integration_token_not_found() {
     let client = common::test_client(&server).await;
     let err = client
         .pipes()
-        .create_data_integration_token(
+        .get_access_token(
             "test_id",
-            workos::pipes::CreateDataIntegrationTokenParams::new(
+            workos::pipes::GetAccessTokenParams::new(
                 serde_json::from_str(include_str!(
                     "fixtures/data_integrations_get_user_token_request.json"
                 ))
@@ -310,7 +310,7 @@ async fn pipes_create_data_integration_token_not_found() {
 }
 
 #[tokio::test]
-async fn pipes_create_data_integration_token_rate_limited() {
+async fn pipes_get_access_token_rate_limited() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(429)
         .insert_header("retry-after", "1")
@@ -324,9 +324,9 @@ async fn pipes_create_data_integration_token_rate_limited() {
     let client = common::test_client(&server).await;
     let err = client
         .pipes()
-        .create_data_integration_token(
+        .get_access_token(
             "test_id",
-            workos::pipes::CreateDataIntegrationTokenParams::new(
+            workos::pipes::GetAccessTokenParams::new(
                 serde_json::from_str(include_str!(
                     "fixtures/data_integrations_get_user_token_request.json"
                 ))
@@ -344,7 +344,7 @@ async fn pipes_create_data_integration_token_rate_limited() {
 }
 
 #[tokio::test]
-async fn pipes_create_data_integration_token_server_error() {
+async fn pipes_get_access_token_server_error() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
     Mock::given(method("POST"))
@@ -356,9 +356,9 @@ async fn pipes_create_data_integration_token_server_error() {
     let client = common::test_client(&server).await;
     let err = client
         .pipes()
-        .create_data_integration_token(
+        .get_access_token(
             "test_id",
-            workos::pipes::CreateDataIntegrationTokenParams::new(
+            workos::pipes::GetAccessTokenParams::new(
                 serde_json::from_str(include_str!(
                     "fixtures/data_integrations_get_user_token_request.json"
                 ))
@@ -375,7 +375,7 @@ async fn pipes_create_data_integration_token_server_error() {
 }
 
 #[tokio::test]
-async fn pipes_create_data_integration_token_bad_request() {
+async fn pipes_get_access_token_bad_request() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(400)
         .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
@@ -388,9 +388,9 @@ async fn pipes_create_data_integration_token_bad_request() {
     let client = common::test_client(&server).await;
     let err = client
         .pipes()
-        .create_data_integration_token(
+        .get_access_token(
             "test_id",
-            workos::pipes::CreateDataIntegrationTokenParams::new(
+            workos::pipes::GetAccessTokenParams::new(
                 serde_json::from_str(include_str!(
                     "fixtures/data_integrations_get_user_token_request.json"
                 ))
@@ -408,7 +408,7 @@ async fn pipes_create_data_integration_token_bad_request() {
 }
 
 #[tokio::test]
-async fn pipes_create_data_integration_token_unprocessable() {
+async fn pipes_get_access_token_unprocessable() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
     Mock::given(method("POST"))
@@ -420,9 +420,9 @@ async fn pipes_create_data_integration_token_unprocessable() {
     let client = common::test_client(&server).await;
     let err = client
         .pipes()
-        .create_data_integration_token(
+        .get_access_token(
             "test_id",
-            workos::pipes::CreateDataIntegrationTokenParams::new(
+            workos::pipes::GetAccessTokenParams::new(
                 serde_json::from_str(include_str!(
                     "fixtures/data_integrations_get_user_token_request.json"
                 ))

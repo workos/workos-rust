@@ -5,6 +5,7 @@ use crate::resources::AdminPortalApi;
 use crate::resources::ApiKeysApi;
 use crate::resources::AuditLogsApi;
 use crate::resources::AuthorizationApi;
+use crate::resources::ClientApi;
 use crate::resources::ConnectApi;
 use crate::resources::DirectorySyncApi;
 use crate::resources::EventsApi;
@@ -15,6 +16,7 @@ use crate::resources::OrganizationDomainsApi;
 use crate::resources::OrganizationMembershipApi;
 use crate::resources::OrganizationsApi;
 use crate::resources::PipesApi;
+use crate::resources::PipesProviderApi;
 use crate::resources::RadarApi;
 use crate::resources::SSOApi;
 use crate::resources::UserManagementApi;
@@ -41,6 +43,11 @@ impl Client {
     /// Access the `authorization` resource.
     pub fn authorization(&self) -> AuthorizationApi<'_> {
         AuthorizationApi { client: self }
+    }
+
+    /// Access the `client_api` resource.
+    pub fn client_api(&self) -> ClientApi<'_> {
+        ClientApi { client: self }
     }
 
     /// Access the `connect` resource.
@@ -91,6 +98,11 @@ impl Client {
     /// Access the `pipes` resource.
     pub fn pipes(&self) -> PipesApi<'_> {
         PipesApi { client: self }
+    }
+
+    /// Access the `pipes_provider` resource.
+    pub fn pipes_provider(&self) -> PipesProviderApi<'_> {
+        PipesProviderApi { client: self }
     }
 
     /// Access the `radar` resource.

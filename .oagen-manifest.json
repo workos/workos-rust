@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "rust",
-  "generatedAt": "2026-06-03T19:19:57.550Z",
+  "generatedAt": "2026-06-17T20:55:36.966Z",
   "files": [
     "src/enums/audit_log_configuration_log_stream_state.rs",
     "src/enums/audit_log_configuration_log_stream_type.rs",
@@ -13,6 +13,7 @@
     "src/enums/authentication_factors_create_request_type.rs",
     "src/enums/authentication_radar_risk_detected_data_action.rs",
     "src/enums/authorization_assignment.rs",
+    "src/enums/connected_account_auth_method.rs",
     "src/enums/connected_account_state.rs",
     "src/enums/connection_activated_data_connection_type.rs",
     "src/enums/connection_activated_data_state.rs",
@@ -32,6 +33,9 @@
     "src/enums/create_user_password_hash_type.rs",
     "src/enums/create_webhook_endpoint_events.rs",
     "src/enums/data_integration_access_token_response_error.rs",
+    "src/enums/data_integration_credentials_credentials_type.rs",
+    "src/enums/data_integrations_list_response_data_auth_methods.rs",
+    "src/enums/data_integrations_list_response_data_connected_account_auth_method.rs",
     "src/enums/data_integrations_list_response_data_connected_account_state.rs",
     "src/enums/data_integrations_list_response_data_ownership.rs",
     "src/enums/directory_state.rs",
@@ -238,6 +242,9 @@
     "src/models/authorized_connect_application_list_list_metadata.rs",
     "src/models/challenge_authentication_factor.rs",
     "src/models/check_authorization.rs",
+    "src/models/client_api_token.rs",
+    "src/models/client_api_token_response.rs",
+    "src/models/configure_data_integration_body.rs",
     "src/models/confirm_email_change.rs",
     "src/models/connect_application.rs",
     "src/models/connect_application_list.rs",
@@ -277,6 +284,7 @@
     "src/models/create_data_key_response.rs",
     "src/models/create_group.rs",
     "src/models/create_group_membership.rs",
+    "src/models/create_group_role_assignment.rs",
     "src/models/create_m2m_application.rs",
     "src/models/create_magic_code_and_return.rs",
     "src/models/create_oauth_application.rs",
@@ -296,6 +304,9 @@
     "src/models/data_integration_access_token_response.rs",
     "src/models/data_integration_access_token_response_access_token.rs",
     "src/models/data_integration_authorize_url_response.rs",
+    "src/models/data_integration_configuration_list_response.rs",
+    "src/models/data_integration_configuration_response.rs",
+    "src/models/data_integration_credentials.rs",
     "src/models/data_integrations_get_data_integration_authorize_url_request.rs",
     "src/models/data_integrations_get_user_token_request.rs",
     "src/models/data_integrations_list_response.rs",
@@ -303,6 +314,7 @@
     "src/models/data_integrations_list_response_data_connected_account.rs",
     "src/models/decrypt_request.rs",
     "src/models/decrypt_response.rs",
+    "src/models/delete_group_role_assignments_by_criteria.rs",
     "src/models/delete_object_response.rs",
     "src/models/device_authorization_response.rs",
     "src/models/device_code_session_authenticate_request.rs",
@@ -407,6 +419,9 @@
     "src/models/group_member_added_data.rs",
     "src/models/group_member_removed.rs",
     "src/models/group_member_removed_data.rs",
+    "src/models/group_role_assignment.rs",
+    "src/models/group_role_assignment_list.rs",
+    "src/models/group_role_assignment_resource.rs",
     "src/models/group_updated.rs",
     "src/models/intent_options.rs",
     "src/models/invitation.rs",
@@ -511,6 +526,8 @@
     "src/models/refresh_token_session_authenticate_request.rs",
     "src/models/rekey_request.rs",
     "src/models/remove_role.rs",
+    "src/models/replace_group_role_assignment_entry.rs",
+    "src/models/replace_group_role_assignments.rs",
     "src/models/resend_user_invite_options.rs",
     "src/models/reset_password_response.rs",
     "src/models/revoke_session.rs",
@@ -572,6 +589,8 @@
     "src/models/user_deleted.rs",
     "src/models/user_identities_get_item.rs",
     "src/models/user_invite.rs",
+    "src/models/user_invite_list.rs",
+    "src/models/user_invite_list_list_metadata.rs",
     "src/models/user_list.rs",
     "src/models/user_list_list_metadata.rs",
     "src/models/user_management_login_request.rs",
@@ -580,6 +599,8 @@
     "src/models/user_organization_membership_base_list.rs",
     "src/models/user_organization_membership_base_list_data.rs",
     "src/models/user_organization_membership_base_list_list_metadata.rs",
+    "src/models/user_organization_membership_list.rs",
+    "src/models/user_organization_membership_list_list_metadata.rs",
     "src/models/user_role_assignment.rs",
     "src/models/user_role_assignment_list.rs",
     "src/models/user_role_assignment_list_list_metadata.rs",
@@ -627,6 +648,7 @@
     "src/resources/api_keys.rs",
     "src/resources/audit_logs.rs",
     "src/resources/authorization.rs",
+    "src/resources/client_api.rs",
     "src/resources/connect.rs",
     "src/resources/directory_sync.rs",
     "src/resources/events.rs",
@@ -638,6 +660,7 @@
     "src/resources/organization_membership.rs",
     "src/resources/organizations.rs",
     "src/resources/pipes.rs",
+    "src/resources/pipes_provider.rs",
     "src/resources/radar.rs",
     "src/resources/sso.rs",
     "src/resources/user_management.rs",
@@ -649,6 +672,7 @@
     "tests/api_keys_test.rs",
     "tests/audit_logs_test.rs",
     "tests/authorization_test.rs",
+    "tests/client_api_test.rs",
     "tests/common/mod.rs",
     "tests/connect_test.rs",
     "tests/directory_sync_test.rs",
@@ -765,6 +789,9 @@
     "tests/fixtures/authorized_connect_application_list_list_metadata.json",
     "tests/fixtures/challenge_authentication_factor.json",
     "tests/fixtures/check_authorization.json",
+    "tests/fixtures/client_api_token.json",
+    "tests/fixtures/client_api_token_response.json",
+    "tests/fixtures/configure_data_integration_body.json",
     "tests/fixtures/confirm_email_change.json",
     "tests/fixtures/connect_application.json",
     "tests/fixtures/connect_application_list.json",
@@ -802,6 +829,7 @@
     "tests/fixtures/create_data_key_response.json",
     "tests/fixtures/create_group.json",
     "tests/fixtures/create_group_membership.json",
+    "tests/fixtures/create_group_role_assignment.json",
     "tests/fixtures/create_m2m_application.json",
     "tests/fixtures/create_magic_code_and_return.json",
     "tests/fixtures/create_oauth_application.json",
@@ -821,6 +849,9 @@
     "tests/fixtures/data_integration_access_token_response.json",
     "tests/fixtures/data_integration_access_token_response_access_token.json",
     "tests/fixtures/data_integration_authorize_url_response.json",
+    "tests/fixtures/data_integration_configuration_list_response.json",
+    "tests/fixtures/data_integration_configuration_response.json",
+    "tests/fixtures/data_integration_credentials.json",
     "tests/fixtures/data_integrations_get_data_integration_authorize_url_request.json",
     "tests/fixtures/data_integrations_get_user_token_request.json",
     "tests/fixtures/data_integrations_list_response.json",
@@ -828,6 +859,7 @@
     "tests/fixtures/data_integrations_list_response_data_connected_account.json",
     "tests/fixtures/decrypt_request.json",
     "tests/fixtures/decrypt_response.json",
+    "tests/fixtures/delete_group_role_assignments_by_criteria.json",
     "tests/fixtures/delete_object_response.json",
     "tests/fixtures/device_authorization_response.json",
     "tests/fixtures/device_code_session_authenticate_request.json",
@@ -932,6 +964,9 @@
     "tests/fixtures/group_member_added_data.json",
     "tests/fixtures/group_member_removed.json",
     "tests/fixtures/group_member_removed_data.json",
+    "tests/fixtures/group_role_assignment.json",
+    "tests/fixtures/group_role_assignment_list.json",
+    "tests/fixtures/group_role_assignment_resource.json",
     "tests/fixtures/group_updated.json",
     "tests/fixtures/intent_options.json",
     "tests/fixtures/invitation.json",
@@ -1035,6 +1070,8 @@
     "tests/fixtures/refresh_token_session_authenticate_request.json",
     "tests/fixtures/rekey_request.json",
     "tests/fixtures/remove_role.json",
+    "tests/fixtures/replace_group_role_assignment_entry.json",
+    "tests/fixtures/replace_group_role_assignments.json",
     "tests/fixtures/resend_user_invite_options.json",
     "tests/fixtures/reset_password_response.json",
     "tests/fixtures/revoke_session.json",
@@ -1096,6 +1133,8 @@
     "tests/fixtures/user_deleted.json",
     "tests/fixtures/user_identities_get_item.json",
     "tests/fixtures/user_invite.json",
+    "tests/fixtures/user_invite_list.json",
+    "tests/fixtures/user_invite_list_list_metadata.json",
     "tests/fixtures/user_list.json",
     "tests/fixtures/user_list_list_metadata.json",
     "tests/fixtures/user_management_login_request.json",
@@ -1104,6 +1143,8 @@
     "tests/fixtures/user_organization_membership_base_list.json",
     "tests/fixtures/user_organization_membership_base_list_data.json",
     "tests/fixtures/user_organization_membership_base_list_list_metadata.json",
+    "tests/fixtures/user_organization_membership_list.json",
+    "tests/fixtures/user_organization_membership_list_list_metadata.json",
     "tests/fixtures/user_role_assignment.json",
     "tests/fixtures/user_role_assignment_list.json",
     "tests/fixtures/user_role_assignment_list_list_metadata.json",
@@ -1152,6 +1193,7 @@
     "tests/organization_domains_test.rs",
     "tests/organization_membership_test.rs",
     "tests/organizations_test.rs",
+    "tests/pipes_provider_test.rs",
     "tests/pipes_test.rs",
     "tests/radar_test.rs",
     "tests/sso_test.rs",
@@ -1224,6 +1266,30 @@
     "DELETE /connect/client_secrets/{id}": {
       "sdkMethod": "delete_client_secret",
       "service": "connect"
+    },
+    "GET /authorization/groups/{group_id}/role_assignments": {
+      "sdkMethod": "list_group_role_assignments",
+      "service": "authorization"
+    },
+    "POST /authorization/groups/{group_id}/role_assignments": {
+      "sdkMethod": "create_group_role_assignment",
+      "service": "authorization"
+    },
+    "PUT /authorization/groups/{group_id}/role_assignments": {
+      "sdkMethod": "update_group_role_assignments",
+      "service": "authorization"
+    },
+    "DELETE /authorization/groups/{group_id}/role_assignments": {
+      "sdkMethod": "delete_group_role_assignments",
+      "service": "authorization"
+    },
+    "GET /authorization/groups/{group_id}/role_assignments/{role_assignment_id}": {
+      "sdkMethod": "get_group_role_assignment",
+      "service": "authorization"
+    },
+    "DELETE /authorization/groups/{group_id}/role_assignments/{role_assignment_id}": {
+      "sdkMethod": "delete_group_role_assignment",
+      "service": "authorization"
     },
     "POST /authorization/organization_memberships/{organization_membership_id}/check": {
       "sdkMethod": "check",
@@ -1381,6 +1447,10 @@
       "sdkMethod": "delete_permission",
       "service": "authorization"
     },
+    "POST /client/token": {
+      "sdkMethod": "create_token",
+      "service": "client_api"
+    },
     "GET /connections": {
       "sdkMethod": "list_connections",
       "service": "sso"
@@ -1417,8 +1487,8 @@
       "sdkMethod": "authorize_data_integration",
       "service": "pipes"
     },
-    "POST /data-integrations/{slug}/token": {
-      "sdkMethod": "create_data_integration_token",
+    "POST /data-integrations/{provider}/token": {
+      "sdkMethod": "get_access_token",
       "service": "pipes"
     },
     "GET /user_management/users/{user_id}/connected_accounts/{slug}": {
@@ -1592,6 +1662,14 @@
     "POST /api_keys/{id}/expire": {
       "sdkMethod": "create_api_key_expire",
       "service": "api_keys"
+    },
+    "GET /organizations/{organizationId}/data_integration_configurations": {
+      "sdkMethod": "list_organization_data_integration_configurations",
+      "service": "pipes_provider"
+    },
+    "PUT /organizations/{organizationId}/data_integration_configurations/{slug}": {
+      "sdkMethod": "update_organization_data_integration_configuration",
+      "service": "pipes_provider"
     },
     "GET /organizations/{organizationId}/groups": {
       "sdkMethod": "list_organization_groups",
