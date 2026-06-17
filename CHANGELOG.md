@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0](https://github.com/workos/workos-rust/compare/v2.0.1...v2.1.0) (2026-06-17)
+
+
+### Features
+
+* **api_keys:** Add expire endpoint and API key updated event ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+* **api_keys:** Make expires_at required in API key events ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+* **audit_log_configuration:** Add Snowflake log stream type ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+* **authorization:** Remove DomainSignUpRateLimit enum value ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+* **directory_sync:** Add directory token lifecycle events ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+* **directory_sync:** Remove deactivation event models ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+* **user_management:** Add name field to user models ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+* **user_management:** Remove return_to field from RevokeSession ([#105](https://github.com/workos/workos-rust/issues/105)) ([ede0053](https://github.com/workos/workos-rust/commit/ede005399674e5672a1fe3651bb0edd58ab83901))
+
 ## [2.0.1](https://github.com/workos/workos-rust/compare/v2.0.0...v2.0.1) (2026-05-28)
 
 
