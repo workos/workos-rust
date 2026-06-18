@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApiKeyCreatedDataOwner {
     /// The type of the API key owner.
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default, skip_serializing)]
     pub type_: String,
     /// The unique identifier of the API key owner.
     pub id: String,

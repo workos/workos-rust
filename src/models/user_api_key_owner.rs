@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserApiKeyOwner {
     /// The type of the API Key owner.
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default, skip_serializing)]
     pub type_: String,
     /// Unique identifier of the API Key owner.
     pub id: String,
