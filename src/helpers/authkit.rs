@@ -165,7 +165,7 @@ impl<'a> AuthKitHelper<'a> {
         device_code: &str,
         interval: Duration,
     ) -> Result<crate::models::AuthenticateResponse, Error> {
-        let interval = if interval.is_zero() {
+        let mut interval = if interval.is_zero() {
             Duration::from_secs(5)
         } else {
             interval
@@ -185,12 +185,20 @@ impl<'a> AuthKitHelper<'a> {
             match result {
                 Ok(resp) => return Ok(resp),
                 Err(e) => {
-                    if e.api()
-                        .is_some_and(|a| a.message.contains("authorization_pending"))
-                    {
-                        continue;
+                    // The device-code grant signals its state through the OAuth
+                    // `error` code (RFC 8628), which the SDK surfaces as
+                    // `ApiError::code` — not the human-readable `message`.
+                    match e.api().and_then(|a| a.code.as_deref()) {
+                        // Authorization is still pending: keep polling.
+                        Some("authorization_pending") => continue,
+                        // The server asked us to back off: widen the interval
+                        // by 5s (per RFC 8628), then keep polling.
+                        Some("slow_down") => {
+                            interval += Duration::from_secs(5);
+                            continue;
+                        }
+                        _ => return Err(e),
                     }
-                    return Err(e);
                 }
             }
         }
