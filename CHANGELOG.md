@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0](https://github.com/workos/workos-rust/compare/v2.1.0...v2.2.0) (2026-06-23)
+
+
+### Features
+
+* **authorization:** Add authorization operations and models ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **client:** Add client API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **connect:** Add Connect API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **groups:** Add groups API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **organization_membership:** Add organization membership API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **organization_membership:** Change response for `UserManagementOrganizationMembership.list` ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **pipes:** Add Pipes API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **pipes:** SDK surface change: Symbol "CreateDataIntegrationTokenParams" was removed ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **user_management:** Change response for `UserManagementInvitations.list` ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **user_management:** Update user management API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+* **widgets:** Add `widgets:pipes:manage` to `WidgetSessionTokenScopes` ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+
 ## [2.1.0](https://github.com/workos/workos-rust/compare/v2.0.1...v2.1.0) (2026-06-17)
 
 - [#105](https://github.com/workos/workos-rust/pull/105) feat(generated)!: regenerate from spec (10 changes)
