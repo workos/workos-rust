@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0](https://github.com/workos/workos-rust/compare/v2.1.0...v2.2.0) (2026-06-23)
+
+- [#111](https://github.com/workos/workos-rust/pull/111) feat(generated)!: regenerate from spec (11 changes)
+
+  **Features**
+  - **[authorization](https://workos.com/docs/reference/fga)**:
+    - Added model `ReplaceGroupRoleAssignmentEntry`
+    - Added model `ReplaceGroupRoleAssignments`
+    - Added model `DeleteGroupRoleAssignmentsByCriteria`
+    - Added endpoint `POST /authorization/groups/{group_id}/role_assignments`
+    - Added endpoint `PUT /authorization/groups/{group_id}/role_assignments`
+    - Added endpoint `DELETE /authorization/groups/{group_id}/role_assignments`
+    - Added endpoint `GET /authorization/groups/{group_id}/role_assignments/{role_assignment_id}`
+    - Added endpoint `DELETE /authorization/groups/{group_id}/role_assignments/{role_assignment_id}`
+  - **[client](https://workos.com/docs/reference)**:
+    - Added model `ClientApiToken`
+    - Added model `ClientApiTokenResponse`
+    - Added service `Client`
+  - **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    - Added `auth_method` to `ConnectedAccount`
+    - Added `api_key_last_4` to `ConnectedAccount`
+    - Added enum `ConnectedAccountAuthMethod`
+  - **[groups](https://workos.com/docs/reference/groups)**:
+    - Added model `CreateGroupRoleAssignment`
+    - Added model `GroupRoleAssignment`
+    - Added model `GroupRoleAssignmentList`
+    - Added model `GroupRoleAssignmentResource`
+  - **[organization_membership](https://workos.com/docs/reference/authkit/organization-membership)**:
+    - Added model `UserOrganizationMembershipList`
+    - Added model `UserOrganizationMembershipListListMetadata`
+  - **[pipes](https://workos.com/docs/reference/pipes)**:
+    - Added model `DataIntegrationCredentials`
+    - Added model `DataIntegrationConfigurationResponse`
+    - Added model `DataIntegrationConfigurationListResponse`
+    - Added model `ConfigureDataIntegrationBody`
+    - Added `auth_methods` to `DataIntegrationsListResponseData`
+    - Added `auth_method` to `DataIntegrationsListResponseDataConnectedAccount`
+    - Added `api_key_last_4` to `DataIntegrationsListResponseDataConnectedAccount`
+    - Added enum `DataIntegrationCredentialsCredentialsType`
+    - Added enum `DataIntegrationsListResponseDataAuthMethods`
+    - Added enum `DataIntegrationsListResponseDataConnectedAccountAuthMethod`
+    - Added service `PipesProvider`
+  - **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    - Added model `UserInviteList`
+    - Added model `UserInviteListListMetadata`
+    - Made `AuthorizationCodeSessionAuthenticateRequest.client_secret` optional
+    - Made `RefreshTokenSessionAuthenticateRequest.client_secret` optional
+  - **[widgets](https://workos.com/docs/reference/widgets)**:
+    - Added `widgets:pipes:manage` to `WidgetSessionTokenScopes`
+
+  **Fixes**
+  - **[organization_membership](https://workos.com/docs/reference/authkit/organization-membership)**:
+    - Changed response of `UserManagementOrganizationMembership.list` from `UserOrganizationMembership` to `UserOrganizationMembershipList`
+  - **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    - Changed response of `UserManagementInvitations.list` from `UserInvite` to `UserInviteList`
+
 ## [2.1.0](https://github.com/workos/workos-rust/compare/v2.0.1...v2.1.0) (2026-06-17)
 
 - [#105](https://github.com/workos/workos-rust/pull/105) feat(generated)!: regenerate from spec (10 changes)
