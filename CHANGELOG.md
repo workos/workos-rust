@@ -7,20 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.0](https://github.com/workos/workos-rust/compare/v2.1.0...v2.2.0) (2026-06-23)
 
+- [#111](https://github.com/workos/workos-rust/pull/111) feat(generated)!: regenerate from spec (11 changes)
 
-### Features
+  **Features**
+  - **[authorization](https://workos.com/docs/reference/fga)**:
+    - Added model `ReplaceGroupRoleAssignmentEntry`
+    - Added model `ReplaceGroupRoleAssignments`
+    - Added model `DeleteGroupRoleAssignmentsByCriteria`
+    - Added endpoint `POST /authorization/groups/{group_id}/role_assignments`
+    - Added endpoint `PUT /authorization/groups/{group_id}/role_assignments`
+    - Added endpoint `DELETE /authorization/groups/{group_id}/role_assignments`
+    - Added endpoint `GET /authorization/groups/{group_id}/role_assignments/{role_assignment_id}`
+    - Added endpoint `DELETE /authorization/groups/{group_id}/role_assignments/{role_assignment_id}`
+  - **[client](https://workos.com/docs/reference)**:
+    - Added model `ClientApiToken`
+    - Added model `ClientApiTokenResponse`
+    - Added service `Client`
+  - **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    - Added `auth_method` to `ConnectedAccount`
+    - Added `api_key_last_4` to `ConnectedAccount`
+    - Added enum `ConnectedAccountAuthMethod`
+  - **[groups](https://workos.com/docs/reference/groups)**:
+    - Added model `CreateGroupRoleAssignment`
+    - Added model `GroupRoleAssignment`
+    - Added model `GroupRoleAssignmentList`
+    - Added model `GroupRoleAssignmentResource`
+  - **[organization_membership](https://workos.com/docs/reference/authkit/organization-membership)**:
+    - Added model `UserOrganizationMembershipList`
+    - Added model `UserOrganizationMembershipListListMetadata`
+  - **[pipes](https://workos.com/docs/reference/pipes)**:
+    - Added model `DataIntegrationCredentials`
+    - Added model `DataIntegrationConfigurationResponse`
+    - Added model `DataIntegrationConfigurationListResponse`
+    - Added model `ConfigureDataIntegrationBody`
+    - Added `auth_methods` to `DataIntegrationsListResponseData`
+    - Added `auth_method` to `DataIntegrationsListResponseDataConnectedAccount`
+    - Added `api_key_last_4` to `DataIntegrationsListResponseDataConnectedAccount`
+    - Added enum `DataIntegrationCredentialsCredentialsType`
+    - Added enum `DataIntegrationsListResponseDataAuthMethods`
+    - Added enum `DataIntegrationsListResponseDataConnectedAccountAuthMethod`
+    - Added service `PipesProvider`
+  - **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    - Added model `UserInviteList`
+    - Added model `UserInviteListListMetadata`
+    - Made `AuthorizationCodeSessionAuthenticateRequest.client_secret` optional
+    - Made `RefreshTokenSessionAuthenticateRequest.client_secret` optional
+  - **[widgets](https://workos.com/docs/reference/widgets)**:
+    - Added `widgets:pipes:manage` to `WidgetSessionTokenScopes`
 
-* **authorization:** Add authorization operations and models ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **client:** Add client API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **connect:** Add Connect API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **groups:** Add groups API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **organization_membership:** Add organization membership API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **organization_membership:** Change response for `UserManagementOrganizationMembership.list` ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **pipes:** Add Pipes API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **pipes:** SDK surface change: Symbol "CreateDataIntegrationTokenParams" was removed ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **user_management:** Change response for `UserManagementInvitations.list` ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **user_management:** Update user management API surface ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
-* **widgets:** Add `widgets:pipes:manage` to `WidgetSessionTokenScopes` ([#111](https://github.com/workos/workos-rust/issues/111)) ([a9ed81c](https://github.com/workos/workos-rust/commit/a9ed81c3e447166c98e1720e8e81a5f5218292ef))
+  **Fixes**
+  - **[organization_membership](https://workos.com/docs/reference/authkit/organization-membership)**:
+    - Changed response of `UserManagementOrganizationMembership.list` from `UserOrganizationMembership` to `UserOrganizationMembershipList`
+  - **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    - Changed response of `UserManagementInvitations.list` from `UserInvite` to `UserInviteList`
 
 ## [2.1.0](https://github.com/workos/workos-rust/compare/v2.0.1...v2.1.0) (2026-06-17)
 
