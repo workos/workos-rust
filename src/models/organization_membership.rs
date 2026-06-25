@@ -31,6 +31,8 @@ pub struct OrganizationMembership {
     pub updated_at: String,
     /// The primary role assigned to the user within the organization.
     pub role: SlimRole,
+    /// The list of roles assigned to the user within the organization.
+    pub roles: Vec<SlimRole>,
     /// The user that belongs to the organization through this membership.
     pub user: User,
 }
