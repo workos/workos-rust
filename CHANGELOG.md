@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.3.0](https://github.com/workos/workos-rust/compare/v2.2.0...v2.3.0) (2026-06-30)
 
+* [#114](https://github.com/workos/workos-rust/pull/114) fix(generated): regenerate from spec
 
-### Features
-
-* **generated:** OrganizationMembership (batch 4a353f07) ([#114](https://github.com/workos/workos-rust/issues/114)) ([b166121](https://github.com/workos/workos-rust/commit/b166121411c8211ed7f9da753d82bd898d897b4f))
+  **Fixes**
+  * **[organization_membership](https://workos.com/docs/reference/authkit/organization-membership)**:
+    * Added `roles` to organization membership models
 
 ## [2.2.0](https://github.com/workos/workos-rust/compare/v2.1.0...v2.2.0) (2026-06-23)
 
