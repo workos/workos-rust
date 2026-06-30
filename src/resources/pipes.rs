@@ -13,6 +13,23 @@ pub struct PipesApi<'a> {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct UpdateDataIntegrationApiKeyParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: DataIntegrationsUpsertApiKeyRequest,
+}
+
+impl UpdateDataIntegrationApiKeyParams {
+    /// Construct a new `UpdateDataIntegrationApiKeyParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DataIntegrationsUpsertApiKeyRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct AuthorizeDataIntegrationParams {
     /// Request body sent with this call.
     ///
@@ -25,6 +42,23 @@ impl AuthorizeDataIntegrationParams {
     /// Construct a new `AuthorizeDataIntegrationParams` with the required fields set.
     #[allow(deprecated)]
     pub fn new(body: DataIntegrationsGetDataIntegrationAuthorizeUrlRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateDataIntegrationCredentialParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: DataIntegrationsVendCredentialsRequest,
+}
+
+impl CreateDataIntegrationCredentialParams {
+    /// Construct a new `CreateDataIntegrationCredentialParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DataIntegrationsVendCredentialsRequest) -> Self {
         Self { body }
     }
 }
@@ -68,6 +102,33 @@ pub struct ListUserDataProvidersParams {
 }
 
 impl<'a> PipesApi<'a> {
+    /// Upsert an API key for a connected account
+    ///
+    /// Creates or updates an API-key-based installation for the specified integration and user. If an installation already exists, the stored API key is rotated to the new value.
+    pub async fn update_data_integration_api_key(
+        &self,
+        slug: &str,
+        params: UpdateDataIntegrationApiKeyParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.update_data_integration_api_key_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_data_integration_api_key`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_data_integration_api_key_with_options(
+        &self,
+        slug: &str,
+        params: UpdateDataIntegrationApiKeyParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}/api-key");
+        let method = http::Method::PUT;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
     /// Get authorization URL
     ///
     /// Generates an OAuth authorization URL to initiate the connection flow for a user. Redirect the user to the returned URL to begin the OAuth flow with the third-party provider.
@@ -89,6 +150,33 @@ impl<'a> PipesApi<'a> {
     ) -> Result<DataIntegrationAuthorizeUrlResponse, Error> {
         let slug = crate::client::path_segment(slug);
         let path = format!("/data-integrations/{slug}/authorize");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Vend credentials for a connected account
+    ///
+    /// Returns credentials for a user's connected account. Branches on the installation's `auth_method`: OAuth installations return an access token (refreshed if needed); API-key installations return the stored secret.
+    pub async fn create_data_integration_credential(
+        &self,
+        slug: &str,
+        params: CreateDataIntegrationCredentialParams,
+    ) -> Result<DataIntegrationCredentialsResponse, Error> {
+        self.create_data_integration_credential_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_data_integration_credential`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_data_integration_credential_with_options(
+        &self,
+        slug: &str,
+        params: CreateDataIntegrationCredentialParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegrationCredentialsResponse, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}/credentials");
         let method = http::Method::POST;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)
