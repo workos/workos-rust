@@ -24,6 +24,24 @@ pub enum ApiKeyOwnerOneOf {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum AgentRegistrationClaimCompletedDataClaimedByOrganizationIdOneOf {
+    String(String),
+    OptionString(Option<String>),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "kind")]
+pub enum AgentRegistrationCredentialIssuedDataDetailOneOf {
+    #[serde(rename = "api_key")]
+    AgentRegistrationCredentialIssuedDataDetail(AgentRegistrationCredentialIssuedDataDetail),
+    #[serde(rename = "access_token")]
+    AccessTokenAgentRegistrationCredentialIssuedDataDetail(
+        AccessTokenAgentRegistrationCredentialIssuedDataDetail,
+    ),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ApiKeyCreatedDataOwnerOneOf {
     #[serde(rename = "organization")]
