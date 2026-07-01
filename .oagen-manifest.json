@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "rust",
-  "generatedAt": "2026-06-17T20:55:36.966Z",
+  "generatedAt": "2026-07-01T16:28:51.079Z",
   "files": [
     "src/enums/audit_log_configuration_log_stream_state.rs",
     "src/enums/audit_log_configuration_log_stream_type.rs",
@@ -34,6 +34,7 @@
     "src/enums/create_webhook_endpoint_events.rs",
     "src/enums/data_integration_access_token_response_error.rs",
     "src/enums/data_integration_credentials_credentials_type.rs",
+    "src/enums/data_integration_credentials_response_error.rs",
     "src/enums/data_integrations_list_response_data_auth_methods.rs",
     "src/enums/data_integrations_list_response_data_connected_account_auth_method.rs",
     "src/enums/data_integrations_list_response_data_connected_account_state.rs",
@@ -170,6 +171,7 @@
     "src/models/audit_log_schema_target.rs",
     "src/models/audit_log_schema_target_input.rs",
     "src/models/audit_logs_retention.rs",
+    "src/models/auth_method_mismatch_error.rs",
     "src/models/authenticate_response.rs",
     "src/models/authenticate_response_impersonator.rs",
     "src/models/authenticate_response_oauth_token.rs",
@@ -307,11 +309,15 @@
     "src/models/data_integration_configuration_list_response.rs",
     "src/models/data_integration_configuration_response.rs",
     "src/models/data_integration_credentials.rs",
+    "src/models/data_integration_credentials_response.rs",
+    "src/models/data_integration_credentials_response_credential.rs",
     "src/models/data_integrations_get_data_integration_authorize_url_request.rs",
     "src/models/data_integrations_get_user_token_request.rs",
     "src/models/data_integrations_list_response.rs",
     "src/models/data_integrations_list_response_data.rs",
     "src/models/data_integrations_list_response_data_connected_account.rs",
+    "src/models/data_integrations_upsert_api_key_request.rs",
+    "src/models/data_integrations_vend_credentials_request.rs",
     "src/models/decrypt_request.rs",
     "src/models/decrypt_response.rs",
     "src/models/delete_group_role_assignments_by_criteria.rs",
@@ -717,6 +723,7 @@
     "tests/fixtures/audit_log_schema_target.json",
     "tests/fixtures/audit_log_schema_target_input.json",
     "tests/fixtures/audit_logs_retention.json",
+    "tests/fixtures/auth_method_mismatch_error.json",
     "tests/fixtures/authenticate_response.json",
     "tests/fixtures/authenticate_response_impersonator.json",
     "tests/fixtures/authenticate_response_oauth_token.json",
@@ -852,11 +859,15 @@
     "tests/fixtures/data_integration_configuration_list_response.json",
     "tests/fixtures/data_integration_configuration_response.json",
     "tests/fixtures/data_integration_credentials.json",
+    "tests/fixtures/data_integration_credentials_response.json",
+    "tests/fixtures/data_integration_credentials_response_credential.json",
     "tests/fixtures/data_integrations_get_data_integration_authorize_url_request.json",
     "tests/fixtures/data_integrations_get_user_token_request.json",
     "tests/fixtures/data_integrations_list_response.json",
     "tests/fixtures/data_integrations_list_response_data.json",
     "tests/fixtures/data_integrations_list_response_data_connected_account.json",
+    "tests/fixtures/data_integrations_upsert_api_key_request.json",
+    "tests/fixtures/data_integrations_vend_credentials_request.json",
     "tests/fixtures/decrypt_request.json",
     "tests/fixtures/decrypt_response.json",
     "tests/fixtures/delete_group_role_assignments_by_criteria.json",
@@ -1974,6 +1985,22 @@
     "POST /widgets/token": {
       "sdkMethod": "create_token",
       "service": "widgets"
+    },
+    "PUT /data-integrations/{slug}/api-key": {
+      "sdkMethod": "update_data_integration_api_key",
+      "service": "pipes"
+    },
+    "POST /data-integrations/{slug}/credentials": {
+      "sdkMethod": "create_data_integration_credential",
+      "service": "pipes"
+    },
+    "GET /user_management/cors_origins": {
+      "sdkMethod": "list_cors_origins",
+      "service": "user_management"
+    },
+    "GET /user_management/redirect_uris": {
+      "sdkMethod": "list_redirect_uris",
+      "service": "user_management"
     }
   }
 }
