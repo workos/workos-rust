@@ -25,9 +25,6 @@ pub struct GenerateLink {
     /// - `bring_your_own_key` - Launch Admin Portal for configuring Bring Your Own Key
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub intent: Option<GenerateLinkIntent>,
-    /// Options to configure the Admin Portal based on the intent.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub intent_options: Option<IntentOptions>,
     /// The email addresses of the IT contacts to grant access to the Admin Portal for the given organization. Accepts up to 20 emails.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub it_contact_emails: Option<Vec<String>>,

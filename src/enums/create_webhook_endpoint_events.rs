@@ -7,6 +7,11 @@ use std::str::FromStr;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum CreateWebhookEndpointEvents {
+    AgentRegistrationCreated,
+    AgentRegistrationClaimAttemptCreated,
+    AgentRegistrationClaimCompleted,
+    AgentRegistrationCredentialIssued,
+    AgentRegistrationOrganizationSwitched,
     AuthenticationEmailVerificationSucceeded,
     AuthenticationMagicAuthFailed,
     AuthenticationMagicAuthSucceeded,
@@ -22,6 +27,7 @@ pub enum CreateWebhookEndpointEvents {
     AuthenticationSSOSucceeded,
     AuthenticationSSOTimedOut,
     AuthenticationRadarRiskDetected,
+    AuthenticationReauthenticationSucceeded,
     ApiKeyCreated,
     ApiKeyRevoked,
     ApiKeyUpdated,
@@ -81,6 +87,7 @@ pub enum CreateWebhookEndpointEvents {
     PermissionDeleted,
     PermissionUpdated,
     PipesConnectedAccountConnected,
+    PipesConnectedAccountConnectionFailed,
     PipesConnectedAccountDisconnected,
     PipesConnectedAccountReauthorizationNeeded,
     SessionCreated,
@@ -101,6 +108,15 @@ impl CreateWebhookEndpointEvents {
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
+            Self::AgentRegistrationCreated => "agent.registration.created",
+            Self::AgentRegistrationClaimAttemptCreated => {
+                "agent.registration.claim.attempt.created"
+            }
+            Self::AgentRegistrationClaimCompleted => "agent.registration.claim.completed",
+            Self::AgentRegistrationCredentialIssued => "agent.registration.credential.issued",
+            Self::AgentRegistrationOrganizationSwitched => {
+                "agent.registration.organization.switched"
+            }
             Self::AuthenticationEmailVerificationSucceeded => {
                 "authentication.email_verification_succeeded"
             }
@@ -118,6 +134,9 @@ impl CreateWebhookEndpointEvents {
             Self::AuthenticationSSOSucceeded => "authentication.sso_succeeded",
             Self::AuthenticationSSOTimedOut => "authentication.sso_timed_out",
             Self::AuthenticationRadarRiskDetected => "authentication.radar_risk_detected",
+            Self::AuthenticationReauthenticationSucceeded => {
+                "authentication.reauthentication_succeeded"
+            }
             Self::ApiKeyCreated => "api_key.created",
             Self::ApiKeyRevoked => "api_key.revoked",
             Self::ApiKeyUpdated => "api_key.updated",
@@ -179,6 +198,9 @@ impl CreateWebhookEndpointEvents {
             Self::PermissionDeleted => "permission.deleted",
             Self::PermissionUpdated => "permission.updated",
             Self::PipesConnectedAccountConnected => "pipes.connected_account.connected",
+            Self::PipesConnectedAccountConnectionFailed => {
+                "pipes.connected_account.connection_failed"
+            }
             Self::PipesConnectedAccountDisconnected => "pipes.connected_account.disconnected",
             Self::PipesConnectedAccountReauthorizationNeeded => {
                 "pipes.connected_account.reauthorization_needed"
@@ -210,6 +232,15 @@ impl FromStr for CreateWebhookEndpointEvents {
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
+            "agent.registration.created" => Self::AgentRegistrationCreated,
+            "agent.registration.claim.attempt.created" => {
+                Self::AgentRegistrationClaimAttemptCreated
+            }
+            "agent.registration.claim.completed" => Self::AgentRegistrationClaimCompleted,
+            "agent.registration.credential.issued" => Self::AgentRegistrationCredentialIssued,
+            "agent.registration.organization.switched" => {
+                Self::AgentRegistrationOrganizationSwitched
+            }
             "authentication.email_verification_succeeded" => {
                 Self::AuthenticationEmailVerificationSucceeded
             }
@@ -227,6 +258,9 @@ impl FromStr for CreateWebhookEndpointEvents {
             "authentication.sso_succeeded" => Self::AuthenticationSSOSucceeded,
             "authentication.sso_timed_out" => Self::AuthenticationSSOTimedOut,
             "authentication.radar_risk_detected" => Self::AuthenticationRadarRiskDetected,
+            "authentication.reauthentication_succeeded" => {
+                Self::AuthenticationReauthenticationSucceeded
+            }
             "api_key.created" => Self::ApiKeyCreated,
             "api_key.revoked" => Self::ApiKeyRevoked,
             "api_key.updated" => Self::ApiKeyUpdated,
@@ -288,6 +322,9 @@ impl FromStr for CreateWebhookEndpointEvents {
             "permission.deleted" => Self::PermissionDeleted,
             "permission.updated" => Self::PermissionUpdated,
             "pipes.connected_account.connected" => Self::PipesConnectedAccountConnected,
+            "pipes.connected_account.connection_failed" => {
+                Self::PipesConnectedAccountConnectionFailed
+            }
             "pipes.connected_account.disconnected" => Self::PipesConnectedAccountDisconnected,
             "pipes.connected_account.reauthorization_needed" => {
                 Self::PipesConnectedAccountReauthorizationNeeded

@@ -397,6 +397,9 @@ pub struct GetAuthorizationUrlParams {
     /// A token representing a user invitation to redeem during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invitation_token: Option<crate::SecretString>,
+    /// Maximum allowable elapsed time, in seconds, since the user last actively authenticated. If the last authentication is older than this value, the user is prompted to re-authenticate; a value of `0` forces re-authentication. Only supported when the provider is `authkit`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_age: Option<i64>,
     /// Used to specify which screen to display when the provider is `authkit`.
     ///
     /// Defaults to `sign-in`.
@@ -435,6 +438,7 @@ impl GetAuthorizationUrlParams {
             provider_query_params: Default::default(),
             provider_scopes: Default::default(),
             invitation_token: Default::default(),
+            max_age: Default::default(),
             screen_hint: Default::default(),
             login_hint: Default::default(),
             provider: Default::default(),
@@ -499,6 +503,38 @@ impl RevokeSessionParams {
     #[allow(deprecated)]
     pub fn new(body: RevokeSession) -> Self {
         Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ListCorsOriginsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListCorsOriginsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
     }
 }
 
@@ -820,6 +856,38 @@ impl CreateMagicAuthParams {
     #[allow(deprecated)]
     pub fn new(body: CreateMagicCodeAndReturn) -> Self {
         Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ListRedirectUrisParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListRedirectUrisParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
     }
 }
 
@@ -1351,6 +1419,53 @@ impl<'a> UserManagementApi<'a> {
         self.client
             .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
             .await
+    }
+
+    /// List CORS origins
+    ///
+    /// Lists the CORS origins for the current environment.
+    pub async fn list_cors_origins(
+        &self,
+        params: ListCorsOriginsParams,
+    ) -> Result<crate::pagination::Page<CorsOriginResponse>, Error> {
+        self.list_cors_origins_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_cors_origins`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_cors_origins_with_options(
+        &self,
+        params: ListCorsOriginsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<CorsOriginResponse>, Error> {
+        let path = "/user_management/cors_origins".to_string();
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `CorsOriginResponse`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<CorsOriginResponse> = self
+    ///     .list_cors_origins_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_cors_origins_auto_paging(
+        &self,
+        params: ListCorsOriginsParams,
+    ) -> impl futures_util::Stream<Item = Result<CorsOriginResponse, Error>> + '_ {
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_cors_origins(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// Create a CORS origin
@@ -2053,6 +2168,53 @@ impl<'a> UserManagementApi<'a> {
         self.client
             .request_with_query_opts(method, &path, &(), options)
             .await
+    }
+
+    /// List redirect URIs
+    ///
+    /// Lists the redirect URIs for an environment.
+    pub async fn list_redirect_uris(
+        &self,
+        params: ListRedirectUrisParams,
+    ) -> Result<crate::pagination::Page<RedirectUri>, Error> {
+        self.list_redirect_uris_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_redirect_uris`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_redirect_uris_with_options(
+        &self,
+        params: ListRedirectUrisParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<RedirectUri>, Error> {
+        let path = "/user_management/redirect_uris".to_string();
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `RedirectUri`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<RedirectUri> = self
+    ///     .list_redirect_uris_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_redirect_uris_auto_paging(
+        &self,
+        params: ListRedirectUrisParams,
+    ) -> impl futures_util::Stream<Item = Result<RedirectUri, Error>> + '_ {
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_redirect_uris(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 
     /// Create a redirect URI

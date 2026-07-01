@@ -17,6 +17,8 @@ pub struct UserRoleAssignment {
     pub role: SlimRole,
     /// The resource the role is assigned on.
     pub resource: UserRoleAssignmentResource,
+    /// The origin of the role assignment.
+    pub source: UserRoleAssignmentSource,
     /// An ISO 8601 timestamp.
     pub created_at: String,
     /// An ISO 8601 timestamp.
