@@ -6,11 +6,9 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
-pub enum AuditLogExportState {
-    Pending,
-    Ready,
-    Error,
-    Expired,
+pub enum UserRoleAssignmentSourceType {
+    Direct,
+    Group,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -18,48 +16,44 @@ pub enum AuditLogExportState {
     Unknown(String),
 }
 
-impl AuditLogExportState {
+impl UserRoleAssignmentSourceType {
     /// Canonical wire string for this value. For [`Self::Unknown`] returns the
     /// original wire value as received from the API.
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
-            Self::Pending => "pending",
-            Self::Ready => "ready",
-            Self::Error => "error",
-            Self::Expired => "expired",
+            Self::Direct => "direct",
+            Self::Group => "group",
             Self::Unknown(s) => s.as_str(),
         }
     }
 }
 
-impl fmt::Display for AuditLogExportState {
+impl fmt::Display for UserRoleAssignmentSourceType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl AsRef<str> for AuditLogExportState {
+impl AsRef<str> for UserRoleAssignmentSourceType {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl FromStr for AuditLogExportState {
+impl FromStr for UserRoleAssignmentSourceType {
     type Err = std::convert::Infallible;
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "pending" => Self::Pending,
-            "ready" => Self::Ready,
-            "error" => Self::Error,
-            "expired" => Self::Expired,
+            "direct" => Self::Direct,
+            "group" => Self::Group,
             other => Self::Unknown(other.to_string()),
         })
     }
 }
 
-impl From<String> for AuditLogExportState {
+impl From<String> for UserRoleAssignmentSourceType {
     fn from(s: String) -> Self {
         // Reuse the original `String` allocation in the fallback branch.
         match Self::from_str(&s) {
@@ -69,19 +63,19 @@ impl From<String> for AuditLogExportState {
     }
 }
 
-impl From<&str> for AuditLogExportState {
+impl From<&str> for UserRoleAssignmentSourceType {
     fn from(s: &str) -> Self {
         Self::from_str(s).unwrap_or_else(|_| Self::Unknown(s.to_string()))
     }
 }
 
-impl Serialize for AuditLogExportState {
+impl Serialize for UserRoleAssignmentSourceType {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
-impl<'de> Deserialize<'de> for AuditLogExportState {
+impl<'de> Deserialize<'de> for UserRoleAssignmentSourceType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))

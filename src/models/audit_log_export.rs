@@ -11,7 +11,7 @@ pub struct AuditLogExport {
     pub object: String,
     /// The unique ID of the Audit Log Export.
     pub id: String,
-    /// The state of the export. Possible values: pending, ready, error.
+    /// The state of the export. Possible values: pending, ready, error, expired.
     pub state: AuditLogExportState,
     /// A URL to the CSV file. Only defined when the Audit Log Export is ready.
     #[serde(skip_serializing_if = "Option::is_none", default)]

@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "rust",
-  "generatedAt": "2026-07-01T16:28:51.079Z",
+  "generatedAt": "2026-07-01T18:19:09.952Z",
   "files": [
     "src/enums/audit_log_configuration_log_stream_state.rs",
     "src/enums/audit_log_configuration_log_stream_type.rs",
@@ -115,6 +115,7 @@
     "src/enums/user_management_organization_membership_statuses.rs",
     "src/enums/user_organization_membership_base_list_data_status.rs",
     "src/enums/user_organization_membership_status.rs",
+    "src/enums/user_role_assignment_source_type.rs",
     "src/enums/user_sessions_auth_method.rs",
     "src/enums/user_sessions_status.rs",
     "src/enums/vault_byok_key_provider.rs",
@@ -611,6 +612,7 @@
     "src/models/user_role_assignment_list.rs",
     "src/models/user_role_assignment_list_list_metadata.rs",
     "src/models/user_role_assignment_resource.rs",
+    "src/models/user_role_assignment_source.rs",
     "src/models/user_sessions_impersonator.rs",
     "src/models/user_sessions_list_item.rs",
     "src/models/user_updated.rs",
@@ -1160,6 +1162,7 @@
     "tests/fixtures/user_role_assignment_list.json",
     "tests/fixtures/user_role_assignment_list_list_metadata.json",
     "tests/fixtures/user_role_assignment_resource.json",
+    "tests/fixtures/user_role_assignment_source.json",
     "tests/fixtures/user_sessions_impersonator.json",
     "tests/fixtures/user_sessions_list_item.json",
     "tests/fixtures/user_updated.json",
