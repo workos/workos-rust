@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0](https://github.com/workos/workos-rust/compare/v2.3.0...v2.4.0) (2026-07-02)
+
+
+### Features
+
+* **generated:** AdminPortal, Authorization, Webhooks, UserManagement, AuditLogs (batch 08085e9d) ([#120](https://github.com/workos/workos-rust/issues/120)) ([791a73b](https://github.com/workos/workos-rust/commit/791a73b26b1154048831ec426aad35f7a19daf72))
+* **generated:** Pipes (batch 77e46600) ([#118](https://github.com/workos/workos-rust/issues/118)) ([2a96e97](https://github.com/workos/workos-rust/commit/2a96e9752762768ece7b3ce2153f8a0c3956c715))
+* **pipes:** Add Pipes operations and models ([#122](https://github.com/workos/workos-rust/issues/122)) ([889e6af](https://github.com/workos/workos-rust/commit/889e6af11dfe05a699ec65315445d4fd4663cbf8))
+* **user_management:** Add user management operations and models ([#123](https://github.com/workos/workos-rust/issues/123)) ([0ed9dc6](https://github.com/workos/workos-rust/commit/0ed9dc6989de04a0197163761345541c29dd7287))
+
+
+### Bug Fixes
+
+* **user_management:** Update user management API surface ([#123](https://github.com/workos/workos-rust/issues/123)) ([0ed9dc6](https://github.com/workos/workos-rust/commit/0ed9dc6989de04a0197163761345541c29dd7287))
+
 ## [2.3.0](https://github.com/workos/workos-rust/compare/v2.2.0...v2.3.0) (2026-06-30)
 
 * [#114](https://github.com/workos/workos-rust/pull/114) fix(generated): regenerate from spec
