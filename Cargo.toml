@@ -1,7 +1,7 @@
 # @oagen-ignore-file
 [package]
 name = "workos"
-version = "2.3.0"
+version = "2.4.0"
 edition = "2024"
 rust-version = "1.88"
 description = "Official Rust SDK for the WorkOS API"
