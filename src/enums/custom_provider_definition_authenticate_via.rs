@@ -6,9 +6,9 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
-pub enum ConnectedAccountState {
-    Connected,
-    NeedsReauthorization,
+pub enum CustomProviderDefinitionAuthenticateVia {
+    RequestBody,
+    BasicAuthHeader,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -16,44 +16,44 @@ pub enum ConnectedAccountState {
     Unknown(String),
 }
 
-impl ConnectedAccountState {
+impl CustomProviderDefinitionAuthenticateVia {
     /// Canonical wire string for this value. For [`Self::Unknown`] returns the
     /// original wire value as received from the API.
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
-            Self::Connected => "connected",
-            Self::NeedsReauthorization => "needs_reauthorization",
+            Self::RequestBody => "request_body",
+            Self::BasicAuthHeader => "basic_auth_header",
             Self::Unknown(s) => s.as_str(),
         }
     }
 }
 
-impl fmt::Display for ConnectedAccountState {
+impl fmt::Display for CustomProviderDefinitionAuthenticateVia {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl AsRef<str> for ConnectedAccountState {
+impl AsRef<str> for CustomProviderDefinitionAuthenticateVia {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl FromStr for ConnectedAccountState {
+impl FromStr for CustomProviderDefinitionAuthenticateVia {
     type Err = std::convert::Infallible;
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "connected" => Self::Connected,
-            "needs_reauthorization" => Self::NeedsReauthorization,
+            "request_body" => Self::RequestBody,
+            "basic_auth_header" => Self::BasicAuthHeader,
             other => Self::Unknown(other.to_string()),
         })
     }
 }
 
-impl From<String> for ConnectedAccountState {
+impl From<String> for CustomProviderDefinitionAuthenticateVia {
     fn from(s: String) -> Self {
         // Reuse the original `String` allocation in the fallback branch.
         match Self::from_str(&s) {
@@ -63,19 +63,19 @@ impl From<String> for ConnectedAccountState {
     }
 }
 
-impl From<&str> for ConnectedAccountState {
+impl From<&str> for CustomProviderDefinitionAuthenticateVia {
     fn from(s: &str) -> Self {
         Self::from_str(s).unwrap_or_else(|_| Self::Unknown(s.to_string()))
     }
 }
 
-impl Serialize for ConnectedAccountState {
+impl Serialize for CustomProviderDefinitionAuthenticateVia {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
-impl<'de> Deserialize<'de> for ConnectedAccountState {
+impl<'de> Deserialize<'de> for CustomProviderDefinitionAuthenticateVia {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))
