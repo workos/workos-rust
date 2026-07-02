@@ -6,19 +6,20 @@ use super::*;
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PasswordSessionAuthenticateRequest {
+pub struct RadarSmsChallengeCodeSessionAuthenticateRequest {
     /// The client ID of the application.
     pub client_id: String,
     /// The client secret of the application.
     pub client_secret: crate::SecretString,
     pub grant_type: String,
-    /// The user's email address.
-    pub email: String,
-    /// The user's password.
-    pub password: crate::SecretString,
-    /// An invitation token to accept during authentication.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub invitation_token: Option<crate::SecretString>,
+    /// The one-time code from the Radar SMS challenge.
+    pub code: String,
+    /// The ID of the Radar SMS verification being confirmed.
+    pub verification_id: String,
+    /// The phone number the Radar SMS challenge was sent to.
+    pub phone_number: String,
+    /// The pending authentication token from a previous authentication attempt.
+    pub pending_authentication_token: crate::SecretString,
     /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub ip_address: Option<String>,
@@ -28,10 +29,4 @@ pub struct PasswordSessionAuthenticateRequest {
     /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub user_agent: Option<String>,
-    /// An optional Radar signals ID to correlate client-side signals with this authentication attempt.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub signals_id: Option<String>,
-    /// The ID of an existing Radar authentication attempt to associate with this authentication.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub radar_auth_attempt_id: Option<String>,
 }

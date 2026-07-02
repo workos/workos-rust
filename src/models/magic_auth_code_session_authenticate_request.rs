@@ -28,4 +28,7 @@ pub struct MagicAuthCodeSessionAuthenticateRequest {
     /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub user_agent: Option<String>,
+    /// The ID of an existing Radar authentication attempt to associate with this authentication.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub radar_auth_attempt_id: Option<String>,
 }

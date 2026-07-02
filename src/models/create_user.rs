@@ -27,6 +27,15 @@ pub struct CreateUser {
     /// The external ID of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub external_id: Option<String>,
+    /// The IP address of the user's request.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub ip_address: Option<String>,
+    /// The user agent string from the user's request.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub user_agent: Option<String>,
+    /// An optional Radar signals ID to correlate client-side signals with this request.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub signals_id: Option<String>,
     /// The password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub password: Option<crate::SecretString>,
