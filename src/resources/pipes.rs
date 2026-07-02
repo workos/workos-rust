@@ -13,6 +13,72 @@ pub struct PipesApi<'a> {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct ListDataIntegrationsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListDataIntegrationsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateDataIntegrationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: CreateDataIntegration,
+}
+
+impl CreateDataIntegrationParams {
+    /// Construct a new `CreateDataIntegrationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateDataIntegration) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct UpdateDataIntegrationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: UpdateDataIntegration,
+}
+
+impl UpdateDataIntegrationParams {
+    /// Construct a new `UpdateDataIntegrationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateDataIntegration) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct UpdateDataIntegrationApiKeyParams {
     /// Request body sent with this call.
     ///
@@ -87,6 +153,52 @@ pub struct GetUserConnectedAccountParams {
     pub organization_id: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateUserConnectedAccountParams {
+    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub organization_id: Option<String>,
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: ConnectedAccountDto,
+}
+
+impl CreateUserConnectedAccountParams {
+    /// Construct a new `CreateUserConnectedAccountParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ConnectedAccountDto) -> Self {
+        Self {
+            organization_id: Default::default(),
+            body,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct UpdateUserConnectedAccountParams {
+    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub organization_id: Option<String>,
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: ConnectedAccountDto,
+}
+
+impl UpdateUserConnectedAccountParams {
+    /// Construct a new `UpdateUserConnectedAccountParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ConnectedAccountDto) -> Self {
+        Self {
+            organization_id: Default::default(),
+            body,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct DeleteUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
@@ -102,6 +214,146 @@ pub struct ListUserDataProvidersParams {
 }
 
 impl<'a> PipesApi<'a> {
+    /// List data integrations
+    ///
+    /// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers.
+    pub async fn list_data_integrations(
+        &self,
+        params: ListDataIntegrationsParams,
+    ) -> Result<DataIntegrationList, Error> {
+        self.list_data_integrations_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_data_integrations`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_data_integrations_with_options(
+        &self,
+        params: ListDataIntegrationsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegrationList, Error> {
+        let path = "/data-integrations".to_string();
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `DataIntegration`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<DataIntegration> = self
+    ///     .list_data_integrations_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_data_integrations_auto_paging(
+        &self,
+        params: ListDataIntegrationsParams,
+    ) -> impl futures_util::Stream<Item = Result<DataIntegration, Error>> + '_ {
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_data_integrations(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Create a data integration
+    ///
+    /// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials, or `organization` to have each organization supply its own. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
+    pub async fn create_data_integration(
+        &self,
+        params: CreateDataIntegrationParams,
+    ) -> Result<DataIntegration, Error> {
+        self.create_data_integration_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_data_integration`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_data_integration_with_options(
+        &self,
+        params: CreateDataIntegrationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegration, Error> {
+        let path = "/data-integrations".to_string();
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Get a data integration
+    ///
+    /// Retrieves a data integration by its slug.
+    pub async fn get_data_integration(&self, slug: &str) -> Result<DataIntegration, Error> {
+        self.get_data_integration_with_options(slug, None).await
+    }
+
+    /// Variant of [`Self::get_data_integration`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_data_integration_with_options(
+        &self,
+        slug: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegration, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Update a data integration
+    ///
+    /// Updates the description, enabled state, or custom credentials of a data integration. For custom providers, `custom_provider` updates the OAuth definition.
+    pub async fn update_data_integration(
+        &self,
+        slug: &str,
+        params: UpdateDataIntegrationParams,
+    ) -> Result<DataIntegration, Error> {
+        self.update_data_integration_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_data_integration`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_data_integration_with_options(
+        &self,
+        slug: &str,
+        params: UpdateDataIntegrationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegration, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}");
+        let method = http::Method::PUT;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Delete a data integration
+    ///
+    /// Deletes a data integration and all of its connected installations. For a custom provider, also deletes the custom provider definition.
+    pub async fn delete_data_integration(&self, slug: &str) -> Result<(), Error> {
+        self.delete_data_integration_with_options(slug, None).await
+    }
+
+    /// Variant of [`Self::delete_data_integration`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_data_integration_with_options(
+        &self,
+        slug: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
     /// Upsert an API key for a connected account
     ///
     /// Creates or updates an API-key-based installation for the specified integration and user. If an installation already exists, the stored API key is rotated to the new value.
@@ -237,6 +489,66 @@ impl<'a> PipesApi<'a> {
         let method = http::Method::GET;
         self.client
             .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Import a connected account
+    ///
+    /// Imports a [connected account](https://workos.com/docs/reference/pipes/connected-account) for a user by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
+    pub async fn create_user_connected_account(
+        &self,
+        user_id: &str,
+        slug: &str,
+        params: CreateUserConnectedAccountParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.create_user_connected_account_with_options(user_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_user_connected_account`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_user_connected_account_with_options(
+        &self,
+        user_id: &str,
+        slug: &str,
+        params: CreateUserConnectedAccountParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let user_id = crate::client::path_segment(user_id);
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Update a connected account
+    ///
+    /// Updates a user's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
+    pub async fn update_user_connected_account(
+        &self,
+        user_id: &str,
+        slug: &str,
+        params: UpdateUserConnectedAccountParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.update_user_connected_account_with_options(user_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_user_connected_account`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_user_connected_account_with_options(
+        &self,
+        user_id: &str,
+        slug: &str,
+        params: UpdateUserConnectedAccountParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let user_id = crate::client::path_segment(user_id);
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");
+        let method = http::Method::PUT;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
