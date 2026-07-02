@@ -7,18 +7,126 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.4.0](https://github.com/workos/workos-rust/compare/v2.3.0...v2.4.0) (2026-07-02)
 
+* [#118](https://github.com/workos/workos-rust/pull/118) fix(generated): regenerate from spec
 
-### Features
+  **Features**
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * Added model `DataIntegrationCredentialsResponse`
+    * Added model `DataIntegrationCredentialsResponseCredential`
+    * Added model `DataIntegrationsUpsertApiKeyRequest`
+    * Added model `DataIntegrationsVendCredentialsRequest`
+    * Added enum `DataIntegrationCredentialsResponseError`
+    * Added endpoint `PUT /data-integrations/{slug}/api-key`
+    * Added endpoint `POST /data-integrations/{slug}/credentials`
 
-* **generated:** AdminPortal, Authorization, Webhooks, UserManagement, AuditLogs (batch 08085e9d) ([#120](https://github.com/workos/workos-rust/issues/120)) ([791a73b](https://github.com/workos/workos-rust/commit/791a73b26b1154048831ec426aad35f7a19daf72))
-* **generated:** Pipes (batch 77e46600) ([#118](https://github.com/workos/workos-rust/issues/118)) ([2a96e97](https://github.com/workos/workos-rust/commit/2a96e9752762768ece7b3ce2153f8a0c3956c715))
-* **pipes:** Add Pipes operations and models ([#122](https://github.com/workos/workos-rust/issues/122)) ([889e6af](https://github.com/workos/workos-rust/commit/889e6af11dfe05a699ec65315445d4fd4663cbf8))
-* **user_management:** Add user management operations and models ([#123](https://github.com/workos/workos-rust/issues/123)) ([0ed9dc6](https://github.com/workos/workos-rust/commit/0ed9dc6989de04a0197163761345541c29dd7287))
+* [#120](https://github.com/workos/workos-rust/pull/120) fix(generated): regenerate from spec
 
+  **⚠️ Breaking**
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Removed model `SessionReauthenticated`
+    * Removed model `SessionReauthenticatedData`
+    * Removed model `SessionReauthenticatedDataImpersonator`
+    * Removed enum `SessionReauthenticatedDataAuthMethod`
+    * Removed enum `SessionReauthenticatedDataStatus`
 
-### Bug Fixes
+  **Features**
+  * **[webhooks](https://workos.com/docs/reference/webhooks)**:
+    * Added `agent.registration.created` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.claim.attempt.created` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.claim.completed` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.credential.issued` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.organization.switched` to `CreateWebhookEndpointEvents`
+    * Added `authentication.reauthentication_succeeded` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.created` to `UpdateWebhookEndpointEvents`
+    * Added `agent.registration.claim.attempt.created` to `UpdateWebhookEndpointEvents`
+    * Added `agent.registration.claim.completed` to `UpdateWebhookEndpointEvents`
+    * Added `agent.registration.credential.issued` to `UpdateWebhookEndpointEvents`
+    * Added `agent.registration.organization.switched` to `UpdateWebhookEndpointEvents`
+    * Added `authentication.reauthentication_succeeded` to `UpdateWebhookEndpointEvents`
+  * **[webhooks](https://workos.com/docs/reference/webhooks)**:
+    * Added `session.reauthenticated` to `CreateWebhookEndpointEvents`
+    * Added `session.reauthenticated` to `UpdateWebhookEndpointEvents`
+  * **[webhooks](https://workos.com/docs/reference/webhooks)**:
+    * Added `pipes.connected_account.connection_failed` to `CreateWebhookEndpointEvents`
+    * Added `pipes.connected_account.connection_failed` to `UpdateWebhookEndpointEvents`
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Added model `UserRoleAssignmentSource`
+    * Added `source` to `UserRoleAssignment`
+    * Added enum `UserRoleAssignmentSourceType`
+    * Added parameter `UserManagementAuthentication.authorize.max_age`
+    * Added endpoint `GET /user_management/cors_origins`
+    * Added endpoint `GET /user_management/redirect_uris`
+  * **[audit_logs](https://workos.com/docs/reference/audit-logs)**:
+    * Changed the format of `AuditLogExportCreation.range_start`
+    * Changed the format of `AuditLogExportCreation.range_end`
+  * **[audit_logs](https://workos.com/docs/reference/audit-logs)**:
+    * Added `expired` to `AuditLogExportState`
 
-* **user_management:** Update user management API surface ([#123](https://github.com/workos/workos-rust/issues/123)) ([0ed9dc6](https://github.com/workos/workos-rust/commit/0ed9dc6989de04a0197163761345541c29dd7287))
+  **Fixes**
+  * **[admin_portal](https://workos.com/docs/reference/admin-portal)**:
+    * Removed `intent_options` from `GenerateLink`
+  * **[webhooks](https://workos.com/docs/reference/webhooks)**:
+    * Removed `session.reauthenticated` from `CreateWebhookEndpointEvents`
+    * Removed `session.reauthenticated` from `UpdateWebhookEndpointEvents`
+
+* [#122](https://github.com/workos/workos-rust/pull/122) feat(generated): regenerate from spec (1 change)
+
+  **Features**
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * Added model `DataIntegrationCredentialsDto`
+    * Added model `CustomProviderDefinition`
+    * Added model `CreateDataIntegration`
+    * Added model `UpdateCustomProviderDefinition`
+    * Added model `UpdateDataIntegration`
+    * Added model `DataIntegration`
+    * Added model `DataIntegrationList`
+    * Added model `DataIntegrationListListMetadata`
+    * Added model `DataIntegrationCredential`
+    * Added model `DataIntegrationCustomProvider`
+    * Added enum `DataIntegrationCredentialsType`
+    * Added enum `CustomProviderDefinitionAuthenticateVia`
+    * Added enum `UpdateCustomProviderDefinitionAuthenticateVia`
+    * Added enum `DataIntegrationState`
+    * Added enum `DataIntegrationCredentialType`
+    * Added enum `DataIntegrationCustomProviderAuthenticateVia`
+    * Added endpoint `GET /data-integrations`
+    * Added endpoint `POST /data-integrations`
+    * Added endpoint `GET /data-integrations/{slug}`
+    * Added endpoint `PUT /data-integrations/{slug}`
+    * Added endpoint `DELETE /data-integrations/{slug}`
+    * Added endpoint `POST /user_management/users/{user_id}/connected_accounts/{slug}`
+    * Added endpoint `PUT /user_management/users/{user_id}/connected_accounts/{slug}`
+
+* [#123](https://github.com/workos/workos-rust/pull/123) feat(generated): regenerate from spec (2 changes)
+
+  **Features**
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Added model `SendRadarSmsChallenge`
+    * Added model `SendRadarSmsChallengeResponse`
+    * Added model `UrnWorkosOAuthGrantTypeRadarEmailChallengeCodeSessionAuthenticateRequest`
+    * Added model `UrnWorkosOAuthGrantTypeRadarSmsChallengeCodeSessionAuthenticateRequest`
+    * Added model `MagicAuthSendMagicAuthCodeAndReturnResponse`
+    * Added model `UserCreateResponse`
+    * Added `ip_address` to `CreateMagicCodeAndReturn`
+    * Added `user_agent` to `CreateMagicCodeAndReturn`
+    * Added `radar_auth_attempt_id` to `CreateMagicCodeAndReturn`
+    * Added `signals_id` to `CreateMagicCodeAndReturn`
+    * Added `ip_address` to `CreateUser`
+    * Added `user_agent` to `CreateUser`
+    * Added `signals_id` to `CreateUser`
+    * Added `signals_id` to `AuthorizationCodeSessionAuthenticateRequest`
+    * Added `signals_id` to `PasswordSessionAuthenticateRequest`
+    * Added `radar_auth_attempt_id` to `PasswordSessionAuthenticateRequest`
+    * Added `radar_auth_attempt_id` to `UrnWorkosOAuthGrantTypeMagicAuthCodeSessionAuthenticateRequest`
+    * Added endpoint `POST /user_management/radar_challenges`
+  * **[radar](https://workos.com/docs/reference/radar)**:
+    * Added `signals_id` to `RadarStandaloneAssessRequest`
+
+  **Fixes**
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Changed request body for `UserManagementAuthentication.authenticate`
+    * Changed response of `UserManagementUsers.create` from `User` to `UserCreateResponse`
+    * Changed response of `UserManagementMagicAuth.sendMagicAuthCodeAndReturn` from `MagicAuth` to `MagicAuthSendMagicAuthCodeAndReturnResponse`
 
 ## [2.3.0](https://github.com/workos/workos-rust/compare/v2.2.0...v2.3.0) (2026-06-30)
 
