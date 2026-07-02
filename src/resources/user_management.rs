@@ -48,6 +48,15 @@ pub struct CreateUserParamsBody {
     /// The external ID of the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub external_id: Option<String>,
+    /// The IP address of the user's request.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ip_address: Option<String>,
+    /// The user agent string from the user's request.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_agent: Option<String>,
+    /// An optional Radar signals ID to correlate client-side signals with this request.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signals_id: Option<String>,
     #[serde(flatten)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub password: Option<Password>,
@@ -64,6 +73,9 @@ impl CreateUserParamsBody {
             email_verified: Default::default(),
             metadata: Default::default(),
             external_id: Default::default(),
+            ip_address: Default::default(),
+            user_agent: Default::default(),
+            signals_id: Default::default(),
             password: Default::default(),
         }
     }
@@ -463,6 +475,23 @@ impl CreateDeviceParams {
     /// Construct a new `CreateDeviceParams` with the required fields set.
     #[allow(deprecated)]
     pub fn new(body: SSODeviceAuthorizationRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateRadarChallengeParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: SendRadarSmsChallenge,
+}
+
+impl CreateRadarChallengeParams {
+    /// Construct a new `CreateRadarChallengeParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: SendRadarSmsChallenge) -> Self {
         Self { body }
     }
 }
@@ -1387,6 +1416,29 @@ impl<'a> UserManagementApi<'a> {
             .await
     }
 
+    /// Send a Radar SMS challenge
+    ///
+    /// Sends a one-time verification code over SMS to a user as part of a Radar challenge. Use the returned `verification_id` to authenticate the user with the `urn:workos:oauth:grant-type:radar-sms-challenge:code` grant type.
+    pub async fn create_radar_challenge(
+        &self,
+        params: CreateRadarChallengeParams,
+    ) -> Result<SendRadarSmsChallengeResponse, Error> {
+        self.create_radar_challenge_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_radar_challenge`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_radar_challenge_with_options(
+        &self,
+        params: CreateRadarChallengeParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<SendRadarSmsChallengeResponse, Error> {
+        let path = "/user_management/radar_challenges".to_string();
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
     /// Logout
     ///
     /// Logout a user from the current [session](https://workos.com/docs/reference/authkit/session).
@@ -1626,7 +1678,7 @@ impl<'a> UserManagementApi<'a> {
     /// Create a user
     ///
     /// Create a new user in the current environment.
-    pub async fn create_user(&self, params: CreateUserParams) -> Result<User, Error> {
+    pub async fn create_user(&self, params: CreateUserParams) -> Result<UserCreateResponse, Error> {
         self.create_user_with_options(params, None).await
     }
 
@@ -1635,7 +1687,7 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: CreateUserParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<User, Error> {
+    ) -> Result<UserCreateResponse, Error> {
         let path = "/user_management/users".to_string();
         let method = http::Method::POST;
         self.client
@@ -2132,7 +2184,7 @@ impl<'a> UserManagementApi<'a> {
     pub async fn create_magic_auth(
         &self,
         params: CreateMagicAuthParams,
-    ) -> Result<MagicAuth, Error> {
+    ) -> Result<MagicAuthSendMagicAuthCodeAndReturnResponse, Error> {
         self.create_magic_auth_with_options(params, None).await
     }
 
@@ -2141,7 +2193,7 @@ impl<'a> UserManagementApi<'a> {
         &self,
         params: CreateMagicAuthParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<MagicAuth, Error> {
+    ) -> Result<MagicAuthSendMagicAuthCodeAndReturnResponse, Error> {
         let path = "/user_management/magic_auth".to_string();
         let method = http::Method::POST;
         self.client
