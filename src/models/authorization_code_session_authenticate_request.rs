@@ -30,4 +30,7 @@ pub struct AuthorizationCodeSessionAuthenticateRequest {
     /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub user_agent: Option<String>,
+    /// An optional Radar signals ID to correlate client-side signals with this authentication attempt.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub signals_id: Option<String>,
 }

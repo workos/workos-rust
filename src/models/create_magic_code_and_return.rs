@@ -12,4 +12,16 @@ pub struct CreateMagicCodeAndReturn {
     /// The invitation token to associate with this magic code.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub invitation_token: Option<crate::SecretString>,
+    /// The IP address of the user's request.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub ip_address: Option<String>,
+    /// The user agent string from the user's request.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub user_agent: Option<String>,
+    /// The ID of an existing Radar authentication attempt to associate with this request.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub radar_auth_attempt_id: Option<String>,
+    /// An optional Radar signals ID to correlate client-side signals with this request.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub signals_id: Option<String>,
 }
