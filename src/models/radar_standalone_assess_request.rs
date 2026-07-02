@@ -17,4 +17,7 @@ pub struct RadarStandaloneAssessRequest {
     pub auth_method: RadarStandaloneAssessRequestAuthMethod,
     /// The action being performed.
     pub action: RadarStandaloneAssessRequestAction,
+    /// An optional Radar signals ID for the request.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub signals_id: Option<String>,
 }
