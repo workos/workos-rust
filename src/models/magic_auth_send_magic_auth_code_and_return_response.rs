@@ -7,6 +7,22 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MagicAuthSendMagicAuthCodeAndReturnResponse {
+    /// Distinguishes the Magic Auth object.
+    pub object: String,
+    /// The unique ID of the Magic Auth code.
+    pub id: String,
+    /// The unique ID of the user.
+    pub user_id: String,
+    /// The email address of the user.
+    pub email: String,
+    /// The timestamp when the Magic Auth code expires.
+    pub expires_at: String,
+    /// An ISO 8601 timestamp.
+    pub created_at: String,
+    /// An ISO 8601 timestamp.
+    pub updated_at: String,
+    /// The code used to verify the Magic Auth code.
+    pub code: String,
     /// The ID of the Radar authentication attempt created for this request when Radar is enabled. Pass this value to the authenticate endpoint to associate the subsequent authentication with this Radar attempt.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub radar_auth_attempt_id: Option<String>,

@@ -1,7 +1,6 @@
 {
   "version": 2,
   "language": "rust",
-  "generatedAt": "2026-07-02T17:29:47.884Z",
   "files": [
     "src/enums/audit_log_configuration_log_stream_state.rs",
     "src/enums/audit_log_configuration_log_stream_type.rs",
