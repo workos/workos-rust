@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0](https://github.com/workos/workos-rust/compare/v2.4.0...v2.5.0) (2026-07-06)
+
+
+### Features
+
+* **generated:** UserManagement, Radar (batch f510ddfb) ([#124](https://github.com/workos/workos-rust/issues/124)) ([cd4adb6](https://github.com/workos/workos-rust/commit/cd4adb6870adec65c3f9ffdaf9427148409454a3))
+
 ## [2.4.0](https://github.com/workos/workos-rust/compare/v2.3.0...v2.4.0) (2026-07-02)
 
 * [#118](https://github.com/workos/workos-rust/pull/118) fix(generated): regenerate from spec
