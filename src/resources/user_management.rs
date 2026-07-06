@@ -151,6 +151,12 @@ pub struct AuthenticateWithPasswordParams {
     /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
+    /// An optional Radar signals ID to correlate client-side signals with this authentication attempt.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signals_id: Option<String>,
+    /// The ID of an existing Radar authentication attempt to associate with this authentication.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub radar_auth_attempt_id: Option<String>,
 }
 
 impl AuthenticateWithPasswordParams {
@@ -163,6 +169,8 @@ impl AuthenticateWithPasswordParams {
             ip_address: Default::default(),
             device_id: Default::default(),
             user_agent: Default::default(),
+            signals_id: Default::default(),
+            radar_auth_attempt_id: Default::default(),
         }
     }
 }
@@ -188,6 +196,9 @@ pub struct AuthenticateWithCodeParams {
     /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
+    /// An optional Radar signals ID to correlate client-side signals with this authentication attempt.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signals_id: Option<String>,
 }
 
 impl AuthenticateWithCodeParams {
@@ -200,6 +211,7 @@ impl AuthenticateWithCodeParams {
             ip_address: Default::default(),
             device_id: Default::default(),
             user_agent: Default::default(),
+            signals_id: Default::default(),
         }
     }
 }
@@ -251,6 +263,8 @@ pub struct AuthenticateWithMagicAuthParams {
     pub device_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub radar_auth_attempt_id: Option<String>,
 }
 
 impl AuthenticateWithMagicAuthParams {
@@ -263,6 +277,7 @@ impl AuthenticateWithMagicAuthParams {
             ip_address: Default::default(),
             device_id: Default::default(),
             user_agent: Default::default(),
+            radar_auth_attempt_id: Default::default(),
         }
     }
 }
@@ -378,6 +393,78 @@ impl AuthenticateWithDeviceCodeParams {
     pub fn new(device_code: impl Into<String>) -> Self {
         Self {
             device_code: device_code.into(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AuthenticateWithRadarEmailChallengeParams {
+    /// Required.
+    pub code: String,
+    /// Required.
+    pub radar_challenge_id: String,
+    /// Required.
+    pub pending_authentication_token: crate::SecretString,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ip_address: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub device_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_agent: Option<String>,
+}
+
+impl AuthenticateWithRadarEmailChallengeParams {
+    /// Construct a new `AuthenticateWithRadarEmailChallengeParams` with the required fields set.
+    pub fn new(
+        code: impl Into<String>,
+        radar_challenge_id: impl Into<String>,
+        pending_authentication_token: impl Into<crate::SecretString>,
+    ) -> Self {
+        Self {
+            code: code.into(),
+            radar_challenge_id: radar_challenge_id.into(),
+            pending_authentication_token: pending_authentication_token.into(),
+            ip_address: Default::default(),
+            device_id: Default::default(),
+            user_agent: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AuthenticateWithRadarSmsChallengeParams {
+    /// Required.
+    pub code: String,
+    /// Required.
+    pub verification_id: String,
+    /// Required.
+    pub phone_number: String,
+    /// Required.
+    pub pending_authentication_token: crate::SecretString,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ip_address: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub device_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_agent: Option<String>,
+}
+
+impl AuthenticateWithRadarSmsChallengeParams {
+    /// Construct a new `AuthenticateWithRadarSmsChallengeParams` with the required fields set.
+    pub fn new(
+        code: impl Into<String>,
+        verification_id: impl Into<String>,
+        phone_number: impl Into<String>,
+        pending_authentication_token: impl Into<crate::SecretString>,
+    ) -> Self {
+        Self {
+            code: code.into(),
+            verification_id: verification_id.into(),
+            phone_number: phone_number.into(),
+            pending_authentication_token: pending_authentication_token.into(),
             ip_address: Default::default(),
             device_id: Default::default(),
             user_agent: Default::default(),
@@ -1071,6 +1158,8 @@ impl<'a> UserManagementApi<'a> {
             "ip_address": params.ip_address,
             "device_id": params.device_id,
             "user_agent": params.user_agent,
+            "signals_id": params.signals_id,
+            "radar_auth_attempt_id": params.radar_auth_attempt_id,
         });
         if !self.client.client_id().is_empty() {
             body["client_id"] = serde_json::Value::String(self.client.client_id().to_string());
@@ -1111,6 +1200,7 @@ impl<'a> UserManagementApi<'a> {
             "ip_address": params.ip_address,
             "device_id": params.device_id,
             "user_agent": params.user_agent,
+            "signals_id": params.signals_id,
         });
         if !self.client.client_id().is_empty() {
             body["client_id"] = serde_json::Value::String(self.client.client_id().to_string());
@@ -1192,6 +1282,7 @@ impl<'a> UserManagementApi<'a> {
             "ip_address": params.ip_address,
             "device_id": params.device_id,
             "user_agent": params.user_agent,
+            "radar_auth_attempt_id": params.radar_auth_attempt_id,
         });
         if !self.client.client_id().is_empty() {
             body["client_id"] = serde_json::Value::String(self.client.client_id().to_string());
@@ -1354,6 +1445,89 @@ impl<'a> UserManagementApi<'a> {
         });
         if !self.client.client_id().is_empty() {
             body["client_id"] = serde_json::Value::String(self.client.client_id().to_string());
+        }
+        #[derive(Serialize)]
+        struct EmptyQuery {}
+        self.client
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
+            .await
+    }
+
+    /// Authenticate
+    ///
+    /// Authenticate a user with a specified [authentication method](https://workos.com/docs/reference/authkit/authentication).
+    pub async fn authenticate_with_radar_email_challenge(
+        &self,
+        params: AuthenticateWithRadarEmailChallengeParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_radar_email_challenge_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authenticate_with_radar_email_challenge`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_radar_email_challenge_with_options(
+        &self,
+        params: AuthenticateWithRadarEmailChallengeParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthenticateResponse, Error> {
+        let path = "/user_management/authenticate".to_string();
+        let method = http::Method::POST;
+        let mut body = serde_json::json!({
+            "grant_type": "urn:workos:oauth:grant-type:radar-email-challenge:code",
+            "code": params.code,
+            "radar_challenge_id": params.radar_challenge_id,
+            "pending_authentication_token": params.pending_authentication_token,
+            "ip_address": params.ip_address,
+            "device_id": params.device_id,
+            "user_agent": params.user_agent,
+        });
+        if !self.client.client_id().is_empty() {
+            body["client_id"] = serde_json::Value::String(self.client.client_id().to_string());
+        }
+        if !self.client.api_key().is_empty() {
+            body["client_secret"] = serde_json::Value::String(self.client.api_key().to_string());
+        }
+        #[derive(Serialize)]
+        struct EmptyQuery {}
+        self.client
+            .request_with_body_opts(method, &path, &EmptyQuery {}, Some(&body), options)
+            .await
+    }
+
+    /// Authenticate
+    ///
+    /// Authenticate a user with a specified [authentication method](https://workos.com/docs/reference/authkit/authentication).
+    pub async fn authenticate_with_radar_sms_challenge(
+        &self,
+        params: AuthenticateWithRadarSmsChallengeParams,
+    ) -> Result<AuthenticateResponse, Error> {
+        self.authenticate_with_radar_sms_challenge_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::authenticate_with_radar_sms_challenge`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn authenticate_with_radar_sms_challenge_with_options(
+        &self,
+        params: AuthenticateWithRadarSmsChallengeParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthenticateResponse, Error> {
+        let path = "/user_management/authenticate".to_string();
+        let method = http::Method::POST;
+        let mut body = serde_json::json!({
+            "grant_type": "urn:workos:oauth:grant-type:radar-sms-challenge:code",
+            "code": params.code,
+            "verification_id": params.verification_id,
+            "phone_number": params.phone_number,
+            "pending_authentication_token": params.pending_authentication_token,
+            "ip_address": params.ip_address,
+            "device_id": params.device_id,
+            "user_agent": params.user_agent,
+        });
+        if !self.client.client_id().is_empty() {
+            body["client_id"] = serde_json::Value::String(self.client.client_id().to_string());
+        }
+        if !self.client.api_key().is_empty() {
+            body["client_secret"] = serde_json::Value::String(self.client.api_key().to_string());
         }
         #[derive(Serialize)]
         struct EmptyQuery {}

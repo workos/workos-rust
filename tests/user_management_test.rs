@@ -1651,6 +1651,421 @@ async fn user_management_authenticate_with_device_code_unprocessable() {
 }
 
 #[tokio::test]
+async fn user_management_authenticate_with_radar_email_challenge_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .authenticate_with_radar_email_challenge(
+            workos::user_management::AuthenticateWithRadarEmailChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_radar_challenge_id".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_email_challenge_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_email_challenge(
+            workos::user_management::AuthenticateWithRadarEmailChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_radar_challenge_id".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_email_challenge_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_email_challenge(
+            workos::user_management::AuthenticateWithRadarEmailChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_radar_challenge_id".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_email_challenge_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_email_challenge(
+            workos::user_management::AuthenticateWithRadarEmailChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_radar_challenge_id".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_email_challenge_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_email_challenge(
+            workos::user_management::AuthenticateWithRadarEmailChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_radar_challenge_id".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_email_challenge_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_email_challenge(
+            workos::user_management::AuthenticateWithRadarEmailChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_radar_challenge_id".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_email_challenge_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_email_challenge(
+            workos::user_management::AuthenticateWithRadarEmailChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_radar_challenge_id".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_sms_challenge_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authenticate_response.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .authenticate_with_radar_sms_challenge(
+            workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_verification_id".to_string(),
+                "stub_phone_number".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_sms_challenge_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_sms_challenge(
+            workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_verification_id".to_string(),
+                "stub_phone_number".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_sms_challenge_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_sms_challenge(
+            workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_verification_id".to_string(),
+                "stub_phone_number".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_sms_challenge_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_sms_challenge(
+            workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_verification_id".to_string(),
+                "stub_phone_number".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_sms_challenge_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_sms_challenge(
+            workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_verification_id".to_string(),
+                "stub_phone_number".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_sms_challenge_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_sms_challenge(
+            workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_verification_id".to_string(),
+                "stub_phone_number".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn user_management_authenticate_with_radar_sms_challenge_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authenticate"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .authenticate_with_radar_sms_challenge(
+            workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
+                "stub_code".to_string(),
+                "stub_verification_id".to_string(),
+                "stub_phone_number".to_string(),
+                "stub_pending_authentication_token".to_string(),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn user_management_get_authorization_url_round_trip() {
     let server = MockServer::start().await;
     let client = common::test_client(&server).await;
@@ -3275,7 +3690,10 @@ async fn user_management_create_user_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/users"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/user_create_response.json")),
+        )
         .expect(1)
         .mount(&server)
         .await;
@@ -6468,7 +6886,9 @@ async fn user_management_create_magic_auth_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/user_management/magic_auth"))
-        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/magic_auth_send_magic_auth_code_and_return_response.json"
+        )))
         .expect(1)
         .mount(&server)
         .await;

@@ -7,6 +7,42 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserCreateResponse {
+    /// Distinguishes the user object.
+    pub object: String,
+    /// The unique ID of the user.
+    pub id: String,
+    /// The first name of the user.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub first_name: Option<String>,
+    /// The last name of the user.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub last_name: Option<String>,
+    /// The user's full name.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub name: Option<String>,
+    /// A URL reference to an image representing the user.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub profile_picture_url: Option<String>,
+    /// The email address of the user.
+    pub email: String,
+    /// Whether the user's email has been verified.
+    pub email_verified: bool,
+    /// The external ID of the user.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub external_id: Option<String>,
+    /// Object containing metadata key/value pairs associated with the user.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub metadata: Option<std::collections::HashMap<String, String>>,
+    /// The timestamp when the user last signed in.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub last_sign_in_at: Option<String>,
+    /// The user's preferred locale.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub locale: Option<String>,
+    /// An ISO 8601 timestamp.
+    pub created_at: String,
+    /// An ISO 8601 timestamp.
+    pub updated_at: String,
     /// The ID of the Radar authentication attempt created for this request when Radar is enabled. Pass this value to the authenticate endpoint to associate the subsequent authentication with this Radar attempt.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub radar_auth_attempt_id: Option<String>,
