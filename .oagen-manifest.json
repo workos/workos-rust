@@ -2075,6 +2075,14 @@
     "POST /user_management/radar_challenges": {
       "sdkMethod": "create_radar_challenge",
       "service": "user_management"
+    },
+    "GET /user_management/radar_challenges/{id}": {
+      "sdkMethod": "get_radar_challenge",
+      "service": "user_management"
+    },
+    "DELETE /user_management/redirect_uris/{id}": {
+      "sdkMethod": "delete_redirect_uris",
+      "service": "user_management"
     }
   }
 }
