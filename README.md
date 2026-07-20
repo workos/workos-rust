@@ -105,26 +105,27 @@ The original wire string is preserved through round-trips: serializing an `Unkno
 
 ## Per-Request Options
 
-Each generated method has a `*_with_options` companion that takes a `RequestOptions`. Use it to pass an idempotency key, additional headers, or a per-request retry policy:
+Each generated method has a `*_with_options` companion that takes a `RequestOptions`. Use it to pass additional headers, a per-request retry policy, or — on endpoints that support it — an idempotency key:
 
 ```rust
-use workos::{RequestOptions, organizations::CreateOrganizationParams};
+use workos::{RequestOptions, audit_logs::CreateEventParams};
 
-let opts = RequestOptions::new().idempotency_key("ik_create_acme_42");
+let opts = RequestOptions::new().idempotency_key("51343ada-3f0f-4372-9d24-4d0b0dfba384");
 
-let org = client
-    .organizations()
-    .create_organization_with_options(
-        CreateOrganizationParams::new(workos::OrganizationInput {
-            name: "Acme".into(),
-            ..Default::default()
+let response = client
+    .audit_logs()
+    .create_event_with_options(
+        CreateEventParams::new(workos::AuditLogEventIngestion {
+            organization_id: "org_01EHZNVPK3SFK441A1RGBFSHRT".into(),
+            event,
         }),
         Some(&opts),
     )
     .await?;
 ```
 
-Replaying a mutating request with the same idempotency key is safe; WorkOS recognises the key on the server side.
+> [!NOTE]
+> The WorkOS API currently honors `Idempotency-Key` only on the [Create Audit Log Event](https://workos.com/docs/reference/audit-logs/event) endpoint (`POST /audit_logs/events`). Other endpoints accept the header but do not deduplicate requests, so retrying any other mutation with the same key can still create a duplicate.
 
 ### Request strategies
 
@@ -136,8 +137,9 @@ use workos::{RequestOptions, RequestStrategy};
 // Send exactly once, regardless of `max_retries`:
 let opts = RequestOptions::new().strategy(RequestStrategy::Once);
 
-// Make a mutation idempotent and retry-eligible (the key is also sent
-// as the `Idempotency-Key` header):
+// Make a request retry-eligible by attaching an idempotency key (the key
+// is also sent as the `Idempotency-Key` header; the server only
+// deduplicates on audit log event creation — see the note above):
 let opts = RequestOptions::new()
     .strategy(RequestStrategy::Idempotent("ik_42".into()));
 
@@ -189,7 +191,7 @@ let token: &str = session.access_token.expose();
 
 The client retries `429` and `5xx` responses (plus retryable transport errors) up to `max_retries` times — default `3` — with exponential backoff and equal-jitter. The `Retry-After` header is honored when present and supersedes the computed backoff.
 
-To preserve at-most-once semantics for state-changing calls, only safe HTTP methods (`GET`/`HEAD`/`OPTIONS`) and requests carrying an `Idempotency-Key` are auto-retried. POST/PUT/PATCH/DELETE without an idempotency key are sent exactly once.
+To preserve at-most-once semantics for state-changing calls, only safe HTTP methods (`GET`/`HEAD`/`OPTIONS`) and requests carrying an `Idempotency-Key` are auto-retried. POST/PUT/PATCH/DELETE without an idempotency key are sent exactly once. Keep in mind that the server only deduplicates on audit log event creation, so a retried mutation on any other endpoint may be applied more than once even when a key is attached.
 
 ```rust
 // Disable retries entirely for this client:
@@ -199,7 +201,7 @@ let client = workos::Client::builder()
     .build();
 ```
 
-Pair mutations with an idempotency key (or `RequestStrategy::Idempotent`) so a redelivered request is processed exactly once on the server.
+When creating audit log events, pair the request with an idempotency key (or `RequestStrategy::Idempotent`) so a redelivered request is processed exactly once on the server. For other mutations, prefer `RequestStrategy::Once` (the default for unsafe methods) and handle retries at the application level, since the server does not deduplicate them.
 
 ## Auto-Paging
 
