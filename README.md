@@ -6,7 +6,7 @@ The WorkOS Rust SDK provides async access to the WorkOS API from Rust applicatio
 
 - [WorkOS API Reference](https://workos.com/docs/reference)
 - [Crate docs on docs.rs](https://docs.rs/workos)
-- [Changelog](./CHANGELOG.md)
+- [Changelog](https://github.com/workos/workos-rust/blob/main/CHANGELOG.md)
 
 ## Installation
 
@@ -16,7 +16,7 @@ Requires Rust `1.88+` (edition 2024). The repository pins this via `rust-toolcha
 cargo add workos
 ```
 
-By default, the crate enables `reqwest` with `rustls-tls`. You can switch TLS backends or provide a custom HTTP transport; see [HTTP Transport](#http-transport).
+By default, the crate enables the bundled `reqwest` transport with `rustls-tls`. You can switch TLS backends or provide a custom HTTP transport; see [HTTP Transport](#http-transport).
 
 ## Quick Start
 
@@ -79,7 +79,7 @@ client.webhooks();
 client.audit_logs();
 ```
 
-List endpoints return `Page<T>` values with `data` and `list_metadata` cursors. The crate also exports `auto_paginate` for stream-based iteration.
+List endpoints return list-response types with a `data` vector and `list_metadata` cursors (a handful of endpoints return the generic `Page<T>`). The crate also exports `auto_paginate` for stream-based iteration.
 
 Every API call returns `Result<_, workos::Error>`. The error type includes API errors, transport failures, decode errors, configuration errors, and helper-specific failures. It also provides predicates such as `is_unauthorized()`, `is_not_found()`, `is_rate_limited()`, and `is_server_error()`.
 
@@ -87,12 +87,12 @@ See the [crate docs](https://docs.rs/workos) for the full resource list, request
 
 ### Forward-compatible enums
 
-Generated enums are `#[non_exhaustive]` and include an `Unknown(String)` variant for wire values the SDK doesn't recognize yet — WorkOS can add new enum values server-side without breaking deserialization for older SDK builds. Match defensively:
+Generated enums are `#[non_exhaustive]` and include a catch-all string variant — `Unknown(String)`, or `Unrecognized(String)` on the few enums where the API already defines a literal `unknown` value — for wire values the SDK doesn't recognize yet. WorkOS can add new enum values server-side without breaking deserialization for older SDK builds. Match defensively:
 
 ```rust
 use workos::ConnectionType;
 
-match connection.r#type {
+match connection.connection_type {
     ConnectionType::GoogleOAuth => { /* ... */ }
     ConnectionType::Unknown(raw) => {
         log::warn!("unknown connection type: {raw}");
@@ -179,7 +179,7 @@ match client.organizations().get_organization("org_missing").await {
 
 ## Sensitive Fields
 
-Fields that hold credentials or tokens — `password`, `client_secret`, `access_token`, `refresh_token`, `token`, `secret`, etc. — are typed as `workos::SecretString`. Their `Debug` representation prints `"<redacted>"`, so secrets don't leak through logs, panic messages, or error reports. Read the underlying value with `.expose()` when you genuinely need it:
+Fields that hold credentials or tokens — `password`, `client_secret`, `access_token`, `refresh_token`, `token`, `secret`, etc. — are typed as `workos::SecretString`. Their `Debug` representation prints `SecretString("<redacted>")` (and `Display` prints `<redacted>`), so secrets don't leak through logs, panic messages, or error reports. Read the underlying value with `.expose()` when you genuinely need it:
 
 ```rust
 let token: &str = session.access_token.expose();
@@ -205,7 +205,7 @@ When creating audit log events, pair the request with an idempotency key (or `Re
 
 ## Auto-Paging
 
-Every list endpoint generates a `*_auto_paging` companion that returns a `futures_util::Stream`, advancing the `after` cursor under the hood:
+Every cursor-paginated list endpoint generates a `*_auto_paging` companion that returns a `futures_util::Stream`, advancing the `after` cursor under the hood (non-paginated list endpoints that return a plain array have no companion):
 
 ```rust
 use futures_util::TryStreamExt;
@@ -233,11 +233,11 @@ The SDK includes hand-maintained helpers for:
 
 ## HTTP Transport
 
-The default HTTP transport is `reqwest`, gated behind the default `reqwest` feature. To use another client, share an existing request pipeline, or support environments such as WASM, disable default features and provide a `workos::transport::HttpTransport` implementation:
+The default HTTP transport is `reqwest`, which is pulled in by the `rustls-tls` (default) or `native-tls` features. To use another client, share an existing request pipeline, or support environments such as WASM, disable default features and provide a `workos::transport::HttpTransport` implementation:
 
 ```toml
 # Cargo.toml
-workos = { version = "1", default-features = false }
+workos = { version = "2", default-features = false }
 ```
 
 ```rust
@@ -251,11 +251,10 @@ let client = workos::Client::builder()
 
 Supported crate features:
 
-| Feature      | Default | Description                                           |
-| ------------ | ------- | ----------------------------------------------------- |
-| `reqwest`    | yes     | Enables the bundled `reqwest` transport.              |
-| `rustls-tls` | yes     | Uses `rustls` for TLS through `reqwest`.              |
-| `native-tls` | no      | Uses the platform native TLS stack through `reqwest`. |
+| Feature      | Default | Description                                                                          |
+| ------------ | ------- | ------------------------------------------------------------------------------------ |
+| `rustls-tls` | yes     | Enables the bundled `reqwest` transport using `rustls` for TLS.                      |
+| `native-tls` | no      | Enables the bundled `reqwest` transport using the platform native TLS stack.         |
 
 ## More Information
 

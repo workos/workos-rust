@@ -25,8 +25,9 @@ pub enum RequestStrategy {
     /// Send the request exactly once. Never auto-retry.
     Once,
     /// Send with the given idempotency key. Auto-retry up to the client's
-    /// configured `max_retries`. WorkOS uses the key to deduplicate retried
-    /// mutations server-side.
+    /// configured `max_retries`. The WorkOS API currently deduplicates on the
+    /// key only for audit log event creation (`POST /audit_logs/events`);
+    /// other endpoints accept the header but do not deduplicate.
     Idempotent(String),
     /// Retry up to `max_attempts` total times on 429/5xx with no inter-attempt
     /// sleep. Only safe for idempotent operations.
@@ -95,10 +96,12 @@ impl RequestOptions {
         Self::default()
     }
 
-    /// Set the `Idempotency-Key` header for this request. Pass the same key
-    /// when retrying a mutating request to make it safe to repeat — WorkOS
-    /// recognises the key on the server side and returns the cached response
-    /// for previously-seen calls instead of re-executing the side effect.
+    /// Set the `Idempotency-Key` header for this request. The WorkOS API
+    /// currently honors the key only on audit log event creation
+    /// (`POST /audit_logs/events`), where a retried request with the same key
+    /// is deduplicated server-side. Other endpoints accept the header but do
+    /// not deduplicate, so a retried mutation elsewhere can still create a
+    /// duplicate.
     pub fn idempotency_key(mut self, key: impl Into<String>) -> Self {
         self.idempotency_key = Some(key.into());
         self
@@ -569,13 +572,15 @@ impl ClientBuilder {
         self
     }
 
-    /// Build the client. Without an explicit [`ClientBuilder::transport`] the
-    /// `reqwest` feature must be enabled (it is by default).
+    /// Build the client. Without an explicit [`ClientBuilder::transport`] one
+    /// of the bundled transport features (`rustls-tls`, enabled by default, or
+    /// `native-tls`) must be enabled.
     ///
-    /// Invalid API keys / user-agent strings (those that cannot be turned into
-    /// an HTTP header value — e.g. they contain control bytes) are silently
-    /// dropped. Use [`Self::try_build`] when validating user-supplied values
-    /// is important.
+    /// # Panics
+    ///
+    /// Panics if the API key or user-agent string cannot be turned into an
+    /// HTTP header value (e.g. it contains control bytes). Use
+    /// [`Self::try_build`] to surface those failures as errors instead.
     pub fn build(self) -> Client {
         // Re-use the validating path and unwrap unconditionally; previously
         // we accepted invalid header bytes silently and produced a client

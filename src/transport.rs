@@ -1,7 +1,8 @@
 // @oagen-ignore-file
 //! Pluggable HTTP transport.
 //!
-//! The SDK ships with a default `reqwest` impl behind the `reqwest` feature,
+//! The SDK ships with a default `reqwest` impl behind the `rustls-tls` and
+//! `native-tls` features,
 //! but any [`HttpTransport`] can be supplied to [`crate::ClientBuilder::transport`]
 //! — useful for WASM environments, custom retry/observability layers, or to
 //! share a single connection pool with the rest of your application.
