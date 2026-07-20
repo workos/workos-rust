@@ -1,10 +1,10 @@
 {
+  "object": "audit_log_schema",
+  "version": 1,
   "targets": [
     {
       "type": "invoice"
     }
   ],
-  "object": "audit_log_schema",
-  "version": 1,
   "created_at": "2026-01-15T12:00:00.000Z"
 }
