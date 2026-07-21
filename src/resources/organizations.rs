@@ -87,6 +87,38 @@ impl UpdateOrganizationParams {
     }
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct ListAuthorizedApplicationsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListAuthorizedApplicationsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
 impl<'a> OrganizationsApi<'a> {
     /// List Organizations
     ///
@@ -275,5 +307,63 @@ impl<'a> OrganizationsApi<'a> {
         self.client
             .request_with_query_opts(method, &path, &(), options)
             .await
+    }
+
+    /// List authorized applications
+    ///
+    /// Get a list of all Connect applications that users in the organization have authorized.
+    pub async fn list_authorized_applications(
+        &self,
+        organization_id: &str,
+        params: ListAuthorizedApplicationsParams,
+    ) -> Result<OrganizationAuthorizedConnectApplicationList, Error> {
+        self.list_authorized_applications_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_authorized_applications`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_authorized_applications_with_options(
+        &self,
+        organization_id: &str,
+        params: ListAuthorizedApplicationsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<OrganizationAuthorizedConnectApplicationList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let path = format!("/organizations/{organization_id}/authorized_applications");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `OrganizationAuthorizedConnectApplicationListData`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<OrganizationAuthorizedConnectApplicationListData> = self
+    ///     .list_authorized_applications_auto_paging(organization_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_authorized_applications_auto_paging(
+        &self,
+        organization_id: impl Into<String>,
+        params: ListAuthorizedApplicationsParams,
+    ) -> impl futures_util::Stream<
+        Item = Result<OrganizationAuthorizedConnectApplicationListData, Error>,
+    > + '_ {
+        let organization_id: String = organization_id.into();
+        crate::pagination::auto_paginate_pages(move |after| {
+            let organization_id = organization_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self
+                    .list_authorized_applications(&organization_id, params)
+                    .await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
     }
 }

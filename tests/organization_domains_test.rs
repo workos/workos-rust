@@ -208,9 +208,10 @@ async fn organization_domains_get_organization_domain_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/organization_domains/test_id"))
-        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
-            "fixtures/organization_domain_stand_alone.json"
-        )))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/organization_domain.json")),
+        )
         .expect(1)
         .mount(&server)
         .await;
@@ -480,9 +481,10 @@ async fn organization_domains_verify_organization_domain_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/organization_domains/test_id/verify"))
-        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
-            "fixtures/organization_domain_stand_alone.json"
-        )))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/organization_domain.json")),
+        )
         .expect(1)
         .mount(&server)
         .await;

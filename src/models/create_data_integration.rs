@@ -18,9 +18,15 @@ pub struct CreateDataIntegration {
     /// The OAuth scopes to request for the Data Integration. Defaults to the provider's configured scopes when omitted.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub scopes: Option<Vec<String>>,
-    /// The credentials to configure for the Data Integration. Required for both built-in and custom providers.
+    /// How accounts authenticate with the provider. Defaults to `["oauth"]`. Use `["api_key"]` to declare an API key integration; `credentials` is then not required and keys are supplied per-tenant (optionally via `api_key` on this request).
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub credentials: Option<DataIntegrationCredentialsDto>,
+    pub auth_methods: Option<Vec<CreateDataIntegrationAuthMethods>>,
+    /// The OAuth credentials to configure for the Data Integration. Required for OAuth integrations; omit when `auth_methods` is `["api_key"]`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub credentials: Option<DataIntegrationCredentialsInput>,
+    /// An optional API key to install for the first tenant on an `api_key` integration. Omit to declare a keyless integration; tenants can be added later via the per-installation API key path.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub api_key: Option<ApiKeyInstallation>,
     /// The OAuth definition for a custom provider. Supply this to define a custom provider; omit it to create an integration for a built-in provider.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub custom_provider: Option<CustomProviderDefinition>,

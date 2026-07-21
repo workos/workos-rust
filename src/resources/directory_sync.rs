@@ -121,6 +121,12 @@ pub struct ListUsersParams {
     /// Unique identifier of the WorkOS Directory Group. This value can be obtained from the WorkOS API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub group: Option<String>,
+    /// Filter Directory Users by the identity provider's unique identifier (`idp_id`). Requires the `directory` parameter to also be provided.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub idp_id: Option<String>,
+    /// Filter Directory Users by their primary email address. Requires the `directory` parameter to also be provided.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
 }
 
 impl Default for ListUsersParams {
@@ -133,6 +139,8 @@ impl Default for ListUsersParams {
             order: Some(PaginationOrder::Desc),
             directory: Default::default(),
             group: Default::default(),
+            idp_id: Default::default(),
+            email: Default::default(),
         }
     }
 }

@@ -9,4 +9,7 @@ use serde::{Deserialize, Serialize};
 pub struct ApiKeyValidationResponse {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub api_key: Option<ApiKey>,
+    /// The ID of the agent registration this API Key was issued for. Present only when the API Key is assigned to an agent registration.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub agent_registration_id: Option<String>,
 }

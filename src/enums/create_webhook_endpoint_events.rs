@@ -11,7 +11,10 @@ pub enum CreateWebhookEndpointEvents {
     AgentRegistrationClaimAttemptCreated,
     AgentRegistrationClaimCompleted,
     AgentRegistrationCredentialIssued,
+    AgentRegistrationDeleted,
+    AgentRegistrationExpired,
     AgentRegistrationOrganizationSwitched,
+    AgentRegistrationRevoked,
     AuthenticationEmailVerificationSucceeded,
     AuthenticationMagicAuthFailed,
     AuthenticationMagicAuthSucceeded,
@@ -26,6 +29,7 @@ pub enum CreateWebhookEndpointEvents {
     AuthenticationSSOStarted,
     AuthenticationSSOSucceeded,
     AuthenticationSSOTimedOut,
+    RadarChallengeCreated,
     AuthenticationRadarRiskDetected,
     AuthenticationReauthenticationSucceeded,
     ApiKeyCreated,
@@ -114,9 +118,12 @@ impl CreateWebhookEndpointEvents {
             }
             Self::AgentRegistrationClaimCompleted => "agent.registration.claim.completed",
             Self::AgentRegistrationCredentialIssued => "agent.registration.credential.issued",
+            Self::AgentRegistrationDeleted => "agent.registration.deleted",
+            Self::AgentRegistrationExpired => "agent.registration.expired",
             Self::AgentRegistrationOrganizationSwitched => {
                 "agent.registration.organization.switched"
             }
+            Self::AgentRegistrationRevoked => "agent.registration.revoked",
             Self::AuthenticationEmailVerificationSucceeded => {
                 "authentication.email_verification_succeeded"
             }
@@ -133,6 +140,7 @@ impl CreateWebhookEndpointEvents {
             Self::AuthenticationSSOStarted => "authentication.sso_started",
             Self::AuthenticationSSOSucceeded => "authentication.sso_succeeded",
             Self::AuthenticationSSOTimedOut => "authentication.sso_timed_out",
+            Self::RadarChallengeCreated => "radar.challenge_created",
             Self::AuthenticationRadarRiskDetected => "authentication.radar_risk_detected",
             Self::AuthenticationReauthenticationSucceeded => {
                 "authentication.reauthentication_succeeded"
@@ -238,9 +246,12 @@ impl FromStr for CreateWebhookEndpointEvents {
             }
             "agent.registration.claim.completed" => Self::AgentRegistrationClaimCompleted,
             "agent.registration.credential.issued" => Self::AgentRegistrationCredentialIssued,
+            "agent.registration.deleted" => Self::AgentRegistrationDeleted,
+            "agent.registration.expired" => Self::AgentRegistrationExpired,
             "agent.registration.organization.switched" => {
                 Self::AgentRegistrationOrganizationSwitched
             }
+            "agent.registration.revoked" => Self::AgentRegistrationRevoked,
             "authentication.email_verification_succeeded" => {
                 Self::AuthenticationEmailVerificationSucceeded
             }
@@ -257,6 +268,7 @@ impl FromStr for CreateWebhookEndpointEvents {
             "authentication.sso_started" => Self::AuthenticationSSOStarted,
             "authentication.sso_succeeded" => Self::AuthenticationSSOSucceeded,
             "authentication.sso_timed_out" => Self::AuthenticationSSOTimedOut,
+            "radar.challenge_created" => Self::RadarChallengeCreated,
             "authentication.radar_risk_detected" => Self::AuthenticationRadarRiskDetected,
             "authentication.reauthentication_succeeded" => {
                 Self::AuthenticationReauthenticationSucceeded

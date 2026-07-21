@@ -2,6 +2,7 @@
 
 use crate::client::Client;
 use crate::resources::AdminPortalApi;
+use crate::resources::AgentsApi;
 use crate::resources::ApiKeysApi;
 use crate::resources::AuditLogsApi;
 use crate::resources::AuthorizationApi;
@@ -28,6 +29,11 @@ impl Client {
     /// Access the `admin_portal` resource.
     pub fn admin_portal(&self) -> AdminPortalApi<'_> {
         AdminPortalApi { client: self }
+    }
+
+    /// Access the `agents` resource.
+    pub fn agents(&self) -> AgentsApi<'_> {
+        AgentsApi { client: self }
     }
 
     /// Access the `api_keys` resource.

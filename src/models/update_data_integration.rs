@@ -16,9 +16,12 @@ pub struct UpdateDataIntegration {
     /// The OAuth scopes to request for the Data Integration. Pass `null` to reset to the provider's configured scopes.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub scopes: Option<Vec<String>>,
-    /// New credentials for the Data Integration. When provided, rotates the stored client secret.
+    /// New OAuth credentials for the Data Integration. When provided, rotates the stored client secret. Mutually exclusive with `api_key`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub credentials: Option<DataIntegrationCredentialsDto>,
+    pub credentials: Option<DataIntegrationCredentialsInput>,
+    /// An API key to install or rotate for a tenant on an `api_key` integration. Upserts the tenant installation identified by `user_id` (and optional `organization_id`).
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub api_key: Option<ApiKeyInstallation>,
     /// Updates to a custom provider's OAuth definition. Only valid for custom-provider integrations.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub custom_provider: Option<UpdateCustomProviderDefinition>,

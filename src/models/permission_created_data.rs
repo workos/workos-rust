@@ -21,6 +21,8 @@ pub struct PermissionCreatedData {
     pub description: Option<String>,
     /// Whether the permission is a system permission.
     pub system: bool,
+    /// The slug of the resource type the permission applies to.
+    pub resource_type_slug: String,
     /// An ISO 8601 timestamp.
     pub created_at: String,
     /// An ISO 8601 timestamp.

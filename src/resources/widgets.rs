@@ -32,7 +32,7 @@ impl CreateTokenParams {
 impl<'a> WidgetsApi<'a> {
     /// Generate a widget token
     ///
-    /// Generate a widget token scoped to an organization and user with the specified scopes.
+    /// Generate a widget token for a user, optionally scoped to an organization. When an organization is specified, org-scoped widgets are enabled; omitting it issues a user-only token for widgets like `UserProfile` and `UserSecurity`.
     pub async fn create_token(
         &self,
         params: CreateTokenParams,
