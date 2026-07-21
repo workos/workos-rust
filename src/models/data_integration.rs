@@ -27,8 +27,13 @@ pub struct DataIntegration {
     pub scopes: Option<Vec<String>>,
     /// The OAuth redirect URI to register with the provider when configuring the custom application.
     pub redirect_uri: String,
+    /// How accounts authenticate with the provider for this Data Integration.
+    pub auth_methods: Vec<DataIntegrationAuthMethods>,
     /// The credentials configured for the Data Integration.
     pub credentials: DataIntegrationCredential,
+    /// The tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub installation: Option<DataIntegrationInstallation>,
     /// The OAuth definition when this is a custom provider; `null` for built-in providers.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub custom_provider: Option<DataIntegrationCustomProvider>,

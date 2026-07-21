@@ -11,10 +11,19 @@
     "read:org"
   ],
   "redirect_uri": "https://api.workos.com/data-integrations/github/dik_01EHZNVPK3SFK441A1RGBFSHRT/callback",
+  "auth_methods": [
+    "oauth"
+  ],
   "credentials": {
     "type": "custom",
     "client_id": "Iv1.abc123",
     "redacted_client_secret": "6789"
+  },
+  "installation": {
+    "id": "data_installation_01EHZNVPK3SFK441A1RGBFSHRT",
+    "user_id": "user_01EHZNVPK3SFK441A1RGBFSHRT",
+    "organization_id": "test_organization_id",
+    "api_key_last_4": "cdef"
   },
   "custom_provider": {
     "name": "My OAuth App",

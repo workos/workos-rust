@@ -57,10 +57,7 @@ impl<'a> OrganizationDomainsApi<'a> {
     /// Get an Organization Domain
     ///
     /// Get the details of an existing organization domain.
-    pub async fn get_organization_domain(
-        &self,
-        id: &str,
-    ) -> Result<OrganizationDomainStandAlone, Error> {
+    pub async fn get_organization_domain(&self, id: &str) -> Result<OrganizationDomain, Error> {
         self.get_organization_domain_with_options(id, None).await
     }
 
@@ -69,7 +66,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<OrganizationDomainStandAlone, Error> {
+    ) -> Result<OrganizationDomain, Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/organization_domains/{id}");
         let method = http::Method::GET;
@@ -102,10 +99,7 @@ impl<'a> OrganizationDomainsApi<'a> {
     /// Verify an Organization Domain
     ///
     /// Initiates verification process for an Organization Domain.
-    pub async fn verify_organization_domain(
-        &self,
-        id: &str,
-    ) -> Result<OrganizationDomainStandAlone, Error> {
+    pub async fn verify_organization_domain(&self, id: &str) -> Result<OrganizationDomain, Error> {
         self.verify_organization_domain_with_options(id, None).await
     }
 
@@ -114,7 +108,7 @@ impl<'a> OrganizationDomainsApi<'a> {
         &self,
         id: &str,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<OrganizationDomainStandAlone, Error> {
+    ) -> Result<OrganizationDomain, Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/organization_domains/{id}/verify");
         let method = http::Method::POST;

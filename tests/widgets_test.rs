@@ -22,8 +22,7 @@ async fn widgets_create_token_round_trip() {
     let _ = client
         .widgets()
         .create_token(workos::widgets::CreateTokenParams::new(
-            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
-                .expect("parse fixture for WidgetSessionToken"),
+            serde_json::from_str("{}").expect("parse stub for WidgetSessionToken"),
         ))
         .await;
 }
@@ -42,8 +41,7 @@ async fn widgets_create_token_unauthorized() {
     let err = client
         .widgets()
         .create_token(workos::widgets::CreateTokenParams::new(
-            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
-                .expect("parse fixture for WidgetSessionToken"),
+            serde_json::from_str("{}").expect("parse stub for WidgetSessionToken"),
         ))
         .await
         .expect_err("expected error");
@@ -68,8 +66,7 @@ async fn widgets_create_token_not_found() {
     let err = client
         .widgets()
         .create_token(workos::widgets::CreateTokenParams::new(
-            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
-                .expect("parse fixture for WidgetSessionToken"),
+            serde_json::from_str("{}").expect("parse stub for WidgetSessionToken"),
         ))
         .await
         .expect_err("expected error");
@@ -96,8 +93,7 @@ async fn widgets_create_token_rate_limited() {
     let err = client
         .widgets()
         .create_token(workos::widgets::CreateTokenParams::new(
-            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
-                .expect("parse fixture for WidgetSessionToken"),
+            serde_json::from_str("{}").expect("parse stub for WidgetSessionToken"),
         ))
         .await
         .expect_err("expected error");
@@ -123,8 +119,7 @@ async fn widgets_create_token_server_error() {
     let err = client
         .widgets()
         .create_token(workos::widgets::CreateTokenParams::new(
-            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
-                .expect("parse fixture for WidgetSessionToken"),
+            serde_json::from_str("{}").expect("parse stub for WidgetSessionToken"),
         ))
         .await
         .expect_err("expected error");
@@ -150,8 +145,7 @@ async fn widgets_create_token_bad_request() {
     let err = client
         .widgets()
         .create_token(workos::widgets::CreateTokenParams::new(
-            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
-                .expect("parse fixture for WidgetSessionToken"),
+            serde_json::from_str("{}").expect("parse stub for WidgetSessionToken"),
         ))
         .await
         .expect_err("expected error");
@@ -177,8 +171,7 @@ async fn widgets_create_token_unprocessable() {
     let err = client
         .widgets()
         .create_token(workos::widgets::CreateTokenParams::new(
-            serde_json::from_str(include_str!("fixtures/widget_session_token.json"))
-                .expect("parse fixture for WidgetSessionToken"),
+            serde_json::from_str("{}").expect("parse stub for WidgetSessionToken"),
         ))
         .await
         .expect_err("expected error");

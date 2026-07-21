@@ -1817,7 +1817,7 @@ async fn pipes_create_user_connected_account_round_trip() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await;
@@ -1842,7 +1842,7 @@ async fn pipes_create_user_connected_account_unauthorized() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -1873,7 +1873,7 @@ async fn pipes_create_user_connected_account_not_found() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -1906,7 +1906,7 @@ async fn pipes_create_user_connected_account_rate_limited() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -1938,7 +1938,7 @@ async fn pipes_create_user_connected_account_server_error() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -1970,7 +1970,7 @@ async fn pipes_create_user_connected_account_bad_request() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -2002,7 +2002,7 @@ async fn pipes_create_user_connected_account_unprocessable() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -2035,7 +2035,7 @@ async fn pipes_update_user_connected_account_round_trip() {
             "test_id",
             "test_id",
             workos::pipes::UpdateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await;
@@ -2060,7 +2060,7 @@ async fn pipes_update_user_connected_account_unauthorized() {
             "test_id",
             "test_id",
             workos::pipes::UpdateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -2091,7 +2091,7 @@ async fn pipes_update_user_connected_account_not_found() {
             "test_id",
             "test_id",
             workos::pipes::UpdateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -2124,7 +2124,7 @@ async fn pipes_update_user_connected_account_rate_limited() {
             "test_id",
             "test_id",
             workos::pipes::UpdateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -2156,7 +2156,7 @@ async fn pipes_update_user_connected_account_server_error() {
             "test_id",
             "test_id",
             workos::pipes::UpdateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -2188,7 +2188,7 @@ async fn pipes_update_user_connected_account_bad_request() {
             "test_id",
             "test_id",
             workos::pipes::UpdateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await
@@ -2220,7 +2220,7 @@ async fn pipes_update_user_connected_account_unprocessable() {
             "test_id",
             "test_id",
             workos::pipes::UpdateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountDto"),
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
             ),
         )
         .await

@@ -25,9 +25,9 @@ pub struct Connection {
     pub status: ConnectionStatus,
     /// List of Organization Domains.
     pub domains: Vec<ConnectionDomain>,
-    /// Configuration options for SAML connections. Only present for SAML connection types.
+    /// The immutable callback endpoint for this Connection. For SAML connections this is the ACS URL; for OIDC connections this is the redirect URI.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub options: Option<ConnectionOption>,
+    pub callback_endpoint: Option<String>,
     /// An ISO 8601 timestamp.
     pub created_at: String,
     /// An ISO 8601 timestamp.

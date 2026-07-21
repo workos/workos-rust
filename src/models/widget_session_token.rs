@@ -7,8 +7,9 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WidgetSessionToken {
-    /// The ID of the organization to scope the widget session to.
-    pub organization_id: String,
+    /// The ID of the organization to scope the widget session to. Required when scopes are provided. Optional when issuing a token for user-only widgets (e.g. `UserProfile`, `UserSecurity`) that do not require organization context.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub organization_id: Option<String>,
     /// The ID of the user to issue the widget session token for.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub user_id: Option<String>,

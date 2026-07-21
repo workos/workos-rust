@@ -47,6 +47,10 @@ pub struct ListApplicationsParams {
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Filter Connect Applications by registration type. Specify multiple as a comma-separated list (e.g. `registration_types=dynamic,authenticated`). Defaults to `authenticated` only when not specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "crate::query::serialize_comma_separated_opt")]
+    pub registration_types: Option<Vec<ApplicationsRegistrationTypes>>,
     /// Filter Connect Applications by organization ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
@@ -60,6 +64,7 @@ impl Default for ListApplicationsParams {
             after: Default::default(),
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
+            registration_types: Default::default(),
             organization_id: Default::default(),
         }
     }

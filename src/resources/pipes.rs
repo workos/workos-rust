@@ -162,13 +162,13 @@ pub struct CreateUserConnectedAccountParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: ConnectedAccountDto,
+    pub body: ConnectedAccountInput,
 }
 
 impl CreateUserConnectedAccountParams {
     /// Construct a new `CreateUserConnectedAccountParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: ConnectedAccountDto) -> Self {
+    pub fn new(body: ConnectedAccountInput) -> Self {
         Self {
             organization_id: Default::default(),
             body,
@@ -185,13 +185,13 @@ pub struct UpdateUserConnectedAccountParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: ConnectedAccountDto,
+    pub body: ConnectedAccountInput,
 }
 
 impl UpdateUserConnectedAccountParams {
     /// Construct a new `UpdateUserConnectedAccountParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: ConnectedAccountDto) -> Self {
+    pub fn new(body: ConnectedAccountInput) -> Self {
         Self {
             organization_id: Default::default(),
             body,
@@ -216,7 +216,7 @@ pub struct ListUserDataProvidersParams {
 impl<'a> PipesApi<'a> {
     /// List data integrations
     ///
-    /// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers.
+    /// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers and API key integrations.
     pub async fn list_data_integrations(
         &self,
         params: ListDataIntegrationsParams,
@@ -263,7 +263,7 @@ impl<'a> PipesApi<'a> {
 
     /// Create a data integration
     ///
-    /// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials, or `organization` to have each organization supply its own. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
+    /// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
     pub async fn create_data_integration(
         &self,
         params: CreateDataIntegrationParams,

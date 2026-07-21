@@ -9,6 +9,7 @@ use std::str::FromStr;
 pub enum ConnectedAccountState {
     Connected,
     NeedsReauthorization,
+    Disconnected,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -24,6 +25,7 @@ impl ConnectedAccountState {
         match self {
             Self::Connected => "connected",
             Self::NeedsReauthorization => "needs_reauthorization",
+            Self::Disconnected => "disconnected",
             Self::Unknown(s) => s.as_str(),
         }
     }
@@ -48,6 +50,7 @@ impl FromStr for ConnectedAccountState {
         Ok(match s {
             "connected" => Self::Connected,
             "needs_reauthorization" => Self::NeedsReauthorization,
+            "disconnected" => Self::Disconnected,
             other => Self::Unknown(other.to_string()),
         })
     }
