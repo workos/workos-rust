@@ -27,14 +27,15 @@
 //!
 //! # Custom HTTP transport
 //!
-//! The default [`Client`] uses `reqwest`, gated behind the `reqwest` feature.
+//! The default [`Client`] uses `reqwest`, pulled in by the `rustls-tls`
+//! (default) or `native-tls` features.
 //! For WASM, a shared connection pool, or custom retry/observability layers,
 //! disable default features and supply your own [`transport::HttpTransport`]
 //! via [`ClientBuilder::transport`].
 //!
 //! ```toml
 //! [dependencies]
-//! workos = { version = "1", default-features = false }
+//! workos = { version = "2", default-features = false }
 //! ```
 //!
 //! # Modules
