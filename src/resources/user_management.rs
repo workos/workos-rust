@@ -251,18 +251,27 @@ impl AuthenticateWithRefreshTokenParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithMagicAuthParams {
+    /// The one-time code for Magic Auth authentication.
+    ///
     /// Required.
     pub code: String,
+    /// The user's email address.
+    ///
     /// Required.
     pub email: String,
+    /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invitation_token: Option<crate::SecretString>,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
+    /// The ID of an existing Radar authentication attempt to associate with this authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub radar_auth_attempt_id: Option<String>,
 }
@@ -284,14 +293,21 @@ impl AuthenticateWithMagicAuthParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithEmailVerificationParams {
+    /// The email verification code.
+    ///
     /// Required.
     pub code: String,
+    /// The pending authentication token from a previous authentication attempt.
+    ///
     /// Required.
     pub pending_authentication_token: crate::SecretString,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
 }
@@ -348,14 +364,21 @@ impl AuthenticateWithTotpParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithOrganizationSelectionParams {
+    /// The pending authentication token from a previous authentication attempt.
+    ///
     /// Required.
     pub pending_authentication_token: crate::SecretString,
+    /// The ID of the organization the user selected.
+    ///
     /// Required.
     pub organization_id: String,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
 }
@@ -378,12 +401,17 @@ impl AuthenticateWithOrganizationSelectionParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithDeviceCodeParams {
+    /// The device verification code.
+    ///
     /// Required.
     pub device_code: String,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
 }
@@ -402,16 +430,25 @@ impl AuthenticateWithDeviceCodeParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithRadarEmailChallengeParams {
+    /// The one-time code from the Radar email challenge.
+    ///
     /// Required.
     pub code: String,
+    /// The ID of the Radar email challenge being verified.
+    ///
     /// Required.
     pub radar_challenge_id: String,
+    /// The pending authentication token from a previous authentication attempt.
+    ///
     /// Required.
     pub pending_authentication_token: crate::SecretString,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
 }
@@ -436,18 +473,29 @@ impl AuthenticateWithRadarEmailChallengeParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthenticateWithRadarSmsChallengeParams {
+    /// The one-time code from the Radar SMS challenge.
+    ///
     /// Required.
     pub code: String,
+    /// The ID of the Radar SMS verification being confirmed.
+    ///
     /// Required.
     pub verification_id: String,
+    /// The phone number the Radar SMS challenge was sent to.
+    ///
     /// Required.
     pub phone_number: String,
+    /// The pending authentication token from a previous authentication attempt.
+    ///
     /// Required.
     pub pending_authentication_token: crate::SecretString,
+    /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
+    /// A unique identifier for the device.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
+    /// The user agent string from the user's browser.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
 }
@@ -1613,6 +1661,27 @@ impl<'a> UserManagementApi<'a> {
             .await
     }
 
+    /// Get Radar Challenge details
+    ///
+    /// Get the details of an existing Radar Challenge, including the OTP code.
+    pub async fn get_radar_challenge(&self, id: &str) -> Result<RadarChallenge, Error> {
+        self.get_radar_challenge_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_radar_challenge`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_radar_challenge_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<RadarChallenge, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/radar_challenges/{id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
     /// Logout
     ///
     /// Logout a user from the current [session](https://workos.com/docs/reference/authkit/session).
@@ -1696,7 +1765,7 @@ impl<'a> UserManagementApi<'a> {
 
     /// Create a CORS origin
     ///
-    /// Creates a new CORS origin for the current environment. CORS origins allow browser-based applications to make requests to the WorkOS API.
+    /// Creates a new CORS origin for the API key's application. CORS origins allow browser-based applications to make requests to the WorkOS API.
     pub async fn create_cors_origin(
         &self,
         params: CreateCorsOriginParams,
@@ -2463,6 +2532,27 @@ impl<'a> UserManagementApi<'a> {
         let method = http::Method::POST;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Delete a redirect URI
+    ///
+    /// Deletes a redirect URI from an application.
+    pub async fn delete_redirect_uris(&self, id: &str) -> Result<(), Error> {
+        self.delete_redirect_uris_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_redirect_uris`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_redirect_uris_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/redirect_uris/{id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
