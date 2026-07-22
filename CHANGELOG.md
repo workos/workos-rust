@@ -7,27 +7,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.0](https://github.com/workos/workos-rust/compare/v2.5.0...v3.0.0) (2026-07-22)
 
+* [#126](https://github.com/workos/workos-rust/pull/126) fix(generated): regenerate from spec
 
-### ⚠ BREAKING CHANGES
+  **Features**
+  * **[audit_logs](https://workos.com/docs/reference/audit-logs)**:
+    * Added `expired` to `AuditLogExportState`
 
-* **connect:** SDK surface change: Symbol "ConnectedAccountDto" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
-* **organization_domains:** SDK surface change: Symbol "DomainVerificationIntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
-* **pipes:** SDK surface change: Symbol "DataIntegrationCredentialsDto" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
-* **sso:** SDK surface change: Symbol "SSOIntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
-* **admin_portal:** SDK surface change: Symbol "IntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
-* **user_management:** SDK surface change: Parameter type changed for "body" on "CreateUserConnectedAccountParams.new" ([#129](https://github.com/workos/workos-rust/issues/129))
-* **connect:** SDK surface change: `Connection.options` was renamed to `Connection.callback_endpoint` ([#129](https://github.com/workos/workos-rust/issues/129))
+* [#129](https://github.com/workos/workos-rust/pull/129) feat(generated)!: regenerate from spec (2 changes)
 
-### Features
+  **Features**
+  * **agents**:
+    * Added model `ClaimViewResponse`
+    * Added model `ClaimViewResponseOrganization`
+    * Added model `AgentAdminLinkClaimAttemptToExternalUserRequest`
+    * Added model `AgentAdminLinkClaimAttemptToExternalUserRequestUser`
+    * Added enum `ClaimViewResponseStatus`
+    * Added endpoint `PATCH /agents/claims/attempts`
+    * Added model `AgentRegistration`
+    * Added model `AgentCredentialValidation`
+    * Added model `AgentRegistrationAgentIdentity`
+    * Added model `AgentRegistrationClaim`
+    * Added model `AgentAdminValidateCredentialRequest`
+    * Added model `AgentRegistrationClaimClaimCompletion`
+    * Added enum `AgentRegistrationStatus`
+    * Added enum `AgentRegistrationKind`
+    * Added enum `AgentAdminValidateCredentialRequestType`
+    * Added service `Agents`
+  * **[api_keys](https://workos.com/docs/reference/authkit/api-keys)**:
+    * Added `agent_registration_id` to `ApiKeyValidationResponse`
+  * **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    * Added enum `ApplicationsRegistrationTypes`
+    * Added parameter `Applications.list.registration_types`
+  * **[directory_sync](https://workos.com/docs/reference/directory-sync)**:
+    * Added parameter `DirectoryUsers.list.idp_id`
+    * Added parameter `DirectoryUsers.list.email`
+  * **[organizations](https://workos.com/docs/reference/organization)**:
+    * Added model `OrganizationAuthorizedConnectApplicationList`
+    * Added model `OrganizationAuthorizedConnectApplicationListData`
+    * Added model `OrganizationAuthorizedConnectApplicationListListMetadata`
+    * Added service `OrganizationsAuthorizedApplications`
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * Added model `DataIntegrationInstallation`
+    * Added `auth_methods` to `CreateDataIntegration`
+    * Added `api_key` to `CreateDataIntegration`
+    * Added `api_key` to `UpdateDataIntegration`
+    * Added `auth_methods` to `DataIntegration`
+    * Added `installation` to `DataIntegration`
+    * Added enum `CreateDataIntegrationAuthMethods`
+    * Added enum `DataIntegrationAuthMethods`
+    * Added model `DataIntegrationCredentialsResponse`
+    * Added model `DataIntegrationCredentialsResponseCredential`
+    * Added model `DataIntegrationsUpsertApiKeyRequest`
+    * Added model `DataIntegrationsVendCredentialsRequest`
+    * Added enum `DataIntegrationCredentialsResponseError`
+    * Added endpoint `PUT /data-integrations/{slug}/api-key`
+    * Added endpoint `POST /data-integrations/{slug}/credentials`
+  * **[sso](https://workos.com/docs/reference/sso)**:
+    * Added parameter `SSO.authorize.prompt`
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Added `ssha256` to `CreateUserPasswordHashType`
+    * Added `ssha256` to `UpdateUserPasswordHashType`
+    * Added endpoint `GET /user_management/radar_challenges/{id}`
+  * **[webhooks](https://workos.com/docs/reference/webhooks)**:
+    * Added `agent.registration.revoked` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.revoked` to `UpdateWebhookEndpointEvents`
+    * Added `agent.registration.deleted` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.deleted` to `UpdateWebhookEndpointEvents`
+    * Added `radar.challenge_created` to `CreateWebhookEndpointEvents`
+    * Added `radar.challenge_created` to `UpdateWebhookEndpointEvents`
+    * Added `agent.registration.expired` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.expired` to `UpdateWebhookEndpointEvents`
+  * **[widgets](https://workos.com/docs/reference/widgets)**:
+    * Made `WidgetSessionToken.organization_id` optional
 
-* **admin_portal:** SDK surface change: Symbol "IntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
-* **connect:** SDK surface change: `Connection.options` was renamed to `Connection.callback_endpoint` ([#129](https://github.com/workos/workos-rust/issues/129)) ([064dc53](https://github.com/workos/workos-rust/commit/064dc53c9e13f5875b556186bcca10252cc7d8c4))
-* **connect:** SDK surface change: Symbol "ConnectedAccountDto" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
-* **generated:** AuditLogs (batch 56391ebd) ([#126](https://github.com/workos/workos-rust/issues/126)) ([5cb1bba](https://github.com/workos/workos-rust/commit/5cb1bbac982b8869a1bb53e9f10043eedfaab661))
-* **organization_domains:** SDK surface change: Symbol "DomainVerificationIntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
-* **pipes:** SDK surface change: Symbol "DataIntegrationCredentialsDto" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
-* **sso:** SDK surface change: Symbol "SSOIntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
-* **user_management:** SDK surface change: Parameter type changed for "body" on "CreateUserConnectedAccountParams.new" ([#129](https://github.com/workos/workos-rust/issues/129)) ([064dc53](https://github.com/workos/workos-rust/commit/064dc53c9e13f5875b556186bcca10252cc7d8c4))
+* [#130](https://github.com/workos/workos-rust/pull/130) feat(generated)!: regenerate from spec (5 changes)
+
+  **⚠️ Breaking**
+  * **[admin_portal](https://workos.com/docs/reference/admin-portal)**:
+    * SDK surface change: Symbol "IntentOptions" was removed
+  * **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    * SDK surface change: Symbol "ConnectedAccountDto" was removed
+  * **[organization_domains](https://workos.com/docs/reference/domain-verification)**:
+    * SDK surface change: Symbol "DomainVerificationIntentOptions" was removed
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * SDK surface change: Symbol "DataIntegrationCredentialsDto" was removed
+  * **[sso](https://workos.com/docs/reference/sso)**:
+    * SDK surface change: Symbol "SSOIntentOptions" was removed
 
 ## [2.5.0](https://github.com/workos/workos-rust/compare/v2.4.0...v2.5.0) (2026-07-06)
 
