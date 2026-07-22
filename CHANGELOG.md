@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0](https://github.com/workos/workos-rust/compare/v2.5.0...v3.0.0) (2026-07-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* **connect:** SDK surface change: Symbol "ConnectedAccountDto" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
+* **organization_domains:** SDK surface change: Symbol "DomainVerificationIntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
+* **pipes:** SDK surface change: Symbol "DataIntegrationCredentialsDto" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
+* **sso:** SDK surface change: Symbol "SSOIntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
+* **admin_portal:** SDK surface change: Symbol "IntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130))
+* **user_management:** SDK surface change: Parameter type changed for "body" on "CreateUserConnectedAccountParams.new" ([#129](https://github.com/workos/workos-rust/issues/129))
+* **connect:** SDK surface change: `Connection.options` was renamed to `Connection.callback_endpoint` ([#129](https://github.com/workos/workos-rust/issues/129))
+
+### Features
+
+* **admin_portal:** SDK surface change: Symbol "IntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
+* **connect:** SDK surface change: `Connection.options` was renamed to `Connection.callback_endpoint` ([#129](https://github.com/workos/workos-rust/issues/129)) ([064dc53](https://github.com/workos/workos-rust/commit/064dc53c9e13f5875b556186bcca10252cc7d8c4))
+* **connect:** SDK surface change: Symbol "ConnectedAccountDto" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
+* **generated:** AuditLogs (batch 56391ebd) ([#126](https://github.com/workos/workos-rust/issues/126)) ([5cb1bba](https://github.com/workos/workos-rust/commit/5cb1bbac982b8869a1bb53e9f10043eedfaab661))
+* **organization_domains:** SDK surface change: Symbol "DomainVerificationIntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
+* **pipes:** SDK surface change: Symbol "DataIntegrationCredentialsDto" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
+* **sso:** SDK surface change: Symbol "SSOIntentOptions" was removed ([#130](https://github.com/workos/workos-rust/issues/130)) ([6c61a9f](https://github.com/workos/workos-rust/commit/6c61a9fdefa74a87eaaed36b749b925c4afb7d08))
+* **user_management:** SDK surface change: Parameter type changed for "body" on "CreateUserConnectedAccountParams.new" ([#129](https://github.com/workos/workos-rust/issues/129)) ([064dc53](https://github.com/workos/workos-rust/commit/064dc53c9e13f5875b556186bcca10252cc7d8c4))
+
 ## [2.5.0](https://github.com/workos/workos-rust/compare/v2.4.0...v2.5.0) (2026-07-06)
 
 * [#124](https://github.com/workos/workos-rust/pull/124) fix(generated): regenerate from spec
