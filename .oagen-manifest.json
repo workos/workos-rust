@@ -48,7 +48,6 @@
     "src/enums/data_integration_credentials_credentials_type.rs",
     "src/enums/data_integration_credentials_input_type.rs",
     "src/enums/data_integration_credentials_response_error.rs",
-    "src/enums/data_integration_credentials_type.rs",
     "src/enums/data_integration_custom_provider_authenticate_via.rs",
     "src/enums/data_integration_state.rs",
     "src/enums/data_integrations_list_response_data_auth_methods.rs",
@@ -87,8 +86,6 @@
     "src/enums/organization_domain_data_state.rs",
     "src/enums/organization_domain_deleted_data_state.rs",
     "src/enums/organization_domain_deleted_data_verification_strategy.rs",
-    "src/enums/organization_domain_stand_alone_state.rs",
-    "src/enums/organization_domain_stand_alone_verification_strategy.rs",
     "src/enums/organization_domain_state.rs",
     "src/enums/organization_domain_updated_data_state.rs",
     "src/enums/organization_domain_updated_data_verification_strategy.rs",
@@ -308,7 +305,6 @@
     "src/models/connect_application_oauth_redirect_uris.rs",
     "src/models/connect_application_redirect_uri.rs",
     "src/models/connected_account.rs",
-    "src/models/connected_account_dto.rs",
     "src/models/connected_account_input.rs",
     "src/models/connection.rs",
     "src/models/connection_activated.rs",
@@ -322,7 +318,6 @@
     "src/models/connection_domain.rs",
     "src/models/connection_list.rs",
     "src/models/connection_list_list_metadata.rs",
-    "src/models/connection_option.rs",
     "src/models/connection_saml_certificate_renewal_required.rs",
     "src/models/connection_saml_certificate_renewal_required_data.rs",
     "src/models/connection_saml_certificate_renewal_required_data_certificate.rs",
@@ -367,7 +362,6 @@
     "src/models/data_integration_configuration_response.rs",
     "src/models/data_integration_credential.rs",
     "src/models/data_integration_credentials.rs",
-    "src/models/data_integration_credentials_dto.rs",
     "src/models/data_integration_credentials_input.rs",
     "src/models/data_integration_credentials_response.rs",
     "src/models/data_integration_credentials_response_credential.rs",
@@ -402,7 +396,6 @@
     "src/models/directory_user_list_list_metadata.rs",
     "src/models/directory_user_with_groups.rs",
     "src/models/directory_user_with_groups_email.rs",
-    "src/models/domain_verification_intent_options.rs",
     "src/models/dsync_activated.rs",
     "src/models/dsync_activated_data.rs",
     "src/models/dsync_activated_data_domain.rs",
@@ -493,7 +486,6 @@
     "src/models/group_role_assignment_list.rs",
     "src/models/group_role_assignment_resource.rs",
     "src/models/group_updated.rs",
-    "src/models/intent_options.rs",
     "src/models/invitation.rs",
     "src/models/invitation_accepted.rs",
     "src/models/invitation_accepted_data.rs",
@@ -542,7 +534,6 @@
     "src/models/organization_domain_data.rs",
     "src/models/organization_domain_deleted.rs",
     "src/models/organization_domain_deleted_data.rs",
-    "src/models/organization_domain_stand_alone.rs",
     "src/models/organization_domain_updated.rs",
     "src/models/organization_domain_updated_data.rs",
     "src/models/organization_domain_verification_failed.rs",
@@ -634,7 +625,6 @@
     "src/models/slim_role.rs",
     "src/models/sso_authorize_url_response.rs",
     "src/models/sso_device_authorization_request.rs",
-    "src/models/sso_intent_options.rs",
     "src/models/sso_logout_authorize_request.rs",
     "src/models/sso_logout_authorize_response.rs",
     "src/models/sso_token_response.rs",
@@ -925,7 +915,6 @@
     "tests/fixtures/connect_application_oauth.json",
     "tests/fixtures/connect_application_oauth_redirect_uris.json",
     "tests/fixtures/connected_account.json",
-    "tests/fixtures/connected_account_dto.json",
     "tests/fixtures/connected_account_input.json",
     "tests/fixtures/connection.json",
     "tests/fixtures/connection_activated.json",
@@ -939,7 +928,6 @@
     "tests/fixtures/connection_domain.json",
     "tests/fixtures/connection_list.json",
     "tests/fixtures/connection_list_list_metadata.json",
-    "tests/fixtures/connection_option.json",
     "tests/fixtures/connection_saml_certificate_renewal_required.json",
     "tests/fixtures/connection_saml_certificate_renewal_required_data.json",
     "tests/fixtures/connection_saml_certificate_renewal_required_data_certificate.json",
@@ -983,7 +971,6 @@
     "tests/fixtures/data_integration_configuration_response.json",
     "tests/fixtures/data_integration_credential.json",
     "tests/fixtures/data_integration_credentials.json",
-    "tests/fixtures/data_integration_credentials_dto.json",
     "tests/fixtures/data_integration_credentials_input.json",
     "tests/fixtures/data_integration_credentials_response.json",
     "tests/fixtures/data_integration_credentials_response_credential.json",
@@ -1018,7 +1005,6 @@
     "tests/fixtures/directory_user_list_list_metadata.json",
     "tests/fixtures/directory_user_with_groups.json",
     "tests/fixtures/directory_user_with_groups_email.json",
-    "tests/fixtures/domain_verification_intent_options.json",
     "tests/fixtures/dsync_activated.json",
     "tests/fixtures/dsync_activated_data.json",
     "tests/fixtures/dsync_activated_data_domain.json",
@@ -1109,7 +1095,6 @@
     "tests/fixtures/group_role_assignment_list.json",
     "tests/fixtures/group_role_assignment_resource.json",
     "tests/fixtures/group_updated.json",
-    "tests/fixtures/intent_options.json",
     "tests/fixtures/invitation.json",
     "tests/fixtures/invitation_accepted.json",
     "tests/fixtures/invitation_accepted_data.json",
@@ -1157,7 +1142,6 @@
     "tests/fixtures/organization_domain_data.json",
     "tests/fixtures/organization_domain_deleted.json",
     "tests/fixtures/organization_domain_deleted_data.json",
-    "tests/fixtures/organization_domain_stand_alone.json",
     "tests/fixtures/organization_domain_updated.json",
     "tests/fixtures/organization_domain_updated_data.json",
     "tests/fixtures/organization_domain_verification_failed.json",
@@ -1249,7 +1233,6 @@
     "tests/fixtures/slim_role.json",
     "tests/fixtures/sso_authorize_url_response.json",
     "tests/fixtures/sso_device_authorization_request.json",
-    "tests/fixtures/sso_intent_options.json",
     "tests/fixtures/sso_logout_authorize_request.json",
     "tests/fixtures/sso_logout_authorize_response.json",
     "tests/fixtures/sso_token_response.json",
@@ -1363,6 +1346,18 @@
     "tests/widgets_test.rs"
   ],
   "operations": {
+    "PATCH /agents/claims/attempts": {
+      "sdkMethod": "update_attempts",
+      "service": "agents"
+    },
+    "POST /agents/credentials/validate": {
+      "sdkMethod": "create_validate",
+      "service": "agents"
+    },
+    "GET /agents/registrations/{id}": {
+      "sdkMethod": "get_registration",
+      "service": "agents"
+    },
     "POST /auth/challenges/{id}/verify": {
       "sdkMethod": "verify_challenge",
       "service": "multi_factor_auth"
@@ -1643,8 +1638,36 @@
       "sdkMethod": "get_profile_and_token",
       "service": "sso"
     },
+    "GET /data-integrations": {
+      "sdkMethod": "list_data_integrations",
+      "service": "pipes"
+    },
+    "POST /data-integrations": {
+      "sdkMethod": "create_data_integration",
+      "service": "pipes"
+    },
+    "GET /data-integrations/{slug}": {
+      "sdkMethod": "get_data_integration",
+      "service": "pipes"
+    },
+    "PUT /data-integrations/{slug}": {
+      "sdkMethod": "update_data_integration",
+      "service": "pipes"
+    },
+    "DELETE /data-integrations/{slug}": {
+      "sdkMethod": "delete_data_integration",
+      "service": "pipes"
+    },
+    "PUT /data-integrations/{slug}/api-key": {
+      "sdkMethod": "update_data_integration_api_key",
+      "service": "pipes"
+    },
     "POST /data-integrations/{slug}/authorize": {
       "sdkMethod": "authorize_data_integration",
+      "service": "pipes"
+    },
+    "POST /data-integrations/{slug}/credentials": {
+      "sdkMethod": "create_data_integration_credential",
       "service": "pipes"
     },
     "POST /data-integrations/{provider}/token": {
@@ -1653,6 +1676,14 @@
     },
     "GET /user_management/users/{user_id}/connected_accounts/{slug}": {
       "sdkMethod": "get_user_connected_account",
+      "service": "pipes"
+    },
+    "POST /user_management/users/{user_id}/connected_accounts/{slug}": {
+      "sdkMethod": "create_user_connected_account",
+      "service": "pipes"
+    },
+    "PUT /user_management/users/{user_id}/connected_accounts/{slug}": {
+      "sdkMethod": "update_user_connected_account",
       "service": "pipes"
     },
     "DELETE /user_management/users/{user_id}/connected_accounts/{slug}": {
@@ -1769,6 +1800,10 @@
     },
     "GET /organizations/{id}/audit_log_configuration": {
       "sdkMethod": "get_audit_log_configuration",
+      "service": "organizations"
+    },
+    "GET /organizations/{organization_id}/authorized_applications": {
+      "sdkMethod": "list_authorized_applications",
       "service": "organizations"
     },
     "GET /organizations/{id}/audit_logs_retention": {
@@ -1899,12 +1934,24 @@
       "sdkMethod": "create_device",
       "service": "user_management"
     },
+    "POST /user_management/radar_challenges": {
+      "sdkMethod": "create_radar_challenge",
+      "service": "user_management"
+    },
+    "GET /user_management/radar_challenges/{id}": {
+      "sdkMethod": "get_radar_challenge",
+      "service": "user_management"
+    },
     "GET /user_management/sessions/logout": {
       "sdkMethod": "get_logout_url",
       "service": "user_management"
     },
     "POST /user_management/sessions/revoke": {
       "sdkMethod": "revoke_session",
+      "service": "user_management"
+    },
+    "GET /user_management/cors_origins": {
+      "sdkMethod": "list_cors_origins",
       "service": "user_management"
     },
     "POST /user_management/cors_origins": {
@@ -2019,8 +2066,16 @@
       "sdkMethod": "get_magic_auth",
       "service": "user_management"
     },
+    "GET /user_management/redirect_uris": {
+      "sdkMethod": "list_redirect_uris",
+      "service": "user_management"
+    },
     "POST /user_management/redirect_uris": {
       "sdkMethod": "create_redirect_uri",
+      "service": "user_management"
+    },
+    "DELETE /user_management/redirect_uris/{id}": {
+      "sdkMethod": "delete_redirect_uris",
       "service": "user_management"
     },
     "GET /user_management/users/{user_id}/authorized_applications": {
@@ -2134,78 +2189,6 @@
     "POST /widgets/token": {
       "sdkMethod": "create_token",
       "service": "widgets"
-    },
-    "PUT /data-integrations/{slug}/api-key": {
-      "sdkMethod": "update_data_integration_api_key",
-      "service": "pipes"
-    },
-    "POST /data-integrations/{slug}/credentials": {
-      "sdkMethod": "create_data_integration_credential",
-      "service": "pipes"
-    },
-    "GET /user_management/cors_origins": {
-      "sdkMethod": "list_cors_origins",
-      "service": "user_management"
-    },
-    "GET /user_management/redirect_uris": {
-      "sdkMethod": "list_redirect_uris",
-      "service": "user_management"
-    },
-    "GET /data-integrations": {
-      "sdkMethod": "list_data_integrations",
-      "service": "pipes"
-    },
-    "POST /data-integrations": {
-      "sdkMethod": "create_data_integration",
-      "service": "pipes"
-    },
-    "GET /data-integrations/{slug}": {
-      "sdkMethod": "get_data_integration",
-      "service": "pipes"
-    },
-    "PUT /data-integrations/{slug}": {
-      "sdkMethod": "update_data_integration",
-      "service": "pipes"
-    },
-    "DELETE /data-integrations/{slug}": {
-      "sdkMethod": "delete_data_integration",
-      "service": "pipes"
-    },
-    "POST /user_management/users/{user_id}/connected_accounts/{slug}": {
-      "sdkMethod": "create_user_connected_account",
-      "service": "pipes"
-    },
-    "PUT /user_management/users/{user_id}/connected_accounts/{slug}": {
-      "sdkMethod": "update_user_connected_account",
-      "service": "pipes"
-    },
-    "POST /user_management/radar_challenges": {
-      "sdkMethod": "create_radar_challenge",
-      "service": "user_management"
-    },
-    "GET /user_management/radar_challenges/{id}": {
-      "sdkMethod": "get_radar_challenge",
-      "service": "user_management"
-    },
-    "DELETE /user_management/redirect_uris/{id}": {
-      "sdkMethod": "delete_redirect_uris",
-      "service": "user_management"
-    },
-    "PATCH /agents/claims/attempts": {
-      "sdkMethod": "update_attempts",
-      "service": "agents"
-    },
-    "POST /agents/credentials/validate": {
-      "sdkMethod": "create_validate",
-      "service": "agents"
-    },
-    "GET /agents/registrations/{id}": {
-      "sdkMethod": "get_registration",
-      "service": "agents"
-    },
-    "GET /organizations/{organization_id}/authorized_applications": {
-      "sdkMethod": "list_authorized_applications",
-      "service": "organizations"
     }
   }
 }
