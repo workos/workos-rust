@@ -19,4 +19,7 @@ pub struct ConfigureDataIntegrationBody {
     /// The OAuth client secret of the organization's own application. Must be provided together with `client_id`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub client_secret: Option<crate::SecretString>,
+    /// Provider-specific config values to set for the organization, keyed by config field. Only fields the provider declares are accepted, and each value must match that field's pattern. Accepted only for providers whose credentials are organization-managed; for shared or custom credential providers, config belongs on the integration itself (via the data-integrations API) and supplying it here is rejected.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub config: Option<std::collections::HashMap<String, String>>,
 }

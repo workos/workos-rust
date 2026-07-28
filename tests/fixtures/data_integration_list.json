@@ -28,6 +28,9 @@
         "organization_id": "test_organization_id",
         "api_key_last_4": "cdef"
       },
+      "config": {
+        "account_identifier": "acme-prod"
+      },
       "custom_provider": {
         "name": "My OAuth App",
         "authorization_url": "https://provider.example.com/oauth/authorize",

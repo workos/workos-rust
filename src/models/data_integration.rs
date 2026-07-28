@@ -34,6 +34,8 @@ pub struct DataIntegration {
     /// The tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub installation: Option<DataIntegrationInstallation>,
+    /// Provider-specific config values set on the Data Integration (e.g. a Snowflake `account_identifier`), keyed by config field. Only fields the provider declares are accepted.
+    pub config: std::collections::HashMap<String, String>,
     /// The OAuth definition when this is a custom provider; `null` for built-in providers.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub custom_provider: Option<DataIntegrationCustomProvider>,
