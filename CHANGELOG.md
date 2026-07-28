@@ -7,11 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.1.0](https://github.com/workos/workos-rust/compare/v3.0.0...v3.1.0) (2026-07-28)
 
+* [#132](https://github.com/workos/workos-rust/pull/132) fix(generated): regenerate from spec
 
-### Features
+  **Features**
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * Added `config` to `DataIntegrationsGetDataIntegrationAuthorizeUrlRequest`
+    * Added `client_credentials` to `DataIntegrationAuthMethods`
+    * Added `client_credentials` to `DataIntegrationsListResponseDataAuthMethods`
+    * Added `client_credentials` to `DataIntegrationsListResponseDataConnectedAccountAuthMethod`
+    * Added `config` to Pipes models
+  * **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    * Added `client_credentials` to `ConnectedAccountAuthMethod`
 
-* **generated:** Pipes, PipesProvider, UserManagement (batch 6c21f6dc) ([#132](https://github.com/workos/workos-rust/issues/132)) ([3c4f084](https://github.com/workos/workos-rust/commit/3c4f08460e3255cc27ac1edd677e4965eed03d5e))
-* **generated:** SSO (batch 16283437) ([#134](https://github.com/workos/workos-rust/issues/134)) ([8752435](https://github.com/workos/workos-rust/commit/8752435b01b39d86adaa7423001defe0e1d10bed))
+  **Fixes**
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Changed errors for endpoint `POST /user_management/invitations`
+    * Changed errors for endpoint `POST /user_management/invitations/{id}/resend`
+    * Changed errors for endpoint `POST /user_management/magic_auth`
+    * Changed errors for endpoint `POST /user_management/authenticate`
+
+* [#134](https://github.com/workos/workos-rust/pull/134) fix(generated): regenerate from spec
+
+  **Fixes**
+  * **[sso](https://workos.com/docs/reference/sso)**:
+    * Removed `callback_endpoint` from `Connection`
 
 ## [3.0.0](https://github.com/workos/workos-rust/compare/v2.5.0...v3.0.0) (2026-07-22)
 
