@@ -15,4 +15,7 @@ pub struct DataIntegrationsGetDataIntegrationAuthorizeUrlRequest {
     /// The URL to redirect the user to after authorization.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub return_to: Option<String>,
+    /// Connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub config: Option<std::collections::HashMap<String, String>>,
 }

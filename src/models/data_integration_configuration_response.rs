@@ -22,6 +22,8 @@ pub struct DataIntegrationConfigurationResponse {
     /// The OAuth scopes in effect for this organization. Reflects the organization override when one is set, otherwise the provider scopes, or `null` when none are configured.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub scopes: Option<Vec<String>>,
+    /// The provider-specific config values in effect for this organization, keyed by config field. Reflects the organization override for organization-credential providers, otherwise the provider root. Empty when none are configured.
+    pub config: std::collections::HashMap<String, String>,
     /// The timestamp when the configuration was created.
     pub created_at: String,
     /// The timestamp when the configuration was last updated.

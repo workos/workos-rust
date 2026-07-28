@@ -19,7 +19,7 @@ pub struct ConnectedAccount {
     pub organization_id: Option<String>,
     /// The OAuth scopes granted for this connection.
     pub scopes: Vec<String>,
-    /// The authentication method used for this connection (`oauth` or `api_key`). Defaults to `oauth` if absent.
+    /// The authentication method used for this connection (`oauth`, `api_key`, or `client_credentials`). Defaults to `oauth` if absent.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub auth_method: Option<ConnectedAccountAuthMethod>,
     /// The last four characters of the API key, or `null` for OAuth connections.

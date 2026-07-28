@@ -9,6 +9,7 @@ use std::str::FromStr;
 pub enum DataIntegrationsListResponseDataAuthMethods {
     OAuth,
     ApiKey,
+    ClientCredentials,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -24,6 +25,7 @@ impl DataIntegrationsListResponseDataAuthMethods {
         match self {
             Self::OAuth => "oauth",
             Self::ApiKey => "api_key",
+            Self::ClientCredentials => "client_credentials",
             Self::Unknown(s) => s.as_str(),
         }
     }
@@ -48,6 +50,7 @@ impl FromStr for DataIntegrationsListResponseDataAuthMethods {
         Ok(match s {
             "oauth" => Self::OAuth,
             "api_key" => Self::ApiKey,
+            "client_credentials" => Self::ClientCredentials,
             other => Self::Unknown(other.to_string()),
         })
     }
