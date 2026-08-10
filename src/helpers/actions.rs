@@ -3,8 +3,6 @@
 
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use base64::Engine;
-use base64::engine::general_purpose::STANDARD as B64_STANDARD;
 use serde::{Deserialize, Serialize};
 use subtle::ConstantTimeEq;
 
@@ -26,10 +24,10 @@ pub enum ActionType {
 }
 
 impl ActionType {
-    fn as_str(self) -> &'static str {
+    fn response_object(self) -> &'static str {
         match self {
-            ActionType::Authentication => "authentication",
-            ActionType::UserRegistration => "user_registration",
+            ActionType::Authentication => "authentication_action_response",
+            ActionType::UserRegistration => "user_registration_action_response",
         }
     }
 }
@@ -39,15 +37,6 @@ impl ActionType {
 pub enum ActionVerdict {
     Allow,
     Deny,
-}
-
-impl ActionVerdict {
-    fn as_str(self) -> &'static str {
-        match self {
-            ActionVerdict::Allow => "Allow",
-            ActionVerdict::Deny => "Deny",
-        }
-    }
 }
 
 /// The provisional user data carried by a `user_registration` action context.
@@ -101,11 +90,30 @@ pub struct ActionContext {
     pub invitation: Option<Invitation>,
 }
 
-/// Result of signing an action response. Send `payload` and `sig` back to WorkOS.
+/// The signed payload of an action response.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActionResponsePayload {
+    /// Milliseconds since the Unix epoch.
+    pub timestamp: i64,
+    /// The verdict: `Allow` or `Deny`.
+    pub verdict: ActionVerdict,
+    /// Present (and non-empty) only when denying.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub error_message: Option<String>,
+}
+
+/// A signed action response body to send back to WorkOS.
+///
+/// Matches the `workos-node` wire format: `{object, payload, signature}`, where
+/// `signature` is the HMAC-SHA256 of `"<timestamp>.<JSON(payload)>"`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActionSignedResponse {
-    pub payload: String,
-    pub sig: String,
+    /// `authentication_action_response` or `user_registration_action_response`.
+    pub object: String,
+    /// The signed payload.
+    pub payload: ActionResponsePayload,
+    /// HMAC-SHA256 hex signature over `"<timestamp>.<JSON(payload)>"`.
+    pub signature: String,
 }
 
 /// Helpers for AuthKit Actions: request verification + response signing.
@@ -183,6 +191,10 @@ impl ActionsHelper {
     }
 
     /// Signs an action response with `secret`.
+    ///
+    /// Returns the `{object, payload, signature}` body to send back to WorkOS,
+    /// matching `workos-node`. The signature is the HMAC-SHA256 of
+    /// `"<timestamp>.<JSON(payload)>"`.
     pub fn sign_response(
         &self,
         action_type: ActionType,
@@ -190,25 +202,27 @@ impl ActionsHelper {
         error_message: &str,
         secret: &str,
     ) -> Result<ActionSignedResponse, Error> {
-        let body = serde_json::json!({
-            "type": action_type.as_str(),
-            "verdict": verdict.as_str(),
-            "error_message": error_message,
-        });
-        let json_bytes = serde_json::to_vec(&body).map_err(Error::from)?;
-        let b64_payload = B64_STANDARD.encode(&json_bytes);
-
+        let object = action_type.response_object();
         let now = (self.now)();
         let ts_ms = now
             .duration_since(UNIX_EPOCH)
             .map_err(|e| Error::Crypto(format!("clock before epoch: {e}")))?
             .as_millis() as i64;
-        let timestamp = ts_ms.to_string();
-        let sig = compute_webhook_signature(secret, &timestamp, &b64_payload);
-
+        let payload = ActionResponsePayload {
+            timestamp: ts_ms,
+            verdict,
+            error_message: if verdict == ActionVerdict::Deny && !error_message.is_empty() {
+                Some(error_message.to_string())
+            } else {
+                None
+            },
+        };
+        let payload_json = serde_json::to_string(&payload).map_err(Error::from)?;
+        let signature = compute_webhook_signature(secret, &ts_ms.to_string(), &payload_json);
         Ok(ActionSignedResponse {
-            payload: b64_payload,
-            sig: format!("t={timestamp},v1={sig}"),
+            object: object.to_string(),
+            payload,
+            signature,
         })
     }
 }
@@ -244,21 +258,40 @@ mod tests {
     }
 
     #[test]
-    fn sign_response_round_trips() {
+    fn sign_response_allow() {
         let secret = "shh";
         let helper = ActionsHelper::new().with_clock(|| fixed_now(1_700_000_000_000));
         let signed = helper
             .sign_response(ActionType::Authentication, ActionVerdict::Allow, "", secret)
             .unwrap();
-        // Decode payload — must be valid base64 JSON with the right shape.
-        let bytes = B64_STANDARD.decode(&signed.payload).unwrap();
-        let parsed: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-        assert_eq!(parsed["type"], "authentication");
-        assert_eq!(parsed["verdict"], "Allow");
-        // Sig header is t=...,v1=... with verifiable signature.
-        let (ts, sig) = parse_webhook_signature_header(&signed.sig).unwrap();
-        let expected = compute_webhook_signature(secret, &ts, &signed.payload);
-        assert_eq!(sig, expected);
+        assert_eq!(signed.object, "authentication_action_response");
+        assert_eq!(signed.payload.timestamp, 1_700_000_000_000);
+        assert_eq!(signed.payload.verdict, ActionVerdict::Allow);
+        assert!(signed.payload.error_message.is_none());
+        // Signature is HMAC over "<timestamp>.<JSON(payload)>".
+        let payload_json = serde_json::to_string(&signed.payload).unwrap();
+        let expected = compute_webhook_signature(secret, "1700000000000", &payload_json);
+        assert_eq!(signed.signature, expected);
+    }
+
+    #[test]
+    fn sign_response_deny() {
+        let secret = "shh";
+        let helper = ActionsHelper::new().with_clock(|| fixed_now(1_700_000_000_000));
+        let signed = helper
+            .sign_response(
+                ActionType::UserRegistration,
+                ActionVerdict::Deny,
+                "Blocked",
+                secret,
+            )
+            .unwrap();
+        assert_eq!(signed.object, "user_registration_action_response");
+        assert_eq!(signed.payload.verdict, ActionVerdict::Deny);
+        assert_eq!(signed.payload.error_message.as_deref(), Some("Blocked"));
+        let payload_json = serde_json::to_string(&signed.payload).unwrap();
+        let expected = compute_webhook_signature(secret, "1700000000000", &payload_json);
+        assert_eq!(signed.signature, expected);
     }
 
     fn action_sig_header(secret: &str, payload: &str) -> String {
