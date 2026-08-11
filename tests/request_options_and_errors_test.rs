@@ -10,6 +10,9 @@ use wiremock::matchers::{header, header_exists, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 use workos::{Error, RequestOptions};
 
+// `OrganizationInput::domains` is deprecated in the spec, but struct literals
+// must name every field, so tests constructing the input allow the lint.
+#[allow(deprecated)]
 #[tokio::test]
 async fn idempotency_key_is_sent_as_header() {
     let server = MockServer::start().await;
