@@ -21,6 +21,8 @@ pub enum Password {
     Hashed {
         password_hash: String,
         password_hash_type: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        password_salt_position: Option<String>,
     },
 }
 
@@ -477,14 +479,12 @@ pub struct AuthenticateWithRadarSmsChallengeParams {
     ///
     /// Required.
     pub code: String,
-    /// The ID of the Radar SMS verification being confirmed.
-    ///
-    /// Required.
-    pub verification_id: String,
-    /// The phone number the Radar SMS challenge was sent to.
-    ///
-    /// Required.
-    pub phone_number: String,
+    /// The ID of the Radar SMS verification being confirmed. Required for sign-up challenges; omitted for sign-in challenges, where the verification is resolved server-side.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub verification_id: Option<String>,
+    /// The phone number the Radar SMS challenge was sent to. Required for sign-up challenges; omitted for sign-in challenges, where the phone number on file is resolved server-side.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub phone_number: Option<String>,
     /// The pending authentication token from a previous authentication attempt.
     ///
     /// Required.
@@ -504,14 +504,12 @@ impl AuthenticateWithRadarSmsChallengeParams {
     /// Construct a new `AuthenticateWithRadarSmsChallengeParams` with the required fields set.
     pub fn new(
         code: impl Into<String>,
-        verification_id: impl Into<String>,
-        phone_number: impl Into<String>,
         pending_authentication_token: impl Into<crate::SecretString>,
     ) -> Self {
         Self {
             code: code.into(),
-            verification_id: verification_id.into(),
-            phone_number: phone_number.into(),
+            verification_id: Default::default(),
+            phone_number: Default::default(),
             pending_authentication_token: pending_authentication_token.into(),
             ip_address: Default::default(),
             device_id: Default::default(),

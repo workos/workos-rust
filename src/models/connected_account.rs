@@ -25,6 +25,15 @@ pub struct ConnectedAccount {
     /// The last four characters of the API key, or `null` for OAuth connections.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub api_key_last_4: Option<String>,
+    /// The client ID supplied for this connection. Only present when `auth_method` is `client_credentials`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub client_id: Option<String>,
+    /// The last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub client_secret_last_4: Option<String>,
+    /// The connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding any it declares as secret. Only present when `auth_method` is `client_credentials`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub config: Option<std::collections::HashMap<String, String>>,
     /// The state of the connected account:
     /// - `connected`: The connection is active and tokens are valid.
     /// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.

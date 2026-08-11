@@ -12,6 +12,7 @@ pub enum UpdateWebhookEndpointEvents {
     AgentRegistrationClaimCompleted,
     AgentRegistrationCredentialIssued,
     AgentRegistrationDeleted,
+    AgentRegistrationRefreshed,
     AgentRegistrationExpired,
     AgentRegistrationOrganizationSwitched,
     AgentRegistrationRevoked,
@@ -119,6 +120,7 @@ impl UpdateWebhookEndpointEvents {
             Self::AgentRegistrationClaimCompleted => "agent.registration.claim.completed",
             Self::AgentRegistrationCredentialIssued => "agent.registration.credential.issued",
             Self::AgentRegistrationDeleted => "agent.registration.deleted",
+            Self::AgentRegistrationRefreshed => "agent.registration.refreshed",
             Self::AgentRegistrationExpired => "agent.registration.expired",
             Self::AgentRegistrationOrganizationSwitched => {
                 "agent.registration.organization.switched"
@@ -247,6 +249,7 @@ impl FromStr for UpdateWebhookEndpointEvents {
             "agent.registration.claim.completed" => Self::AgentRegistrationClaimCompleted,
             "agent.registration.credential.issued" => Self::AgentRegistrationCredentialIssued,
             "agent.registration.deleted" => Self::AgentRegistrationDeleted,
+            "agent.registration.refreshed" => Self::AgentRegistrationRefreshed,
             "agent.registration.expired" => Self::AgentRegistrationExpired,
             "agent.registration.organization.switched" => {
                 Self::AgentRegistrationOrganizationSwitched

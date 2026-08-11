@@ -29,12 +29,13 @@ pub struct DataIntegration {
     pub redirect_uri: String,
     /// How accounts authenticate with the provider for this Data Integration.
     pub auth_methods: Vec<DataIntegrationAuthMethods>,
-    /// The credentials configured for the Data Integration.
-    pub credentials: DataIntegrationCredential,
+    /// The integration-level OAuth app credentials. `null` for `api_key` integrations, which hold no OAuth credentials (keys are installed per-tenant).
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub credentials: Option<DataIntegrationCredential>,
     /// The tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub installation: Option<DataIntegrationInstallation>,
-    /// Provider-specific config values set on the Data Integration (e.g. a Snowflake `account_identifier`), keyed by config field. Only fields the provider declares are accepted.
+    /// Provider-specific config values set on the Data Integration (e.g. a Snowflake `account`), keyed by config field. Only fields the provider declares are accepted.
     pub config: std::collections::HashMap<String, String>,
     /// The OAuth definition when this is a custom provider; `null` for built-in providers.
     #[serde(skip_serializing_if = "Option::is_none", default)]

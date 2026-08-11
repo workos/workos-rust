@@ -26,7 +26,7 @@
     "api_key_last_4": "cdef"
   },
   "config": {
-    "account_identifier": "acme-prod"
+    "account": "myorg-myaccount"
   },
   "custom_provider": {
     "name": "My OAuth App",

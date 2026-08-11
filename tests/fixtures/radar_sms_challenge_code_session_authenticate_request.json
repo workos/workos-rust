@@ -3,7 +3,5 @@
   "client_secret": "sk_test_....",
   "grant_type": "urn:workos:oauth:grant-type:radar-sms-challenge:code",
   "code": "123456",
-  "verification_id": "vrf_01HXYZ123456789ABCDEFGHIJ",
-  "phone_number": "+15555550123",
   "pending_authentication_token": "cTDQJTTkTkkVYxbn..."
 }

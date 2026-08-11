@@ -30,6 +30,9 @@ pub struct ListOrganizationGroupsParams {
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Search groups by name or by group ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub search: Option<String>,
 }
 
 impl Default for ListOrganizationGroupsParams {
@@ -40,6 +43,7 @@ impl Default for ListOrganizationGroupsParams {
             after: Default::default(),
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
+            search: Default::default(),
         }
     }
 }

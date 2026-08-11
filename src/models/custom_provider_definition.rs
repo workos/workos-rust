@@ -9,10 +9,12 @@ use serde::{Deserialize, Serialize};
 pub struct CustomProviderDefinition {
     /// A descriptive name for the custom provider.
     pub name: String,
-    /// The provider's OAuth authorization endpoint.
-    pub authorization_url: String,
-    /// The provider's OAuth token endpoint.
-    pub token_url: String,
+    /// The provider's OAuth authorization endpoint. Required for OAuth providers; omit for `api_key` providers.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub authorization_url: Option<String>,
+    /// The provider's OAuth token endpoint. Required for OAuth providers; omit for `api_key` providers.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub token_url: Option<String>,
     /// The endpoint used to refresh tokens, if different from the token endpoint.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub refresh_token_url: Option<String>,

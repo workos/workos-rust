@@ -6,10 +6,9 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
-pub enum CreateDataIntegrationAuthMethods {
-    OAuth,
-    ApiKey,
-    ClientCredentials,
+pub enum CreateUserPasswordSaltPosition {
+    Prefix,
+    Suffix,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -17,46 +16,44 @@ pub enum CreateDataIntegrationAuthMethods {
     Unknown(String),
 }
 
-impl CreateDataIntegrationAuthMethods {
+impl CreateUserPasswordSaltPosition {
     /// Canonical wire string for this value. For [`Self::Unknown`] returns the
     /// original wire value as received from the API.
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
-            Self::OAuth => "oauth",
-            Self::ApiKey => "api_key",
-            Self::ClientCredentials => "client_credentials",
+            Self::Prefix => "prefix",
+            Self::Suffix => "suffix",
             Self::Unknown(s) => s.as_str(),
         }
     }
 }
 
-impl fmt::Display for CreateDataIntegrationAuthMethods {
+impl fmt::Display for CreateUserPasswordSaltPosition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl AsRef<str> for CreateDataIntegrationAuthMethods {
+impl AsRef<str> for CreateUserPasswordSaltPosition {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl FromStr for CreateDataIntegrationAuthMethods {
+impl FromStr for CreateUserPasswordSaltPosition {
     type Err = std::convert::Infallible;
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "oauth" => Self::OAuth,
-            "api_key" => Self::ApiKey,
-            "client_credentials" => Self::ClientCredentials,
+            "prefix" => Self::Prefix,
+            "suffix" => Self::Suffix,
             other => Self::Unknown(other.to_string()),
         })
     }
 }
 
-impl From<String> for CreateDataIntegrationAuthMethods {
+impl From<String> for CreateUserPasswordSaltPosition {
     fn from(s: String) -> Self {
         // Reuse the original `String` allocation in the fallback branch.
         match Self::from_str(&s) {
@@ -66,19 +63,19 @@ impl From<String> for CreateDataIntegrationAuthMethods {
     }
 }
 
-impl From<&str> for CreateDataIntegrationAuthMethods {
+impl From<&str> for CreateUserPasswordSaltPosition {
     fn from(s: &str) -> Self {
         Self::from_str(s).unwrap_or_else(|_| Self::Unknown(s.to_string()))
     }
 }
 
-impl Serialize for CreateDataIntegrationAuthMethods {
+impl Serialize for CreateUserPasswordSaltPosition {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
-impl<'de> Deserialize<'de> for CreateDataIntegrationAuthMethods {
+impl<'de> Deserialize<'de> for CreateUserPasswordSaltPosition {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))

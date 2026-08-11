@@ -1872,8 +1872,6 @@ async fn user_management_authenticate_with_radar_sms_challenge_round_trip() {
         .authenticate_with_radar_sms_challenge(
             workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
                 "stub_code".to_string(),
-                "stub_verification_id".to_string(),
-                "stub_phone_number".to_string(),
                 "stub_pending_authentication_token".to_string(),
             ),
         )
@@ -1896,8 +1894,6 @@ async fn user_management_authenticate_with_radar_sms_challenge_unauthorized() {
         .authenticate_with_radar_sms_challenge(
             workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
                 "stub_code".to_string(),
-                "stub_verification_id".to_string(),
-                "stub_phone_number".to_string(),
                 "stub_pending_authentication_token".to_string(),
             ),
         )
@@ -1926,8 +1922,6 @@ async fn user_management_authenticate_with_radar_sms_challenge_not_found() {
         .authenticate_with_radar_sms_challenge(
             workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
                 "stub_code".to_string(),
-                "stub_verification_id".to_string(),
-                "stub_phone_number".to_string(),
                 "stub_pending_authentication_token".to_string(),
             ),
         )
@@ -1958,8 +1952,6 @@ async fn user_management_authenticate_with_radar_sms_challenge_rate_limited() {
         .authenticate_with_radar_sms_challenge(
             workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
                 "stub_code".to_string(),
-                "stub_verification_id".to_string(),
-                "stub_phone_number".to_string(),
                 "stub_pending_authentication_token".to_string(),
             ),
         )
@@ -1989,8 +1981,6 @@ async fn user_management_authenticate_with_radar_sms_challenge_server_error() {
         .authenticate_with_radar_sms_challenge(
             workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
                 "stub_code".to_string(),
-                "stub_verification_id".to_string(),
-                "stub_phone_number".to_string(),
                 "stub_pending_authentication_token".to_string(),
             ),
         )
@@ -2020,8 +2010,6 @@ async fn user_management_authenticate_with_radar_sms_challenge_bad_request() {
         .authenticate_with_radar_sms_challenge(
             workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
                 "stub_code".to_string(),
-                "stub_verification_id".to_string(),
-                "stub_phone_number".to_string(),
                 "stub_pending_authentication_token".to_string(),
             ),
         )
@@ -2051,8 +2039,6 @@ async fn user_management_authenticate_with_radar_sms_challenge_unprocessable() {
         .authenticate_with_radar_sms_challenge(
             workos::user_management::AuthenticateWithRadarSmsChallengeParams::new(
                 "stub_code".to_string(),
-                "stub_verification_id".to_string(),
-                "stub_phone_number".to_string(),
                 "stub_pending_authentication_token".to_string(),
             ),
         )

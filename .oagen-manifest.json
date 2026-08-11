@@ -40,6 +40,7 @@
     "src/enums/create_data_integration_auth_methods.rs",
     "src/enums/create_user_invite_options_locale.rs",
     "src/enums/create_user_password_hash_type.rs",
+    "src/enums/create_user_password_salt_position.rs",
     "src/enums/create_webhook_endpoint_events.rs",
     "src/enums/custom_provider_definition_authenticate_via.rs",
     "src/enums/data_integration_access_token_response_error.rs",
@@ -120,6 +121,7 @@
     "src/enums/sso_provider.rs",
     "src/enums/update_custom_provider_definition_authenticate_via.rs",
     "src/enums/update_user_password_hash_type.rs",
+    "src/enums/update_user_password_salt_position.rs",
     "src/enums/update_webhook_endpoint_events.rs",
     "src/enums/update_webhook_endpoint_status.rs",
     "src/enums/user_identities_get_item_provider.rs",
@@ -180,6 +182,8 @@
     "src/models/agent_registration_expired_data.rs",
     "src/models/agent_registration_organization_switched.rs",
     "src/models/agent_registration_organization_switched_data.rs",
+    "src/models/agent_registration_refreshed.rs",
+    "src/models/agent_registration_refreshed_data.rs",
     "src/models/agent_registration_revoked.rs",
     "src/models/agent_registration_revoked_data.rs",
     "src/models/api_key.rs",
@@ -375,6 +379,7 @@
     "src/models/data_integrations_list_response_data.rs",
     "src/models/data_integrations_list_response_data_connected_account.rs",
     "src/models/data_integrations_upsert_api_key_request.rs",
+    "src/models/data_integrations_upsert_client_credentials_request.rs",
     "src/models/data_integrations_vend_credentials_request.rs",
     "src/models/decrypt_request.rs",
     "src/models/decrypt_response.rs",
@@ -791,6 +796,8 @@
     "tests/fixtures/agent_registration_expired_data.json",
     "tests/fixtures/agent_registration_organization_switched.json",
     "tests/fixtures/agent_registration_organization_switched_data.json",
+    "tests/fixtures/agent_registration_refreshed.json",
+    "tests/fixtures/agent_registration_refreshed_data.json",
     "tests/fixtures/agent_registration_revoked.json",
     "tests/fixtures/agent_registration_revoked_data.json",
     "tests/fixtures/api_key.json",
@@ -984,6 +991,7 @@
     "tests/fixtures/data_integrations_list_response_data.json",
     "tests/fixtures/data_integrations_list_response_data_connected_account.json",
     "tests/fixtures/data_integrations_upsert_api_key_request.json",
+    "tests/fixtures/data_integrations_upsert_client_credentials_request.json",
     "tests/fixtures/data_integrations_vend_credentials_request.json",
     "tests/fixtures/decrypt_request.json",
     "tests/fixtures/decrypt_response.json",
@@ -2189,6 +2197,10 @@
     "POST /widgets/token": {
       "sdkMethod": "create_token",
       "service": "widgets"
+    },
+    "PUT /data-integrations/{slug}/client-credentials": {
+      "sdkMethod": "update_data_integration_client_credentials",
+      "service": "pipes"
     }
   }
 }
