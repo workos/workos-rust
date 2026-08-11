@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0](https://github.com/workos/workos-rust/compare/v3.1.0...v3.2.0) (2026-08-11)
+
+
+### Features
+
+* **events:** Change required status for parameter `Events.list.events` ([#136](https://github.com/workos/workos-rust/issues/136)) ([55cab37](https://github.com/workos/workos-rust/commit/55cab3728d7705802f8f8cc7ed93b8136f12036d))
+* **radar:** SDK surface change: Parameter "verification_id" removed from "AuthenticateWithRadarSmsChallengeParams.new" ([#136](https://github.com/workos/workos-rust/issues/136)) ([55cab37](https://github.com/workos/workos-rust/commit/55cab3728d7705802f8f8cc7ed93b8136f12036d))
+
+
+### Bug Fixes
+
+* parse AuthKit Actions request into flat ActionContext ([#135](https://github.com/workos/workos-rust/issues/135)) ([294d438](https://github.com/workos/workos-rust/commit/294d438730fc7fb97ba2ebf6f93a5f465b3a2fe9))
+
 ## [3.1.0](https://github.com/workos/workos-rust/compare/v3.0.0...v3.1.0) (2026-07-28)
 
 * [#132](https://github.com/workos/workos-rust/pull/132) fix(generated): regenerate from spec
