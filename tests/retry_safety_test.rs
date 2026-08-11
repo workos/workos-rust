@@ -83,6 +83,9 @@ async fn get_retries_on_5xx_up_to_max_retries() {
     assert_eq!(transport.calls(), 3);
 }
 
+// `OrganizationInput::domains` is deprecated in the spec, but struct literals
+// must name every field, so tests constructing the input allow the lint.
+#[allow(deprecated)]
 #[tokio::test]
 async fn post_does_not_retry_without_idempotency_key() {
     let transport = Arc::new(CountingTransport::new(503));
@@ -104,6 +107,7 @@ async fn post_does_not_retry_without_idempotency_key() {
     assert_eq!(transport.calls(), 1);
 }
 
+#[allow(deprecated)]
 #[tokio::test]
 async fn post_retries_with_idempotency_key() {
     let transport = Arc::new(CountingTransport::new(503));
@@ -156,6 +160,7 @@ async fn retry_after_header_is_honored() {
     assert_eq!(transport.calls(), 3);
 }
 
+#[allow(deprecated)]
 #[tokio::test]
 async fn idempotent_strategy_overrides_explicit_key() {
     let transport = Arc::new(CountingTransport::new(503));
