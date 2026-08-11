@@ -7,16 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.2.0](https://github.com/workos/workos-rust/compare/v3.1.0...v3.2.0) (2026-08-11)
 
-
-### Features
-
-* **events:** Change required status for parameter `Events.list.events` ([#136](https://github.com/workos/workos-rust/issues/136)) ([55cab37](https://github.com/workos/workos-rust/commit/55cab3728d7705802f8f8cc7ed93b8136f12036d))
-* **radar:** SDK surface change: Parameter "verification_id" removed from "AuthenticateWithRadarSmsChallengeParams.new" ([#136](https://github.com/workos/workos-rust/issues/136)) ([55cab37](https://github.com/workos/workos-rust/commit/55cab3728d7705802f8f8cc7ed93b8136f12036d))
-
-
 ### Bug Fixes
 
 * parse AuthKit Actions request into flat ActionContext ([#135](https://github.com/workos/workos-rust/issues/135)) ([294d438](https://github.com/workos/workos-rust/commit/294d438730fc7fb97ba2ebf6f93a5f465b3a2fe9))
+
+* [#136](https://github.com/workos/workos-rust/pull/136) feat(generated)!: regenerate from spec (2 changes)
+
+  **⚠️ Breaking**
+  * **[events](https://workos.com/docs/reference/events)**:
+    * Changed required status for parameter `Events.list.events`
+
+  **Features**
+  * **[groups](https://workos.com/docs/reference/groups)**:
+    * Added parameter `Groups.list.search`
+  * **[connect](https://workos.com/docs/reference/workos-connect/standalone)**:
+    * Added `client_id` to `ConnectedAccount`
+    * Added `client_secret_last_4` to `ConnectedAccount`
+    * Added `config` to `ConnectedAccount`
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * Added `client_id` to `DataIntegrationsListResponseDataConnectedAccount`
+    * Added `client_secret_last_4` to `DataIntegrationsListResponseDataConnectedAccount`
+    * Added `config` to `DataIntegrationsListResponseDataConnectedAccount`
+    * Changed errors for endpoint `POST /data-integrations/{slug}/credentials`
+    * Made `CustomProviderDefinition.authorization_url` optional
+    * Made `CustomProviderDefinition.token_url` optional
+    * Added model `DataIntegrationsUpsertClientCredentialsRequest`
+    * Added `client_credentials` to `CreateDataIntegrationAuthMethods`
+    * Added endpoint `PUT /data-integrations/{slug}/client-credentials`
+  * **[sso](https://workos.com/docs/reference/sso)**:
+    * Added `XOAuth` to `ConnectionType`
+    * Added `XOAuth` to `ProfileConnectionType`
+    * Added `XOAuth` to `ConnectionsConnectionType`
+    * Added `GrokOAuth` to `ConnectionType`
+    * Added `GrokOAuth` to `ProfileConnectionType`
+    * Added `GrokOAuth` to `ConnectionsConnectionType`
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Changed errors for endpoint `DELETE /user_management/users/{id}`
+    * Added `password_salt_position` to `CreateUser`
+    * Added `password_salt_position` to `UpdateUser`
+    * Made `RadarSmsChallengeCodeSessionAuthenticateRequest.verification_id` optional
+    * Made `RadarSmsChallengeCodeSessionAuthenticateRequest.phone_number` optional
+    * Added enum `CreateUserPasswordSaltPosition`
+    * Added enum `UpdateUserPasswordSaltPosition`
+    * Added `XOAuth` to `AuthenticateResponseAuthenticationMethod`
+    * Added `XOAuth` to `UserIdentitiesGetItemProvider`
+    * Added `GrokOAuth` to `AuthenticateResponseAuthenticationMethod`
+    * Added `GrokOAuth` to `UserIdentitiesGetItemProvider`
+  * **[webhooks](https://workos.com/docs/reference/webhooks)**:
+    * Added `agent.registration.refreshed` to `CreateWebhookEndpointEvents`
+    * Added `agent.registration.refreshed` to `UpdateWebhookEndpointEvents`
+
+  **Fixes**
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * Changed the type of `DataIntegration.credentials`
+  * **[user_management](https://workos.com/docs/reference/authkit/user)**:
+    * Changed errors for endpoint `POST /user_management/authenticate`
+    * Changed errors for endpoint `POST /user_management/users`
+    * Changed errors for endpoint `PUT /user_management/users/{id}`
 
 ## [3.1.0](https://github.com/workos/workos-rust/compare/v3.0.0...v3.1.0) (2026-07-28)
 
