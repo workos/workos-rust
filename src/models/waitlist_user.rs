@@ -18,6 +18,9 @@ pub struct WaitlistUser {
     /// The timestamp when the Waitlist User was approved, or null if not yet approved.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub approved_at: Option<String>,
+    /// The unique ID of the Waitlist that the Waitlist User joined.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub waitlist_id: Option<String>,
     /// An ISO 8601 timestamp.
     pub created_at: String,
     /// An ISO 8601 timestamp.

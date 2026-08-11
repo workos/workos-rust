@@ -31,9 +31,10 @@ pub struct ListEventsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
     /// Filter events by one or more event types (e.g. `dsync.user.created`).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(serialize_with = "crate::query::serialize_comma_separated_opt")]
-    pub events: Option<Vec<String>>,
+    ///
+    /// Required.
+    #[serde(serialize_with = "crate::query::serialize_comma_separated")]
+    pub events: Vec<String>,
     /// ISO-8601 date string to filter events created after this date.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range_start: Option<String>,
@@ -45,15 +46,16 @@ pub struct ListEventsParams {
     pub organization_id: Option<String>,
 }
 
-impl Default for ListEventsParams {
+impl ListEventsParams {
+    /// Construct a new `ListEventsParams` with the required fields set.
     #[allow(deprecated)]
-    fn default() -> Self {
+    pub fn new(events: Vec<String>) -> Self {
         Self {
             before: Default::default(),
             after: Default::default(),
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
-            events: Default::default(),
+            events,
             range_start: Default::default(),
             range_end: Default::default(),
             organization_id: Default::default(),

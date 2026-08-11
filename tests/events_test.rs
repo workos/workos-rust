@@ -20,7 +20,9 @@ async fn events_list_events_round_trip() {
     let client = common::test_client(&server).await;
     let _ = client
         .events()
-        .list_events(workos::events::ListEventsParams::default())
+        .list_events(workos::events::ListEventsParams::new(
+            serde_json::from_str("[\"test_events\"]").expect("parse stub"),
+        ))
         .await;
 }
 
@@ -37,7 +39,9 @@ async fn events_list_events_unauthorized() {
     let client = common::test_client(&server).await;
     let err = client
         .events()
-        .list_events(workos::events::ListEventsParams::default())
+        .list_events(workos::events::ListEventsParams::new(
+            serde_json::from_str("[\"test_events\"]").expect("parse stub"),
+        ))
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -60,7 +64,9 @@ async fn events_list_events_not_found() {
     let client = common::test_client(&server).await;
     let err = client
         .events()
-        .list_events(workos::events::ListEventsParams::default())
+        .list_events(workos::events::ListEventsParams::new(
+            serde_json::from_str("[\"test_events\"]").expect("parse stub"),
+        ))
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -85,7 +91,9 @@ async fn events_list_events_rate_limited() {
     let client = common::test_client(&server).await;
     let err = client
         .events()
-        .list_events(workos::events::ListEventsParams::default())
+        .list_events(workos::events::ListEventsParams::new(
+            serde_json::from_str("[\"test_events\"]").expect("parse stub"),
+        ))
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -109,7 +117,9 @@ async fn events_list_events_server_error() {
     let client = common::test_client(&server).await;
     let err = client
         .events()
-        .list_events(workos::events::ListEventsParams::default())
+        .list_events(workos::events::ListEventsParams::new(
+            serde_json::from_str("[\"test_events\"]").expect("parse stub"),
+        ))
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -133,7 +143,9 @@ async fn events_list_events_empty_page() {
     let client = common::test_client(&server).await;
     let resp = client
         .events()
-        .list_events(workos::events::ListEventsParams::default())
+        .list_events(workos::events::ListEventsParams::new(
+            serde_json::from_str("[\"test_events\"]").expect("parse stub"),
+        ))
         .await
         .expect("expected success");
     assert!(resp.data.is_empty(), "expected empty data array");
@@ -150,10 +162,10 @@ async fn events_list_events_encodes_query_params() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let params = workos::events::ListEventsParams {
-        events: Some(vec!["foo".to_string(), "bar".to_string()]),
-        ..Default::default()
-    };
+    let mut params = workos::events::ListEventsParams::new(
+        serde_json::from_str("[\"test_events\"]").expect("parse stub"),
+    );
+    params.events = vec!["foo".to_string(), "bar".to_string()];
     let _ = client.events().list_events(params).await;
     let received = server.received_requests().await.expect("recorded requests");
     let request = received.first().expect("at least one request");
