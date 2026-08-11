@@ -14,10 +14,12 @@ pub struct RadarSmsChallengeCodeSessionAuthenticateRequest {
     pub grant_type: String,
     /// The one-time code from the Radar SMS challenge.
     pub code: String,
-    /// The ID of the Radar SMS verification being confirmed.
-    pub verification_id: String,
-    /// The phone number the Radar SMS challenge was sent to.
-    pub phone_number: String,
+    /// The ID of the Radar SMS verification being confirmed. Required for sign-up challenges; omitted for sign-in challenges, where the verification is resolved server-side.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub verification_id: Option<String>,
+    /// The phone number the Radar SMS challenge was sent to. Required for sign-up challenges; omitted for sign-in challenges, where the phone number on file is resolved server-side.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub phone_number: Option<String>,
     /// The pending authentication token from a previous authentication attempt.
     pub pending_authentication_token: crate::SecretString,
     /// The IP address of the user's request.
