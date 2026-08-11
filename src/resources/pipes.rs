@@ -113,6 +113,23 @@ impl AuthorizeDataIntegrationParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct UpdateDataIntegrationClientCredentialsParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: DataIntegrationsUpsertClientCredentialsRequest,
+}
+
+impl UpdateDataIntegrationClientCredentialsParams {
+    /// Construct a new `UpdateDataIntegrationClientCredentialsParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DataIntegrationsUpsertClientCredentialsRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct CreateDataIntegrationCredentialParams {
     /// Request body sent with this call.
     ///
@@ -263,7 +280,7 @@ impl<'a> PipesApi<'a> {
 
     /// Create a data integration
     ///
-    /// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
+    /// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. Set `auth_methods` to `["client_credentials"]` to create a client-credentials integration; client credentials are installed per-tenant afterwards. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
     pub async fn create_data_integration(
         &self,
         params: CreateDataIntegrationParams,
@@ -403,6 +420,33 @@ impl<'a> PipesApi<'a> {
         let slug = crate::client::path_segment(slug);
         let path = format!("/data-integrations/{slug}/authorize");
         let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Upsert client credentials for a connected account
+    ///
+    /// Creates or updates a client-credentials-based installation for the specified integration and user. If an installation already exists, the stored client credentials are rotated to the new values.
+    pub async fn update_data_integration_client_credentials(
+        &self,
+        slug: &str,
+        params: UpdateDataIntegrationClientCredentialsParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.update_data_integration_client_credentials_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_data_integration_client_credentials`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_data_integration_client_credentials_with_options(
+        &self,
+        slug: &str,
+        params: UpdateDataIntegrationClientCredentialsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}/client-credentials");
+        let method = http::Method::PUT;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await

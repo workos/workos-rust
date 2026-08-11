@@ -1,5 +1,3 @@
 {
-  "name": "My OAuth App",
-  "authorization_url": "https://provider.example.com/oauth/authorize",
-  "token_url": "https://provider.example.com/oauth/token"
+  "name": "My OAuth App"
 }

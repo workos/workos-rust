@@ -31,7 +31,7 @@ pub struct UpdateUser {
     /// The user's preferred locale.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub locale: Option<String>,
-    /// The password to set for the user. Mutually exclusive with `password_hash` and `password_hash_type`.
+    /// The password to set for the user. Mutually exclusive with `password_hash`, `password_hash_type`, and `password_salt_position`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub password: Option<crate::SecretString>,
     /// The hashed password to set for the user. Required with `password_hash_type`. Mutually exclusive with `password`.
@@ -40,4 +40,7 @@ pub struct UpdateUser {
     /// The algorithm originally used to hash the password, used when providing a `password_hash`. Required with `password_hash`. Mutually exclusive with `password`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub password_hash_type: Option<UpdateUserPasswordHashType>,
+    /// The position of the salt relative to the password when the `password_hash` digest was computed: `prefix` for `hash(salt + password)` or `suffix` for `hash(password + salt)`. Only supported with the `ssha256` hash type and only valid when a `password_hash` is provided. Defaults to `suffix`. Mutually exclusive with `password`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub password_salt_position: Option<UpdateUserPasswordSaltPosition>,
 }

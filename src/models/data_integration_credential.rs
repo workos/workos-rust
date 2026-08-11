@@ -5,7 +5,6 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
-/// The credentials configured for the Data Integration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataIntegrationCredential {
     /// The credentials type. `custom` uses your own OAuth app credentials; `organization` has each organization supply its own credentials (so `client_id`/`redacted_client_secret` are null on the integration itself).
