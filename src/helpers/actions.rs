@@ -63,16 +63,20 @@ pub struct ActionUserData {
 ///   `organization_membership`, `issuer`
 /// - `user_registration_action_context`: `user_data`, `invitation`
 ///
-/// `ip_address`, `user_agent`, and `device_fingerprint` are shared by both
-/// context types; fields specific to the other variant are `None`.
+/// `authentication_method`, `ip_address`, `user_agent`, and
+/// `device_fingerprint` are shared by both context types; fields specific to
+/// the other variant are `None`.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ActionContext {
     /// Discriminates the action context type.
     pub object: String,
     /// Unique identifier for the action context.
     pub id: String,
-    /// The authentication method used to initiate the action.
-    pub authentication_method: AuthenticateResponseAuthenticationMethod,
+    /// The authentication method used to initiate the action. `None` when the
+    /// payload omits it, so an unrecognized or absent method never fails the
+    /// whole action.
+    #[serde(default)]
+    pub authentication_method: Option<AuthenticateResponseAuthenticationMethod>,
     /// Caller IP address (both context types).
     pub ip_address: Option<String>,
     /// Caller user agent (both context types).
@@ -314,7 +318,7 @@ mod tests {
         assert_eq!(action.id, "action_01");
         assert_eq!(
             action.authentication_method,
-            AuthenticateResponseAuthenticationMethod::Password
+            Some(AuthenticateResponseAuthenticationMethod::Password)
         );
         assert_eq!(action.ip_address.as_deref(), Some("1.2.3.4"));
         assert_eq!(action.user_agent.as_deref(), Some("curl/8"));
@@ -338,7 +342,7 @@ mod tests {
         assert_eq!(action.id, "action_02");
         assert_eq!(
             action.authentication_method,
-            AuthenticateResponseAuthenticationMethod::GoogleOAuth
+            Some(AuthenticateResponseAuthenticationMethod::GoogleOAuth)
         );
         assert_eq!(action.ip_address.as_deref(), Some("5.6.7.8"));
         let user_data = action.user_data.as_ref().unwrap();
@@ -349,5 +353,33 @@ mod tests {
         assert!(action.user.is_none());
         assert!(action.organization.is_none());
         assert!(action.invitation.is_none());
+    }
+
+    #[test]
+    fn construct_action_without_authentication_method() {
+        let secret = "shh";
+        let payload = r#"{"object":"user_registration_action_context","id":"action_02","user_data":{"object":"user_data","email":"new@example.com","first_name":"New","last_name":"User","name":null},"ip_address":"5.6.7.8","user_agent":"Mozilla/5.0","device_fingerprint":"fp_456"}"#;
+        let header = action_sig_header(secret, payload);
+        let helper = ActionsHelper::new().with_clock(|| fixed_now(1_700_000_000_000));
+        let action = helper.construct_action(payload, &header, secret).unwrap();
+        assert_eq!(action.id, "action_02");
+        assert!(action.authentication_method.is_none());
+        assert_eq!(action.user_data.as_ref().unwrap().email, "new@example.com");
+    }
+
+    #[test]
+    fn construct_action_unrecognized_authentication_method() {
+        let secret = "shh";
+        let payload = r#"{"object":"authentication_action_context","id":"action_03","authentication_method":"SomeFutureMethod","user":{"object":"user","id":"user_01","email":"test@example.com","email_verified":true,"created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z"},"ip_address":"1.2.3.4"}"#;
+        let header = action_sig_header(secret, payload);
+        let helper = ActionsHelper::new().with_clock(|| fixed_now(1_700_000_000_000));
+        let action = helper.construct_action(payload, &header, secret).unwrap();
+        assert_eq!(action.id, "action_03");
+        assert_eq!(
+            action.authentication_method,
+            Some(AuthenticateResponseAuthenticationMethod::Unknown(
+                "SomeFutureMethod".to_string()
+            ))
+        );
     }
 }
