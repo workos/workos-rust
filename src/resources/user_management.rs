@@ -20,9 +20,9 @@ pub enum Password {
     },
     Hashed {
         password_hash: String,
-        password_hash_type: String,
+        password_hash_type: CreateUserPasswordHashType,
         #[serde(skip_serializing_if = "Option::is_none")]
-        password_salt_position: Option<String>,
+        password_salt_position: Option<CreateUserPasswordSaltPosition>,
     },
 }
 
@@ -1099,6 +1099,63 @@ impl Default for ListUserAuthorizedApplicationsParams {
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
         }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ListWaitlistEntriesParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+    /// Filter waitlist entries by their state.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<UserManagementWaitlistsState>,
+    /// Filter waitlist entries by their exact email address.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+}
+
+impl Default for ListWaitlistEntriesParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            state: Default::default(),
+            email: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateWaitlistEntryParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: CreateWaitlistEntry,
+}
+
+impl CreateWaitlistEntryParams {
+    /// Construct a new `CreateWaitlistEntryParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateWaitlistEntry) -> Self {
+        Self { body }
     }
 }
 
@@ -2637,6 +2694,195 @@ impl<'a> UserManagementApi<'a> {
         let method = http::Method::DELETE;
         self.client
             .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
+    /// Delete a waitlist entry
+    ///
+    /// Remove the entry from the waitlist. Its email address can join again unless a user with that email now exists in the environment. Deleting the entry does not revoke an invitation created by approving it — [revoke that invitation](https://workos.com/docs/reference/authkit/invitation/revoke) separately to withdraw access.
+    pub async fn delete_waitlist_entry(&self, id: &str) -> Result<(), Error> {
+        self.delete_waitlist_entry_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_waitlist_entry`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_waitlist_entry_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/waitlist_entries/{id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
+    /// Approve a waitlist entry
+    ///
+    /// Approve a waitlist entry, create an invitation for its email address, and send the invitation email. Approving a denied entry reverses the denial. The approval is saved even when the invitation steps fail, so instead of retrying the approval, recover based on the outcome:
+    ///
+    /// - `200` — the entry is approved. If invitation creation failed, no invitation exists yet; [send](https://workos.com/docs/reference/authkit/invitation/send) one.
+    /// - `422` with code `invitation_email_not_sent` — the entry is approved and an invitation exists, but its email was not sent; [resend](https://workos.com/docs/reference/authkit/invitation/resend) it.
+    /// - `422` with code `invalid_state` — the entry was already approved.
+    pub async fn create_waitlist_entry_approve(&self, id: &str) -> Result<WaitlistEntry, Error> {
+        self.create_waitlist_entry_approve_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_waitlist_entry_approve`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_waitlist_entry_approve_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<WaitlistEntry, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/waitlist_entries/{id}/approve");
+        let method = http::Method::POST;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Deny a waitlist entry
+    ///
+    /// Deny a pending waitlist entry. Denying an entry that is not pending fails with the code `invalid_state`. A denial can be reversed by approving the entry.
+    pub async fn create_waitlist_entry_deny(&self, id: &str) -> Result<WaitlistEntry, Error> {
+        self.create_waitlist_entry_deny_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::create_waitlist_entry_deny`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_waitlist_entry_deny_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<WaitlistEntry, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/waitlist_entries/{id}/deny");
+        let method = http::Method::POST;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// List waitlists
+    ///
+    /// Get a list of the waitlists in the environment. All waitlists are returned in a single response — this endpoint is not paginated, so the `list_metadata` cursors are always `null`.
+    pub async fn list_waitlists(&self) -> Result<crate::pagination::Page<Waitlist>, Error> {
+        self.list_waitlists_with_options(None).await
+    }
+
+    /// Variant of [`Self::list_waitlists`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_waitlists_with_options(
+        &self,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<Waitlist>, Error> {
+        let path = "/user_management/waitlists".to_string();
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Get a waitlist
+    ///
+    /// Get the details of an existing waitlist.
+    pub async fn get_waitlist(&self, id: &str) -> Result<Waitlist, Error> {
+        self.get_waitlist_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_waitlist`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_waitlist_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Waitlist, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/waitlists/{id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// List waitlist entries
+    ///
+    /// Get a list of entries on a waitlist matching the criteria specified.
+    pub async fn list_waitlist_entries(
+        &self,
+        id: &str,
+        params: ListWaitlistEntriesParams,
+    ) -> Result<crate::pagination::Page<WaitlistEntry>, Error> {
+        self.list_waitlist_entries_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_waitlist_entries`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_waitlist_entries_with_options(
+        &self,
+        id: &str,
+        params: ListWaitlistEntriesParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<WaitlistEntry>, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/waitlists/{id}/entries");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `WaitlistEntry`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<WaitlistEntry> = self
+    ///     .list_waitlist_entries_auto_paging(id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_waitlist_entries_auto_paging(
+        &self,
+        id: impl Into<String>,
+        params: ListWaitlistEntriesParams,
+    ) -> impl futures_util::Stream<Item = Result<WaitlistEntry, Error>> + '_ {
+        let id: String = id.into();
+        crate::pagination::auto_paginate_pages(move |after| {
+            let id = id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_waitlist_entries(&id, params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Create a waitlist entry
+    ///
+    /// Add an email address to the waitlist. Email addresses are normalized and unique per environment: a request for an email address already on the waitlist returns the existing entry unchanged (still with status `201`) and does not send another confirmation email. If a user with the email address already exists in the environment, the request fails with the code `user_already_exists`.
+    pub async fn create_waitlist_entry(
+        &self,
+        id: &str,
+        params: CreateWaitlistEntryParams,
+    ) -> Result<WaitlistEntry, Error> {
+        self.create_waitlist_entry_with_options(id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_waitlist_entry`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_waitlist_entry_with_options(
+        &self,
+        id: &str,
+        params: CreateWaitlistEntryParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<WaitlistEntry, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/waitlists/{id}/entries");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
