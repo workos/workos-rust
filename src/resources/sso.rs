@@ -12,6 +12,99 @@ pub struct SSOApi<'a> {
     pub(crate) client: &'a Client,
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum CreateProtocolOptions {
+    SAML {
+        saml_options: CreateConnectionSAMLOptions,
+    },
+    Oidc {
+        oidc_options: CreateConnectionOidcOptions,
+    },
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum PatchProtocolOptions {
+    SAML {
+        saml_options: PatchConnectionSAMLOptions,
+    },
+    Oidc {
+        oidc_options: PatchConnectionOidcOptions,
+    },
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CreateConnectionParamsBody {
+    /// Unique identifier for the Organization in which the Connection resides.
+    ///
+    /// Required.
+    pub organization_id: String,
+    /// A human-readable name for the Connection. This will most commonly be the organization's name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// The customer-owned identifier for the Connection.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_id: Option<String>,
+    /// The type of the Connection. Only SAML and OIDC connection types may be created. When omitted, the type is inferred from the provided options.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connection_type: Option<String>,
+    /// How IdP attributes or claims map onto WorkOS profile fields. Provided fields override the defaults for the connection type.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attribute_maps: Option<CreateConnectionAttributeMaps>,
+    #[serde(flatten)]
+    pub protocol_options: CreateProtocolOptions,
+}
+
+impl CreateConnectionParamsBody {
+    /// Construct a new `CreateConnectionParamsBody` with the required fields set.
+    pub fn new(
+        organization_id: impl Into<String>,
+        protocol_options: CreateProtocolOptions,
+    ) -> Self {
+        Self {
+            organization_id: organization_id.into(),
+            name: Default::default(),
+            external_id: Default::default(),
+            connection_type: Default::default(),
+            attribute_maps: Default::default(),
+            protocol_options,
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
+pub struct UpdateConnectionParamsBody {
+    /// A human-readable name for the Connection.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// The customer-owned identifier for the Connection. Set to `null` to stop tracking one.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_id: Option<String>,
+    /// The type of the Connection. Immutable after creation — it may be sent, but only with the Connection current type.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connection_type: Option<String>,
+    /// How IdP attributes or claims map onto WorkOS profile fields. Only the provided fields are updated.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attribute_maps: Option<PatchConnectionAttributeMaps>,
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protocol_options: Option<PatchProtocolOptions>,
+}
+
+impl UpdateConnectionParamsBody {
+    /// Construct a new `UpdateConnectionParamsBody` with the required fields set.
+    pub fn new() -> Self {
+        Self {
+            name: Default::default(),
+            external_id: Default::default(),
+            connection_type: Default::default(),
+            attribute_maps: Default::default(),
+            protocol_options: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct ListConnectionsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list.
@@ -57,6 +150,57 @@ impl Default for ListConnectionsParams {
             organization_id: Default::default(),
             search: Default::default(),
         }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateConnectionParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: CreateConnectionParamsBody,
+}
+
+impl CreateConnectionParams {
+    /// Construct a new `CreateConnectionParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateConnectionParamsBody) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateConnectionSAMLIdpSigningCertParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: CreateSAMLIdpSigningCertificate,
+}
+
+impl CreateConnectionSAMLIdpSigningCertParams {
+    /// Construct a new `CreateConnectionSAMLIdpSigningCertParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateSAMLIdpSigningCertificate) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct UpdateConnectionParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: UpdateConnectionParamsBody,
+}
+
+impl UpdateConnectionParams {
+    /// Construct a new `UpdateConnectionParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateConnectionParamsBody) -> Self {
+        Self { body }
     }
 }
 
@@ -163,10 +307,9 @@ impl AuthorizeLogoutParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct GetProfileAndTokenParams {
-    /// The authorization code received from the authorization callback.
-    ///
-    /// Required.
-    pub code: String,
+    /// The authorization code received from the authorization callback. Required when `grant_type` is `authorization_code`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
     /// Request body sent with this call.
     ///
     /// Required.
@@ -177,9 +320,9 @@ pub struct GetProfileAndTokenParams {
 impl GetProfileAndTokenParams {
     /// Construct a new `GetProfileAndTokenParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(code: impl Into<String>, body: TokenQuery) -> Self {
+    pub fn new(body: TokenQuery) -> Self {
         Self {
-            code: code.into(),
+            code: Default::default(),
             body,
         }
     }
@@ -233,6 +376,278 @@ impl<'a> SSOApi<'a> {
         })
     }
 
+    /// Create a Connection
+    ///
+    /// Creates a new connection for an organization. Provide `saml_options` or `oidc_options` to configure the identity provider. When `external_id` matches an existing connection in the organization, that connection is returned instead of creating a duplicate.
+    pub async fn create_connection(
+        &self,
+        params: CreateConnectionParams,
+    ) -> Result<Connection, Error> {
+        self.create_connection_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_connection`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_connection_with_options(
+        &self,
+        params: CreateConnectionParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Connection, Error> {
+        let path = "/connections".to_string();
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// List IdP signing certificates
+    ///
+    /// Lists every Identity Provider signing certificate on the connection, including expired ones, oldest first.
+    pub async fn list_connection_saml_idp_signing_certs(
+        &self,
+        connection_id: &str,
+    ) -> Result<SAMLIdpSigningCertificateList, Error> {
+        self.list_connection_saml_idp_signing_certs_with_options(connection_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_connection_saml_idp_signing_certs`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_connection_saml_idp_signing_certs_with_options(
+        &self,
+        connection_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<SAMLIdpSigningCertificateList, Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let path = format!("/connections/{connection_id}/saml_idp_signing_certs");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Create an IdP signing certificate
+    ///
+    /// Adds an Identity Provider signing certificate to the connection, so SAML responses signed with its key can be verified. Use this to import a new certificate ahead of an Identity Provider rotation — the existing certificates keep working until they are deleted or expire.
+    pub async fn create_connection_saml_idp_signing_cert(
+        &self,
+        connection_id: &str,
+        params: CreateConnectionSAMLIdpSigningCertParams,
+    ) -> Result<SAMLIdpSigningCertificate, Error> {
+        self.create_connection_saml_idp_signing_cert_with_options(connection_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_connection_saml_idp_signing_cert`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_connection_saml_idp_signing_cert_with_options(
+        &self,
+        connection_id: &str,
+        params: CreateConnectionSAMLIdpSigningCertParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<SAMLIdpSigningCertificate, Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let path = format!("/connections/{connection_id}/saml_idp_signing_certs");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Delete an IdP signing certificate
+    ///
+    /// Removes an Identity Provider signing certificate from the connection. The last remaining certificate cannot be deleted. A certificate still published in the Identity Provider metadata may be restored by a metadata refresh.
+    pub async fn delete_connection_saml_idp_signing_cert(
+        &self,
+        connection_id: &str,
+        certificate_id: &str,
+    ) -> Result<(), Error> {
+        self.delete_connection_saml_idp_signing_cert_with_options(
+            connection_id,
+            certificate_id,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::delete_connection_saml_idp_signing_cert`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_connection_saml_idp_signing_cert_with_options(
+        &self,
+        connection_id: &str,
+        certificate_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let certificate_id = crate::client::path_segment(certificate_id);
+        let path = format!("/connections/{connection_id}/saml_idp_signing_certs/{certificate_id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
+    /// List SP encryption certificates
+    ///
+    /// Lists the public certificates the Identity Provider can use to encrypt SAML responses sent to WorkOS, including expired ones, oldest first.
+    pub async fn list_connection_saml_sp_encryption_certs(
+        &self,
+        connection_id: &str,
+    ) -> Result<SAMLSpEncryptionCertificateList, Error> {
+        self.list_connection_saml_sp_encryption_certs_with_options(connection_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_connection_saml_sp_encryption_certs`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_connection_saml_sp_encryption_certs_with_options(
+        &self,
+        connection_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<SAMLSpEncryptionCertificateList, Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let path = format!("/connections/{connection_id}/saml_sp_encryption_certs");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Create an SP encryption certificate
+    ///
+    /// Generates a new encryption key pair for the connection and returns its public certificate. WorkOS holds the private key, so the request takes no body — to bring your own key pairs, provide `saml_options.sp_encryption_key_pairs` when creating the connection instead. Creating a certificate appends rather than replaces: every active private key is tried when decrypting, which lets a rotation overlap the old and new certificates.
+    pub async fn create_connection_saml_sp_encryption_cert(
+        &self,
+        connection_id: &str,
+    ) -> Result<SAMLSpEncryptionCertificate, Error> {
+        self.create_connection_saml_sp_encryption_cert_with_options(connection_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_connection_saml_sp_encryption_cert`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_connection_saml_sp_encryption_cert_with_options(
+        &self,
+        connection_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<SAMLSpEncryptionCertificate, Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let path = format!("/connections/{connection_id}/saml_sp_encryption_certs");
+        let method = http::Method::POST;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Delete an SP encryption certificate
+    ///
+    /// Removes an encryption key pair from the connection. SAML responses encrypted with its certificate can no longer be decrypted, so remove the certificate from the Identity Provider first when rotating.
+    pub async fn delete_connection_saml_sp_encryption_cert(
+        &self,
+        connection_id: &str,
+        certificate_id: &str,
+    ) -> Result<(), Error> {
+        self.delete_connection_saml_sp_encryption_cert_with_options(
+            connection_id,
+            certificate_id,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::delete_connection_saml_sp_encryption_cert`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_connection_saml_sp_encryption_cert_with_options(
+        &self,
+        connection_id: &str,
+        certificate_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let certificate_id = crate::client::path_segment(certificate_id);
+        let path =
+            format!("/connections/{connection_id}/saml_sp_encryption_certs/{certificate_id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
+    /// Get the SP signing certificate
+    ///
+    /// Returns the public certificate the Identity Provider can use to verify the signature of SAML requests sent by WorkOS. Responds with `404` when the connection has no request signing key pair.
+    pub async fn list_connection_saml_sp_signing_cert(
+        &self,
+        connection_id: &str,
+    ) -> Result<SAMLSpSigningCertificate, Error> {
+        self.list_connection_saml_sp_signing_cert_with_options(connection_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_connection_saml_sp_signing_cert`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_connection_saml_sp_signing_cert_with_options(
+        &self,
+        connection_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<SAMLSpSigningCertificate, Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let path = format!("/connections/{connection_id}/saml_sp_signing_cert");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Create an SP signing certificate
+    ///
+    /// Generates a new request signing key pair for the connection and returns its public certificate. WorkOS holds the private key, so the request takes no body — to bring your own key pair, provide `saml_options.sp_signing_key_pair` when creating the connection instead. A connection signs with one key pair at a time: delete the existing certificate before creating its replacement.
+    pub async fn create_connection_saml_sp_signing_cert(
+        &self,
+        connection_id: &str,
+    ) -> Result<SAMLSpSigningCertificate, Error> {
+        self.create_connection_saml_sp_signing_cert_with_options(connection_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_connection_saml_sp_signing_cert`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_connection_saml_sp_signing_cert_with_options(
+        &self,
+        connection_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<SAMLSpSigningCertificate, Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let path = format!("/connections/{connection_id}/saml_sp_signing_cert");
+        let method = http::Method::POST;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Delete the SP signing certificate
+    ///
+    /// Removes the request signing key pair from the connection, after which SAML requests are sent unsigned. Delete the certificate before creating its replacement when rotating.
+    pub async fn delete_connection_saml_sp_signing_cert(
+        &self,
+        connection_id: &str,
+        certificate_id: &str,
+    ) -> Result<(), Error> {
+        self.delete_connection_saml_sp_signing_cert_with_options(
+            connection_id,
+            certificate_id,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::delete_connection_saml_sp_signing_cert`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_connection_saml_sp_signing_cert_with_options(
+        &self,
+        connection_id: &str,
+        certificate_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let connection_id = crate::client::path_segment(connection_id);
+        let certificate_id = crate::client::path_segment(certificate_id);
+        let path = format!("/connections/{connection_id}/saml_sp_signing_cert/{certificate_id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
     /// Get a Connection
     ///
     /// Get the details of an existing connection.
@@ -251,6 +666,32 @@ impl<'a> SSOApi<'a> {
         let method = http::Method::GET;
         self.client
             .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Update a Connection
+    ///
+    /// Updates an existing connection. Only the provided fields are changed; fields that accept `null` are reset to their default behavior.
+    pub async fn update_connection(
+        &self,
+        id: &str,
+        params: UpdateConnectionParams,
+    ) -> Result<Connection, Error> {
+        self.update_connection_with_options(id, params, None).await
+    }
+
+    /// Variant of [`Self::update_connection`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_connection_with_options(
+        &self,
+        id: &str,
+        params: UpdateConnectionParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<Connection, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/connections/{id}");
+        let method = http::Method::PATCH;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
