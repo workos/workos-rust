@@ -1,8 +1,3 @@
 {
-  "name": "Prospecting Agent",
-  "session_settings": {
-    "max_age_seconds": 3600,
-    "access_token_ttl_seconds": 300,
-    "refresh_token_ttl_seconds": 3600
-  }
+  "name": "Prospecting Agent"
 }
