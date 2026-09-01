@@ -7,6 +7,11 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateAuditLogsRetention {
-    /// The number of days Audit Log events will be retained. Valid values are `30` and `365`.
-    pub retention_period_in_days: i64,
+    /// The period Audit Log events will be retained. Valid values are `1_MONTH` through `11_MONTHS` in one-month increments and `1_YEAR` through `10_YEARS` in one-year increments. Mutually exclusive with `retention_period_in_days`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub retention_period: Option<UpdateAuditLogsRetentionRetentionPeriod>,
+    /// The number of days Audit Log events will be retained. Valid values are `30` through `330` in 30-day increments and `365` through `3650` in 365-day increments. Deprecated: use `retention_period` instead. Mutually exclusive with `retention_period`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    #[deprecated]
+    pub retention_period_in_days: Option<i64>,
 }
