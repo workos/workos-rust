@@ -8084,6 +8084,1112 @@ async fn user_management_delete_user_authorized_application_unprocessable() {
 }
 
 #[tokio::test]
+async fn user_management_delete_waitlist_entry_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/user_management/waitlist_entries/test_id"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .delete_waitlist_entry("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_delete_waitlist_entry_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/user_management/waitlist_entries/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_waitlist_entry("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_delete_waitlist_entry_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/user_management/waitlist_entries/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_waitlist_entry("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_delete_waitlist_entry_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/user_management/waitlist_entries/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_waitlist_entry("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_delete_waitlist_entry_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/user_management/waitlist_entries/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_waitlist_entry("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_delete_waitlist_entry_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/user_management/waitlist_entries/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_waitlist_entry("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn user_management_delete_waitlist_entry_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher("/user_management/waitlist_entries/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_waitlist_entry("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_approve_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/approve",
+        ))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/waitlist_entry.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .create_waitlist_entry_approve("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_approve_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/approve",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_approve("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_approve_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/approve",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_approve("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_approve_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/approve",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_approve("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_approve_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/approve",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_approve("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_approve_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/approve",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_approve("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_approve_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/approve",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_approve("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_deny_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/deny",
+        ))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/waitlist_entry.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .create_waitlist_entry_deny("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_deny_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/deny",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_deny("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_deny_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/deny",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_deny("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_deny_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/deny",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_deny("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_deny_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/deny",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_deny("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_deny_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/deny",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_deny("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_deny_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/user_management/waitlist_entries/test_id/deny",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry_deny("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn user_management_list_waitlists_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client.user_management().list_waitlists().await;
+}
+
+#[tokio::test]
+async fn user_management_list_waitlists_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_waitlists()
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_list_waitlists_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_waitlists()
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_list_waitlists_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_waitlists()
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_list_waitlists_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_waitlists()
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_list_waitlists_empty_page() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let resp = client
+        .user_management()
+        .list_waitlists()
+        .await
+        .expect("expected success");
+    assert!(resp.data.is_empty(), "expected empty data array");
+}
+
+#[tokio::test]
+async fn user_management_get_waitlist_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/waitlist.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client.user_management().get_waitlist("test_id").await;
+}
+
+#[tokio::test]
+async fn user_management_get_waitlist_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .get_waitlist("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_get_waitlist_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .get_waitlist("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_get_waitlist_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .get_waitlist("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_get_waitlist_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .get_waitlist("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_list_waitlist_entries_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .list_waitlist_entries(
+            "test_id",
+            workos::user_management::ListWaitlistEntriesParams::default(),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_list_waitlist_entries_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_waitlist_entries(
+            "test_id",
+            workos::user_management::ListWaitlistEntriesParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_list_waitlist_entries_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_waitlist_entries(
+            "test_id",
+            workos::user_management::ListWaitlistEntriesParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_list_waitlist_entries_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_waitlist_entries(
+            "test_id",
+            workos::user_management::ListWaitlistEntriesParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_list_waitlist_entries_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_waitlist_entries(
+            "test_id",
+            workos::user_management::ListWaitlistEntriesParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_list_waitlist_entries_empty_page() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let resp = client
+        .user_management()
+        .list_waitlist_entries(
+            "test_id",
+            workos::user_management::ListWaitlistEntriesParams::default(),
+        )
+        .await
+        .expect("expected success");
+    assert!(resp.data.is_empty(), "expected empty data array");
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/waitlist_entry.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .create_waitlist_entry(
+            "test_id",
+            workos::user_management::CreateWaitlistEntryParams::new(
+                serde_json::from_str(include_str!("fixtures/create_waitlist_entry.json"))
+                    .expect("parse fixture for CreateWaitlistEntry"),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry(
+            "test_id",
+            workos::user_management::CreateWaitlistEntryParams::new(
+                serde_json::from_str(include_str!("fixtures/create_waitlist_entry.json"))
+                    .expect("parse fixture for CreateWaitlistEntry"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry(
+            "test_id",
+            workos::user_management::CreateWaitlistEntryParams::new(
+                serde_json::from_str(include_str!("fixtures/create_waitlist_entry.json"))
+                    .expect("parse fixture for CreateWaitlistEntry"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry(
+            "test_id",
+            workos::user_management::CreateWaitlistEntryParams::new(
+                serde_json::from_str(include_str!("fixtures/create_waitlist_entry.json"))
+                    .expect("parse fixture for CreateWaitlistEntry"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry(
+            "test_id",
+            workos::user_management::CreateWaitlistEntryParams::new(
+                serde_json::from_str(include_str!("fixtures/create_waitlist_entry.json"))
+                    .expect("parse fixture for CreateWaitlistEntry"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry(
+            "test_id",
+            workos::user_management::CreateWaitlistEntryParams::new(
+                serde_json::from_str(include_str!("fixtures/create_waitlist_entry.json"))
+                    .expect("parse fixture for CreateWaitlistEntry"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn user_management_create_waitlist_entry_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/waitlists/test_id/entries"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_waitlist_entry(
+            "test_id",
+            workos::user_management::CreateWaitlistEntryParams::new(
+                serde_json::from_str(include_str!("fixtures/create_waitlist_entry.json"))
+                    .expect("parse fixture for CreateWaitlistEntry"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn user_management_list_user_api_keys_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
