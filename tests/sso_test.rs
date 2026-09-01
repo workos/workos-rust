@@ -141,6 +141,1648 @@ async fn sso_list_connections_empty_page() {
 }
 
 #[tokio::test]
+async fn sso_create_connection_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/connection.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .create_connection(workos::sso::CreateConnectionParams::new(
+            workos::sso::CreateConnectionParamsBody::new(
+                "stub_organization_id".to_string(),
+                workos::sso::CreateProtocolOptions::SAML {
+                    saml_options: serde_json::from_str("{}")
+                        .expect("parse stub for CreateConnectionSAMLOptions"),
+                },
+            ),
+        ))
+        .await;
+}
+
+#[tokio::test]
+async fn sso_create_connection_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection(workos::sso::CreateConnectionParams::new(
+            workos::sso::CreateConnectionParamsBody::new(
+                "stub_organization_id".to_string(),
+                workos::sso::CreateProtocolOptions::SAML {
+                    saml_options: serde_json::from_str("{}")
+                        .expect("parse stub for CreateConnectionSAMLOptions"),
+                },
+            ),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_create_connection_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection(workos::sso::CreateConnectionParams::new(
+            workos::sso::CreateConnectionParamsBody::new(
+                "stub_organization_id".to_string(),
+                workos::sso::CreateProtocolOptions::SAML {
+                    saml_options: serde_json::from_str("{}")
+                        .expect("parse stub for CreateConnectionSAMLOptions"),
+                },
+            ),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_create_connection_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection(workos::sso::CreateConnectionParams::new(
+            workos::sso::CreateConnectionParamsBody::new(
+                "stub_organization_id".to_string(),
+                workos::sso::CreateProtocolOptions::SAML {
+                    saml_options: serde_json::from_str("{}")
+                        .expect("parse stub for CreateConnectionSAMLOptions"),
+                },
+            ),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_create_connection_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection(workos::sso::CreateConnectionParams::new(
+            workos::sso::CreateConnectionParamsBody::new(
+                "stub_organization_id".to_string(),
+                workos::sso::CreateProtocolOptions::SAML {
+                    saml_options: serde_json::from_str("{}")
+                        .expect("parse stub for CreateConnectionSAMLOptions"),
+                },
+            ),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_create_connection_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection(workos::sso::CreateConnectionParams::new(
+            workos::sso::CreateConnectionParamsBody::new(
+                "stub_organization_id".to_string(),
+                workos::sso::CreateProtocolOptions::SAML {
+                    saml_options: serde_json::from_str("{}")
+                        .expect("parse stub for CreateConnectionSAMLOptions"),
+                },
+            ),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn sso_create_connection_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection(workos::sso::CreateConnectionParams::new(
+            workos::sso::CreateConnectionParamsBody::new(
+                "stub_organization_id".to_string(),
+                workos::sso::CreateProtocolOptions::SAML {
+                    saml_options: serde_json::from_str("{}")
+                        .expect("parse stub for CreateConnectionSAMLOptions"),
+                },
+            ),
+        ))
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_idp_signing_certs_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/saml_idp_signing_certificate_list.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .list_connection_saml_idp_signing_certs("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_idp_signing_certs_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_idp_signing_certs("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_idp_signing_certs_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_idp_signing_certs("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_idp_signing_certs_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_idp_signing_certs("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_idp_signing_certs_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_idp_signing_certs("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_idp_signing_cert_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/saml_idp_signing_certificate.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .create_connection_saml_idp_signing_cert(
+            "test_id",
+            workos::sso::CreateConnectionSAMLIdpSigningCertParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/create_saml_idp_signing_certificate.json"
+                ))
+                .expect("parse fixture for CreateSAMLIdpSigningCertificate"),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_idp_signing_cert_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_idp_signing_cert(
+            "test_id",
+            workos::sso::CreateConnectionSAMLIdpSigningCertParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/create_saml_idp_signing_certificate.json"
+                ))
+                .expect("parse fixture for CreateSAMLIdpSigningCertificate"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_idp_signing_cert_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_idp_signing_cert(
+            "test_id",
+            workos::sso::CreateConnectionSAMLIdpSigningCertParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/create_saml_idp_signing_certificate.json"
+                ))
+                .expect("parse fixture for CreateSAMLIdpSigningCertificate"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_idp_signing_cert_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_idp_signing_cert(
+            "test_id",
+            workos::sso::CreateConnectionSAMLIdpSigningCertParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/create_saml_idp_signing_certificate.json"
+                ))
+                .expect("parse fixture for CreateSAMLIdpSigningCertificate"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_idp_signing_cert_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_idp_signing_cert(
+            "test_id",
+            workos::sso::CreateConnectionSAMLIdpSigningCertParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/create_saml_idp_signing_certificate.json"
+                ))
+                .expect("parse fixture for CreateSAMLIdpSigningCertificate"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_idp_signing_cert_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_idp_signing_cert(
+            "test_id",
+            workos::sso::CreateConnectionSAMLIdpSigningCertParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/create_saml_idp_signing_certificate.json"
+                ))
+                .expect("parse fixture for CreateSAMLIdpSigningCertificate"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_idp_signing_cert_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_idp_signing_certs"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_idp_signing_cert(
+            "test_id",
+            workos::sso::CreateConnectionSAMLIdpSigningCertParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/create_saml_idp_signing_certificate.json"
+                ))
+                .expect("parse fixture for CreateSAMLIdpSigningCertificate"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_idp_signing_cert_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_idp_signing_certs/test_id",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .delete_connection_saml_idp_signing_cert("test_id", "test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_idp_signing_cert_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_idp_signing_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_idp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_idp_signing_cert_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_idp_signing_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_idp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_idp_signing_cert_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_idp_signing_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_idp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_idp_signing_cert_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_idp_signing_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_idp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_idp_signing_cert_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_idp_signing_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_idp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_idp_signing_cert_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_idp_signing_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_idp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_encryption_certs_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/saml_sp_encryption_certificate_list.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .list_connection_saml_sp_encryption_certs("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_encryption_certs_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_sp_encryption_certs("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_encryption_certs_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_sp_encryption_certs("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_encryption_certs_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_sp_encryption_certs("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_encryption_certs_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_sp_encryption_certs("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_encryption_cert_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/saml_sp_encryption_certificate.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .create_connection_saml_sp_encryption_cert("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_encryption_cert_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_encryption_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_encryption_cert_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_encryption_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_encryption_cert_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_encryption_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_encryption_cert_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_encryption_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_encryption_cert_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_encryption_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_encryption_cert_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_encryption_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_encryption_cert_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs/test_id",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .delete_connection_saml_sp_encryption_cert("test_id", "test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_encryption_cert_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_encryption_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_encryption_cert_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_encryption_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_encryption_cert_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_encryption_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_encryption_cert_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_encryption_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_encryption_cert_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_encryption_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_encryption_cert_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_encryption_certs/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_encryption_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_signing_cert_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/saml_sp_signing_certificate.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .list_connection_saml_sp_signing_cert("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_signing_cert_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_signing_cert_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_signing_cert_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_list_connection_saml_sp_signing_cert_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .list_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_signing_cert_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/saml_sp_signing_certificate.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .create_connection_saml_sp_signing_cert("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_signing_cert_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_signing_cert_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_signing_cert_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_signing_cert_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_signing_cert_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn sso_create_connection_saml_sp_signing_cert_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/connections/test_id/saml_sp_signing_cert"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .create_connection_saml_sp_signing_cert("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_signing_cert_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_signing_cert/test_id",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .sso()
+        .delete_connection_saml_sp_signing_cert("test_id", "test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_signing_cert_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_signing_cert/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_signing_cert_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_signing_cert/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_signing_cert_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_signing_cert/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_signing_cert_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_signing_cert/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_signing_cert_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_signing_cert/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn sso_delete_connection_saml_sp_signing_cert_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/connections/test_id/saml_sp_signing_cert/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .sso()
+        .delete_connection_saml_sp_signing_cert("test_id", "test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn sso_get_connection_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
@@ -248,6 +1890,209 @@ async fn sso_get_connection_server_error() {
         other => panic!("expected Error::Api, got {other:?}"),
     };
     assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_update_connection_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("PATCH"))
+        .and(path_matcher("/connections/test_id"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_string(include_str!("fixtures/connection.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ =
+        client
+            .sso()
+            .update_connection(
+                "test_id",
+                workos::sso::UpdateConnectionParams::new(
+                    workos::sso::UpdateConnectionParamsBody::new(),
+                ),
+            )
+            .await;
+}
+
+#[tokio::test]
+async fn sso_update_connection_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("PATCH"))
+        .and(path_matcher("/connections/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err =
+        client
+            .sso()
+            .update_connection(
+                "test_id",
+                workos::sso::UpdateConnectionParams::new(
+                    workos::sso::UpdateConnectionParamsBody::new(),
+                ),
+            )
+            .await
+            .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn sso_update_connection_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("PATCH"))
+        .and(path_matcher("/connections/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err =
+        client
+            .sso()
+            .update_connection(
+                "test_id",
+                workos::sso::UpdateConnectionParams::new(
+                    workos::sso::UpdateConnectionParamsBody::new(),
+                ),
+            )
+            .await
+            .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn sso_update_connection_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("PATCH"))
+        .and(path_matcher("/connections/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err =
+        client
+            .sso()
+            .update_connection(
+                "test_id",
+                workos::sso::UpdateConnectionParams::new(
+                    workos::sso::UpdateConnectionParamsBody::new(),
+                ),
+            )
+            .await
+            .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn sso_update_connection_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("PATCH"))
+        .and(path_matcher("/connections/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err =
+        client
+            .sso()
+            .update_connection(
+                "test_id",
+                workos::sso::UpdateConnectionParams::new(
+                    workos::sso::UpdateConnectionParamsBody::new(),
+                ),
+            )
+            .await
+            .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn sso_update_connection_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("PATCH"))
+        .and(path_matcher("/connections/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err =
+        client
+            .sso()
+            .update_connection(
+                "test_id",
+                workos::sso::UpdateConnectionParams::new(
+                    workos::sso::UpdateConnectionParamsBody::new(),
+                ),
+            )
+            .await
+            .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn sso_update_connection_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("PATCH"))
+        .and(path_matcher("/connections/test_id"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err =
+        client
+            .sso()
+            .update_connection(
+                "test_id",
+                workos::sso::UpdateConnectionParams::new(
+                    workos::sso::UpdateConnectionParamsBody::new(),
+                ),
+            )
+            .await
+            .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
 }
 
 #[tokio::test]
@@ -740,7 +2585,6 @@ async fn sso_get_profile_and_token_round_trip() {
     let _ = client
         .sso()
         .get_profile_and_token(workos::sso::GetProfileAndTokenParams::new(
-            "stub_code".to_string(),
             serde_json::from_str(include_str!("fixtures/token_query.json"))
                 .expect("parse fixture for TokenQuery"),
         ))
@@ -761,7 +2605,6 @@ async fn sso_get_profile_and_token_unauthorized() {
     let err = client
         .sso()
         .get_profile_and_token(workos::sso::GetProfileAndTokenParams::new(
-            "stub_code".to_string(),
             serde_json::from_str(include_str!("fixtures/token_query.json"))
                 .expect("parse fixture for TokenQuery"),
         ))
@@ -788,7 +2631,6 @@ async fn sso_get_profile_and_token_not_found() {
     let err = client
         .sso()
         .get_profile_and_token(workos::sso::GetProfileAndTokenParams::new(
-            "stub_code".to_string(),
             serde_json::from_str(include_str!("fixtures/token_query.json"))
                 .expect("parse fixture for TokenQuery"),
         ))
@@ -817,7 +2659,6 @@ async fn sso_get_profile_and_token_rate_limited() {
     let err = client
         .sso()
         .get_profile_and_token(workos::sso::GetProfileAndTokenParams::new(
-            "stub_code".to_string(),
             serde_json::from_str(include_str!("fixtures/token_query.json"))
                 .expect("parse fixture for TokenQuery"),
         ))
@@ -845,7 +2686,6 @@ async fn sso_get_profile_and_token_server_error() {
     let err = client
         .sso()
         .get_profile_and_token(workos::sso::GetProfileAndTokenParams::new(
-            "stub_code".to_string(),
             serde_json::from_str(include_str!("fixtures/token_query.json"))
                 .expect("parse fixture for TokenQuery"),
         ))
@@ -873,7 +2713,6 @@ async fn sso_get_profile_and_token_bad_request() {
     let err = client
         .sso()
         .get_profile_and_token(workos::sso::GetProfileAndTokenParams::new(
-            "stub_code".to_string(),
             serde_json::from_str(include_str!("fixtures/token_query.json"))
                 .expect("parse fixture for TokenQuery"),
         ))
@@ -901,7 +2740,6 @@ async fn sso_get_profile_and_token_unprocessable() {
     let err = client
         .sso()
         .get_profile_and_token(workos::sso::GetProfileAndTokenParams::new(
-            "stub_code".to_string(),
             serde_json::from_str(include_str!("fixtures/token_query.json"))
                 .expect("parse fixture for TokenQuery"),
         ))

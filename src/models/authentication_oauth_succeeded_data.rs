@@ -22,4 +22,7 @@ pub struct AuthenticationOAuthSucceededData {
     pub user_id: Option<String>,
     /// The email address of the user.
     pub email: String,
+    /// The OAuth provider used for authentication.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub provider: Option<String>,
 }

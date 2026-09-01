@@ -138,8 +138,11 @@ async fn audit_logs_update_organization_audit_logs_retention_round_trip() {
         .update_organization_audit_logs_retention(
             "test_id",
             workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
-                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
-                    .expect("parse fixture for UpdateAuditLogsRetention"),
+                workos::audit_logs::UpdateOrganizationAuditLogsRetentionParamsBody::new(
+                    workos::audit_logs::Retention::Period {
+                        retention_period: serde_json::from_str("\"1_MONTH\"").expect("parse stub"),
+                    },
+                ),
             ),
         )
         .await;
@@ -161,8 +164,11 @@ async fn audit_logs_update_organization_audit_logs_retention_unauthorized() {
         .update_organization_audit_logs_retention(
             "test_id",
             workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
-                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
-                    .expect("parse fixture for UpdateAuditLogsRetention"),
+                workos::audit_logs::UpdateOrganizationAuditLogsRetentionParamsBody::new(
+                    workos::audit_logs::Retention::Period {
+                        retention_period: serde_json::from_str("\"1_MONTH\"").expect("parse stub"),
+                    },
+                ),
             ),
         )
         .await
@@ -190,8 +196,11 @@ async fn audit_logs_update_organization_audit_logs_retention_not_found() {
         .update_organization_audit_logs_retention(
             "test_id",
             workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
-                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
-                    .expect("parse fixture for UpdateAuditLogsRetention"),
+                workos::audit_logs::UpdateOrganizationAuditLogsRetentionParamsBody::new(
+                    workos::audit_logs::Retention::Period {
+                        retention_period: serde_json::from_str("\"1_MONTH\"").expect("parse stub"),
+                    },
+                ),
             ),
         )
         .await
@@ -221,8 +230,11 @@ async fn audit_logs_update_organization_audit_logs_retention_rate_limited() {
         .update_organization_audit_logs_retention(
             "test_id",
             workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
-                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
-                    .expect("parse fixture for UpdateAuditLogsRetention"),
+                workos::audit_logs::UpdateOrganizationAuditLogsRetentionParamsBody::new(
+                    workos::audit_logs::Retention::Period {
+                        retention_period: serde_json::from_str("\"1_MONTH\"").expect("parse stub"),
+                    },
+                ),
             ),
         )
         .await
@@ -251,8 +263,11 @@ async fn audit_logs_update_organization_audit_logs_retention_server_error() {
         .update_organization_audit_logs_retention(
             "test_id",
             workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
-                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
-                    .expect("parse fixture for UpdateAuditLogsRetention"),
+                workos::audit_logs::UpdateOrganizationAuditLogsRetentionParamsBody::new(
+                    workos::audit_logs::Retention::Period {
+                        retention_period: serde_json::from_str("\"1_MONTH\"").expect("parse stub"),
+                    },
+                ),
             ),
         )
         .await
@@ -281,8 +296,11 @@ async fn audit_logs_update_organization_audit_logs_retention_bad_request() {
         .update_organization_audit_logs_retention(
             "test_id",
             workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
-                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
-                    .expect("parse fixture for UpdateAuditLogsRetention"),
+                workos::audit_logs::UpdateOrganizationAuditLogsRetentionParamsBody::new(
+                    workos::audit_logs::Retention::Period {
+                        retention_period: serde_json::from_str("\"1_MONTH\"").expect("parse stub"),
+                    },
+                ),
             ),
         )
         .await
@@ -311,8 +329,11 @@ async fn audit_logs_update_organization_audit_logs_retention_unprocessable() {
         .update_organization_audit_logs_retention(
             "test_id",
             workos::audit_logs::UpdateOrganizationAuditLogsRetentionParams::new(
-                serde_json::from_str(include_str!("fixtures/update_audit_logs_retention.json"))
-                    .expect("parse fixture for UpdateAuditLogsRetention"),
+                workos::audit_logs::UpdateOrganizationAuditLogsRetentionParamsBody::new(
+                    workos::audit_logs::Retention::Period {
+                        retention_period: serde_json::from_str("\"1_MONTH\"").expect("parse stub"),
+                    },
+                ),
             ),
         )
         .await

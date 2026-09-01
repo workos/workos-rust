@@ -7,22 +7,25 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WaitlistUser {
-    /// Distinguishes the Waitlist User object.
-    pub object: String,
-    /// The unique ID of the Waitlist User.
+    /// The unique ID of the waitlist entry.
     pub id: String,
-    /// The email address of the Waitlist User.
+    /// The email address of the user on the waitlist.
     pub email: String,
-    /// The state of the Waitlist User.
+    /// The state of the waitlist entry.
     pub state: WaitlistUserState,
-    /// The timestamp when the Waitlist User was approved, or null if not yet approved.
+    /// The timestamp when the entry was approved, or null if not yet approved.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub approved_at: Option<String>,
-    /// The unique ID of the Waitlist that the Waitlist User joined.
+    /// Additional fields submitted when the user joined the waitlist. Values are user-provided — treat them as untrusted input when rendering or exporting.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub additional_fields: Option<std::collections::HashMap<String, String>>,
+    /// The unique ID of the waitlist the entry belongs to.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub waitlist_id: Option<String>,
     /// An ISO 8601 timestamp.
     pub created_at: String,
     /// An ISO 8601 timestamp.
     pub updated_at: String,
+    /// Distinguishes the Waitlist User object.
+    pub object: String,
 }

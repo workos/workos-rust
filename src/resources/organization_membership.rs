@@ -16,7 +16,7 @@ pub struct OrganizationMembershipApi<'a> {
 #[serde(untagged)]
 pub enum Role {
     Single { role_slug: String },
-    Multiple { role_slugs: String },
+    Multiple { role_slugs: Vec<String> },
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

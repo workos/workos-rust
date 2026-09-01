@@ -119,6 +119,40 @@ impl Default for ListAuthorizedApplicationsParams {
     }
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateItContactParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: CreateItContact,
+}
+
+impl CreateItContactParams {
+    /// Construct a new `CreateItContactParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateItContact) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct InviteItContactParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: InviteItContact,
+}
+
+impl InviteItContactParams {
+    /// Construct a new `InviteItContactParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: InviteItContact) -> Self {
+        Self { body }
+    }
+}
+
 impl<'a> OrganizationsApi<'a> {
     /// List Organizations
     ///
@@ -365,5 +399,140 @@ impl<'a> OrganizationsApi<'a> {
                 Ok((page.data, page.list_metadata.after))
             }
         })
+    }
+
+    /// List IT contacts
+    ///
+    /// Get the IT contacts for an organization.
+    pub async fn list_it_contacts(&self, organization_id: &str) -> Result<ItContactList, Error> {
+        self.list_it_contacts_with_options(organization_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_it_contacts`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_it_contacts_with_options(
+        &self,
+        organization_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ItContactList, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let path = format!("/organizations/{organization_id}/it_contacts");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Create an IT contact
+    ///
+    /// Add an IT contact to an organization. No Admin Portal invitation is sent, though the contact is notified if the organization has a connection certificate nearing expiry.
+    pub async fn create_it_contact(
+        &self,
+        organization_id: &str,
+        params: CreateItContactParams,
+    ) -> Result<ItContact, Error> {
+        self.create_it_contact_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_it_contact`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_it_contact_with_options(
+        &self,
+        organization_id: &str,
+        params: CreateItContactParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ItContact, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let path = format!("/organizations/{organization_id}/it_contacts");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Delete an IT contact
+    ///
+    /// Remove an IT contact from an organization and revoke the contact's active setup links.
+    pub async fn delete_it_contact(
+        &self,
+        organization_id: &str,
+        contact_id: &str,
+    ) -> Result<(), Error> {
+        self.delete_it_contact_with_options(organization_id, contact_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_it_contact`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_it_contact_with_options(
+        &self,
+        organization_id: &str,
+        contact_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let contact_id = crate::client::path_segment(contact_id);
+        let path = format!("/organizations/{organization_id}/it_contacts/{contact_id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
+    /// Invite an IT contact
+    ///
+    /// Create an Admin Portal setup link and email it to the IT contact. An organization can have at most one active invitation.
+    pub async fn invite_it_contact(
+        &self,
+        organization_id: &str,
+        contact_id: &str,
+        params: InviteItContactParams,
+    ) -> Result<(), Error> {
+        self.invite_it_contact_with_options(organization_id, contact_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::invite_it_contact`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn invite_it_contact_with_options(
+        &self,
+        organization_id: &str,
+        contact_id: &str,
+        params: InviteItContactParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let contact_id = crate::client::path_segment(contact_id);
+        let path = format!("/organizations/{organization_id}/it_contacts/{contact_id}/invite");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Revoke an IT contact's invitation
+    ///
+    /// Revoke the organization's active Admin Portal invitation.
+    pub async fn revoke_it_contact(
+        &self,
+        organization_id: &str,
+        contact_id: &str,
+    ) -> Result<(), Error> {
+        self.revoke_it_contact_with_options(organization_id, contact_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::revoke_it_contact`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn revoke_it_contact_with_options(
+        &self,
+        organization_id: &str,
+        contact_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let contact_id = crate::client::path_segment(contact_id);
+        let path = format!("/organizations/{organization_id}/it_contacts/{contact_id}/revoke");
+        let method = http::Method::POST;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
     }
 }

@@ -11,8 +11,18 @@ pub struct TokenQuery {
     pub client_id: String,
     /// The client secret of the WorkOS environment.
     pub client_secret: crate::SecretString,
-    /// The authorization code received from the authorization callback.
-    pub code: String,
+    /// The authorization code received from the authorization callback. Required when `grant_type` is `authorization_code`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub code: Option<String>,
     /// The grant type for the token request.
-    pub grant_type: String,
+    pub grant_type: TokenQueryGrantType,
+    /// The OIDC ID token to exchange. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub subject_token: Option<crate::SecretString>,
+    /// The type of the subject token. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub subject_token_type: Option<String>,
+    /// The ID of the organization whose connection the subject token is validated against. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub organization_id: Option<String>,
 }

@@ -7,6 +7,13 @@ use std::str::FromStr;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum CreateWebhookEndpointEvents {
+    AgentBlueprintCreated,
+    AgentBlueprintDeleted,
+    AgentBlueprintUpdated,
+    AgentInstanceCreated,
+    AgentInstanceDeleted,
+    AgentInstanceSessionCreated,
+    AgentInstanceSessionRevoked,
     AgentRegistrationCreated,
     AgentRegistrationClaimAttemptCreated,
     AgentRegistrationClaimCompleted,
@@ -113,6 +120,13 @@ impl CreateWebhookEndpointEvents {
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
+            Self::AgentBlueprintCreated => "agent.blueprint.created",
+            Self::AgentBlueprintDeleted => "agent.blueprint.deleted",
+            Self::AgentBlueprintUpdated => "agent.blueprint.updated",
+            Self::AgentInstanceCreated => "agent.instance.created",
+            Self::AgentInstanceDeleted => "agent.instance.deleted",
+            Self::AgentInstanceSessionCreated => "agent.instance.session.created",
+            Self::AgentInstanceSessionRevoked => "agent.instance.session.revoked",
             Self::AgentRegistrationCreated => "agent.registration.created",
             Self::AgentRegistrationClaimAttemptCreated => {
                 "agent.registration.claim.attempt.created"
@@ -242,6 +256,13 @@ impl FromStr for CreateWebhookEndpointEvents {
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
+            "agent.blueprint.created" => Self::AgentBlueprintCreated,
+            "agent.blueprint.deleted" => Self::AgentBlueprintDeleted,
+            "agent.blueprint.updated" => Self::AgentBlueprintUpdated,
+            "agent.instance.created" => Self::AgentInstanceCreated,
+            "agent.instance.deleted" => Self::AgentInstanceDeleted,
+            "agent.instance.session.created" => Self::AgentInstanceSessionCreated,
+            "agent.instance.session.revoked" => Self::AgentInstanceSessionRevoked,
             "agent.registration.created" => Self::AgentRegistrationCreated,
             "agent.registration.claim.attempt.created" => {
                 Self::AgentRegistrationClaimAttemptCreated

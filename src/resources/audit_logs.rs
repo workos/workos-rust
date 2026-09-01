@@ -12,19 +12,43 @@ pub struct AuditLogsApi<'a> {
     pub(crate) client: &'a Client,
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum Retention {
+    Period {
+        retention_period: UpdateAuditLogsRetentionRetentionPeriod,
+    },
+    PeriodInDays {
+        retention_period_in_days: i64,
+    },
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct UpdateOrganizationAuditLogsRetentionParamsBody {
+    #[serde(flatten)]
+    pub retention: Retention,
+}
+
+impl UpdateOrganizationAuditLogsRetentionParamsBody {
+    /// Construct a new `UpdateOrganizationAuditLogsRetentionParamsBody` with the required fields set.
+    pub fn new(retention: Retention) -> Self {
+        Self { retention }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateOrganizationAuditLogsRetentionParams {
     /// Request body sent with this call.
     ///
     /// Required.
     #[serde(skip)]
-    pub body: UpdateAuditLogsRetention,
+    pub body: UpdateOrganizationAuditLogsRetentionParamsBody,
 }
 
 impl UpdateOrganizationAuditLogsRetentionParams {
     /// Construct a new `UpdateOrganizationAuditLogsRetentionParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: UpdateAuditLogsRetention) -> Self {
+    pub fn new(body: UpdateOrganizationAuditLogsRetentionParamsBody) -> Self {
         Self { body }
     }
 }
