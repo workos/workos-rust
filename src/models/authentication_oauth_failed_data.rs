@@ -25,4 +25,7 @@ pub struct AuthenticationOAuthFailedData {
     pub email: Option<String>,
     /// Details about the authentication error.
     pub error: AuthenticationOAuthFailedDataError,
+    /// The OAuth provider used for authentication.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub provider: Option<String>,
 }

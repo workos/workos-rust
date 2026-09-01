@@ -13,6 +13,89 @@ pub struct AgentsApi<'a> {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct ListBlueprintsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListBlueprintsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateBlueprintParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: AgentBlueprintsCreateRequest,
+}
+
+impl CreateBlueprintParams {
+    /// Construct a new `CreateBlueprintParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AgentBlueprintsCreateRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct UpdateBlueprintParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: AgentBlueprintsUpdateRequest,
+}
+
+impl UpdateBlueprintParams {
+    /// Construct a new `UpdateBlueprintParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AgentBlueprintsUpdateRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateBlueprintTokenParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: AgentBlueprintsTokenMintTokenRequest,
+}
+
+impl CreateBlueprintTokenParams {
+    /// Construct a new `CreateBlueprintTokenParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AgentBlueprintsTokenMintTokenRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct UpdateAttemptsParams {
     /// Request body sent with this call.
     ///
@@ -46,7 +129,255 @@ impl CreateValidateParams {
     }
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct ListInstancesParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+    /// Only return instances acting within this organization.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub organization_id: Option<String>,
+    /// Only return instances minted from this blueprint.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub agent_blueprint_id: Option<String>,
+}
+
+impl Default for ListInstancesParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            organization_id: Default::default(),
+            agent_blueprint_id: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ListSessionsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+    /// Only return sessions of instances minted from this blueprint.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub agent_blueprint_id: Option<String>,
+    /// Only return sessions belonging to this agent instance.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub agent_instance_id: Option<String>,
+}
+
+impl Default for ListSessionsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            agent_blueprint_id: Default::default(),
+            agent_instance_id: Default::default(),
+        }
+    }
+}
+
 impl<'a> AgentsApi<'a> {
+    /// List agent blueprints
+    ///
+    /// Lists the agent blueprints in the current environment.
+    pub async fn list_blueprints(
+        &self,
+        params: ListBlueprintsParams,
+    ) -> Result<crate::pagination::Page<AgentBlueprint>, Error> {
+        self.list_blueprints_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_blueprints`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_blueprints_with_options(
+        &self,
+        params: ListBlueprintsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<AgentBlueprint>, Error> {
+        let path = "/agents/blueprints".to_string();
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AgentBlueprint`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AgentBlueprint> = self
+    ///     .list_blueprints_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_blueprints_auto_paging(
+        &self,
+        params: ListBlueprintsParams,
+    ) -> impl futures_util::Stream<Item = Result<AgentBlueprint, Error>> + '_ {
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_blueprints(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Create an agent blueprint
+    ///
+    /// Creates an agent blueprint: the template describing what an agent may do (its permission ceiling), who may invoke it, and the lifetimes of its sessions.
+    pub async fn create_blueprint(
+        &self,
+        params: CreateBlueprintParams,
+    ) -> Result<AgentBlueprint, Error> {
+        self.create_blueprint_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_blueprint`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_blueprint_with_options(
+        &self,
+        params: CreateBlueprintParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentBlueprint, Error> {
+        let path = "/agents/blueprints".to_string();
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Get an agent blueprint
+    ///
+    /// Retrieves an agent blueprint by ID.
+    pub async fn get_blueprint(&self, agent_blueprint_id: &str) -> Result<AgentBlueprint, Error> {
+        self.get_blueprint_with_options(agent_blueprint_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_blueprint`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_blueprint_with_options(
+        &self,
+        agent_blueprint_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentBlueprint, Error> {
+        let agent_blueprint_id = crate::client::path_segment(agent_blueprint_id);
+        let path = format!("/agents/blueprints/{agent_blueprint_id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Update an agent blueprint
+    ///
+    /// Updates an agent blueprint. Omitted fields are left unchanged; provided lists replace the existing configuration.
+    pub async fn update_blueprint(
+        &self,
+        agent_blueprint_id: &str,
+        params: UpdateBlueprintParams,
+    ) -> Result<AgentBlueprint, Error> {
+        self.update_blueprint_with_options(agent_blueprint_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_blueprint`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_blueprint_with_options(
+        &self,
+        agent_blueprint_id: &str,
+        params: UpdateBlueprintParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentBlueprint, Error> {
+        let agent_blueprint_id = crate::client::path_segment(agent_blueprint_id);
+        let path = format!("/agents/blueprints/{agent_blueprint_id}");
+        let method = http::Method::PATCH;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Delete an agent blueprint
+    ///
+    /// Deletes an agent blueprint along with its configuration, instances, and sessions.
+    pub async fn delete_blueprint(&self, agent_blueprint_id: &str) -> Result<(), Error> {
+        self.delete_blueprint_with_options(agent_blueprint_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_blueprint`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_blueprint_with_options(
+        &self,
+        agent_blueprint_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let agent_blueprint_id = crate::client::path_segment(agent_blueprint_id);
+        let path = format!("/agents/blueprints/{agent_blueprint_id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
+    /// Mint an agent token
+    ///
+    /// Mint an agent access token (and backing session) from an agent blueprint. The session can be user-delegated (exchanging a user access token), autonomous (the agent acting as itself in an organization), agent-delegated (the agent exchanging its own access token for a new session on the same instance), or a refresh of a previously issued refresh token.
+    pub async fn create_blueprint_token(
+        &self,
+        agent_blueprint_id: &str,
+        params: CreateBlueprintTokenParams,
+    ) -> Result<AgentToken, Error> {
+        self.create_blueprint_token_with_options(agent_blueprint_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_blueprint_token`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_blueprint_token_with_options(
+        &self,
+        agent_blueprint_id: &str,
+        params: CreateBlueprintTokenParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentToken, Error> {
+        let agent_blueprint_id = crate::client::path_segment(agent_blueprint_id);
+        let path = format!("/agents/blueprints/{agent_blueprint_id}/tokens");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
     /// Link a claim attempt to an external user
     ///
     /// Link an external user to a claim attempt and retrieve the code needed for the agent to complete the claim. The user is looked up by external ID; if no user exists, one is created. When the user belongs to multiple organizations, an explicit organization must be provided.
@@ -109,6 +440,194 @@ impl<'a> AgentsApi<'a> {
         let id = crate::client::path_segment(id);
         let path = format!("/agents/registrations/{id}");
         let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// List agent instances
+    ///
+    /// Lists the agent instances in the current environment. Instances are created implicitly when tokens are minted.
+    pub async fn list_instances(
+        &self,
+        params: ListInstancesParams,
+    ) -> Result<crate::pagination::Page<AgentInstance>, Error> {
+        self.list_instances_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_instances`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_instances_with_options(
+        &self,
+        params: ListInstancesParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<AgentInstance>, Error> {
+        let path = "/agents/instances".to_string();
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AgentInstance`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AgentInstance> = self
+    ///     .list_instances_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_instances_auto_paging(
+        &self,
+        params: ListInstancesParams,
+    ) -> impl futures_util::Stream<Item = Result<AgentInstance, Error>> + '_ {
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_instances(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Get an agent instance
+    ///
+    /// Retrieves an agent instance by ID.
+    pub async fn get_instance(&self, agent_instance_id: &str) -> Result<AgentInstance, Error> {
+        self.get_instance_with_options(agent_instance_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_instance`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_instance_with_options(
+        &self,
+        agent_instance_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentInstance, Error> {
+        let agent_instance_id = crate::client::path_segment(agent_instance_id);
+        let path = format!("/agents/instances/{agent_instance_id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Delete an agent instance
+    ///
+    /// Deletes an agent instance along with its sessions, invalidating their refresh tokens.
+    pub async fn delete_instance(&self, agent_instance_id: &str) -> Result<(), Error> {
+        self.delete_instance_with_options(agent_instance_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_instance`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_instance_with_options(
+        &self,
+        agent_instance_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let agent_instance_id = crate::client::path_segment(agent_instance_id);
+        let path = format!("/agents/instances/{agent_instance_id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
+    /// List agent instance sessions
+    ///
+    /// Lists the agent instance sessions in the current environment. Sessions are created when tokens are minted.
+    pub async fn list_sessions(
+        &self,
+        params: ListSessionsParams,
+    ) -> Result<crate::pagination::Page<AgentInstanceSession>, Error> {
+        self.list_sessions_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::list_sessions`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_sessions_with_options(
+        &self,
+        params: ListSessionsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<AgentInstanceSession>, Error> {
+        let path = "/agents/sessions".to_string();
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AgentInstanceSession`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AgentInstanceSession> = self
+    ///     .list_sessions_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_sessions_auto_paging(
+        &self,
+        params: ListSessionsParams,
+    ) -> impl futures_util::Stream<Item = Result<AgentInstanceSession, Error>> + '_ {
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_sessions(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Get an agent instance session
+    ///
+    /// Retrieves an agent instance session by ID.
+    pub async fn get_session(
+        &self,
+        agent_instance_session_id: &str,
+    ) -> Result<AgentInstanceSession, Error> {
+        self.get_session_with_options(agent_instance_session_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_session`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_session_with_options(
+        &self,
+        agent_instance_session_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentInstanceSession, Error> {
+        let agent_instance_session_id = crate::client::path_segment(agent_instance_session_id);
+        let path = format!("/agents/sessions/{agent_instance_session_id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Revoke an agent instance session
+    ///
+    /// Revokes an agent instance session, invalidating its refresh token and every access token minted under it. Revocation is idempotent: revoking an already-revoked session keeps the original `revoked_at`, and revoking an already-expired session returns the session with `status: expired` and a null `revoked_at`.
+    pub async fn revoke_session(
+        &self,
+        agent_instance_session_id: &str,
+    ) -> Result<AgentInstanceSession, Error> {
+        self.revoke_session_with_options(agent_instance_session_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::revoke_session`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn revoke_session_with_options(
+        &self,
+        agent_instance_session_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentInstanceSession, Error> {
+        let agent_instance_session_id = crate::client::path_segment(agent_instance_session_id);
+        let path = format!("/agents/sessions/{agent_instance_session_id}/revoke");
+        let method = http::Method::POST;
         self.client
             .request_with_query_opts(method, &path, &(), options)
             .await

@@ -10,13 +10,13 @@ pub struct UpdateCustomProviderDefinition {
     /// A descriptive name for the custom provider.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub name: Option<String>,
-    /// The provider's OAuth authorization endpoint.
+    /// The provider's OAuth authorization endpoint. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub authorization_url: Option<String>,
-    /// The provider's OAuth token endpoint.
+    /// The provider's OAuth token endpoint. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub token_url: Option<String>,
-    /// The endpoint used to refresh tokens, if different from the token endpoint.
+    /// The endpoint used to refresh tokens, if different from the token endpoint. Must be a static URL, like the other endpoints.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub refresh_token_url: Option<String>,
     /// Whether PKCE is used during the authorization code flow.

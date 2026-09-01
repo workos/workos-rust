@@ -18,6 +18,7 @@ use crate::resources::OrganizationMembershipApi;
 use crate::resources::OrganizationsApi;
 use crate::resources::PipesApi;
 use crate::resources::PipesProviderApi;
+use crate::resources::PlatformTeamsApi;
 use crate::resources::RadarApi;
 use crate::resources::SSOApi;
 use crate::resources::UserManagementApi;
@@ -109,6 +110,11 @@ impl Client {
     /// Access the `pipes_provider` resource.
     pub fn pipes_provider(&self) -> PipesProviderApi<'_> {
         PipesProviderApi { client: self }
+    }
+
+    /// Access the `platform_teams` resource.
+    pub fn platform_teams(&self) -> PlatformTeamsApi<'_> {
+        PlatformTeamsApi { client: self }
     }
 
     /// Access the `radar` resource.

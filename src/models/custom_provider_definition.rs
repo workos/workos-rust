@@ -9,13 +9,13 @@ use serde::{Deserialize, Serialize};
 pub struct CustomProviderDefinition {
     /// A descriptive name for the custom provider.
     pub name: String,
-    /// The provider's OAuth authorization endpoint. Required for OAuth providers; omit for `api_key` providers.
+    /// The provider's OAuth authorization endpoint. Required for OAuth providers; omit for `api_key` providers. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub authorization_url: Option<String>,
-    /// The provider's OAuth token endpoint. Required for OAuth providers; omit for `api_key` providers.
+    /// The provider's OAuth token endpoint. Required for OAuth and `client_credentials` providers; omit for `api_key` providers. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub token_url: Option<String>,
-    /// The endpoint used to refresh tokens, if different from the token endpoint.
+    /// The endpoint used to refresh tokens, if different from the token endpoint. Must be a static URL, like the other endpoints.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub refresh_token_url: Option<String>,
     /// Whether PKCE is used during the authorization code flow. Defaults to `true`.
