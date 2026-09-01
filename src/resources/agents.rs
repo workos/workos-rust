@@ -96,6 +96,23 @@ impl CreateBlueprintTokenParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct ValidateBlueprintTokenParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: AgentBlueprintsTokenValidateTokenRequest,
+}
+
+impl ValidateBlueprintTokenParams {
+    /// Construct a new `ValidateBlueprintTokenParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: AgentBlueprintsTokenValidateTokenRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct UpdateAttemptsParams {
     /// Request body sent with this call.
     ///
@@ -372,6 +389,33 @@ impl<'a> AgentsApi<'a> {
     ) -> Result<AgentToken, Error> {
         let agent_blueprint_id = crate::client::path_segment(agent_blueprint_id);
         let path = format!("/agents/blueprints/{agent_blueprint_id}/tokens");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Validate an agent token
+    ///
+    /// Validates an agent access token: verifies its signature against the environment, that it was minted under this blueprint, and that the backing session is live (not revoked or expired, and — for delegated sessions — that the delegating user session has not ended). Returns the token claims and session metadata when valid; invalid tokens are reported as errors with stable codes.
+    pub async fn validate_blueprint_token(
+        &self,
+        agent_blueprint_id: &str,
+        params: ValidateBlueprintTokenParams,
+    ) -> Result<AgentTokenValidation, Error> {
+        self.validate_blueprint_token_with_options(agent_blueprint_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::validate_blueprint_token`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn validate_blueprint_token_with_options(
+        &self,
+        agent_blueprint_id: &str,
+        params: ValidateBlueprintTokenParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentTokenValidation, Error> {
+        let agent_blueprint_id = crate::client::path_segment(agent_blueprint_id);
+        let path = format!("/agents/blueprints/{agent_blueprint_id}/tokens/validate");
         let method = http::Method::POST;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)

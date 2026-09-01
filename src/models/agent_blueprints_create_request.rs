@@ -23,5 +23,8 @@ pub struct AgentBlueprintsCreateRequest {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub invocable_by: Option<AgentBlueprintsCreateRequestInvocableBy>,
     /// Token and session lifetimes for sessions minted from this blueprint.
-    pub session_settings: AgentBlueprintsCreateRequestSessionSetting,
+    ///
+    /// Defaults to `{"max_age_seconds":3600,"access_token_ttl_seconds":300,"refresh_token_ttl_seconds":3600}`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub session_settings: Option<AgentBlueprintsCreateRequestSessionSetting>,
 }
