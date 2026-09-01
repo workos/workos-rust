@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0](https://github.com/workos/workos-rust/compare/v3.3.0...v3.4.0) (2026-09-01)
+
+
+### Features
+
+* **agents:** Add blueprint, instance, and session endpoints ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+* **audit_logs:** Change update retention body to a retention union supporting retention periods ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+* **generated:** Agents (batch 13ebc8c1) ([#146](https://github.com/workos/workos-rust/issues/146)) ([943e8aa](https://github.com/workos/workos-rust/commit/943e8aa1a49aa2534f92e77b78240b113d23f7ff))
+* **organizations:** Add IT contacts endpoints ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+* **platform_teams:** Add Platform Teams service ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+* **sso:** Add connection management and SAML certificate endpoints ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+* **sso:** Make code an optional field on GetProfileAndTokenParams ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+* **user_management:** Add email-completion grant and waitlist endpoints ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+* **webhooks:** Add agent instance and blueprint webhook event types ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+
+
+### Bug Fixes
+
+* **sso:** Remove DiscordOAuth, GrokOAuth, and XOAuth from connection type enums ([#142](https://github.com/workos/workos-rust/issues/142)) ([94c88ad](https://github.com/workos/workos-rust/commit/94c88ada738ae0ebecb73a8fdcc128e35990eaa3))
+
 ## [3.3.0](https://github.com/workos/workos-rust/compare/v3.2.0...v3.3.0) (2026-08-13)
 
 
