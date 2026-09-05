@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.0](https://github.com/workos/workos-rust/compare/v3.4.0...v3.5.0) (2026-09-05)
+
+
+### Features
+
+* **generated:** Pipes (batch 8ad8e447) ([#147](https://github.com/workos/workos-rust/issues/147)) ([6143fcb](https://github.com/workos/workos-rust/commit/6143fcbc1cb27bd592a393b02e6d746763641836))
+
 ## [3.4.0](https://github.com/workos/workos-rust/compare/v3.3.0...v3.4.0) (2026-09-01)
 
 * [#142](https://github.com/workos/workos-rust/pull/142) feat(generated)!: regenerate from spec (4 changes)
