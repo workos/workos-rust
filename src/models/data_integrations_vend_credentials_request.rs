@@ -12,4 +12,7 @@ pub struct DataIntegrationsVendCredentialsRequest {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub organization_id: Option<String>,
+    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connected_account_id: Option<String>,
 }

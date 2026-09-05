@@ -53,4 +53,6 @@ pub struct DataIntegrationsListResponseData {
     /// The user's [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` if the user has not connected.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub connected_account: Option<DataIntegrationsListResponseDataConnectedAccount>,
+    /// The user's connected accounts for this provider in the requested ownership context.
+    pub connected_accounts: Vec<DataIntegrationsListResponseDataConnectedAccount>,
 }
