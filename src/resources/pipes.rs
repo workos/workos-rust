@@ -168,6 +168,9 @@ pub struct GetUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connected_account_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -198,6 +201,9 @@ pub struct UpdateUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connected_account_id: Option<String>,
     /// Request body sent with this call.
     ///
     /// Required.
@@ -211,6 +217,7 @@ impl UpdateUserConnectedAccountParams {
     pub fn new(body: ConnectedAccountInput) -> Self {
         Self {
             organization_id: Default::default(),
+            connected_account_id: Default::default(),
             body,
         }
     }
@@ -221,6 +228,9 @@ pub struct DeleteUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to delete.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connected_account_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
