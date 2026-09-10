@@ -307,9 +307,6 @@ impl AuthorizeLogoutParams {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct GetProfileAndTokenParams {
-    /// The authorization code received from the authorization callback. Required when `grant_type` is `authorization_code`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub code: Option<String>,
     /// Request body sent with this call.
     ///
     /// Required.
@@ -321,10 +318,7 @@ impl GetProfileAndTokenParams {
     /// Construct a new `GetProfileAndTokenParams` with the required fields set.
     #[allow(deprecated)]
     pub fn new(body: TokenQuery) -> Self {
-        Self {
-            code: Default::default(),
-            body,
-        }
+        Self { body }
     }
 }
 
