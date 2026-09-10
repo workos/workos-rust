@@ -3,9 +3,9 @@
 //!
 //! - Seal/unseal: AES-256-GCM with a 32-byte key derived from a 64-char hex
 //!   password. Nonce is prepended to ciphertext, then base64-encoded.
-//! - Authenticate: structurally validates a sealed session and parses JWT
-//!   claims from the access token (signature is not verified — the cookie
-//!   was sealed by us and trusted after unsealing).
+//! - Authenticate: verifies the access token's RS256 signature against the
+//!   client's environment JWKS, then validates expiration and identity binding.
+//!   Offline verification does not detect revocation before token expiration.
 //! - Refresh: trades the refresh token at `/user_management/authenticate`
 //!   and re-seals the new session.
 
@@ -15,6 +15,7 @@ use aes_gcm::aead::{Aead, KeyInit};
 use aes_gcm::{Aes256Gcm, Nonce};
 use base64::Engine;
 use base64::engine::general_purpose::{STANDARD as B64_STANDARD, URL_SAFE_NO_PAD};
+use jsonwebtoken::{Algorithm, DecodingKey, Validation, decode, decode_header};
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 
@@ -32,6 +33,8 @@ use crate::secret::SecretString;
 pub struct SessionData {
     pub access_token: SecretString,
     pub refresh_token: SecretString,
+    /// Cookie profile metadata. Authentication binds only `id` to the signed
+    /// JWT subject; other fields (including email) are not authorization-grade.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub user: Option<User>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -47,7 +50,10 @@ pub struct SessionState {
     pub role: String,
     pub permissions: Vec<String>,
     pub entitlements: Vec<String>,
+    /// Only `id` is bound to the verified JWT subject. Other profile fields
+    /// are cookie metadata and must not be used for authorization decisions.
     pub user: Option<User>,
+    /// Impersonation information from the verified JWT, never the cookie alone.
     pub impersonator: Option<AuthenticateResponseImpersonator>,
     /// `true` when the session structure is valid but the access token has
     /// expired. Callers should refresh before treating the user as
@@ -77,6 +83,10 @@ pub struct SessionRefreshOptions {
 
 #[derive(Debug, Clone, Default, Deserialize)]
 struct JwtClaims {
+    #[serde(default)]
+    sub: String,
+    #[serde(default)]
+    impersonator: Option<AuthenticateResponseImpersonator>,
     #[serde(default)]
     sid: String,
     #[serde(default)]
@@ -111,8 +121,11 @@ impl<'a> SessionManager<'a> {
     }
 
     /// Validates the session cookie. Never errors: failure modes are reported
-    /// in the `reason` field of the returned [`SessionState`].
-    pub fn authenticate(&self) -> SessionState {
+    /// in the `reason` field of the returned [`SessionState`]. A client with a
+    /// configured client ID is required for JWKS verification. Signature/key
+    /// failures return `invalid_jwt`; no unverified claims are returned.
+    /// This is offline verification, not a check for server-side revocation.
+    pub async fn authenticate(&self) -> SessionState {
         if self.sealed.is_empty() {
             return SessionState {
                 reason: "no_session_cookie_provided".to_string(),
@@ -134,7 +147,10 @@ impl<'a> SessionManager<'a> {
                 ..Default::default()
             };
         }
-        let claims = match parse_jwt_payload(session.access_token.expose()) {
+        let claims = match self
+            .verify_access_token(session.access_token.expose())
+            .await
+        {
             Ok(c) => c,
             Err(_) => {
                 return SessionState {
@@ -143,6 +159,22 @@ impl<'a> SessionManager<'a> {
                 };
             }
         };
+
+        if session
+            .user
+            .as_ref()
+            .is_some_and(|user| user.id != claims.sub)
+            || session.impersonator.as_ref().is_some_and(|cookie| {
+                claims.impersonator.as_ref().is_none_or(|signed| {
+                    cookie.email != signed.email || cookie.reason != signed.reason
+                })
+            })
+        {
+            return SessionState {
+                reason: "invalid_jwt".to_string(),
+                ..Default::default()
+            };
+        }
 
         let Some(exp) = claims.exp else {
             return SessionState {
@@ -154,7 +186,7 @@ impl<'a> SessionManager<'a> {
             .duration_since(UNIX_EPOCH)
             .map(|d| d.as_secs() as i64)
             .unwrap_or(0);
-        if now > exp {
+        if now >= exp {
             return SessionState {
                 authenticated: false,
                 needs_refresh: true,
@@ -164,7 +196,7 @@ impl<'a> SessionManager<'a> {
                 permissions: claims.permissions,
                 entitlements: claims.entitlements,
                 user: session.user,
-                impersonator: session.impersonator,
+                impersonator: claims.impersonator,
                 reason: "session_expired".to_string(),
             };
         }
@@ -177,9 +209,67 @@ impl<'a> SessionManager<'a> {
             permissions: claims.permissions,
             entitlements: claims.entitlements,
             user: session.user,
-            impersonator: session.impersonator,
+            impersonator: claims.impersonator,
             ..Default::default()
         }
+    }
+
+    async fn verify_access_token(&self, token: &str) -> Result<JwtClaims, Error> {
+        let invalid = || Error::Jwt("access token verification failed".to_string());
+        let client = self
+            .client
+            .filter(|c| !c.client_id().is_empty())
+            .ok_or_else(invalid)?;
+        let header = decode_header(token).map_err(|_| invalid())?;
+        if header.alg != Algorithm::RS256 {
+            return Err(invalid());
+        }
+        let kid = header
+            .kid
+            .filter(|kid| !kid.is_empty())
+            .ok_or_else(invalid)?;
+        let jwks = client.session_jwks();
+        let mut set = jwks.fetch().await?;
+        if !set.keys.iter().any(|key| key.kid.as_deref() == Some(&kid)) {
+            // A new signing key may have appeared since the cached fetch.
+            set = jwks.refresh().await?;
+        }
+        let mut matching = set
+            .keys
+            .iter()
+            .filter(|key| key.kid.as_deref() == Some(&kid));
+        let key = matching.next().ok_or_else(invalid)?;
+        if matching.next().is_some()
+            || key.kty.as_deref() != Some("RSA")
+            || key.alg.as_deref().is_some_and(|alg| alg != "RS256")
+            || key.use_.as_deref().is_some_and(|usage| usage != "sig")
+        {
+            return Err(invalid());
+        }
+        if let Some(ops) = key.other.get("key_ops") {
+            let ops = ops.as_array().ok_or_else(invalid)?;
+            if !ops.iter().any(|op| op.as_str() == Some("verify")) {
+                return Err(invalid());
+            }
+        }
+        let jwk = serde_json::from_value(serde_json::to_value(key)?).map_err(|_| invalid())?;
+        let decoding_key = DecodingKey::from_jwk(&jwk).map_err(|_| invalid())?;
+        let mut validation = Validation::new(Algorithm::RS256);
+        validation.set_required_spec_claims(&["exp", "sub"]);
+        // Expiration is checked only after signature verification so a genuinely
+        // expired token can signal refresh. Preserve strict, zero-leeway expiry.
+        validation.validate_exp = false;
+        validation.leeway = 0;
+        validation.validate_nbf = true;
+        // WorkOS environment selection is via the client-specific JWKS, not aud.
+        validation.validate_aud = false;
+        let claims = decode::<JwtClaims>(token, &decoding_key, &validation)
+            .map_err(|_| invalid())?
+            .claims;
+        if claims.sub.is_empty() {
+            return Err(invalid());
+        }
+        Ok(claims)
     }
 
     /// Refreshes the session by exchanging the refresh token. Re-seals the
@@ -272,8 +362,8 @@ impl<'a> SessionManager<'a> {
     }
 
     /// Builds a logout redirect URL using the session's claimed `sid`.
-    pub fn logout_url(&self, return_to: Option<&str>) -> Result<String, Error> {
-        let state = self.authenticate();
+    pub async fn logout_url(&self, return_to: Option<&str>) -> Result<String, Error> {
+        let state = self.authenticate().await;
         if (!state.authenticated && !state.needs_refresh) || state.session_id.is_empty() {
             return Err(Error::Session(
                 "session is not authenticated or has no session ID".to_string(),
@@ -299,8 +389,8 @@ impl<'a> SessionManager<'a> {
 }
 
 /// Convenience: unseal + authenticate without constructing a manager.
-pub fn authenticate_session(sealed: &str, password: &str) -> SessionState {
-    SessionManager::new(None, sealed, password).authenticate()
+pub async fn authenticate_session(client: &Client, sealed: &str, password: &str) -> SessionState {
+    client.session(sealed, password).authenticate().await
 }
 
 /// Seal an arbitrary serializable value.
@@ -388,6 +478,8 @@ fn derive_key(password: &str) -> Result<[u8; 32], Error> {
     Ok(out)
 }
 
+// Unverified organization hint for refresh only. The WorkOS refresh endpoint
+// authorizes the exchange; never use these claims to authenticate a session.
 fn parse_jwt_payload(token: &str) -> Result<JwtClaims, Error> {
     let parts: Vec<&str> = token.split('.').collect();
     if parts.len() != 3 {
@@ -439,16 +531,18 @@ mod tests {
         assert!(derive_key("short").is_err());
     }
 
-    #[test]
-    fn authenticate_no_cookie() {
-        let s = SessionManager::new(None, "", pwd()).authenticate();
+    #[tokio::test]
+    async fn authenticate_no_cookie() {
+        let s = SessionManager::new(None, "", pwd()).authenticate().await;
         assert!(!s.authenticated);
         assert_eq!(s.reason, "no_session_cookie_provided");
     }
 
-    #[test]
-    fn authenticate_invalid_cookie() {
-        let s = SessionManager::new(None, "not-base64@@@", pwd()).authenticate();
+    #[tokio::test]
+    async fn authenticate_invalid_cookie() {
+        let s = SessionManager::new(None, "not-base64@@@", pwd())
+            .authenticate()
+            .await;
         assert!(!s.authenticated);
         assert_eq!(s.reason, "invalid_session_cookie");
     }
@@ -463,38 +557,22 @@ mod tests {
         assert_eq!(claims.exp, Some(9_999_999_999));
     }
 
-    #[test]
-    fn authenticate_with_valid_session() {
+    #[tokio::test]
+    async fn authenticate_without_client_fails_closed() {
         let payload =
-            URL_SAFE_NO_PAD.encode(br#"{"sid":"sess_1","org_id":"org_1","exp":9999999999}"#);
-        let token = format!("h.{payload}.s");
+            URL_SAFE_NO_PAD.encode(br#"{"sub":"user_1","sid":"sess_1","exp":9999999999}"#);
         let session = SessionData {
-            access_token: token.into(),
+            access_token: format!("h.{payload}.s").into(),
             refresh_token: "r".into(),
             user: None,
             impersonator: None,
         };
         let sealed = seal_session(&session, pwd()).unwrap();
-        let s = SessionManager::new(None, &sealed, pwd()).authenticate();
-        assert!(s.authenticated);
-        assert_eq!(s.session_id, "sess_1");
-        assert_eq!(s.organization_id, "org_1");
-    }
-
-    #[test]
-    fn authenticate_expired_signals_refresh() {
-        let payload = URL_SAFE_NO_PAD.encode(br#"{"sid":"sess_1","exp":1}"#);
-        let token = format!("h.{payload}.s");
-        let session = SessionData {
-            access_token: token.into(),
-            refresh_token: "r".into(),
-            user: None,
-            impersonator: None,
-        };
-        let sealed = seal_session(&session, pwd()).unwrap();
-        let s = SessionManager::new(None, &sealed, pwd()).authenticate();
-        assert!(!s.authenticated);
-        assert!(s.needs_refresh);
-        assert_eq!(s.reason, "session_expired");
+        let state = SessionManager::new(None, sealed, pwd())
+            .authenticate()
+            .await;
+        assert!(!state.authenticated);
+        assert!(!state.needs_refresh);
+        assert_eq!(state.reason, "invalid_jwt");
     }
 }
