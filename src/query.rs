@@ -6,8 +6,8 @@
 //! provides:
 //!
 //! - [`encode_query`] — encodes any `Serialize` value as a URL query string,
-//!   supporting arrays (repeated keys by default), nested objects produced by
-//!   `#[serde(flatten)]`, and field-level `serialize_with` overrides.
+//!   supporting arrays (repeated keys by default), bracket-qualified nested
+//!   objects, `#[serde(flatten)]`, and field-level `serialize_with` overrides.
 //! - [`serialize_comma_separated`] / [`serialize_comma_separated_opt`] — used
 //!   by generated code for fields whose OpenAPI spec marks
 //!   `style: form, explode: false` (i.e. the comma-joined wire form).
@@ -62,25 +62,31 @@ where
 ///
 /// Replaces `serde_urlencoded::to_string` for our generated query-param
 /// structs: it understands arrays (emitting one `key=value` pair per element
-/// by default), nested objects (from `#[serde(flatten)]`, e.g. for
-/// mutually-exclusive parameter group enums), and respects field-level
-/// `serialize_with` overrides that already collapse arrays into strings.
+/// by default), nested objects (using `field[child]=value`), and respects
+/// field-level `serialize_with` overrides that already collapse arrays into
+/// strings. Fields marked `#[serde(flatten)]` are merged by Serde before query
+/// encoding, so they remain in their parent's namespace.
 ///
 /// Returns an empty string when the encoded form would have zero pairs.
 pub fn encode_query<P: Serialize>(params: &P) -> Result<String, Error> {
     let value = serde_json::to_value(params)
         .map_err(|e| Error::Builder(format!("query encode failed: {e}")))?;
     let mut out = String::new();
-    encode_value("", &value, &mut out);
+    if let serde_json::Value::Object(map) = &value {
+        for (key, value) in map {
+            encode_value(key, value, &mut out);
+        }
+    } else {
+        encode_value("", &value, &mut out);
+    }
     Ok(out)
 }
 
 /// Append `key=value` entries for `value` onto `out`.
 ///
-/// - Object: recurses, using the property name as the key (top-level fields
-///   produce `name=…`; nested objects from `serde(flatten)` merge into the
-///   parent's namespace because the flatten-produced JSON object lives at the
-///   parent level).
+/// - Object: recurses with bracket-qualified keys (`key[property]=…`), keeping
+///   map entries in their field's namespace rather than hoisting them into
+///   top-level query parameters.
 /// - Array: emits one `key=element` pair per element (repeated keys); empty
 ///   arrays produce no output.
 /// - Null: skipped (matches `skip_serializing_if = "Option::is_none"` semantics).
@@ -90,7 +96,7 @@ fn encode_value(key: &str, value: &serde_json::Value, out: &mut String) {
         serde_json::Value::Null => {}
         serde_json::Value::Object(map) => {
             for (k, v) in map {
-                encode_value(k, v, out);
+                encode_value(&format!("{key}[{k}]"), v, out);
             }
         }
         serde_json::Value::Array(items) => {
