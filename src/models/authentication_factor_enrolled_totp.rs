@@ -15,7 +15,7 @@ pub struct AuthenticationFactorEnrolledTotp {
     /// TOTP secret that can be manually entered into some authenticator apps in place of scanning a QR code.
     pub secret: crate::SecretString,
     /// Base64 encoded image containing scannable QR code.
-    pub qr_code: String,
+    pub qr_code: crate::SecretString,
     /// The `otpauth` URI that is encoded by the provided `qr_code`.
-    pub uri: String,
+    pub uri: crate::SecretString,
 }

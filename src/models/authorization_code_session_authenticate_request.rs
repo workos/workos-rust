@@ -14,10 +14,10 @@ pub struct AuthorizationCodeSessionAuthenticateRequest {
     pub client_secret: Option<crate::SecretString>,
     pub grant_type: String,
     /// The authorization code received from the redirect.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The PKCE code verifier used to derive the code challenge passed to the authorization URL.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub code_verifier: Option<String>,
+    pub code_verifier: Option<crate::SecretString>,
     /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub invitation_token: Option<crate::SecretString>,

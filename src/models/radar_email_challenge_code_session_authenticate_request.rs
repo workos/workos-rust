@@ -13,7 +13,7 @@ pub struct RadarEmailChallengeCodeSessionAuthenticateRequest {
     pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The one-time code from the Radar email challenge.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The ID of the Radar email challenge being verified.
     pub radar_challenge_id: String,
     /// The pending authentication token from a previous authentication attempt.

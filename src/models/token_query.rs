@@ -13,7 +13,7 @@ pub struct TokenQuery {
     pub client_secret: crate::SecretString,
     /// The authorization code received from the authorization callback. Required when `grant_type` is `authorization_code`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub code: Option<String>,
+    pub code: Option<crate::SecretString>,
     /// The grant type for the token request.
     pub grant_type: TokenQueryGrantType,
     /// The OIDC ID token to exchange. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.

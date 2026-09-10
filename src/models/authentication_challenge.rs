@@ -16,7 +16,7 @@ pub struct AuthenticationChallenge {
     pub expires_at: Option<String>,
     /// The one-time code for the challenge.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub code: Option<String>,
+    pub code: Option<crate::SecretString>,
     /// The unique ID of the authentication factor the challenge belongs to.
     pub authentication_factor_id: String,
     /// An ISO 8601 timestamp.

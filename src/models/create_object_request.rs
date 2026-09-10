@@ -12,5 +12,5 @@ pub struct CreateObjectRequest {
     /// Unique name for the object.
     pub name: String,
     /// Plaintext data to encrypt and store.
-    pub value: String,
+    pub value: crate::SecretString,
 }

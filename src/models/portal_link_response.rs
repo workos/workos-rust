@@ -8,5 +8,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PortalLinkResponse {
     /// An ephemeral link to initiate the Admin Portal.
-    pub link: String,
+    pub link: crate::SecretString,
 }

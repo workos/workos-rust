@@ -12,7 +12,7 @@ pub struct ClaimViewResponse {
     /// Current status of the agent registration.
     pub status: ClaimViewResponseStatus,
     /// The user code the agent needs to complete the claim.
-    pub user_code: String,
+    pub user_code: crate::SecretString,
     /// Organizations the user belongs to, offered as placement choices.
     pub organizations: Vec<ClaimViewResponseOrganization>,
 }

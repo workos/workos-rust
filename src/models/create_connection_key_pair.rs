@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateConnectionKeyPair {
     /// The PEM-encoded private key.
-    pub key: String,
+    pub key: crate::SecretString,
     /// The PEM-encoded X.509 certificate for the key.
     pub cert: String,
 }

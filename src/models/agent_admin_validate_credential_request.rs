@@ -11,7 +11,7 @@ pub struct AgentAdminValidateCredentialRequest {
     #[serde(rename = "type")]
     pub type_: AgentAdminValidateCredentialRequestType,
     /// The credential value to validate: the API key value for `api_key`, or the access token (JWT) for `access_token`.
-    pub credential: String,
+    pub credential: crate::SecretString,
     /// When provided, the access token's `aud` claim is verified against this value. Tokens issued for a different resource are rejected.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub audience: Option<String>,

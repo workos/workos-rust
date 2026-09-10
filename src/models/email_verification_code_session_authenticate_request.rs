@@ -13,7 +13,7 @@ pub struct EmailVerificationCodeSessionAuthenticateRequest {
     pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The email verification code.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The pending authentication token from a previous authentication attempt.
     pub pending_authentication_token: crate::SecretString,
     /// The IP address of the user's request.

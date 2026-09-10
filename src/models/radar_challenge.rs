@@ -25,5 +25,5 @@ pub struct RadarChallenge {
     /// An ISO 8601 timestamp.
     pub updated_at: String,
     /// The code used to verify the Radar Challenge.
-    pub code: String,
+    pub code: crate::SecretString,
 }

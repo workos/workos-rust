@@ -8,5 +8,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthenticationChallengesVerifyRequest {
     /// The one-time code to verify.
-    pub code: String,
+    pub code: crate::SecretString,
 }

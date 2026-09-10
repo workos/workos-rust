@@ -42,5 +42,5 @@ pub struct UserInvite {
     /// The token used to accept the invitation.
     pub token: crate::SecretString,
     /// The URL where the recipient can accept the invitation.
-    pub accept_invitation_url: String,
+    pub accept_invitation_url: crate::SecretString,
 }

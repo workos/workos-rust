@@ -13,7 +13,7 @@ pub struct MagicAuthCodeSessionAuthenticateRequest {
     pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The one-time code for Magic Auth authentication.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The user's email address.
     pub email: String,
     /// An invitation token to accept during authentication.

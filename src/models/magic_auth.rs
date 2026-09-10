@@ -22,5 +22,5 @@ pub struct MagicAuth {
     /// An ISO 8601 timestamp.
     pub updated_at: String,
     /// The code used to verify the Magic Auth code.
-    pub code: String,
+    pub code: crate::SecretString,
 }

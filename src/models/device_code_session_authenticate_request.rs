@@ -11,7 +11,7 @@ pub struct DeviceCodeSessionAuthenticateRequest {
     pub client_id: String,
     pub grant_type: String,
     /// The device verification code.
-    pub device_code: String,
+    pub device_code: crate::SecretString,
     /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub ip_address: Option<String>,
