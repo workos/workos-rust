@@ -125,10 +125,10 @@ impl RequestOptions {
     }
 }
 
-/// Percent-encode a single URL path segment per RFC 3986. Used by generated
-/// resource code to safely interpolate dynamic path parameters into request
-/// URLs without letting reserved characters (`/`, `?`, `#`, spaces, etc.)
-/// escape the segment they belong to.
+/// Percent-encode reserved characters (`/`, `?`, `#`, spaces, etc.) in a URL
+/// path segment per RFC 3986. Used by generated resource code to interpolate
+/// dynamic path parameters. Empty segments and segments equal to `.` or `..`
+/// are rejected by `build_request` at request-build time.
 #[doc(hidden)]
 pub fn path_segment(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
@@ -337,6 +337,7 @@ impl Client {
         body: Option<&B>,
         opts: Option<&RequestOptions>,
     ) -> Result<HttpRequest, Error> {
+        validate_path(path)?;
         let mut url = format!("{}{}", self.inner.base_url, path);
         if let Some(p) = query {
             let qs = crate::query::encode_query(p)?;
@@ -498,6 +499,24 @@ impl Client {
     }
 }
 
+/// Reject segments that could retarget a request during URL normalization.
+fn validate_path(path: &str) -> Result<(), Error> {
+    for segment in path.strip_prefix('/').unwrap_or(path).split('/') {
+        // WHATWG URL parsers also normalize percent-encoded dot segments;
+        // encoding the dots as %2E would not prevent traversal.
+        if segment.is_empty()
+            || [".", "..", "%2e", ".%2e", "%2e.", "%2e%2e"]
+                .iter()
+                .any(|dot| segment.eq_ignore_ascii_case(dot))
+        {
+            return Err(Error::Builder(
+                "invalid path segment: empty or dot segment".into(),
+            ));
+        }
+    }
+    Ok(())
+}
+
 fn is_safe_method(m: &Method) -> bool {
     matches!(*m, Method::GET | Method::HEAD | Method::OPTIONS)
 }
@@ -641,4 +660,53 @@ fn default_transport(_timeout: Duration) -> SharedTransport {
         "no HTTP transport configured: build with --features rustls-tls (or native-tls), \
          or supply one via ClientBuilder::transport(...)"
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{path_segment, validate_path};
+    use crate::Error;
+
+    #[test]
+    fn validate_path_rejects_empty_and_whatwg_dot_segments() {
+        for segment in [
+            "", ".", "..", "%2e", "%2E", ".%2e", ".%2E", "%2e.", "%2E.", "%2e%2e", "%2e%2E",
+            "%2E%2e", "%2E%2E",
+        ] {
+            for path in [
+                format!("/{segment}/b"),
+                format!("/a/{segment}/b"),
+                format!("/a/{segment}"),
+            ] {
+                assert!(
+                    matches!(validate_path(&path), Err(Error::Builder(_))),
+                    "should reject {path:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn validate_path_accepts_normal_segments() {
+        for path in [
+            "/a/b",
+            "/a/a.b/c",
+            "/a/x%2Fy/b",
+            "/a/%252e%252e/b",
+            "/a/.../b",
+            "/authorization/organizations/org_1/roles/admin/permissions",
+            "/user_management/users/user_01ABC.x",
+        ] {
+            assert!(validate_path(path).is_ok(), "should accept {path:?}");
+        }
+    }
+
+    #[test]
+    fn path_segment_encoding_is_unchanged() {
+        for segment in ["", ".", "..", "user_01ABC.x", "a-z_~"] {
+            assert_eq!(path_segment(segment), segment);
+        }
+        assert_eq!(path_segment("%2e%2e"), "%252e%252e");
+        assert_eq!(path_segment("/?# "), "%2F%3F%23%20");
+    }
 }
