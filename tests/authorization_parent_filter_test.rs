@@ -205,3 +205,54 @@ async fn list_resources_for_membership_auto_paging_keeps_parent_filter_on_all_pa
         );
     }
 }
+
+#[tokio::test]
+async fn list_resources_for_membership_auto_paging_keeps_external_parent_filter_on_all_pages() {
+    let server = MockServer::start().await;
+    mount_two_pages(
+        &server,
+        "/authorization/organization_memberships/om_123/resources",
+    )
+    .await
+    .expect("valid resource list fixture");
+    let client = common::test_client(&server).await;
+    let params = ListResourcesForMembershipParams::new(
+        "perm_slug",
+        ParentResource::ByExternalId {
+            parent_resource_type_slug: "workspace".into(),
+            parent_resource_external_id: "workspace_123".into(),
+        },
+    );
+    let resources: Vec<_> = client
+        .authorization()
+        .list_resources_for_membership_auto_paging("om_123", params)
+        .try_collect()
+        .await
+        .expect("expected all pages to succeed");
+    assert_eq!(resources.len(), 1);
+
+    let received = server.received_requests().await.expect("recorded requests");
+    assert_eq!(received.len(), 2);
+    for (index, request) in received.iter().enumerate() {
+        let query = request.url.query().unwrap_or("");
+        for filter in [
+            "parent_resource_type_slug=workspace",
+            "parent_resource_external_id=workspace_123",
+            "permission_slug=perm_slug",
+        ] {
+            assert!(
+                query.split('&').any(|p| p == filter),
+                "expected {filter:?} on page {}, got {query:?}",
+                index + 1
+            );
+        }
+        assert_eq!(
+            request
+                .url
+                .query_pairs()
+                .find(|(key, _)| key == "after")
+                .map(|(_, value)| value.into_owned()),
+            (index == 1).then(|| "cursor_1".to_string())
+        );
+    }
+}
