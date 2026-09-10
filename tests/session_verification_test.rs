@@ -298,6 +298,66 @@ async fn rotated_key_is_loaded_after_cache_miss() {
 }
 
 #[tokio::test]
+async fn failed_unknown_kid_refresh_preserves_cached_keys_and_allows_later_rotation() {
+    for response in [
+        ResponseTemplate::new(503),
+        ResponseTemplate::new(200).set_body_string("not json"),
+    ] {
+        let (server, client) = setup().await;
+        let valid = session(token(&claims(), "trusted", Some("trusted")));
+        let rotated = session(token(&claims(), "attacker", Some("attacker")));
+        serve_keys(&server, json!({"keys":[keys()["trusted"]["jwk"]]}), 1).await;
+        assert!(authenticate(&client, &valid).await.authenticated);
+        server.reset().await;
+        Mock::given(method("GET"))
+            .and(path("/sso/jwks/client_test"))
+            .respond_with(response.set_delay(std::time::Duration::from_millis(50)))
+            .expect(1)
+            .mount(&server)
+            .await;
+
+        let clients = [client.clone(), client.clone(), client.clone()];
+        let states = futures_util::future::join_all(
+            clients.iter().map(|client| authenticate(client, &rotated)),
+        )
+        .await;
+        for state in states {
+            assert_rejected(state);
+        }
+        // Even while the endpoint is broken, the shared cached key still works.
+        assert!(authenticate(&client.clone(), &valid).await.authenticated);
+        server.reset().await;
+        serve_keys(&server, json!({"keys":[keys()["attacker"]["jwk"]]}), 1).await;
+        assert!(authenticate(&client, &rotated).await.authenticated);
+    }
+}
+
+#[tokio::test]
+async fn concurrent_rotated_sessions_share_one_refresh_across_client_clones() {
+    let (server, client) = setup().await;
+    serve_keys(&server, json!({"keys":[keys()["trusted"]["jwk"]]}), 1).await;
+    let valid = session(token(&claims(), "trusted", Some("trusted")));
+    assert!(authenticate(&client, &valid).await.authenticated);
+    server.reset().await;
+    Mock::given(method("GET"))
+        .and(path("/sso/jwks/client_test"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_json(json!({"keys":[keys()["attacker"]["jwk"]]}))
+                .set_delay(std::time::Duration::from_millis(50)),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let rotated = session(token(&claims(), "attacker", Some("attacker")));
+    let clients = [client.clone(), client.clone(), client.clone()];
+    let states =
+        futures_util::future::join_all(clients.iter().map(|client| authenticate(client, &rotated)))
+            .await;
+    assert!(states.iter().all(|state| state.authenticated));
+}
+
+#[tokio::test]
 async fn unavailable_malformed_or_incompatible_jwks_fail_closed() {
     for response in [
         ResponseTemplate::new(503),

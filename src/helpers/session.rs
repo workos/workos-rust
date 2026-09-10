@@ -232,7 +232,7 @@ impl<'a> SessionManager<'a> {
         let mut set = jwks.fetch().await?;
         if !set.keys.iter().any(|key| key.kid.as_deref() == Some(&kid)) {
             // A new signing key may have appeared since the cached fetch.
-            set = jwks.refresh().await?;
+            set = jwks.refresh_if_unchanged(Some(&set)).await?;
         }
         let mut matching = set
             .keys
