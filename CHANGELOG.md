@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.1](https://github.com/workos/workos-rust/compare/v3.4.0...v3.4.1) (2026-09-10)
+
+### Bug Fixes
+
+* **query:** Prevent OAuth parameter injection from nested maps ([#153](https://github.com/workos/workos-rust/issues/153)) ([093f3d8](https://github.com/workos/workos-rust/commit/093f3d87d9e4d6490e3b7eb194a166b57ef20644))
+* **security:** Reject path traversal segments ([#151](https://github.com/workos/workos-rust/issues/151)) ([483bcce](https://github.com/workos/workos-rust/commit/483bcce9c4e5fe4305e68f5f577da9cc61a2884d))
+
+
+### Miscellaneous Chores
+
+* release 3.4.1 ([a9a8a36](https://github.com/workos/workos-rust/commit/a9a8a3673e8c73eaf1b07b14973cacbf3509ad2c))
+
+* [#147](https://github.com/workos/workos-rust/pull/147) fix(generated): regenerate from spec
+
+  **Features**
+  * **[pipes](https://workos.com/docs/reference/pipes)**:
+    * Added `connected_account_id` to `DataIntegrationsVendCredentialsRequest`
+    * Added `connected_account_id` to `DataIntegrationsGetUserTokenRequest`
+    * Added parameter `UserManagementDataProviders.getUserDataInstallation.connected_account_id`
+    * Changed errors for endpoint `GET /user_management/users/{user_id}/connected_accounts/{slug}`
+    * Added parameter `UserManagementDataProviders.updateUserDataInstallation.connected_account_id`
+    * Changed errors for endpoint `PUT /user_management/users/{user_id}/connected_accounts/{slug}`
+    * Added parameter `UserManagementDataProviders.deleteUserDataInstallation.connected_account_id`
+    * Changed errors for endpoint `DELETE /user_management/users/{user_id}/connected_accounts/{slug}`
+    * Added `connected_accounts` to `DataIntegrationsListResponseData`
+    * Changed errors for endpoint `PUT /data-integrations/{slug}`
+    * Changed errors for endpoint `PUT /data-integrations/{slug}/api-key`
+    * Changed errors for endpoint `PUT /data-integrations/{slug}/client-credentials`
+    * Changed errors for endpoint `POST /data-integrations/{slug}/credentials`
+    * Changed errors for endpoint `POST /data-integrations/{provider}/token`
+
+* [#150](https://github.com/workos/workos-rust/pull/150) feat(generated)!: regenerate from spec (1 change)
+
+    **Fixes**
+    * **[sso](https://workos.com/docs/reference/sso)**:
+      * remove incorrect parameter from getProfileAndToken.
+
+* fix(security): reject empty and dot-segment path parameters with `Error::Builder` before sending requests, preventing URL normalization from silently retargeting requests to other API endpoints (VULN-1240).
+
 ## [3.4.0](https://github.com/workos/workos-rust/compare/v3.3.0...v3.4.0) (2026-09-01)
 
 * [#142](https://github.com/workos/workos-rust/pull/142) feat(generated)!: regenerate from spec (4 changes)
