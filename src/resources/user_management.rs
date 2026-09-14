@@ -669,6 +669,55 @@ impl RevokeSessionParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct ListAuthkitOAuthResourcesParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+}
+
+impl Default for ListAuthkitOAuthResourcesParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateAuthkitOAuthResourceParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: CreateAuthkitOAuthResource,
+}
+
+impl CreateAuthkitOAuthResourceParams {
+    /// Construct a new `CreateAuthkitOAuthResourceParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: CreateAuthkitOAuthResource) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct ListCorsOriginsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1768,6 +1817,100 @@ impl<'a> UserManagementApi<'a> {
         let method = http::Method::POST;
         self.client
             .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// List MCP resource indicators
+    ///
+    /// Lists the MCP resource indicators configured for an environment.
+    pub async fn list_authkit_oauth_resources(
+        &self,
+        params: ListAuthkitOAuthResourcesParams,
+    ) -> Result<crate::pagination::Page<AuthkitOAuthResource>, Error> {
+        self.list_authkit_oauth_resources_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_authkit_oauth_resources`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_authkit_oauth_resources_with_options(
+        &self,
+        params: ListAuthkitOAuthResourcesParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<AuthkitOAuthResource>, Error> {
+        let path = "/user_management/authkit_oauth_resources".to_string();
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `AuthkitOAuthResource`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<AuthkitOAuthResource> = self
+    ///     .list_authkit_oauth_resources_auto_paging(params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_authkit_oauth_resources_auto_paging(
+        &self,
+        params: ListAuthkitOAuthResourcesParams,
+    ) -> impl futures_util::Stream<Item = Result<AuthkitOAuthResource, Error>> + '_ {
+        crate::pagination::auto_paginate_pages(move |after| {
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_authkit_oauth_resources(params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Create an MCP resource indicator
+    ///
+    /// Adds an MCP resource indicator (RFC 8707) to an environment, leaving any others in place.
+    pub async fn create_authkit_oauth_resource(
+        &self,
+        params: CreateAuthkitOAuthResourceParams,
+    ) -> Result<AuthkitOAuthResource, Error> {
+        self.create_authkit_oauth_resource_with_options(params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_authkit_oauth_resource`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_authkit_oauth_resource_with_options(
+        &self,
+        params: CreateAuthkitOAuthResourceParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AuthkitOAuthResource, Error> {
+        let path = "/user_management/authkit_oauth_resources".to_string();
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Delete an MCP resource indicator
+    ///
+    /// Removes an MCP resource indicator from an environment. Any application consents granted against it are removed too.
+    pub async fn delete_authkit_oauth_resource(&self, id: &str) -> Result<(), Error> {
+        self.delete_authkit_oauth_resource_with_options(id, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_authkit_oauth_resource`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_authkit_oauth_resource_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/authkit_oauth_resources/{id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 

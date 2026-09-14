@@ -2746,6 +2746,521 @@ async fn user_management_revoke_session_unprocessable() {
 }
 
 #[tokio::test]
+async fn user_management_list_authkit_oauth_resources_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .list_authkit_oauth_resources(
+            workos::user_management::ListAuthkitOAuthResourcesParams::default(),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_list_authkit_oauth_resources_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_authkit_oauth_resources(
+            workos::user_management::ListAuthkitOAuthResourcesParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_list_authkit_oauth_resources_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_authkit_oauth_resources(
+            workos::user_management::ListAuthkitOAuthResourcesParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_list_authkit_oauth_resources_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_authkit_oauth_resources(
+            workos::user_management::ListAuthkitOAuthResourcesParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_list_authkit_oauth_resources_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .list_authkit_oauth_resources(
+            workos::user_management::ListAuthkitOAuthResourcesParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_list_authkit_oauth_resources_empty_page() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(
+            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let resp = client
+        .user_management()
+        .list_authkit_oauth_resources(
+            workos::user_management::ListAuthkitOAuthResourcesParams::default(),
+        )
+        .await
+        .expect("expected success");
+    assert!(resp.data.is_empty(), "expected empty data array");
+}
+
+#[tokio::test]
+async fn user_management_create_authkit_oauth_resource_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/authkit_oauth_resource.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .create_authkit_oauth_resource(
+            workos::user_management::CreateAuthkitOAuthResourceParams::new(
+                serde_json::from_str(include_str!("fixtures/create_authkit_oauth_resource.json"))
+                    .expect("parse fixture for CreateAuthkitOAuthResource"),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_create_authkit_oauth_resource_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_authkit_oauth_resource(
+            workos::user_management::CreateAuthkitOAuthResourceParams::new(
+                serde_json::from_str(include_str!("fixtures/create_authkit_oauth_resource.json"))
+                    .expect("parse fixture for CreateAuthkitOAuthResource"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_create_authkit_oauth_resource_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_authkit_oauth_resource(
+            workos::user_management::CreateAuthkitOAuthResourceParams::new(
+                serde_json::from_str(include_str!("fixtures/create_authkit_oauth_resource.json"))
+                    .expect("parse fixture for CreateAuthkitOAuthResource"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_create_authkit_oauth_resource_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_authkit_oauth_resource(
+            workos::user_management::CreateAuthkitOAuthResourceParams::new(
+                serde_json::from_str(include_str!("fixtures/create_authkit_oauth_resource.json"))
+                    .expect("parse fixture for CreateAuthkitOAuthResource"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_create_authkit_oauth_resource_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_authkit_oauth_resource(
+            workos::user_management::CreateAuthkitOAuthResourceParams::new(
+                serde_json::from_str(include_str!("fixtures/create_authkit_oauth_resource.json"))
+                    .expect("parse fixture for CreateAuthkitOAuthResource"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_create_authkit_oauth_resource_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_authkit_oauth_resource(
+            workos::user_management::CreateAuthkitOAuthResourceParams::new(
+                serde_json::from_str(include_str!("fixtures/create_authkit_oauth_resource.json"))
+                    .expect("parse fixture for CreateAuthkitOAuthResource"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn user_management_create_authkit_oauth_resource_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/user_management/authkit_oauth_resources"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .create_authkit_oauth_resource(
+            workos::user_management::CreateAuthkitOAuthResourceParams::new(
+                serde_json::from_str(include_str!("fixtures/create_authkit_oauth_resource.json"))
+                    .expect("parse fixture for CreateAuthkitOAuthResource"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn user_management_delete_authkit_oauth_resource_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/authkit_oauth_resources/test_id",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .user_management()
+        .delete_authkit_oauth_resource("test_id")
+        .await;
+}
+
+#[tokio::test]
+async fn user_management_delete_authkit_oauth_resource_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/authkit_oauth_resources/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_authkit_oauth_resource("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn user_management_delete_authkit_oauth_resource_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/authkit_oauth_resources/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_authkit_oauth_resource("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn user_management_delete_authkit_oauth_resource_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/authkit_oauth_resources/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_authkit_oauth_resource("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn user_management_delete_authkit_oauth_resource_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/authkit_oauth_resources/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_authkit_oauth_resource("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn user_management_delete_authkit_oauth_resource_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/authkit_oauth_resources/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_authkit_oauth_resource("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn user_management_delete_authkit_oauth_resource_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/user_management/authkit_oauth_resources/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .user_management()
+        .delete_authkit_oauth_resource("test_id")
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn user_management_list_cors_origins_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))

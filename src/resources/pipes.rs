@@ -30,6 +30,9 @@ pub struct ListDataIntegrationsParams {
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Only return Data Integrations with this ownership: `user` for the integrations users connect their own accounts to, or `organization` for the roots organizations connect to. Omit to return both.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ownership: Option<PipesOwnership>,
 }
 
 impl Default for ListDataIntegrationsParams {
@@ -40,6 +43,7 @@ impl Default for ListDataIntegrationsParams {
             after: Default::default(),
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
+            ownership: Default::default(),
         }
     }
 }
@@ -147,6 +151,23 @@ impl CreateDataIntegrationCredentialParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct UpdateDataIntegrationOrganizationParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: UpdateDataIntegration,
+}
+
+impl UpdateDataIntegrationOrganizationParams {
+    /// Construct a new `UpdateDataIntegrationOrganizationParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: UpdateDataIntegration) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct GetAccessTokenParams {
     /// Request body sent with this call.
     ///
@@ -168,6 +189,9 @@ pub struct GetUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_multiple_connections: Option<bool>,
     /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub connected_account_id: Option<String>,
@@ -201,6 +225,9 @@ pub struct UpdateUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_multiple_connections: Option<bool>,
     /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub connected_account_id: Option<String>,
@@ -217,6 +244,7 @@ impl UpdateUserConnectedAccountParams {
     pub fn new(body: ConnectedAccountInput) -> Self {
         Self {
             organization_id: Default::default(),
+            supports_multiple_connections: Default::default(),
             connected_account_id: Default::default(),
             body,
         }
@@ -228,6 +256,9 @@ pub struct DeleteUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_multiple_connections: Option<bool>,
     /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to delete.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub connected_account_id: Option<String>,
@@ -238,12 +269,15 @@ pub struct ListUserDataProvidersParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to filter connections for a specific organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
+    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_multiple_connections: Option<bool>,
 }
 
 impl<'a> PipesApi<'a> {
     /// List data integrations
     ///
-    /// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers and API key integrations.
+    /// Lists the environment's data integrations configured with `custom` or `organization` credentials, including custom providers and API key integrations. Both user-owned and organization-owned roots are returned, each as its own row with an `ownership`; filter with `ownership` to return only one kind.
     pub async fn list_data_integrations(
         &self,
         params: ListDataIntegrationsParams,
@@ -290,7 +324,7 @@ impl<'a> PipesApi<'a> {
 
     /// Create a data integration
     ///
-    /// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. Set `auth_methods` to `["client_credentials"]` to create a client-credentials integration; client credentials are installed per-tenant afterwards. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition.
+    /// Creates a data integration for a provider. Set `credentials.type` to `custom` to use your own OAuth app credentials or `organization` to have each organization supply its own. Set `auth_methods` to `["api_key"]` to create an API key integration; you may optionally supply an `api_key` block to install a first tenant in the same call. Set `auth_methods` to `["client_credentials"]` to create a client-credentials integration; client credentials are installed per-tenant afterwards. Set `ownership` to `organization` to create the integration organizations connect to instead of the default user-owned one; a provider may have one of each. For a built-in provider, pass its slug as `provider`. For a custom provider, pass a new slug plus a `custom_provider` definition, or the slug of an existing custom provider (without `custom_provider`) to add the other ownership.
     pub async fn create_data_integration(
         &self,
         params: CreateDataIntegrationParams,
@@ -314,7 +348,7 @@ impl<'a> PipesApi<'a> {
 
     /// Get a data integration
     ///
-    /// Retrieves a data integration by its slug.
+    /// Retrieves the user-owned data integration by its slug.
     pub async fn get_data_integration(&self, slug: &str) -> Result<DataIntegration, Error> {
         self.get_data_integration_with_options(slug, None).await
     }
@@ -335,7 +369,7 @@ impl<'a> PipesApi<'a> {
 
     /// Update a data integration
     ///
-    /// Updates the description, enabled state, or custom credentials of a data integration. For custom providers, `custom_provider` updates the OAuth definition.
+    /// Updates the description, enabled state, or custom credentials of the user-owned data integration. For custom providers, `custom_provider` updates the OAuth definition.
     pub async fn update_data_integration(
         &self,
         slug: &str,
@@ -362,7 +396,7 @@ impl<'a> PipesApi<'a> {
 
     /// Delete a data integration
     ///
-    /// Deletes a data integration and all of its connected installations. For a custom provider, also deletes the custom provider definition.
+    /// Deletes the user-owned data integration and all of its connected installations. For a custom provider, the provider definition is deleted once no organization-owned root references it either.
     pub async fn delete_data_integration(&self, slug: &str) -> Result<(), Error> {
         self.delete_data_integration_with_options(slug, None).await
     }
@@ -383,7 +417,7 @@ impl<'a> PipesApi<'a> {
 
     /// Upsert an API key for a connected account
     ///
-    /// Creates or updates an API-key-based installation for the specified integration and user. If an installation already exists, the stored API key is rotated to the new value.
+    /// Creates or updates an API-key-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored API key is rotated to the new value.
     pub async fn update_data_integration_api_key(
         &self,
         slug: &str,
@@ -437,7 +471,7 @@ impl<'a> PipesApi<'a> {
 
     /// Upsert client credentials for a connected account
     ///
-    /// Creates or updates a client-credentials-based installation for the specified integration and user. If an installation already exists, the stored client credentials are rotated to the new values.
+    /// Creates or updates a client-credentials-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored client credentials are rotated to the new values.
     pub async fn update_data_integration_client_credentials(
         &self,
         slug: &str,
@@ -486,6 +520,80 @@ impl<'a> PipesApi<'a> {
         let method = http::Method::POST;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Get an organization-owned data integration
+    ///
+    /// Retrieves the organization-owned data integration for a provider by its slug. The `/organization` suffix selects the environment-level organization-owned root for the provider; it does not name a particular organization.
+    pub async fn list_data_integration_organization(
+        &self,
+        slug: &str,
+    ) -> Result<DataIntegration, Error> {
+        self.list_data_integration_organization_with_options(slug, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_data_integration_organization`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_data_integration_organization_with_options(
+        &self,
+        slug: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegration, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}/organization");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// Update an organization-owned data integration
+    ///
+    /// Updates the description, enabled state, or custom credentials of the organization-owned data integration for a provider. For custom providers, `custom_provider` updates the OAuth definition, which is shared with the user-owned root. The `/organization` suffix selects the environment-level organization-owned root for the provider; it does not name a particular organization.
+    pub async fn update_data_integration_organization(
+        &self,
+        slug: &str,
+        params: UpdateDataIntegrationOrganizationParams,
+    ) -> Result<DataIntegration, Error> {
+        self.update_data_integration_organization_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_data_integration_organization`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_data_integration_organization_with_options(
+        &self,
+        slug: &str,
+        params: UpdateDataIntegrationOrganizationParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegration, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}/organization");
+        let method = http::Method::PUT;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Delete an organization-owned data integration
+    ///
+    /// Deletes the organization-owned data integration for a provider and all of its connected installations. For a custom provider, the provider definition is deleted once no user-owned root references it either. The `/organization` suffix selects the environment-level organization-owned root for the provider; it does not name a particular organization.
+    pub async fn delete_data_integration_organization(&self, slug: &str) -> Result<(), Error> {
+        self.delete_data_integration_organization_with_options(slug, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_data_integration_organization`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_data_integration_organization_with_options(
+        &self,
+        slug: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}/organization");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
             .await
     }
 
@@ -608,7 +716,7 @@ impl<'a> PipesApi<'a> {
 
     /// Delete a connected account
     ///
-    /// Disconnects WorkOS's account for the user, including removing any stored access and refresh tokens. The user will need to reauthorize if they want to reconnect. This does not revoke access on the provider side.
+    /// Disconnects WorkOS's account for the user, including removing any stored access and refresh tokens. The user will need to reauthorize if they want to reconnect. Access is not revoked on the provider side, except for the WorkOS OAuth provider, whose underlying AuthKit grant is revoked.
     pub async fn delete_user_connected_account(
         &self,
         user_id: &str,
