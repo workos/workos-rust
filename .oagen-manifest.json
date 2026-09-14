@@ -45,6 +45,7 @@
     "src/enums/create_connection_oidc_options_id_token_signature_algorithm.rs",
     "src/enums/create_connection_oidc_options_token_authentication_method.rs",
     "src/enums/create_data_integration_auth_methods.rs",
+    "src/enums/create_data_integration_ownership.rs",
     "src/enums/create_user_invite_options_locale.rs",
     "src/enums/create_user_password_hash_type.rs",
     "src/enums/create_user_password_salt_position.rs",
@@ -57,11 +58,16 @@
     "src/enums/data_integration_credentials_input_type.rs",
     "src/enums/data_integration_credentials_response_error.rs",
     "src/enums/data_integration_custom_provider_authenticate_via.rs",
+    "src/enums/data_integration_ownership.rs",
     "src/enums/data_integration_state.rs",
+    "src/enums/data_integrations_get_user_token_request_connection_owner.rs",
     "src/enums/data_integrations_list_response_data_auth_methods.rs",
     "src/enums/data_integrations_list_response_data_connected_account_auth_method.rs",
     "src/enums/data_integrations_list_response_data_connected_account_state.rs",
     "src/enums/data_integrations_list_response_data_ownership.rs",
+    "src/enums/data_integrations_upsert_api_key_request_connection_owner.rs",
+    "src/enums/data_integrations_upsert_client_credentials_request_connection_owner.rs",
+    "src/enums/data_integrations_vend_credentials_request_connection_owner.rs",
     "src/enums/directory_state.rs",
     "src/enums/directory_type.rs",
     "src/enums/directory_user_state.rs",
@@ -114,6 +120,7 @@
     "src/enums/patch_connection_oidc_options_id_token_signature_algorithm.rs",
     "src/enums/patch_connection_oidc_options_token_authentication_method.rs",
     "src/enums/pipe_connected_account_state.rs",
+    "src/enums/pipes_ownership.rs",
     "src/enums/profile_connection_type.rs",
     "src/enums/radar_list_action.rs",
     "src/enums/radar_list_type.rs",
@@ -171,6 +178,7 @@
     "src/enums/widget_session_token_scopes.rs",
     "src/models/_unions.rs",
     "src/models/access_token_agent_registration_credential_issued_data_detail.rs",
+    "src/models/account_selection_required_error.rs",
     "src/models/action_authentication_denied.rs",
     "src/models/action_authentication_denied_data.rs",
     "src/models/action_user_registration_denied.rs",
@@ -335,6 +343,7 @@
     "src/models/authentication_sso_timed_out_data.rs",
     "src/models/authentication_sso_timed_out_data_error.rs",
     "src/models/authentication_sso_timed_out_data_sso.rs",
+    "src/models/authkit_oauth_resource.rs",
     "src/models/authorization_check.rs",
     "src/models/authorization_code_session_authenticate_request.rs",
     "src/models/authorization_permission.rs",
@@ -385,6 +394,7 @@
     "src/models/connection_saml_certificate_renewed_data_connection.rs",
     "src/models/cors_origin_response.rs",
     "src/models/create_application_secret.rs",
+    "src/models/create_authkit_oauth_resource.rs",
     "src/models/create_authorization_permission.rs",
     "src/models/create_authorization_resource.rs",
     "src/models/create_connection.rs",
@@ -855,6 +865,7 @@
     "tests/events_test.rs",
     "tests/feature_flags_test.rs",
     "tests/fixtures/access_token_agent_registration_credential_issued_data_detail.json",
+    "tests/fixtures/account_selection_required_error.json",
     "tests/fixtures/action_authentication_denied.json",
     "tests/fixtures/action_authentication_denied_data.json",
     "tests/fixtures/action_user_registration_denied.json",
@@ -1019,6 +1030,7 @@
     "tests/fixtures/authentication_sso_timed_out_data.json",
     "tests/fixtures/authentication_sso_timed_out_data_error.json",
     "tests/fixtures/authentication_sso_timed_out_data_sso.json",
+    "tests/fixtures/authkit_oauth_resource.json",
     "tests/fixtures/authorization_check.json",
     "tests/fixtures/authorization_code_session_authenticate_request.json",
     "tests/fixtures/authorization_permission.json",
@@ -1067,6 +1079,7 @@
     "tests/fixtures/connection_saml_certificate_renewed_data_certificate.json",
     "tests/fixtures/connection_saml_certificate_renewed_data_connection.json",
     "tests/fixtures/cors_origin_response.json",
+    "tests/fixtures/create_authkit_oauth_resource.json",
     "tests/fixtures/create_authorization_permission.json",
     "tests/fixtures/create_authorization_resource.json",
     "tests/fixtures/create_connection.json",
@@ -2513,6 +2526,30 @@
     "POST /agents/blueprints/{agent_blueprint_id}/tokens/validate": {
       "sdkMethod": "validate_blueprint_token",
       "service": "agents"
+    },
+    "GET /data-integrations/{slug}/organization": {
+      "sdkMethod": "list_data_integration_organization",
+      "service": "pipes"
+    },
+    "PUT /data-integrations/{slug}/organization": {
+      "sdkMethod": "update_data_integration_organization",
+      "service": "pipes"
+    },
+    "DELETE /data-integrations/{slug}/organization": {
+      "sdkMethod": "delete_data_integration_organization",
+      "service": "pipes"
+    },
+    "GET /user_management/authkit_oauth_resources": {
+      "sdkMethod": "list_authkit_oauth_resources",
+      "service": "user_management"
+    },
+    "POST /user_management/authkit_oauth_resources": {
+      "sdkMethod": "create_authkit_oauth_resource",
+      "service": "user_management"
+    },
+    "DELETE /user_management/authkit_oauth_resources/{id}": {
+      "sdkMethod": "delete_authkit_oauth_resource",
+      "service": "user_management"
     }
   }
 }

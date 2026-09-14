@@ -9,9 +9,15 @@ use serde::{Deserialize, Serialize};
 pub struct DataIntegrationsUpsertClientCredentialsRequest {
     /// A [User](https://workos.com/docs/reference/authkit/user) identifier.
     pub user_id: String,
-    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub organization_id: Option<String>,
+    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to rotate a specific existing connection.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connected_account_id: Option<String>,
+    /// Whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connection_owner: Option<DataIntegrationsUpsertClientCredentialsRequestConnectionOwner>,
     /// The OAuth client ID to store for this integration.
     pub client_id: String,
     /// The OAuth client secret to store for this integration.

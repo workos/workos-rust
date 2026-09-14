@@ -7,12 +7,18 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataIntegrationsGetUserTokenRequest {
-    /// A [User](https://workos.com/docs/reference/authkit/user) identifier.
+    /// A [User](https://workos.com/docs/reference/authkit/user) identifier. When `connection_owner` is `organization`, this is the user the credentials are vended on behalf of; they must be an active member of the organization.
     pub user_id: String,
-    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization.
+    /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub organization_id: Option<String>,
     /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the user has several for this provider.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub connected_account_id: Option<String>,
+    /// Which connection to vend from. `user` (the default) vends the user's own connection and requires `user_id`. `organization` vends the organization's shared connection and requires `organization_id`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connection_owner: Option<DataIntegrationsGetUserTokenRequestConnectionOwner>,
+    /// Set to `true` to use the plural connection contract. If no `connected_account_id` is supplied and several connections match, the request returns `account_selection_required`. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub supports_multiple_connections: Option<bool>,
 }

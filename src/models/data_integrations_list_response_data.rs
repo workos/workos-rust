@@ -50,9 +50,9 @@ pub struct DataIntegrationsListResponseData {
     #[serde(rename = "updatedAt")]
     #[deprecated]
     pub updated_at_2: String,
-    /// The user's [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` if the user has not connected.
+    /// The user's compatibility [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` when the compatibility slot is empty. This legacy field never selects a standard connection.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub connected_account: Option<DataIntegrationsListResponseDataConnectedAccount>,
-    /// The user's connected accounts for this provider in the requested ownership context.
+    /// The user's connected accounts for this provider in the requested ownership context. This contains only the compatibility connection unless `supports_multiple_connections` is `true`.
     pub connected_accounts: Vec<DataIntegrationsListResponseDataConnectedAccount>,
 }

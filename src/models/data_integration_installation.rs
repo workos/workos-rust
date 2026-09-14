@@ -9,9 +9,10 @@ use serde::{Deserialize, Serialize};
 pub struct DataIntegrationInstallation {
     /// Unique identifier of the installation.
     pub id: String,
-    /// The User the API key was installed for.
-    pub user_id: String,
-    /// The Organization the installation is scoped to, or null when unscoped.
+    /// The User the API key was installed for. Null on an `organization`-owned integration, whose installations belong to the organization.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub user_id: Option<String>,
+    /// The Organization the installation is scoped to (or owned by, on an `organization`-owned integration), or null when unscoped.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub organization_id: Option<String>,
     /// The last four characters of the stored API key. The full key is never returned.
