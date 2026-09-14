@@ -204,6 +204,9 @@ pub struct ListSessionsParams {
     /// Defaults to `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<PaginationOrder>,
+    /// Only return sessions of instances acting within this organization.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub organization_id: Option<String>,
     /// Only return sessions of instances minted from this blueprint.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub agent_blueprint_id: Option<String>,
@@ -220,6 +223,7 @@ impl Default for ListSessionsParams {
             after: Default::default(),
             limit: Some(10),
             order: Some(PaginationOrder::Desc),
+            organization_id: Default::default(),
             agent_blueprint_id: Default::default(),
             agent_instance_id: Default::default(),
         }

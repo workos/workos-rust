@@ -15,6 +15,8 @@ pub struct DataIntegration {
     pub slug: String,
     /// The integration type derived from the provider.
     pub integration_type: String,
+    /// Who owns the Data Integration: `user` when users connect their own accounts, `organization` when organizations connect. Fixed at creation.
+    pub ownership: DataIntegrationOwnership,
     /// An optional description of the Data Integration.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub description: Option<String>,

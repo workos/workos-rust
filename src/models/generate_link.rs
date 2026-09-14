@@ -7,10 +7,10 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GenerateLink {
-    /// The URL to go to when an admin clicks on your logo in the Admin Portal. If not specified, the return URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
+    /// The URL to go to when an admin clicks on your logo in the Admin Portal. If not specified, the return URL configured on the [Admin Portal](https://dashboard.workos.com/admin-portal) page will be used.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub return_url: Option<String>,
-    /// The URL to redirect the admin to when they finish setup. If not specified, the success URL configured on the [Redirects](https://dashboard.workos.com/redirects) page will be used.
+    /// The URL to redirect the admin to when they finish setup. If not specified, the success URL configured on the [Admin Portal](https://dashboard.workos.com/admin-portal) page will be used.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub success_url: Option<String>,
     /// An [Organization](https://workos.com/docs/reference/organization) identifier.

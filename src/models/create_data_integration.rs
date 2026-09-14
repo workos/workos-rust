@@ -9,6 +9,9 @@ use serde::{Deserialize, Serialize};
 pub struct CreateDataIntegration {
     /// The provider to create a Data Integration for. For a built-in provider use its slug (e.g. `github`, `slack`). For a custom provider, this is the new provider slug and `custom_provider` must be supplied. A custom provider slug cannot shadow an existing global provider slug.
     pub provider: String,
+    /// Who owns the Data Integration. `user` (the default) creates the integration users connect their own accounts to; `organization` creates the root organizations connect to. Ownership is fixed at creation, and one integration of each ownership may exist per provider. Independent of `credentials.type`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub ownership: Option<CreateDataIntegrationOwnership>,
     /// An optional description of the Data Integration.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub description: Option<String>,

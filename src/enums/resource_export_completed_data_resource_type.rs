@@ -12,6 +12,7 @@ pub enum ResourceExportCompletedDataResourceType {
     Events,
     Sessions,
     AuditLogEvents,
+    Connections,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -30,6 +31,7 @@ impl ResourceExportCompletedDataResourceType {
             Self::Events => "events",
             Self::Sessions => "sessions",
             Self::AuditLogEvents => "auditLogEvents",
+            Self::Connections => "connections",
             Self::Unknown(s) => s.as_str(),
         }
     }
@@ -57,6 +59,7 @@ impl FromStr for ResourceExportCompletedDataResourceType {
             "events" => Self::Events,
             "sessions" => Self::Sessions,
             "auditLogEvents" => Self::AuditLogEvents,
+            "connections" => Self::Connections,
             other => Self::Unknown(other.to_string()),
         })
     }

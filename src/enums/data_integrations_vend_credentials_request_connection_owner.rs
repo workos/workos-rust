@@ -6,13 +6,9 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
-pub enum ResourceExportFailedDataResourceType {
-    Users,
-    Organizations,
-    Events,
-    Sessions,
-    AuditLogEvents,
-    Connections,
+pub enum DataIntegrationsVendCredentialsRequestConnectionOwner {
+    User,
+    Organization,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -20,52 +16,44 @@ pub enum ResourceExportFailedDataResourceType {
     Unknown(String),
 }
 
-impl ResourceExportFailedDataResourceType {
+impl DataIntegrationsVendCredentialsRequestConnectionOwner {
     /// Canonical wire string for this value. For [`Self::Unknown`] returns the
     /// original wire value as received from the API.
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
-            Self::Users => "users",
-            Self::Organizations => "organizations",
-            Self::Events => "events",
-            Self::Sessions => "sessions",
-            Self::AuditLogEvents => "auditLogEvents",
-            Self::Connections => "connections",
+            Self::User => "user",
+            Self::Organization => "organization",
             Self::Unknown(s) => s.as_str(),
         }
     }
 }
 
-impl fmt::Display for ResourceExportFailedDataResourceType {
+impl fmt::Display for DataIntegrationsVendCredentialsRequestConnectionOwner {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl AsRef<str> for ResourceExportFailedDataResourceType {
+impl AsRef<str> for DataIntegrationsVendCredentialsRequestConnectionOwner {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl FromStr for ResourceExportFailedDataResourceType {
+impl FromStr for DataIntegrationsVendCredentialsRequestConnectionOwner {
     type Err = std::convert::Infallible;
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "users" => Self::Users,
-            "organizations" => Self::Organizations,
-            "events" => Self::Events,
-            "sessions" => Self::Sessions,
-            "auditLogEvents" => Self::AuditLogEvents,
-            "connections" => Self::Connections,
+            "user" => Self::User,
+            "organization" => Self::Organization,
             other => Self::Unknown(other.to_string()),
         })
     }
 }
 
-impl From<String> for ResourceExportFailedDataResourceType {
+impl From<String> for DataIntegrationsVendCredentialsRequestConnectionOwner {
     fn from(s: String) -> Self {
         // Reuse the original `String` allocation in the fallback branch.
         match Self::from_str(&s) {
@@ -75,19 +63,19 @@ impl From<String> for ResourceExportFailedDataResourceType {
     }
 }
 
-impl From<&str> for ResourceExportFailedDataResourceType {
+impl From<&str> for DataIntegrationsVendCredentialsRequestConnectionOwner {
     fn from(s: &str) -> Self {
         Self::from_str(s).unwrap_or_else(|_| Self::Unknown(s.to_string()))
     }
 }
 
-impl Serialize for ResourceExportFailedDataResourceType {
+impl Serialize for DataIntegrationsVendCredentialsRequestConnectionOwner {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
-impl<'de> Deserialize<'de> for ResourceExportFailedDataResourceType {
+impl<'de> Deserialize<'de> for DataIntegrationsVendCredentialsRequestConnectionOwner {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))
