@@ -13,7 +13,7 @@ pub struct RadarSmsChallengeCodeSessionAuthenticateRequest {
     pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The one-time code from the Radar SMS challenge.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The ID of the Radar SMS verification being confirmed. Required for sign-up challenges; omitted for sign-in challenges, where the verification is resolved server-side.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub verification_id: Option<String>,
