@@ -8,5 +8,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValidateApiKey {
     /// The value for an API key.
-    pub value: String,
+    pub value: crate::SecretString,
 }

@@ -26,6 +26,7 @@
     "src/enums/authorization_assignment.rs",
     "src/enums/claim_view_response_status.rs",
     "src/enums/connected_account_auth_method.rs",
+    "src/enums/connected_account_connection_role.rs",
     "src/enums/connected_account_input_state.rs",
     "src/enums/connected_account_state.rs",
     "src/enums/connection_activated_data_connection_type.rs",
@@ -58,12 +59,16 @@
     "src/enums/data_integration_credentials_input_type.rs",
     "src/enums/data_integration_credentials_response_error.rs",
     "src/enums/data_integration_custom_provider_authenticate_via.rs",
+    "src/enums/data_integration_installation_connection_role.rs",
     "src/enums/data_integration_ownership.rs",
     "src/enums/data_integration_state.rs",
+    "src/enums/data_integrations_get_data_integration_authorize_url_request_connection_owner.rs",
     "src/enums/data_integrations_get_user_token_request_connection_owner.rs",
     "src/enums/data_integrations_list_response_data_auth_methods.rs",
     "src/enums/data_integrations_list_response_data_connected_account_auth_method.rs",
+    "src/enums/data_integrations_list_response_data_connected_account_connection_role.rs",
     "src/enums/data_integrations_list_response_data_connected_account_state.rs",
+    "src/enums/data_integrations_list_response_data_connection_owner.rs",
     "src/enums/data_integrations_list_response_data_ownership.rs",
     "src/enums/data_integrations_upsert_api_key_request_connection_owner.rs",
     "src/enums/data_integrations_upsert_client_credentials_request_connection_owner.rs",
@@ -119,6 +124,8 @@
     "src/enums/pagination_order.rs",
     "src/enums/patch_connection_oidc_options_id_token_signature_algorithm.rs",
     "src/enums/patch_connection_oidc_options_token_authentication_method.rs",
+    "src/enums/pipe_connected_account_auth_method.rs",
+    "src/enums/pipe_connected_account_connection_role.rs",
     "src/enums/pipe_connected_account_state.rs",
     "src/enums/pipes_ownership.rs",
     "src/enums/profile_connection_type.rs",
@@ -663,6 +670,13 @@
     "src/models/permission_updated.rs",
     "src/models/permission_updated_data.rs",
     "src/models/pipe_connected_account.rs",
+    "src/models/pipes_account_connection_add_failed.rs",
+    "src/models/pipes_account_connection_add_failed_data.rs",
+    "src/models/pipes_account_connection_connected.rs",
+    "src/models/pipes_account_connection_connection_failed.rs",
+    "src/models/pipes_account_connection_connection_failed_data.rs",
+    "src/models/pipes_account_connection_disconnected.rs",
+    "src/models/pipes_account_connection_reauthorization_needed.rs",
     "src/models/pipes_connected_account_connected.rs",
     "src/models/pipes_connected_account_connection_failed.rs",
     "src/models/pipes_connected_account_connection_failed_data.rs",
@@ -843,6 +857,7 @@
     "src/resources/organization_domains.rs",
     "src/resources/organization_membership.rs",
     "src/resources/organizations.rs",
+    "src/resources/organizations_data_providers.rs",
     "src/resources/pipes.rs",
     "src/resources/pipes_provider.rs",
     "src/resources/platform_teams.rs",
@@ -1347,6 +1362,13 @@
     "tests/fixtures/permission_updated.json",
     "tests/fixtures/permission_updated_data.json",
     "tests/fixtures/pipe_connected_account.json",
+    "tests/fixtures/pipes_account_connection_add_failed.json",
+    "tests/fixtures/pipes_account_connection_add_failed_data.json",
+    "tests/fixtures/pipes_account_connection_connected.json",
+    "tests/fixtures/pipes_account_connection_connection_failed.json",
+    "tests/fixtures/pipes_account_connection_connection_failed_data.json",
+    "tests/fixtures/pipes_account_connection_disconnected.json",
+    "tests/fixtures/pipes_account_connection_reauthorization_needed.json",
     "tests/fixtures/pipes_connected_account_connected.json",
     "tests/fixtures/pipes_connected_account_connection_failed.json",
     "tests/fixtures/pipes_connected_account_connection_failed_data.json",
@@ -1515,6 +1537,7 @@
     "tests/multi_factor_auth_test.rs",
     "tests/organization_domains_test.rs",
     "tests/organization_membership_test.rs",
+    "tests/organizations_data_providers_test.rs",
     "tests/organizations_test.rs",
     "tests/pipes_provider_test.rs",
     "tests/pipes_test.rs",
@@ -2550,6 +2573,26 @@
     "DELETE /user_management/authkit_oauth_resources/{id}": {
       "sdkMethod": "delete_authkit_oauth_resource",
       "service": "user_management"
+    },
+    "GET /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "get_organization_connected_account",
+      "service": "organizations_data_providers"
+    },
+    "POST /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "create_organization_connected_account",
+      "service": "organizations_data_providers"
+    },
+    "PUT /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "update_organization_connected_account",
+      "service": "organizations_data_providers"
+    },
+    "DELETE /organizations/{organization_id}/connected_accounts/{slug}": {
+      "sdkMethod": "delete_organization_connected_account",
+      "service": "organizations_data_providers"
+    },
+    "GET /organizations/{organization_id}/data_providers": {
+      "sdkMethod": "list_organization_data_providers",
+      "service": "organizations_data_providers"
     }
   }
 }

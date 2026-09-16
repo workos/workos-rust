@@ -13,7 +13,7 @@ pub struct DataIntegrationCredentialsResponseCredential {
     /// The authentication method for this credential. Additional values may be added in the future; handle unknown values gracefully.
     pub auth_method: String,
     /// The OAuth access token.
-    pub value: String,
+    pub value: crate::SecretString,
     /// The ISO-8601 formatted timestamp indicating when the credential expires.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub expires_at: Option<String>,

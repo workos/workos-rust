@@ -8,5 +8,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VerifyEmailAddress {
     /// The one-time email verification code.
-    pub code: String,
+    pub code: crate::SecretString,
 }

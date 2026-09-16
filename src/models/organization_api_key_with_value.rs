@@ -30,5 +30,5 @@ pub struct OrganizationApiKeyWithValue {
     /// An ISO 8601 timestamp.
     pub updated_at: String,
     /// The full API Key value. Only returned once at creation time.
-    pub value: String,
+    pub value: crate::SecretString,
 }

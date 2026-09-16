@@ -28,7 +28,10 @@ pub struct DataIntegrationsListResponseData {
     /// The authentication methods supported by this provider (`oauth`, `api_key`, `client_credentials`, or a combination). Defaults to `["oauth"]` if absent.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub auth_methods: Option<Vec<DataIntegrationsListResponseDataAuthMethods>>,
-    /// Whether the provider is owned by a user or organization.
+    /// Who owns connections made through this provider: `user` for connections owned by individual users, or `organization` for a connection shared by every member of the organization. A provider row can exist before any connected account does.
+    pub connection_owner: DataIntegrationsListResponseDataConnectionOwner,
+    /// Use `connection_owner` instead. Legacy spelling of the same value: `userland_user` corresponds to `connection_owner: "user"` and `organization` to `connection_owner: "organization"`.
+    #[deprecated]
     pub ownership: DataIntegrationsListResponseDataOwnership,
     /// The timestamp when the provider was created.
     pub created_at: String,

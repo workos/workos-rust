@@ -22,7 +22,7 @@ pub struct MagicAuthSendMagicAuthCodeAndReturnResponse {
     /// An ISO 8601 timestamp.
     pub updated_at: String,
     /// The code used to verify the Magic Auth code.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The ID of the Radar authentication attempt created for this request when Radar is enabled. Pass this value to the authenticate endpoint to associate the subsequent authentication with this Radar attempt.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub radar_auth_attempt_id: Option<String>,

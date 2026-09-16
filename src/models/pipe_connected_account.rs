@@ -11,6 +11,15 @@ pub struct PipeConnectedAccount {
     pub object: String,
     /// The unique ID of the connected account.
     pub id: String,
+    /// Whether this is the compatibility connection visible to undeclared clients or a standard connection for plural-aware clients. Historical events may omit this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connection_role: Option<PipeConnectedAccountConnectionRole>,
+    /// A best-effort identifier for the provider account this connection points at. It is not the connection identifier or a selector. Historical events may omit this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_identifier: Option<String>,
+    /// A mutable, non-unique display name for the provider account connection. Historical events may omit this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_display_name: Option<String>,
     /// The unique ID of the data integration.
     pub data_integration_id: String,
     /// The provider slug for this connected account.
@@ -23,6 +32,12 @@ pub struct PipeConnectedAccount {
     pub organization_id: Option<String>,
     /// The OAuth scopes granted for this connected account.
     pub scopes: Vec<String>,
+    /// How the connection authenticates. Historical events may omit this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub auth_method: Option<PipeConnectedAccountAuthMethod>,
+    /// The last four characters of the API key, or null for other authentication methods. Historical events may omit this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub api_key_last_4: Option<String>,
     /// The state of the connected account.
     pub state: PipeConnectedAccountState,
     /// An ISO 8601 timestamp.

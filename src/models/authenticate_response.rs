@@ -14,7 +14,7 @@ pub struct AuthenticateResponse {
     pub organization_id: Option<String>,
     /// An authorization code that can be exchanged for tokens by a different application.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub authkit_authorization_code: Option<String>,
+    pub authkit_authorization_code: Option<crate::SecretString>,
     /// A JWT containing information about the current session.
     pub access_token: crate::SecretString,
     /// [Exchange this token](https://workos.com/docs/reference/authkit/authentication/refresh-token) for a new access token.

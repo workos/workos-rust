@@ -8,5 +8,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfirmEmailChange {
     /// The one-time code used to confirm the email change.
-    pub code: String,
+    pub code: crate::SecretString,
 }

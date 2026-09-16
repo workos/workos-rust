@@ -14,5 +14,5 @@ pub struct VaultObject {
     /// Unique name of the object.
     pub name: String,
     /// Decrypted plaintext value.
-    pub value: String,
+    pub value: crate::SecretString,
 }

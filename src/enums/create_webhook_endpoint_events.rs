@@ -98,6 +98,11 @@ pub enum CreateWebhookEndpointEvents {
     PermissionCreated,
     PermissionDeleted,
     PermissionUpdated,
+    PipesAccountConnectionAddFailed,
+    PipesAccountConnectionConnected,
+    PipesAccountConnectionConnectionFailed,
+    PipesAccountConnectionDisconnected,
+    PipesAccountConnectionReauthorizationNeeded,
     PipesConnectedAccountConnected,
     PipesConnectedAccountConnectionFailed,
     PipesConnectedAccountDisconnected,
@@ -221,6 +226,15 @@ impl CreateWebhookEndpointEvents {
             Self::PermissionCreated => "permission.created",
             Self::PermissionDeleted => "permission.deleted",
             Self::PermissionUpdated => "permission.updated",
+            Self::PipesAccountConnectionAddFailed => "pipes.account_connection.add_failed",
+            Self::PipesAccountConnectionConnected => "pipes.account_connection.connected",
+            Self::PipesAccountConnectionConnectionFailed => {
+                "pipes.account_connection.connection_failed"
+            }
+            Self::PipesAccountConnectionDisconnected => "pipes.account_connection.disconnected",
+            Self::PipesAccountConnectionReauthorizationNeeded => {
+                "pipes.account_connection.reauthorization_needed"
+            }
             Self::PipesConnectedAccountConnected => "pipes.connected_account.connected",
             Self::PipesConnectedAccountConnectionFailed => {
                 "pipes.connected_account.connection_failed"
@@ -357,6 +371,15 @@ impl FromStr for CreateWebhookEndpointEvents {
             "permission.created" => Self::PermissionCreated,
             "permission.deleted" => Self::PermissionDeleted,
             "permission.updated" => Self::PermissionUpdated,
+            "pipes.account_connection.add_failed" => Self::PipesAccountConnectionAddFailed,
+            "pipes.account_connection.connected" => Self::PipesAccountConnectionConnected,
+            "pipes.account_connection.connection_failed" => {
+                Self::PipesAccountConnectionConnectionFailed
+            }
+            "pipes.account_connection.disconnected" => Self::PipesAccountConnectionDisconnected,
+            "pipes.account_connection.reauthorization_needed" => {
+                Self::PipesAccountConnectionReauthorizationNeeded
+            }
             "pipes.connected_account.connected" => Self::PipesConnectedAccountConnected,
             "pipes.connected_account.connection_failed" => {
                 Self::PipesConnectedAccountConnectionFailed
