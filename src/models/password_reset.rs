@@ -22,5 +22,5 @@ pub struct PasswordReset {
     /// The token used to reset the password.
     pub password_reset_token: crate::SecretString,
     /// The URL where the user can reset their password.
-    pub password_reset_url: String,
+    pub password_reset_url: crate::SecretString,
 }

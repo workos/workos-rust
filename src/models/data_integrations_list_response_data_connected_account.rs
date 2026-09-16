@@ -11,6 +11,14 @@ pub struct DataIntegrationsListResponseDataConnectedAccount {
     pub object: String,
     /// The unique identifier of the connected account.
     pub id: String,
+    /// Whether this row is the compatibility connection visible to undeclared clients or a standard peer for plural-aware clients. The role does not indicate preference or creation order.
+    pub connection_role: DataIntegrationsListResponseDataConnectedAccountConnectionRole,
+    /// A best-effort identifier for the provider account this connection points at. It is correlation metadata, not the connection identifier or a selector.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_identifier: Option<String>,
+    /// A mutable, non-unique display name for the provider account connection.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_display_name: Option<String>,
     /// The [User](https://workos.com/docs/reference/authkit/user) identifier associated with this connection.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub user_id: Option<String>,

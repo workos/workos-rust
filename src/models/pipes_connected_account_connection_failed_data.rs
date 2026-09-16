@@ -20,6 +20,9 @@ pub struct PipesConnectedAccountConnectionFailedData {
     /// The ID of the Organization the connection attempt belongs to.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub organization_id: Option<String>,
+    /// A best-effort identifier for the provider account involved in the attempt. It is not a connection identifier or selector. Historical events may omit this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_identifier: Option<String>,
     /// A machine-readable error code for the failure.
     pub error_code: String,
     /// A human-readable explanation of the failure.

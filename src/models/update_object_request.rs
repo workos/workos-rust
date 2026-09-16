@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateObjectRequest {
     /// New plaintext value.
-    pub value: String,
+    pub value: crate::SecretString,
     /// ID of the expected current version for optimistic locking.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub version_check: Option<String>,

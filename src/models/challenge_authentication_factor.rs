@@ -7,7 +7,7 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChallengeAuthenticationFactor {
-    /// A custom template for the SMS message. Use the {{code}} placeholder to include the verification code.
+    /// A custom template for the SMS message. Use the {{code}} placeholder to include the verification code. Must not contain URLs or domain names.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub sms_template: Option<String>,
 }

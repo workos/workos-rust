@@ -8,14 +8,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeviceAuthorizationResponse {
     /// The device verification code.
-    pub device_code: String,
+    pub device_code: crate::SecretString,
     /// The end-user verification code.
-    pub user_code: String,
+    pub user_code: crate::SecretString,
     /// The end-user verification URI.
     pub verification_uri: String,
     /// Verification URI that includes the user code.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub verification_uri_complete: Option<String>,
+    pub verification_uri_complete: Option<crate::SecretString>,
     /// Lifetime in seconds of the codes.
     pub expires_in: f64,
     /// Minimum polling interval in seconds.

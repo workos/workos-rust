@@ -9,6 +9,14 @@ use serde::{Deserialize, Serialize};
 pub struct DataIntegrationInstallation {
     /// Unique identifier of the installation.
     pub id: String,
+    /// Whether this is the compatibility connection visible to undeclared clients or a standard connection for plural-aware clients.
+    pub connection_role: DataIntegrationInstallationConnectionRole,
+    /// A best-effort provider account identifier used for correlation, not connection selection.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_identifier: Option<String>,
+    /// A mutable, non-unique display name for this connection.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_display_name: Option<String>,
     /// The User the API key was installed for. Null on an `organization`-owned integration, whose installations belong to the organization.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub user_id: Option<String>,

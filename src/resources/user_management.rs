@@ -182,10 +182,10 @@ pub struct AuthenticateWithCodeParams {
     /// The authorization code received from the redirect.
     ///
     /// Required.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The PKCE code verifier used to derive the code challenge passed to the authorization URL.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub code_verifier: Option<String>,
+    pub code_verifier: Option<crate::SecretString>,
     /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invitation_token: Option<crate::SecretString>,
@@ -205,7 +205,7 @@ pub struct AuthenticateWithCodeParams {
 
 impl AuthenticateWithCodeParams {
     /// Construct a new `AuthenticateWithCodeParams` with the required fields set.
-    pub fn new(code: impl Into<String>) -> Self {
+    pub fn new(code: impl Into<crate::SecretString>) -> Self {
         Self {
             code: code.into(),
             code_verifier: Default::default(),
@@ -256,7 +256,7 @@ pub struct AuthenticateWithMagicAuthParams {
     /// The one-time code for Magic Auth authentication.
     ///
     /// Required.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The user's email address.
     ///
     /// Required.
@@ -280,7 +280,7 @@ pub struct AuthenticateWithMagicAuthParams {
 
 impl AuthenticateWithMagicAuthParams {
     /// Construct a new `AuthenticateWithMagicAuthParams` with the required fields set.
-    pub fn new(code: impl Into<String>, email: impl Into<String>) -> Self {
+    pub fn new(code: impl Into<crate::SecretString>, email: impl Into<String>) -> Self {
         Self {
             code: code.into(),
             email: email.into(),
@@ -298,7 +298,7 @@ pub struct AuthenticateWithEmailVerificationParams {
     /// The email verification code.
     ///
     /// Required.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The pending authentication token from a previous authentication attempt.
     ///
     /// Required.
@@ -317,7 +317,7 @@ pub struct AuthenticateWithEmailVerificationParams {
 impl AuthenticateWithEmailVerificationParams {
     /// Construct a new `AuthenticateWithEmailVerificationParams` with the required fields set.
     pub fn new(
-        code: impl Into<String>,
+        code: impl Into<crate::SecretString>,
         pending_authentication_token: impl Into<crate::SecretString>,
     ) -> Self {
         Self {
@@ -406,7 +406,7 @@ pub struct AuthenticateWithDeviceCodeParams {
     /// The device verification code.
     ///
     /// Required.
-    pub device_code: String,
+    pub device_code: crate::SecretString,
     /// The IP address of the user's request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
@@ -420,7 +420,7 @@ pub struct AuthenticateWithDeviceCodeParams {
 
 impl AuthenticateWithDeviceCodeParams {
     /// Construct a new `AuthenticateWithDeviceCodeParams` with the required fields set.
-    pub fn new(device_code: impl Into<String>) -> Self {
+    pub fn new(device_code: impl Into<crate::SecretString>) -> Self {
         Self {
             device_code: device_code.into(),
             ip_address: Default::default(),
@@ -435,7 +435,7 @@ pub struct AuthenticateWithRadarEmailChallengeParams {
     /// The one-time code from the Radar email challenge.
     ///
     /// Required.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The ID of the Radar email challenge being verified.
     ///
     /// Required.
@@ -458,7 +458,7 @@ pub struct AuthenticateWithRadarEmailChallengeParams {
 impl AuthenticateWithRadarEmailChallengeParams {
     /// Construct a new `AuthenticateWithRadarEmailChallengeParams` with the required fields set.
     pub fn new(
-        code: impl Into<String>,
+        code: impl Into<crate::SecretString>,
         radar_challenge_id: impl Into<String>,
         pending_authentication_token: impl Into<crate::SecretString>,
     ) -> Self {
@@ -478,7 +478,7 @@ pub struct AuthenticateWithRadarSmsChallengeParams {
     /// The one-time code from the Radar SMS challenge.
     ///
     /// Required.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The ID of the Radar SMS verification being confirmed. Required for sign-up challenges; omitted for sign-in challenges, where the verification is resolved server-side.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_id: Option<String>,
@@ -503,7 +503,7 @@ pub struct AuthenticateWithRadarSmsChallengeParams {
 impl AuthenticateWithRadarSmsChallengeParams {
     /// Construct a new `AuthenticateWithRadarSmsChallengeParams` with the required fields set.
     pub fn new(
-        code: impl Into<String>,
+        code: impl Into<crate::SecretString>,
         pending_authentication_token: impl Into<crate::SecretString>,
     ) -> Self {
         Self {

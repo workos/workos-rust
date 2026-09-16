@@ -13,7 +13,7 @@ pub struct MfaTotpSessionAuthenticateRequest {
     pub client_secret: crate::SecretString,
     pub grant_type: String,
     /// The TOTP code from the authenticator app.
-    pub code: String,
+    pub code: crate::SecretString,
     /// The pending authentication token from a previous authentication attempt.
     pub pending_authentication_token: crate::SecretString,
     /// The ID of the MFA authentication challenge.
