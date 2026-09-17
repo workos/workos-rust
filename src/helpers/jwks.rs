@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 
 use http::{HeaderMap, Method};
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock, watch};
 
 use crate::client::{Client, DEFAULT_BASE_URL};
 use crate::error::Error;
@@ -52,12 +52,19 @@ struct Cached {
     fetched_at: Instant,
 }
 
+// Only callers overlapping an active fetch share its outcome. The sender is
+// owned by the fetching caller, so cancellation also wakes all waiters.
+type SharedFetch = watch::Receiver<Option<Result<Arc<JwkSet>, String>>>;
+
 /// Caches the JWKS for a given client. Default TTL 10 minutes.
 pub struct JwksHelper {
     transport: SharedTransport,
     url: String,
     ttl: Duration,
     cache: RwLock<Option<Cached>>,
+    /// The in-flight fetch, if any. Cleared once that fetch completes, so a
+    /// finished fetch is never mistaken for an active one.
+    fetch_lock: Mutex<Option<SharedFetch>>,
 }
 
 impl JwksHelper {
@@ -72,6 +79,7 @@ impl JwksHelper {
             url: jwks_url(base_url.as_ref(), client_id.as_ref()),
             ttl: Duration::from_secs(600),
             cache: RwLock::new(None),
+            fetch_lock: Mutex::new(None),
         }
     }
 
@@ -98,6 +106,66 @@ impl JwksHelper {
         {
             return Ok(c.set.clone());
         }
+        self.fetch_or_refresh(false, None).await
+    }
+
+    async fn fetch_or_refresh(
+        &self,
+        refresh: bool,
+        previous: Option<&Arc<JwkSet>>,
+    ) -> Result<Arc<JwkSet>, Error> {
+        let mut guard = self.fetch_lock.lock().await;
+        // Only a fetch whose sender is still alive is in flight. A completed
+        // fetch clears the slot below; a cancelled one leaves a closed channel,
+        // which `has_changed` reports as an error. Neither is shared.
+        if let Some(active) = guard.as_ref()
+            && active.has_changed().is_ok()
+        {
+            let mut completion = active.clone();
+            drop(guard);
+            loop {
+                if let Some(result) = completion.borrow_and_update().clone() {
+                    return result.map_err(Error::Jwt);
+                }
+                completion
+                    .changed()
+                    .await
+                    .map_err(|_| Error::Jwt("JWKS fetch cancelled".into()))?;
+            }
+        }
+        // A successful fetch may have replaced the caller's observed keys.
+        if let Some(c) = self.cache.read().await.as_ref()
+            && c.fetched_at.elapsed() < self.ttl
+            && (!refresh || !previous.is_some_and(|set| Arc::ptr_eq(set, &c.set)))
+        {
+            return Ok(c.set.clone());
+        }
+        let (completion, receiver) = watch::channel(None);
+        *guard = Some(receiver.clone());
+        drop(guard);
+
+        let result = self.fetch_and_cache().await;
+        completion.send_replace(Some(
+            result.as_ref().map(Arc::clone).map_err(ToString::to_string),
+        ));
+        // Waiters that overlapped this fetch hold their own receivers and are
+        // the only callers to consume this attempt's outcome. Close the channel
+        // and clear the slot so later callers fetch current keys rather than
+        // finding a completed fetch. A newer fetch may already own the slot.
+        drop(completion);
+        let mut guard = self.fetch_lock.lock().await;
+        if guard
+            .as_ref()
+            .is_some_and(|stored| stored.same_channel(&receiver))
+        {
+            *guard = None;
+        }
+        result
+    }
+
+    // Only the active fetch calls this. Keep the last known-good cache
+    // available to readers until a replacement has been fetched and parsed.
+    async fn fetch_and_cache(&self) -> Result<Arc<JwkSet>, Error> {
         let req = HttpRequest {
             method: Method::GET,
             url: self.url.clone(),
@@ -122,19 +190,155 @@ impl JwksHelper {
         Ok(arc)
     }
 
-    /// Force-refresh the cache.
+    /// Refresh the cache, preserving cached keys on failure. Concurrent calls
+    /// share the in-flight result, including failures, rather than refetching.
     pub async fn refresh(&self) -> Result<Arc<JwkSet>, Error> {
-        {
-            let mut guard = self.cache.write().await;
-            *guard = None;
-        }
-        self.fetch().await
+        let previous = self.cache.read().await.as_ref().map(|c| c.set.clone());
+        self.refresh_if_unchanged(previous.as_ref()).await
+    }
+
+    /// Refresh only if the caller's observed key set has not been replaced.
+    pub(crate) async fn refresh_if_unchanged(
+        &self,
+        previous: Option<&Arc<JwkSet>>,
+    ) -> Result<Arc<JwkSet>, Error> {
+        self.fetch_or_refresh(true, previous).await
     }
 }
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used)]
+
     use super::*;
+    use crate::transport::{HttpResponse, HttpTransport, TransportError};
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+
+    #[derive(Default)]
+    struct YieldingTransport {
+        requests: AtomicUsize,
+        in_flight: AtomicUsize,
+        fail: AtomicBool,
+    }
+
+    #[async_trait::async_trait]
+    impl HttpTransport for YieldingTransport {
+        async fn execute(&self, _: HttpRequest) -> Result<HttpResponse, TransportError> {
+            self.requests.fetch_add(1, Ordering::SeqCst);
+            // Yield with a request in flight to deterministically expose overlap.
+            assert_eq!(self.in_flight.fetch_add(1, Ordering::SeqCst), 0);
+            tokio::task::yield_now().await;
+            self.in_flight.fetch_sub(1, Ordering::SeqCst);
+            if self.fail.load(Ordering::SeqCst) {
+                return Err(TransportError::other("JWKS unavailable"));
+            }
+            Ok(HttpResponse {
+                status: http::StatusCode::OK,
+                headers: HeaderMap::new(),
+                body: r#"{"keys":[{"kid":"trusted"}]}"#.into(),
+            })
+        }
+    }
+
+    #[tokio::test]
+    async fn concurrent_fetches_and_refreshes_share_successful_replacements() {
+        let transport = Arc::new(YieldingTransport::default());
+        let helper = JwksHelper::with_transport(transport.clone(), "", "client_test");
+        let (a, b, c) = tokio::join!(helper.fetch(), helper.fetch(), helper.fetch());
+        let original = a.unwrap();
+        assert!(Arc::ptr_eq(&original, &b.unwrap()));
+        assert!(Arc::ptr_eq(&original, &c.unwrap()));
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 1);
+
+        let (a, b, c) = tokio::join!(helper.refresh(), helper.refresh(), helper.refresh());
+        let replacement = a.unwrap();
+        assert!(!Arc::ptr_eq(&original, &replacement));
+        assert!(Arc::ptr_eq(&replacement, &b.unwrap()));
+        assert!(Arc::ptr_eq(&replacement, &c.unwrap()));
+        // A caller that observed the old set before this refresh also reuses it.
+        assert!(Arc::ptr_eq(
+            &replacement,
+            &helper.refresh_if_unchanged(Some(&original)).await.unwrap()
+        ));
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 2);
+    }
+
+    #[tokio::test]
+    async fn failed_refreshes_are_shared_and_cached_reads_remain_available() {
+        let transport = Arc::new(YieldingTransport::default());
+        let helper = JwksHelper::with_transport(transport.clone(), "", "client_test");
+        let original = helper.fetch().await.unwrap();
+        transport.fail.store(true, Ordering::SeqCst);
+        transport.requests.store(0, Ordering::SeqCst);
+        let (a, b, c, cached) = tokio::join!(
+            biased;
+            helper.refresh(),
+            helper.refresh(),
+            helper.refresh(),
+            async {
+                // All refresh futures have been polled, with one still in flight.
+                assert_eq!(transport.in_flight.load(Ordering::SeqCst), 1);
+                helper.fetch().await.unwrap()
+            }
+        );
+        assert!(matches!(a, Err(Error::Network(_))));
+        assert!(matches!(b, Err(Error::Jwt(_))));
+        assert!(matches!(c, Err(Error::Jwt(_))));
+        assert!(Arc::ptr_eq(&original, &cached));
+        assert!(Arc::ptr_eq(&original, &helper.fetch().await.unwrap()));
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 1);
+
+        // A later caller retries immediately; failures have no cooldown.
+        assert!(matches!(helper.refresh().await, Err(Error::Network(_))));
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 2);
+    }
+
+    #[tokio::test]
+    async fn completed_fetches_clear_the_slot_so_later_refreshes_fetch_current_keys() {
+        let transport = Arc::new(YieldingTransport::default());
+        let helper = JwksHelper::with_transport(transport.clone(), "", "client_test");
+        let original = helper.fetch().await.unwrap();
+        assert!(helper.fetch_lock.lock().await.is_none());
+
+        // A refresh after a completed fetch reaches the network instead of
+        // replaying that fetch's result.
+        let replacement = helper.refresh().await.unwrap();
+        assert!(!Arc::ptr_eq(&original, &replacement));
+        assert!(helper.fetch_lock.lock().await.is_none());
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 2);
+
+        // A failed fetch clears the slot too and leaves the cache intact.
+        transport.fail.store(true, Ordering::SeqCst);
+        assert!(helper.refresh().await.is_err());
+        assert!(helper.fetch_lock.lock().await.is_none());
+        assert!(Arc::ptr_eq(&replacement, &helper.fetch().await.unwrap()));
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 3);
+
+        // An expired cache is refetched rather than served from the old fetch.
+        transport.fail.store(false, Ordering::SeqCst);
+        let expiring = JwksHelper::with_transport(transport.clone(), "", "client_test")
+            .with_ttl(Duration::ZERO);
+        let first = expiring.fetch().await.unwrap();
+        assert!(!Arc::ptr_eq(&first, &expiring.fetch().await.unwrap()));
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 5);
+    }
+
+    #[tokio::test]
+    async fn failed_initial_fetches_share_failure_but_later_call_retries() {
+        let transport = Arc::new(YieldingTransport::default());
+        transport.fail.store(true, Ordering::SeqCst);
+        let helper = JwksHelper::with_transport(transport.clone(), "", "client_test");
+        let (a, b, c) = tokio::join!(helper.fetch(), helper.fetch(), helper.fetch());
+        assert!(a.is_err());
+        assert!(b.is_err());
+        assert!(c.is_err());
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 1);
+        assert!(helper.cache.read().await.is_none());
+
+        transport.fail.store(false, Ordering::SeqCst);
+        assert!(helper.fetch().await.is_ok());
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 2);
+    }
 
     #[test]
     fn url_default_base() {

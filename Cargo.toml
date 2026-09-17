@@ -53,6 +53,7 @@ rand = "0.9"
 subtle = "2.5"
 url = "2.5"
 hex = "0.4"
+jsonwebtoken = { version = "=9.3.1", default-features = false }
 
 [dev-dependencies]
 wiremock = "0.6"

@@ -1,5 +1,5 @@
 // @oagen-ignore-file
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use std::time::Duration;
 
 use bytes::Bytes;
@@ -166,6 +166,7 @@ pub(crate) struct ClientInner {
     pub(crate) api_key: String,
     pub(crate) client_id: String,
     pub(crate) default_headers: HeaderMap,
+    session_jwks: OnceLock<crate::helpers::JwksHelper>,
 }
 
 /// Builder for [`Client`]. Construct via [`Client::builder`] and chain the
@@ -317,6 +318,10 @@ impl Client {
     /// JWKS helper bound to this client's `client_id`.
     pub fn jwks(&self) -> crate::helpers::JwksHelper {
         crate::helpers::JwksHelper::from_client(self)
+    }
+
+    pub(crate) fn session_jwks(&self) -> &crate::helpers::JwksHelper {
+        self.inner.session_jwks.get_or_init(|| self.jwks())
     }
 
     /// Construct a [`crate::helpers::SessionManager`] for an existing sealed
@@ -644,6 +649,7 @@ impl ClientBuilder {
                 api_key,
                 client_id: self.client_id.unwrap_or_default(),
                 default_headers: headers,
+                session_jwks: OnceLock::new(),
             }),
         })
     }
