@@ -185,6 +185,77 @@ impl GetAccessTokenParams {
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
+pub struct GetOrganizationConnectedAccountParams {
+    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_multiple_connections: Option<bool>,
+    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select a specific connection when the organization has several for this provider.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connected_account_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateOrganizationConnectedAccountParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: ConnectedAccountInput,
+}
+
+impl CreateOrganizationConnectedAccountParams {
+    /// Construct a new `CreateOrganizationConnectedAccountParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ConnectedAccountInput) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct UpdateOrganizationConnectedAccountParams {
+    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_multiple_connections: Option<bool>,
+    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connected_account_id: Option<String>,
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: ConnectedAccountInput,
+}
+
+impl UpdateOrganizationConnectedAccountParams {
+    /// Construct a new `UpdateOrganizationConnectedAccountParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: ConnectedAccountInput) -> Self {
+        Self {
+            supports_multiple_connections: Default::default(),
+            connected_account_id: Default::default(),
+            body,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct DeleteOrganizationConnectedAccountParams {
+    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_multiple_connections: Option<bool>,
+    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to delete.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connected_account_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct ListOrganizationDataProvidersParams {
+    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_multiple_connections: Option<bool>,
+}
+
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct GetUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -621,6 +692,153 @@ impl<'a> PipesApi<'a> {
         let method = http::Method::POST;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Get an organization connected account
+    ///
+    /// Retrieves an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) for a specific provider.
+    pub async fn get_organization_connected_account(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: GetOrganizationConnectedAccountParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.get_organization_connected_account_with_options(organization_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_organization_connected_account`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_organization_connected_account_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: GetOrganizationConnectedAccountParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/organizations/{organization_id}/connected_accounts/{slug}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Import an organization connected account
+    ///
+    /// Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
+    pub async fn create_organization_connected_account(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: CreateOrganizationConnectedAccountParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.create_organization_connected_account_with_options(organization_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_organization_connected_account`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_organization_connected_account_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: CreateOrganizationConnectedAccountParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/organizations/{organization_id}/connected_accounts/{slug}");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Update an organization connected account
+    ///
+    /// Updates an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
+    pub async fn update_organization_connected_account(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: UpdateOrganizationConnectedAccountParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.update_organization_connected_account_with_options(organization_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_organization_connected_account`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_organization_connected_account_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: UpdateOrganizationConnectedAccountParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/organizations/{organization_id}/connected_accounts/{slug}");
+        let method = http::Method::PUT;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Delete an organization connected account
+    ///
+    /// Disconnects the organization's account for the provider, including removing any stored access and refresh tokens. A member will need to reauthorize if the organization wants to reconnect. This does not revoke access on the provider side.
+    pub async fn delete_organization_connected_account(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: DeleteOrganizationConnectedAccountParams,
+    ) -> Result<(), Error> {
+        self.delete_organization_connected_account_with_options(organization_id, slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::delete_organization_connected_account`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_organization_connected_account_with_options(
+        &self,
+        organization_id: &str,
+        slug: &str,
+        params: DeleteOrganizationConnectedAccountParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/organizations/{organization_id}/connected_accounts/{slug}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &params, options)
+            .await
+    }
+
+    /// List providers for an organization
+    ///
+    /// Retrieves the organization-owned providers configured for your environment and the organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) information for each. Providers owned by individual users are not included.
+    pub async fn list_organization_data_providers(
+        &self,
+        organization_id: &str,
+        params: ListOrganizationDataProvidersParams,
+    ) -> Result<DataIntegrationsListResponse, Error> {
+        self.list_organization_data_providers_with_options(organization_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_organization_data_providers`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_organization_data_providers_with_options(
+        &self,
+        organization_id: &str,
+        params: ListOrganizationDataProvidersParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegrationsListResponse, Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let path = format!("/organizations/{organization_id}/data_providers");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
             .await
     }
 
