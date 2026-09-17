@@ -62,6 +62,8 @@ pub struct JwksHelper {
     url: String,
     ttl: Duration,
     cache: RwLock<Option<Cached>>,
+    /// The in-flight fetch, if any. Cleared once that fetch completes, so a
+    /// finished fetch is never mistaken for an active one.
     fetch_lock: Mutex<Option<SharedFetch>>,
 }
 
@@ -113,6 +115,9 @@ impl JwksHelper {
         previous: Option<&Arc<JwkSet>>,
     ) -> Result<Arc<JwkSet>, Error> {
         let mut guard = self.fetch_lock.lock().await;
+        // Only a fetch whose sender is still alive is in flight. A completed
+        // fetch clears the slot below; a cancelled one leaves a closed channel,
+        // which `has_changed` reports as an error. Neither is shared.
         if let Some(active) = guard.as_ref()
             && active.has_changed().is_ok()
         {
@@ -136,16 +141,25 @@ impl JwksHelper {
             return Ok(c.set.clone());
         }
         let (completion, receiver) = watch::channel(None);
-        *guard = Some(receiver);
+        *guard = Some(receiver.clone());
         drop(guard);
 
         let result = self.fetch_and_cache().await;
         completion.send_replace(Some(
             result.as_ref().map(Arc::clone).map_err(ToString::to_string),
         ));
-        // Closing the channel makes the next non-overlapping caller eligible
-        // to fetch again. Only existing waiters consume this attempt's failure.
+        // Waiters that overlapped this fetch hold their own receivers and are
+        // the only callers to consume this attempt's outcome. Close the channel
+        // and clear the slot so later callers fetch current keys rather than
+        // finding a completed fetch. A newer fetch may already own the slot.
         drop(completion);
+        let mut guard = self.fetch_lock.lock().await;
+        if guard
+            .as_ref()
+            .is_some_and(|stored| stored.same_channel(&receiver))
+        {
+            *guard = None;
+        }
         result
     }
 
@@ -277,6 +291,36 @@ mod tests {
         // A later caller retries immediately; failures have no cooldown.
         assert!(matches!(helper.refresh().await, Err(Error::Network(_))));
         assert_eq!(transport.requests.load(Ordering::SeqCst), 2);
+    }
+
+    #[tokio::test]
+    async fn completed_fetches_clear_the_slot_so_later_refreshes_fetch_current_keys() {
+        let transport = Arc::new(YieldingTransport::default());
+        let helper = JwksHelper::with_transport(transport.clone(), "", "client_test");
+        let original = helper.fetch().await.unwrap();
+        assert!(helper.fetch_lock.lock().await.is_none());
+
+        // A refresh after a completed fetch reaches the network instead of
+        // replaying that fetch's result.
+        let replacement = helper.refresh().await.unwrap();
+        assert!(!Arc::ptr_eq(&original, &replacement));
+        assert!(helper.fetch_lock.lock().await.is_none());
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 2);
+
+        // A failed fetch clears the slot too and leaves the cache intact.
+        transport.fail.store(true, Ordering::SeqCst);
+        assert!(helper.refresh().await.is_err());
+        assert!(helper.fetch_lock.lock().await.is_none());
+        assert!(Arc::ptr_eq(&replacement, &helper.fetch().await.unwrap()));
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 3);
+
+        // An expired cache is refetched rather than served from the old fetch.
+        transport.fail.store(false, Ordering::SeqCst);
+        let expiring = JwksHelper::with_transport(transport.clone(), "", "client_test")
+            .with_ttl(Duration::ZERO);
+        let first = expiring.fetch().await.unwrap();
+        assert!(!Arc::ptr_eq(&first, &expiring.fetch().await.unwrap()));
+        assert_eq!(transport.requests.load(Ordering::SeqCst), 5);
     }
 
     #[tokio::test]
