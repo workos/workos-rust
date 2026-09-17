@@ -8,7 +8,13 @@ all-features = true
 [advisories]
 version = 2
 yanked = "deny"
-ignore = []
+ignore = [
+    # Marvin timing side-channel in RSA private-key operations (decryption/signing).
+    # Pulled in via jsonwebtoken's rust_crypto backend; this crate only performs
+    # public-key RS256 signature verification against JWKS, so no private-key
+    # code path is reachable. No patched release exists.
+    { id = "RUSTSEC-2023-0071", reason = "rsa is used for public-key signature verification only" },
+]
 
 [bans]
 multiple-versions = "warn"
