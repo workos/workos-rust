@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.1](https://github.com/workos/workos-rust/compare/v3.4.0...v3.4.1) (2026-09-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sso:** SDK surface change: Symbol "GetProfileAndTokenParams.code" was removed ([#150](https://github.com/workos/workos-rust/issues/150))
+
+### Features
+
+* **agents:** Add parameter `AgentsSessions.list.organization_id` ([#156](https://github.com/workos/workos-rust/issues/156)) ([b382884](https://github.com/workos/workos-rust/commit/b3828842b618e910ae7c6173b21272f3ec97e23c))
+* **generated:** Pipes (batch 8ad8e447) ([#147](https://github.com/workos/workos-rust/issues/147)) ([6143fcb](https://github.com/workos/workos-rust/commit/6143fcbc1cb27bd592a393b02e6d746763641836))
+* **pipes:** Update Pipes API surface ([#156](https://github.com/workos/workos-rust/issues/156)) ([b382884](https://github.com/workos/workos-rust/commit/b3828842b618e910ae7c6173b21272f3ec97e23c))
+* **radar:** Change radar API surface ([#157](https://github.com/workos/workos-rust/issues/157)) ([d9548fb](https://github.com/workos/workos-rust/commit/d9548fbb9fa419fa1f0bef0bf2368319c109bc7f))
+* **sso:** SDK surface change: Symbol "GetProfileAndTokenParams.code" was removed ([#150](https://github.com/workos/workos-rust/issues/150)) ([252caa7](https://github.com/workos/workos-rust/commit/252caa7314548c576aa25bb9f5fa45801316660e))
+* **user_management:** Add user management API surface ([#156](https://github.com/workos/workos-rust/issues/156)) ([b382884](https://github.com/workos/workos-rust/commit/b3828842b618e910ae7c6173b21272f3ec97e23c))
+* **user_management:** Change user management API surface ([#157](https://github.com/workos/workos-rust/issues/157)) ([d9548fb](https://github.com/workos/workos-rust/commit/d9548fbb9fa419fa1f0bef0bf2368319c109bc7f))
+
+
+### Bug Fixes
+
+* **authkit:** Verify sealed-session JWTs ([#152](https://github.com/workos/workos-rust/issues/152)) ([7fb6c47](https://github.com/workos/workos-rust/commit/7fb6c475ae12b38d0b66af3dcfcc40613cf76cce))
+* **multi_factor_auth:** Change errors for endpoint `POST /auth/factors/{id}/challenge` ([#157](https://github.com/workos/workos-rust/issues/157)) ([d9548fb](https://github.com/workos/workos-rust/commit/d9548fbb9fa419fa1f0bef0bf2368319c109bc7f))
+* **multi_factor_auth:** Change errors for endpoint `POST /auth/factors/{id}/challenge` ([#159](https://github.com/workos/workos-rust/issues/159)) ([e4e500e](https://github.com/workos/workos-rust/commit/e4e500e154a7c582e1d351dfa17648597a24e545))
+* **pipes:** Move organization connected-account operations onto Pipes ([#159](https://github.com/workos/workos-rust/issues/159)) ([e4e500e](https://github.com/workos/workos-rust/commit/e4e500e154a7c582e1d351dfa17648597a24e545))
+* **pipes:** Update Pipes API surface ([#156](https://github.com/workos/workos-rust/issues/156)) ([b382884](https://github.com/workos/workos-rust/commit/b3828842b618e910ae7c6173b21272f3ec97e23c))
+* **query:** Prevent OAuth parameter injection from nested maps ([#153](https://github.com/workos/workos-rust/issues/153)) ([093f3d8](https://github.com/workos/workos-rust/commit/093f3d87d9e4d6490e3b7eb194a166b57ef20644))
+* **security:** Reject path traversal segments ([#151](https://github.com/workos/workos-rust/issues/151)) ([483bcce](https://github.com/workos/workos-rust/commit/483bcce9c4e5fe4305e68f5f577da9cc61a2884d))
+
+
+### Miscellaneous Chores
+
+* release 3.4.1 ([a9a8a36](https://github.com/workos/workos-rust/commit/a9a8a3673e8c73eaf1b07b14973cacbf3509ad2c))
+
 ## [3.4.0](https://github.com/workos/workos-rust/compare/v3.3.0...v3.4.0) (2026-09-01)
 
 * [#142](https://github.com/workos/workos-rust/pull/142) feat(generated)!: regenerate from spec (4 changes)
