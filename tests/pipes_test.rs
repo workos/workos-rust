@@ -2355,6 +2355,915 @@ async fn pipes_get_access_token_unprocessable() {
 }
 
 #[tokio::test]
+async fn pipes_get_organization_connected_account_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connected_account.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .pipes()
+        .get_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetOrganizationConnectedAccountParams::default(),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn pipes_get_organization_connected_account_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .get_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_get_organization_connected_account_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .get_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_get_organization_connected_account_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .get_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_get_organization_connected_account_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .get_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::GetOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_create_organization_connected_account_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connected_account.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .pipes()
+        .create_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::CreateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn pipes_create_organization_connected_account_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::CreateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_create_organization_connected_account_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::CreateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_create_organization_connected_account_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::CreateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_create_organization_connected_account_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::CreateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_create_organization_connected_account_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::CreateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn pipes_create_organization_connected_account_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::CreateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn pipes_update_organization_connected_account_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("PUT"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connected_account.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .pipes()
+        .update_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::UpdateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn pipes_update_organization_connected_account_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .update_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::UpdateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_update_organization_connected_account_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .update_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::UpdateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_update_organization_connected_account_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .update_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::UpdateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_update_organization_connected_account_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .update_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::UpdateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_update_organization_connected_account_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .update_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::UpdateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn pipes_update_organization_connected_account_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("PUT"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .update_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::UpdateOrganizationConnectedAccountParams::new(
+                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn pipes_delete_organization_connected_account_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_string("{}"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .pipes()
+        .delete_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteOrganizationConnectedAccountParams::default(),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn pipes_delete_organization_connected_account_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_delete_organization_connected_account_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_delete_organization_connected_account_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_delete_organization_connected_account_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_delete_organization_connected_account_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn pipes_delete_organization_connected_account_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("DELETE"))
+        .and(path_matcher(
+            "/organizations/test_id/connected_accounts/test_id",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .delete_organization_connected_account(
+            "test_id",
+            "test_id",
+            workos::pipes::DeleteOrganizationConnectedAccountParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
+async fn pipes_list_organization_data_providers_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/data_providers"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "fixtures/data_integrations_list_response.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .pipes()
+        .list_organization_data_providers(
+            "test_id",
+            workos::pipes::ListOrganizationDataProvidersParams::default(),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn pipes_list_organization_data_providers_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/data_providers"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .list_organization_data_providers(
+            "test_id",
+            workos::pipes::ListOrganizationDataProvidersParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_list_organization_data_providers_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/data_providers"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .list_organization_data_providers(
+            "test_id",
+            workos::pipes::ListOrganizationDataProvidersParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_list_organization_data_providers_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/data_providers"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .list_organization_data_providers(
+            "test_id",
+            workos::pipes::ListOrganizationDataProvidersParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_list_organization_data_providers_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("GET"))
+        .and(path_matcher("/organizations/test_id/data_providers"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .list_organization_data_providers(
+            "test_id",
+            workos::pipes::ListOrganizationDataProvidersParams::default(),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
 async fn pipes_get_user_connected_account_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
