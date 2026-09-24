@@ -14,4 +14,7 @@ pub struct UserRoleAssignmentSource {
     /// The ID of the group role assignment the role was derived from, or null if direct.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub group_role_assignment_id: Option<String>,
+    /// The group the role was derived from, or null if direct.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub group: Option<UserRoleAssignmentSourceGroup>,
 }

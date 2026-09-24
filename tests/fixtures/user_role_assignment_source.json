@@ -1,4 +1,8 @@
 {
   "type": "direct",
-  "group_role_assignment_id": "test_group_role_assignment_id"
+  "group_role_assignment_id": "test_group_role_assignment_id",
+  "group": {
+    "id": "group_01HXYZ123456789ABCDEFGHIJ",
+    "name": "Marketing team"
+  }
 }
