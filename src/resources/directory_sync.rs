@@ -235,6 +235,27 @@ impl<'a> DirectorySyncApi<'a> {
             .await
     }
 
+    /// Sync a Directory
+    ///
+    /// Request an asynchronous sync from the directory provider. Currently supports Google Workspace directories in linked or validating state. Manual requests share a five-minute per-directory cooldown across the API, Dashboard, Admin Portal, and MCP. Acceptance means the request was queued, not that the sync has started or completed. A running sync prevents another request from being queued.
+    pub async fn sync_directory(&self, id: &str) -> Result<DirectorySyncResponse, Error> {
+        self.sync_directory_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::sync_directory`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn sync_directory_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DirectorySyncResponse, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/directories/{id}/sync");
+        let method = http::Method::POST;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
     /// List Directory Groups
     ///
     /// Get a list of all of existing directory groups matching the criteria specified.

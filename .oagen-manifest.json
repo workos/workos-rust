@@ -475,6 +475,8 @@
     "src/models/directory_list_list_metadata.rs",
     "src/models/directory_metadata.rs",
     "src/models/directory_metadata_user.rs",
+    "src/models/directory_sync_rate_limit_error.rs",
+    "src/models/directory_sync_response.rs",
     "src/models/directory_user.rs",
     "src/models/directory_user_email.rs",
     "src/models/directory_user_list.rs",
@@ -1168,6 +1170,8 @@
     "tests/fixtures/directory_list_list_metadata.json",
     "tests/fixtures/directory_metadata.json",
     "tests/fixtures/directory_metadata_user.json",
+    "tests/fixtures/directory_sync_rate_limit_error.json",
+    "tests/fixtures/directory_sync_response.json",
     "tests/fixtures/directory_user.json",
     "tests/fixtures/directory_user_email.json",
     "tests/fixtures/directory_user_list.json",
@@ -2593,6 +2597,10 @@
     "POST /widgets/token": {
       "sdkMethod": "create_token",
       "service": "widgets"
+    },
+    "POST /directories/{id}/sync": {
+      "sdkMethod": "sync_directory",
+      "service": "directory_sync"
     }
   }
 }
