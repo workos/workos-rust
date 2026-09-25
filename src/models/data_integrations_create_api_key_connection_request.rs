@@ -6,7 +6,7 @@ use super::*;
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DataIntegrationsUpsertApiKeyRequest {
+pub struct DataIntegrationsCreateApiKeyConnectionRequest {
     /// A [User](https://workos.com/docs/reference/authkit/user) identifier.
     pub user_id: String,
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
@@ -14,7 +14,9 @@ pub struct DataIntegrationsUpsertApiKeyRequest {
     pub organization_id: Option<String>,
     /// Whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub connection_owner: Option<DataIntegrationsUpsertApiKeyRequestConnectionOwner>,
+    pub connection_owner: Option<DataIntegrationsCreateApiKeyConnectionRequestConnectionOwner>,
     /// The API key secret to store for this integration.
     pub secret: crate::SecretString,
+    /// Must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`.
+    pub connection_intent: String,
 }

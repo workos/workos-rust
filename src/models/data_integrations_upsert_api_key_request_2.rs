@@ -6,7 +6,7 @@ use super::*;
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DataIntegrationsUpsertApiKeyRequest {
+pub struct DataIntegrationsUpsertApiKeyRequest2 {
     /// A [User](https://workos.com/docs/reference/authkit/user) identifier.
     pub user_id: String,
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
@@ -14,7 +14,9 @@ pub struct DataIntegrationsUpsertApiKeyRequest {
     pub organization_id: Option<String>,
     /// Whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub connection_owner: Option<DataIntegrationsUpsertApiKeyRequestConnectionOwner>,
+    pub connection_owner: Option<DataIntegrationsUpsertApiKeyRequest2ConnectionOwner>,
     /// The API key secret to store for this integration.
     pub secret: crate::SecretString,
+    /// The exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
+    pub connected_account_id: String,
 }
