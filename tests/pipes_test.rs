@@ -788,6 +788,224 @@ async fn pipes_delete_data_integration_unprocessable() {
 }
 
 #[tokio::test]
+async fn pipes_create_data_integration_api_key_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/api-key"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connected_account.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .pipes()
+        .create_data_integration_api_key(
+            "test_id",
+            workos::pipes::CreateDataIntegrationApiKeyParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_api_key_connection_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsCreateApiKeyConnectionRequest"),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_api_key_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/api-key"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_api_key(
+            "test_id",
+            workos::pipes::CreateDataIntegrationApiKeyParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_api_key_connection_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsCreateApiKeyConnectionRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_api_key_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/api-key"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_api_key(
+            "test_id",
+            workos::pipes::CreateDataIntegrationApiKeyParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_api_key_connection_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsCreateApiKeyConnectionRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_api_key_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/api-key"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_api_key(
+            "test_id",
+            workos::pipes::CreateDataIntegrationApiKeyParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_api_key_connection_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsCreateApiKeyConnectionRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_api_key_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/api-key"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_api_key(
+            "test_id",
+            workos::pipes::CreateDataIntegrationApiKeyParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_api_key_connection_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsCreateApiKeyConnectionRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_api_key_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/api-key"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_api_key(
+            "test_id",
+            workos::pipes::CreateDataIntegrationApiKeyParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_api_key_connection_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsCreateApiKeyConnectionRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_api_key_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher("/data-integrations/test_id/api-key"))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_api_key(
+            "test_id",
+            workos::pipes::CreateDataIntegrationApiKeyParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_api_key_connection_request.json"
+                ))
+                .expect("parse fixture for DataIntegrationsCreateApiKeyConnectionRequest"),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn pipes_update_data_integration_api_key_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
@@ -800,18 +1018,7 @@ async fn pipes_update_data_integration_api_key_round_trip() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client
-        .pipes()
-        .update_data_integration_api_key(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationApiKeyParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_api_key_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertApiKeyRequest"),
-            ),
-        )
-        .await;
+    let _ = client.pipes().update_data_integration_api_key("test_id", workos::pipes::UpdateDataIntegrationApiKeyParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"secret\":\"sk-1234567890abcdef\"}").expect("parse stub"))).await;
 }
 
 #[tokio::test]
@@ -825,19 +1032,7 @@ async fn pipes_update_data_integration_api_key_unauthorized() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_api_key(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationApiKeyParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_api_key_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertApiKeyRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_api_key("test_id", workos::pipes::UpdateDataIntegrationApiKeyParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"secret\":\"sk-1234567890abcdef\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -856,19 +1051,7 @@ async fn pipes_update_data_integration_api_key_not_found() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_api_key(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationApiKeyParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_api_key_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertApiKeyRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_api_key("test_id", workos::pipes::UpdateDataIntegrationApiKeyParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"secret\":\"sk-1234567890abcdef\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -889,19 +1072,7 @@ async fn pipes_update_data_integration_api_key_rate_limited() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_api_key(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationApiKeyParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_api_key_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertApiKeyRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_api_key("test_id", workos::pipes::UpdateDataIntegrationApiKeyParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"secret\":\"sk-1234567890abcdef\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -921,19 +1092,7 @@ async fn pipes_update_data_integration_api_key_server_error() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_api_key(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationApiKeyParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_api_key_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertApiKeyRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_api_key("test_id", workos::pipes::UpdateDataIntegrationApiKeyParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"secret\":\"sk-1234567890abcdef\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -953,19 +1112,7 @@ async fn pipes_update_data_integration_api_key_bad_request() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_api_key(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationApiKeyParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_api_key_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertApiKeyRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_api_key("test_id", workos::pipes::UpdateDataIntegrationApiKeyParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"secret\":\"sk-1234567890abcdef\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -985,19 +1132,7 @@ async fn pipes_update_data_integration_api_key_unprocessable() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_api_key(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationApiKeyParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_api_key_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertApiKeyRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_api_key("test_id", workos::pipes::UpdateDataIntegrationApiKeyParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"secret\":\"sk-1234567890abcdef\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -1223,6 +1358,252 @@ async fn pipes_authorize_data_integration_unprocessable() {
 }
 
 #[tokio::test]
+async fn pipes_create_data_integration_client_credential_round_trip() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/data-integrations/test_id/client-credentials",
+        ))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/connected_account.json")),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let _ = client
+        .pipes()
+        .create_data_integration_client_credential(
+            "test_id",
+            workos::pipes::CreateDataIntegrationClientCredentialParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_client_credentials_connection_request.json"
+                ))
+                .expect(
+                    "parse fixture for DataIntegrationsCreateClientCredentialsConnectionRequest",
+                ),
+            ),
+        )
+        .await;
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_client_credential_unauthorized() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/data-integrations/test_id/client-credentials",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_client_credential(
+            "test_id",
+            workos::pipes::CreateDataIntegrationClientCredentialParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_client_credentials_connection_request.json"
+                ))
+                .expect(
+                    "parse fixture for DataIntegrationsCreateClientCredentialsConnectionRequest",
+                ),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 401);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_client_credential_not_found() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/data-integrations/test_id/client-credentials",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_client_credential(
+            "test_id",
+            workos::pipes::CreateDataIntegrationClientCredentialParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_client_credentials_connection_request.json"
+                ))
+                .expect(
+                    "parse fixture for DataIntegrationsCreateClientCredentialsConnectionRequest",
+                ),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 404);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_client_credential_rate_limited() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(429)
+        .insert_header("retry-after", "1")
+        .set_body_string("{\"message\":\"Slow down\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/data-integrations/test_id/client-credentials",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_client_credential(
+            "test_id",
+            workos::pipes::CreateDataIntegrationClientCredentialParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_client_credentials_connection_request.json"
+                ))
+                .expect(
+                    "parse fixture for DataIntegrationsCreateClientCredentialsConnectionRequest",
+                ),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 429);
+    assert_eq!(api.retry_after, Some(std::time::Duration::from_secs(1)));
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_client_credential_server_error() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/data-integrations/test_id/client-credentials",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_client_credential(
+            "test_id",
+            workos::pipes::CreateDataIntegrationClientCredentialParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_client_credentials_connection_request.json"
+                ))
+                .expect(
+                    "parse fixture for DataIntegrationsCreateClientCredentialsConnectionRequest",
+                ),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 500);
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_client_credential_bad_request() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(400)
+        .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/data-integrations/test_id/client-credentials",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_client_credential(
+            "test_id",
+            workos::pipes::CreateDataIntegrationClientCredentialParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_client_credentials_connection_request.json"
+                ))
+                .expect(
+                    "parse fixture for DataIntegrationsCreateClientCredentialsConnectionRequest",
+                ),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 400);
+    assert_eq!(api.code.as_deref(), Some("validation_error"));
+}
+
+#[tokio::test]
+async fn pipes_create_data_integration_client_credential_unprocessable() {
+    let server = MockServer::start().await;
+    let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
+    Mock::given(method("POST"))
+        .and(path_matcher(
+            "/data-integrations/test_id/client-credentials",
+        ))
+        .respond_with(template)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let client = common::test_client(&server).await;
+    let err = client
+        .pipes()
+        .create_data_integration_client_credential(
+            "test_id",
+            workos::pipes::CreateDataIntegrationClientCredentialParams::new(
+                serde_json::from_str(include_str!(
+                    "fixtures/data_integrations_create_client_credentials_connection_request.json"
+                ))
+                .expect(
+                    "parse fixture for DataIntegrationsCreateClientCredentialsConnectionRequest",
+                ),
+            ),
+        )
+        .await
+        .expect_err("expected error");
+    let api = match &err {
+        Error::Api(api) => api.as_ref(),
+        other => panic!("expected Error::Api, got {other:?}"),
+    };
+    assert_eq!(api.status, 422);
+}
+
+#[tokio::test]
 async fn pipes_update_data_integration_client_credentials_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("PUT"))
@@ -1237,18 +1618,7 @@ async fn pipes_update_data_integration_client_credentials_round_trip() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let _ = client
-        .pipes()
-        .update_data_integration_client_credentials(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_client_credentials_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertClientCredentialsRequest"),
-            ),
-        )
-        .await;
+    let _ = client.pipes().update_data_integration_client_credentials("test_id", workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"client_id\":\"3MVG9...\",\"client_secret\":\"shhh-secret\"}").expect("parse stub"))).await;
 }
 
 #[tokio::test]
@@ -1264,19 +1634,7 @@ async fn pipes_update_data_integration_client_credentials_unauthorized() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_client_credentials(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_client_credentials_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertClientCredentialsRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_client_credentials("test_id", workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"client_id\":\"3MVG9...\",\"client_secret\":\"shhh-secret\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -1297,19 +1655,7 @@ async fn pipes_update_data_integration_client_credentials_not_found() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_client_credentials(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_client_credentials_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertClientCredentialsRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_client_credentials("test_id", workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"client_id\":\"3MVG9...\",\"client_secret\":\"shhh-secret\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -1332,19 +1678,7 @@ async fn pipes_update_data_integration_client_credentials_rate_limited() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_client_credentials(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_client_credentials_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertClientCredentialsRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_client_credentials("test_id", workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"client_id\":\"3MVG9...\",\"client_secret\":\"shhh-secret\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -1366,19 +1700,7 @@ async fn pipes_update_data_integration_client_credentials_server_error() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_client_credentials(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_client_credentials_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertClientCredentialsRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_client_credentials("test_id", workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"client_id\":\"3MVG9...\",\"client_secret\":\"shhh-secret\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -1400,19 +1722,7 @@ async fn pipes_update_data_integration_client_credentials_bad_request() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_client_credentials(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_client_credentials_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertClientCredentialsRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_client_credentials("test_id", workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"client_id\":\"3MVG9...\",\"client_secret\":\"shhh-secret\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -1434,19 +1744,7 @@ async fn pipes_update_data_integration_client_credentials_unprocessable() {
         .mount(&server)
         .await;
     let client = common::test_client(&server).await;
-    let err = client
-        .pipes()
-        .update_data_integration_client_credentials(
-            "test_id",
-            workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(
-                serde_json::from_str(include_str!(
-                    "fixtures/data_integrations_upsert_client_credentials_request.json"
-                ))
-                .expect("parse fixture for DataIntegrationsUpsertClientCredentialsRequest"),
-            ),
-        )
-        .await
-        .expect_err("expected error");
+    let err = client.pipes().update_data_integration_client_credentials("test_id", workos::pipes::UpdateDataIntegrationClientCredentialsParams::new(serde_json::from_str("{\"user_id\":\"user_01EHZNVPK3SFK441A1RGBFSHRT\",\"client_id\":\"3MVG9...\",\"client_secret\":\"shhh-secret\"}").expect("parse stub"))).await.expect_err("expected error");
     let api = match &err {
         Error::Api(api) => api.as_ref(),
         other => panic!("expected Error::Api, got {other:?}"),
@@ -2519,7 +2817,10 @@ async fn pipes_create_organization_connected_account_round_trip() {
             "test_id",
             "test_id",
             workos::pipes::CreateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!(
+                    "fixtures/create_organization_connected_account.json"
+                ))
+                .expect("parse fixture for CreateOrganizationConnectedAccount"),
             ),
         )
         .await;
@@ -2544,7 +2845,10 @@ async fn pipes_create_organization_connected_account_unauthorized() {
             "test_id",
             "test_id",
             workos::pipes::CreateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!(
+                    "fixtures/create_organization_connected_account.json"
+                ))
+                .expect("parse fixture for CreateOrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2575,7 +2879,10 @@ async fn pipes_create_organization_connected_account_not_found() {
             "test_id",
             "test_id",
             workos::pipes::CreateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!(
+                    "fixtures/create_organization_connected_account.json"
+                ))
+                .expect("parse fixture for CreateOrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2608,7 +2915,10 @@ async fn pipes_create_organization_connected_account_rate_limited() {
             "test_id",
             "test_id",
             workos::pipes::CreateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!(
+                    "fixtures/create_organization_connected_account.json"
+                ))
+                .expect("parse fixture for CreateOrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2640,7 +2950,10 @@ async fn pipes_create_organization_connected_account_server_error() {
             "test_id",
             "test_id",
             workos::pipes::CreateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!(
+                    "fixtures/create_organization_connected_account.json"
+                ))
+                .expect("parse fixture for CreateOrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2672,7 +2985,10 @@ async fn pipes_create_organization_connected_account_bad_request() {
             "test_id",
             "test_id",
             workos::pipes::CreateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!(
+                    "fixtures/create_organization_connected_account.json"
+                ))
+                .expect("parse fixture for CreateOrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2704,7 +3020,10 @@ async fn pipes_create_organization_connected_account_unprocessable() {
             "test_id",
             "test_id",
             workos::pipes::CreateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!(
+                    "fixtures/create_organization_connected_account.json"
+                ))
+                .expect("parse fixture for CreateOrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2737,7 +3056,8 @@ async fn pipes_update_organization_connected_account_round_trip() {
             "test_id",
             "test_id",
             workos::pipes::UpdateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!("fixtures/organization_connected_account.json"))
+                    .expect("parse fixture for OrganizationConnectedAccount"),
             ),
         )
         .await;
@@ -2762,7 +3082,8 @@ async fn pipes_update_organization_connected_account_unauthorized() {
             "test_id",
             "test_id",
             workos::pipes::UpdateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!("fixtures/organization_connected_account.json"))
+                    .expect("parse fixture for OrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2793,7 +3114,8 @@ async fn pipes_update_organization_connected_account_not_found() {
             "test_id",
             "test_id",
             workos::pipes::UpdateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!("fixtures/organization_connected_account.json"))
+                    .expect("parse fixture for OrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2826,7 +3148,8 @@ async fn pipes_update_organization_connected_account_rate_limited() {
             "test_id",
             "test_id",
             workos::pipes::UpdateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!("fixtures/organization_connected_account.json"))
+                    .expect("parse fixture for OrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2858,7 +3181,8 @@ async fn pipes_update_organization_connected_account_server_error() {
             "test_id",
             "test_id",
             workos::pipes::UpdateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!("fixtures/organization_connected_account.json"))
+                    .expect("parse fixture for OrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2890,7 +3214,8 @@ async fn pipes_update_organization_connected_account_bad_request() {
             "test_id",
             "test_id",
             workos::pipes::UpdateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!("fixtures/organization_connected_account.json"))
+                    .expect("parse fixture for OrganizationConnectedAccount"),
             ),
         )
         .await
@@ -2922,7 +3247,8 @@ async fn pipes_update_organization_connected_account_unprocessable() {
             "test_id",
             "test_id",
             workos::pipes::UpdateOrganizationConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str(include_str!("fixtures/organization_connected_account.json"))
+                    .expect("parse fixture for OrganizationConnectedAccount"),
             ),
         )
         .await
@@ -3428,7 +3754,7 @@ async fn pipes_create_user_connected_account_round_trip() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str("{}").expect("parse stub for CreateConnectedAccount"),
             ),
         )
         .await;
@@ -3453,7 +3779,7 @@ async fn pipes_create_user_connected_account_unauthorized() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str("{}").expect("parse stub for CreateConnectedAccount"),
             ),
         )
         .await
@@ -3484,7 +3810,7 @@ async fn pipes_create_user_connected_account_not_found() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str("{}").expect("parse stub for CreateConnectedAccount"),
             ),
         )
         .await
@@ -3517,7 +3843,7 @@ async fn pipes_create_user_connected_account_rate_limited() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str("{}").expect("parse stub for CreateConnectedAccount"),
             ),
         )
         .await
@@ -3549,7 +3875,7 @@ async fn pipes_create_user_connected_account_server_error() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str("{}").expect("parse stub for CreateConnectedAccount"),
             ),
         )
         .await
@@ -3581,7 +3907,7 @@ async fn pipes_create_user_connected_account_bad_request() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str("{}").expect("parse stub for CreateConnectedAccount"),
             ),
         )
         .await
@@ -3613,7 +3939,7 @@ async fn pipes_create_user_connected_account_unprocessable() {
             "test_id",
             "test_id",
             workos::pipes::CreateUserConnectedAccountParams::new(
-                serde_json::from_str("{}").expect("parse stub for ConnectedAccountInput"),
+                serde_json::from_str("{}").expect("parse stub for CreateConnectedAccount"),
             ),
         )
         .await

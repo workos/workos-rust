@@ -67,3 +67,23 @@ pub enum ApiKeyUpdatedDataOwnerOneOf {
     #[serde(rename = "user")]
     UserApiKeyUpdatedDataOwner(UserApiKeyUpdatedDataOwner),
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum UpdateDataIntegrationApiKeyParamsBodyOneOf {
+    DataIntegrationsUpsertApiKeyRequest(DataIntegrationsUpsertApiKeyRequest),
+    ReauthorizeDataIntegrationsUpsertApiKeyRequest(ReauthorizeDataIntegrationsUpsertApiKeyRequest),
+    DataIntegrationsUpsertApiKeyRequest2(DataIntegrationsUpsertApiKeyRequest2),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum UpdateDataIntegrationClientCredentialsParamsBodyOneOf {
+    DataIntegrationsUpsertClientCredentialsRequest(DataIntegrationsUpsertClientCredentialsRequest),
+    ReauthorizeDataIntegrationsUpsertClientCredentialsRequest(
+        ReauthorizeDataIntegrationsUpsertClientCredentialsRequest,
+    ),
+    DataIntegrationsUpsertClientCredentialsRequest2(
+        DataIntegrationsUpsertClientCredentialsRequest2,
+    ),
+}
