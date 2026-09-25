@@ -83,18 +83,35 @@ impl UpdateDataIntegrationParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct CreateDataIntegrationApiKeyParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: DataIntegrationsCreateApiKeyConnectionRequest,
+}
+
+impl CreateDataIntegrationApiKeyParams {
+    /// Construct a new `CreateDataIntegrationApiKeyParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DataIntegrationsCreateApiKeyConnectionRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct UpdateDataIntegrationApiKeyParams {
     /// Request body sent with this call.
     ///
     /// Required.
     #[serde(skip)]
-    pub body: DataIntegrationsUpsertApiKeyRequest,
+    pub body: UpdateDataIntegrationApiKeyParamsBodyOneOf,
 }
 
 impl UpdateDataIntegrationApiKeyParams {
     /// Construct a new `UpdateDataIntegrationApiKeyParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: DataIntegrationsUpsertApiKeyRequest) -> Self {
+    pub fn new(body: UpdateDataIntegrationApiKeyParamsBodyOneOf) -> Self {
         Self { body }
     }
 }
@@ -117,18 +134,35 @@ impl AuthorizeDataIntegrationParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct CreateDataIntegrationClientCredentialParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: DataIntegrationsCreateClientCredentialsConnectionRequest,
+}
+
+impl CreateDataIntegrationClientCredentialParams {
+    /// Construct a new `CreateDataIntegrationClientCredentialParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DataIntegrationsCreateClientCredentialsConnectionRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct UpdateDataIntegrationClientCredentialsParams {
     /// Request body sent with this call.
     ///
     /// Required.
     #[serde(skip)]
-    pub body: DataIntegrationsUpsertClientCredentialsRequest,
+    pub body: UpdateDataIntegrationClientCredentialsParamsBodyOneOf,
 }
 
 impl UpdateDataIntegrationClientCredentialsParams {
     /// Construct a new `UpdateDataIntegrationClientCredentialsParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: DataIntegrationsUpsertClientCredentialsRequest) -> Self {
+    pub fn new(body: UpdateDataIntegrationClientCredentialsParamsBodyOneOf) -> Self {
         Self { body }
     }
 }
@@ -200,39 +234,43 @@ pub struct CreateOrganizationConnectedAccountParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: ConnectedAccountInput,
+    pub body: CreateOrganizationConnectedAccount,
 }
 
 impl CreateOrganizationConnectedAccountParams {
     /// Construct a new `CreateOrganizationConnectedAccountParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: ConnectedAccountInput) -> Self {
+    pub fn new(body: CreateOrganizationConnectedAccount) -> Self {
         Self { body }
     }
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UpdateOrganizationConnectedAccountParams {
-    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    /// Accepted for compatibility; does not change update targeting. Omit intent and selector to update the compatibility connection, or supply `connected_account_id` to update an exact connection.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supports_multiple_connections: Option<bool>,
     /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub connected_account_id: Option<String>,
+    /// Set to `reauthorize` with `connected_account_id` to update one exact connection. The intent may be omitted when supplying an ID. Omit both for permanent compatibility behavior.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connection_intent: Option<String>,
     /// Request body sent with this call.
     ///
     /// Required.
     #[serde(skip)]
-    pub body: ConnectedAccountInput,
+    pub body: OrganizationConnectedAccount,
 }
 
 impl UpdateOrganizationConnectedAccountParams {
     /// Construct a new `UpdateOrganizationConnectedAccountParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: ConnectedAccountInput) -> Self {
+    pub fn new(body: OrganizationConnectedAccount) -> Self {
         Self {
             supports_multiple_connections: Default::default(),
             connected_account_id: Default::default(),
+            connection_intent: Default::default(),
             body,
         }
     }
@@ -277,13 +315,13 @@ pub struct CreateUserConnectedAccountParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: ConnectedAccountInput,
+    pub body: CreateConnectedAccount,
 }
 
 impl CreateUserConnectedAccountParams {
     /// Construct a new `CreateUserConnectedAccountParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: ConnectedAccountInput) -> Self {
+    pub fn new(body: CreateConnectedAccount) -> Self {
         Self {
             organization_id: Default::default(),
             body,
@@ -296,12 +334,15 @@ pub struct UpdateUserConnectedAccountParams {
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<String>,
-    /// Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
+    /// Accepted for compatibility; does not change update targeting. Omit intent and selector to update the compatibility connection, or supply `connected_account_id` to update an exact connection.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supports_multiple_connections: Option<bool>,
     /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub connected_account_id: Option<String>,
+    /// Set to `reauthorize` with `connected_account_id` to update one exact connection. The intent may be omitted when supplying an ID. Omit both for permanent compatibility behavior.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connection_intent: Option<String>,
     /// Request body sent with this call.
     ///
     /// Required.
@@ -317,6 +358,7 @@ impl UpdateUserConnectedAccountParams {
             organization_id: Default::default(),
             supports_multiple_connections: Default::default(),
             connected_account_id: Default::default(),
+            connection_intent: Default::default(),
             body,
         }
     }
@@ -486,9 +528,36 @@ impl<'a> PipesApi<'a> {
             .await
     }
 
+    /// Create another API key connected account
+    ///
+    /// Creates another API key-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection. Creating an additional connection is not yet available: until it is, this endpoint succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+    pub async fn create_data_integration_api_key(
+        &self,
+        slug: &str,
+        params: CreateDataIntegrationApiKeyParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.create_data_integration_api_key_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_data_integration_api_key`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_data_integration_api_key_with_options(
+        &self,
+        slug: &str,
+        params: CreateDataIntegrationApiKeyParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}/api-key");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
     /// Upsert an API key for a connected account
     ///
-    /// Creates or updates an API-key-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored API key is rotated to the new value.
+    /// Creates or updates an API-key-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored API key is rotated to the new value. To create another connection, use POST.
     pub async fn update_data_integration_api_key(
         &self,
         slug: &str,
@@ -540,9 +609,36 @@ impl<'a> PipesApi<'a> {
             .await
     }
 
+    /// Create another client credentials connected account
+    ///
+    /// Creates another client credentials-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection. Creating an additional connection is not yet available: until it is, this endpoint succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+    pub async fn create_data_integration_client_credential(
+        &self,
+        slug: &str,
+        params: CreateDataIntegrationClientCredentialParams,
+    ) -> Result<ConnectedAccount, Error> {
+        self.create_data_integration_client_credential_with_options(slug, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::create_data_integration_client_credential`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_data_integration_client_credential_with_options(
+        &self,
+        slug: &str,
+        params: CreateDataIntegrationClientCredentialParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<ConnectedAccount, Error> {
+        let slug = crate::client::path_segment(slug);
+        let path = format!("/data-integrations/{slug}/client-credentials");
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
     /// Upsert client credentials for a connected account
     ///
-    /// Creates or updates a client-credentials-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored client credentials are rotated to the new values.
+    /// Creates or updates a client-credentials-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored client credentials are rotated to the new values. To create another connection, use POST.
     pub async fn update_data_integration_client_credentials(
         &self,
         slug: &str,
@@ -569,7 +665,7 @@ impl<'a> PipesApi<'a> {
 
     /// Vend credentials for a connected account
     ///
-    /// Returns credentials for a user's connected account. Branches on the installation's `auth_method`: OAuth installations return an access token (refreshed if needed); API-key installations return the stored secret.
+    /// Returns credentials for a user's connected account. Branches on the installation's `auth_method`: OAuth installations return an access token (refreshed if needed); API-key installations return the stored secret. Every active credential includes `config`: provider-declared, non-secret values from the installation snapshot, with current provider defaults for unset fields. Editing integration or organization configuration does not change the snapshot; reconnect or explicitly rebind the connection to adopt those edits. Defaults remain live, so a changed default can appear in `config` before a cached token is refreshed or re-minted. Credentials that never refresh require a reconnect or rebind when a default changes their routing.
     pub async fn create_data_integration_credential(
         &self,
         slug: &str,
@@ -727,7 +823,7 @@ impl<'a> PipesApi<'a> {
 
     /// Import an organization connected account
     ///
-    /// Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
+    /// Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Omit `connection_intent` to create only the compatibility connection, or set it to `add` to explicitly create another connection. This creation-only endpoint does not accept `connected_account_id` or reauthorization intent.
     pub async fn create_organization_connected_account(
         &self,
         organization_id: &str,

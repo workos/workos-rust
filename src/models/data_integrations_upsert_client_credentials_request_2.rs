@@ -6,7 +6,7 @@ use super::*;
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DataIntegrationsUpsertClientCredentialsRequest {
+pub struct DataIntegrationsUpsertClientCredentialsRequest2 {
     /// A [User](https://workos.com/docs/reference/authkit/user) identifier.
     pub user_id: String,
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
@@ -14,7 +14,7 @@ pub struct DataIntegrationsUpsertClientCredentialsRequest {
     pub organization_id: Option<String>,
     /// Whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub connection_owner: Option<DataIntegrationsUpsertClientCredentialsRequestConnectionOwner>,
+    pub connection_owner: Option<DataIntegrationsUpsertClientCredentialsRequest2ConnectionOwner>,
     /// The OAuth client ID to store for this integration.
     pub client_id: String,
     /// The OAuth client secret to store for this integration.
@@ -22,4 +22,6 @@ pub struct DataIntegrationsUpsertClientCredentialsRequest {
     /// Provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub config: Option<std::collections::HashMap<String, String>>,
+    /// The exact connected account to reauthorize. The reauthorize intent may be omitted for compatibility.
+    pub connected_account_id: String,
 }
