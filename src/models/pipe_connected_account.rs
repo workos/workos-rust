@@ -40,6 +40,12 @@ pub struct PipeConnectedAccount {
     pub api_key_last_4: Option<String>,
     /// The state of the connected account.
     pub state: PipeConnectedAccountState,
+    /// The ID of the User whose authorization established the connected account, or null when it is developer-managed, its establisher is unknown, or the establishing member left the organization. Historical events may omit this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub established_by_user_id: Option<String>,
+    /// Why WorkOS put the connected account in its current state, or null when there is no WorkOS-recorded reason. `establishing_member_membership_ended` means the member who established an organization-owned connection is no longer an active member. Additional values may be added. Historical events may omit this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub state_reason: Option<String>,
     /// An ISO 8601 timestamp.
     pub created_at: String,
     /// An ISO 8601 timestamp.

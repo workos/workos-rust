@@ -39,14 +39,23 @@ pub struct DataIntegrationsListResponseDataConnectedAccount {
     /// The last four characters of the client secret supplied for this connection, or `null` when it can't be read. Only present when `auth_method` is `client_credentials`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub client_secret_last_4: Option<String>,
-    /// The connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding any it declares as secret. Only present when `auth_method` is `client_credentials`.
+    /// The connection-level configuration values stored for this connection — the fields the provider declares at `installation` scope, excluding secret and undeclared fields. Returned for every authentication method; empty when no stored values can be disclosed.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub config: Option<std::collections::HashMap<String, String>>,
     /// The state of the connected account:
     /// - `connected`: The connection is active and tokens are valid.
-    /// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.
+    /// - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed. `state_reason` explains why when WorkOS invalidated the connection itself.
     /// - `disconnected`: The connection has been disconnected.
     pub state: DataIntegrationsListResponseDataConnectedAccountState,
+    /// The [User](https://workos.com/docs/reference/authkit/user) whose authorization established this connection. `null` when the connection is developer-managed or its establisher is unknown, and when the establishing member lost access to the organization — in which case `state_reason` is `establishing_member_membership_ended`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub established_by_user_id: Option<String>,
+    /// Why WorkOS put the connection in its current `state`, or `null` when there is no WorkOS-recorded reason:
+    /// - `establishing_member_membership_ended`: The member who established this organization-owned connection is no longer an active member of the organization, so its credentials were cleared. An organization admin must provide new credentials.
+    ///
+    /// Additional values may be added; treat an unrecognized value as an unknown reason.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub state_reason: Option<String>,
     /// The timestamp when the connection was created.
     pub created_at: String,
     /// The timestamp when the connection was last updated.

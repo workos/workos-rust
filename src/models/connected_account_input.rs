@@ -7,6 +7,12 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConnectedAccountInput {
+    /// A mutable, non-unique connection label; null clears it. Not an account identifier.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_display_name: Option<String>,
+    /// A developer-attested account identifier; null clears it.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_identifier: Option<String>,
     /// The OAuth access token for the connected account.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub access_token: Option<crate::SecretString>,
