@@ -28,7 +28,7 @@ pub enum Password {
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CreateUserParamsBody {
-    /// The email address of the user.
+    /// The email address of the user. WorkOS trims whitespace and converts the address to lowercase before storing it.
     ///
     /// Required.
     pub email: String,
