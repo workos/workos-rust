@@ -14,6 +14,7 @@ pub enum ResourceExportFailedDataResourceType {
     AuditLogEvents,
     Connections,
     DirectoryUsers,
+    SCIMLogs,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -34,6 +35,7 @@ impl ResourceExportFailedDataResourceType {
             Self::AuditLogEvents => "auditLogEvents",
             Self::Connections => "connections",
             Self::DirectoryUsers => "directoryUsers",
+            Self::SCIMLogs => "scimLogs",
             Self::Unknown(s) => s.as_str(),
         }
     }
@@ -63,6 +65,7 @@ impl FromStr for ResourceExportFailedDataResourceType {
             "auditLogEvents" => Self::AuditLogEvents,
             "connections" => Self::Connections,
             "directoryUsers" => Self::DirectoryUsers,
+            "scimLogs" => Self::SCIMLogs,
             other => Self::Unknown(other.to_string()),
         })
     }
