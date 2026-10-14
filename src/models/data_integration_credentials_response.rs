@@ -12,7 +12,7 @@ pub struct DataIntegrationCredentialsResponse {
     pub active: Option<bool>,
     /// The credential object containing the vended secret.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub credential: Option<DataIntegrationCredentialsResponseCredential>,
+    pub credential: Option<DataIntegrationVendedCredential>,
     /// The reason credentials are unavailable. Additional values may be added in the future; handle unknown values gracefully.
     /// - `"not_installed"`: The user does not have the integration installed.
     /// - `"needs_reauthorization"`: The user needs to reauthorize the integration.

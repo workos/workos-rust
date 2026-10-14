@@ -7,6 +7,9 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataIntegrationsGetDataIntegrationAuthorizeUrlRequest {
+    /// A mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_display_name: Option<String>,
     /// The ID of the user to authorize. When `connection_owner` is `organization`, this is the user authorizing on behalf of the organization; they must be an active member of the organization and do not become the owner of the resulting connected account.
     pub user_id: String,
     /// An organization ID to scope the authorization to a specific organization. Required when `connection_owner` is `organization`.
