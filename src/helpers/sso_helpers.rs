@@ -17,10 +17,8 @@ pub struct SsoAuthorizationUrlParams {
     /// If empty, the client's configured `client_id` is used.
     pub client_id: Option<String>,
     pub provider: Option<String>,
-    /// Sent as the `connection` query parameter.
-    pub connection_id: Option<String>,
-    /// Sent as the `organization` query parameter.
-    pub organization_id: Option<String>,
+    pub connection: Option<String>,
+    pub organization: Option<String>,
     pub domain_hint: Option<String>,
     pub login_hint: Option<String>,
     pub state: Option<String>,
@@ -97,10 +95,10 @@ impl<'a> SsoHelper<'a> {
             if let Some(v) = &params.provider {
                 q.append_pair("provider", v);
             }
-            if let Some(v) = &params.connection_id {
+            if let Some(v) = &params.connection {
                 q.append_pair("connection", v);
             }
-            if let Some(v) = &params.organization_id {
+            if let Some(v) = &params.organization {
                 q.append_pair("organization", v);
             }
             if let Some(v) = &params.domain_hint {
@@ -231,8 +229,8 @@ mod tests {
         let url = SsoHelper::new(&c)
             .authorization_url(SsoAuthorizationUrlParams {
                 redirect_uri: "https://app.example/cb".to_string(),
-                connection_id: Some("conn_123".to_string()),
-                organization_id: Some("org_456".to_string()),
+                connection: Some("conn_123".to_string()),
+                organization: Some("org_456".to_string()),
                 ..Default::default()
             })
             .unwrap();
