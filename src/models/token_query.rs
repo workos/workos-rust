@@ -16,6 +16,9 @@ pub struct TokenQuery {
     pub code: Option<crate::SecretString>,
     /// The grant type for the token request.
     pub grant_type: TokenQueryGrantType,
+    /// The PKCE code verifier matching the `code_challenge` sent with the authorization request. Required when the authorization request included a `code_challenge`. Must be sent in the request body.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub code_verifier: Option<crate::SecretString>,
     /// The OIDC ID token to exchange. Required when `grant_type` is `urn:ietf:params:oauth:grant-type:token-exchange`. Must be sent in the request body.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub subject_token: Option<crate::SecretString>,
