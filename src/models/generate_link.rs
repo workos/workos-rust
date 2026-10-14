@@ -15,6 +15,9 @@ pub struct GenerateLink {
     pub success_url: Option<String>,
     /// An [Organization](https://workos.com/docs/reference/organization) identifier.
     pub organization: String,
+    /// The ID of the user in your application the link is generated for. The link and any Admin Portal sessions started from it can later be revoked by this ID, for example when that user is deprovisioned from your application.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub external_user_id: Option<String>,
     /// The intent of the Admin Portal.
     /// - `sso` - Launch Admin Portal for creating SSO connections
     /// - `dsync` - Launch Admin Portal for creating Directory Sync connections
