@@ -30,7 +30,7 @@ impl GenerateLinkParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct CreateRevokeLinkParams {
+pub struct RevokeLinkParams {
     /// Request body sent with this call.
     ///
     /// Required.
@@ -38,8 +38,8 @@ pub struct CreateRevokeLinkParams {
     pub body: RevokeLink,
 }
 
-impl CreateRevokeLinkParams {
-    /// Construct a new `CreateRevokeLinkParams` with the required fields set.
+impl RevokeLinkParams {
+    /// Construct a new `RevokeLinkParams` with the required fields set.
     #[allow(deprecated)]
     pub fn new(body: RevokeLink) -> Self {
         Self { body }
@@ -73,14 +73,14 @@ impl<'a> AdminPortalApi<'a> {
     /// Revoke Portal Links
     ///
     /// Revokes every Portal Link generated for the given organization with the given `external_user_id`, and immediately ends any Admin Portal sessions that were started from those links. Use this when an admin is deprovisioned from your application: unopened links stop working, and their already-open portal sessions are ended. Only links that were generated with an `external_user_id` can be revoked, so pass one to `generate_link` for every admin you may later need to deprovision.
-    pub async fn create_revoke_link(&self, params: CreateRevokeLinkParams) -> Result<(), Error> {
-        self.create_revoke_link_with_options(params, None).await
+    pub async fn revoke_link(&self, params: RevokeLinkParams) -> Result<(), Error> {
+        self.revoke_link_with_options(params, None).await
     }
 
-    /// Variant of [`Self::create_revoke_link`] that accepts per-request [`crate::RequestOptions`].
-    pub async fn create_revoke_link_with_options(
+    /// Variant of [`Self::revoke_link`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn revoke_link_with_options(
         &self,
-        params: CreateRevokeLinkParams,
+        params: RevokeLinkParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<(), Error> {
         let path = "/portal/revoke_link".to_string();
