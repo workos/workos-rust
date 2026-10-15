@@ -190,7 +190,7 @@ async fn admin_portal_generate_link_unprocessable() {
 }
 
 #[tokio::test]
-async fn admin_portal_create_revoke_link_round_trip() {
+async fn admin_portal_revoke_link_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path_matcher("/portal/revoke_link"))
@@ -201,7 +201,7 @@ async fn admin_portal_create_revoke_link_round_trip() {
     let client = common::test_client(&server).await;
     let _ = client
         .admin_portal()
-        .create_revoke_link(workos::admin_portal::CreateRevokeLinkParams::new(
+        .revoke_link(workos::admin_portal::RevokeLinkParams::new(
             serde_json::from_str(include_str!("fixtures/revoke_link.json"))
                 .expect("parse fixture for RevokeLink"),
         ))
@@ -209,7 +209,7 @@ async fn admin_portal_create_revoke_link_round_trip() {
 }
 
 #[tokio::test]
-async fn admin_portal_create_revoke_link_unauthorized() {
+async fn admin_portal_revoke_link_unauthorized() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
     Mock::given(method("POST"))
@@ -221,7 +221,7 @@ async fn admin_portal_create_revoke_link_unauthorized() {
     let client = common::test_client(&server).await;
     let err = client
         .admin_portal()
-        .create_revoke_link(workos::admin_portal::CreateRevokeLinkParams::new(
+        .revoke_link(workos::admin_portal::RevokeLinkParams::new(
             serde_json::from_str(include_str!("fixtures/revoke_link.json"))
                 .expect("parse fixture for RevokeLink"),
         ))
@@ -235,7 +235,7 @@ async fn admin_portal_create_revoke_link_unauthorized() {
 }
 
 #[tokio::test]
-async fn admin_portal_create_revoke_link_not_found() {
+async fn admin_portal_revoke_link_not_found() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
     Mock::given(method("POST"))
@@ -247,7 +247,7 @@ async fn admin_portal_create_revoke_link_not_found() {
     let client = common::test_client(&server).await;
     let err = client
         .admin_portal()
-        .create_revoke_link(workos::admin_portal::CreateRevokeLinkParams::new(
+        .revoke_link(workos::admin_portal::RevokeLinkParams::new(
             serde_json::from_str(include_str!("fixtures/revoke_link.json"))
                 .expect("parse fixture for RevokeLink"),
         ))
@@ -261,7 +261,7 @@ async fn admin_portal_create_revoke_link_not_found() {
 }
 
 #[tokio::test]
-async fn admin_portal_create_revoke_link_rate_limited() {
+async fn admin_portal_revoke_link_rate_limited() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(429)
         .insert_header("retry-after", "1")
@@ -275,7 +275,7 @@ async fn admin_portal_create_revoke_link_rate_limited() {
     let client = common::test_client(&server).await;
     let err = client
         .admin_portal()
-        .create_revoke_link(workos::admin_portal::CreateRevokeLinkParams::new(
+        .revoke_link(workos::admin_portal::RevokeLinkParams::new(
             serde_json::from_str(include_str!("fixtures/revoke_link.json"))
                 .expect("parse fixture for RevokeLink"),
         ))
@@ -290,7 +290,7 @@ async fn admin_portal_create_revoke_link_rate_limited() {
 }
 
 #[tokio::test]
-async fn admin_portal_create_revoke_link_server_error() {
+async fn admin_portal_revoke_link_server_error() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
     Mock::given(method("POST"))
@@ -302,7 +302,7 @@ async fn admin_portal_create_revoke_link_server_error() {
     let client = common::test_client(&server).await;
     let err = client
         .admin_portal()
-        .create_revoke_link(workos::admin_portal::CreateRevokeLinkParams::new(
+        .revoke_link(workos::admin_portal::RevokeLinkParams::new(
             serde_json::from_str(include_str!("fixtures/revoke_link.json"))
                 .expect("parse fixture for RevokeLink"),
         ))
@@ -316,7 +316,7 @@ async fn admin_portal_create_revoke_link_server_error() {
 }
 
 #[tokio::test]
-async fn admin_portal_create_revoke_link_bad_request() {
+async fn admin_portal_revoke_link_bad_request() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(400)
         .set_body_string("{\"code\":\"validation_error\",\"message\":\"Bad request\"}");
@@ -329,7 +329,7 @@ async fn admin_portal_create_revoke_link_bad_request() {
     let client = common::test_client(&server).await;
     let err = client
         .admin_portal()
-        .create_revoke_link(workos::admin_portal::CreateRevokeLinkParams::new(
+        .revoke_link(workos::admin_portal::RevokeLinkParams::new(
             serde_json::from_str(include_str!("fixtures/revoke_link.json"))
                 .expect("parse fixture for RevokeLink"),
         ))
@@ -344,7 +344,7 @@ async fn admin_portal_create_revoke_link_bad_request() {
 }
 
 #[tokio::test]
-async fn admin_portal_create_revoke_link_unprocessable() {
+async fn admin_portal_revoke_link_unprocessable() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(422).set_body_string("{\"message\":\"Unprocessable\"}");
     Mock::given(method("POST"))
@@ -356,7 +356,7 @@ async fn admin_portal_create_revoke_link_unprocessable() {
     let client = common::test_client(&server).await;
     let err = client
         .admin_portal()
-        .create_revoke_link(workos::admin_portal::CreateRevokeLinkParams::new(
+        .revoke_link(workos::admin_portal::RevokeLinkParams::new(
             serde_json::from_str(include_str!("fixtures/revoke_link.json"))
                 .expect("parse fixture for RevokeLink"),
         ))
