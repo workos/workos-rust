@@ -7,14 +7,17 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataIntegrationsUpsertClientCredentialsRequest {
+    /// A mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_display_name: Option<String>,
+    /// A developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub account_identifier: Option<String>,
     /// A [User](https://workos.com/docs/reference/authkit/user) identifier.
     pub user_id: String,
     /// An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub organization_id: Option<String>,
-    /// A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to rotate a specific existing connection.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub connected_account_id: Option<String>,
     /// Whose connection to create or rotate. `user` (the default) addresses the connection owned by `user_id`. `organization` addresses the connection shared by every member of `organization_id`; `user_id` then identifies the member performing the request and must be an active member of the organization.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub connection_owner: Option<DataIntegrationsUpsertClientCredentialsRequestConnectionOwner>,

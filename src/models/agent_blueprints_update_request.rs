@@ -19,6 +19,9 @@ pub struct AgentBlueprintsUpdateRequest {
     /// Who may mint sessions from this blueprint. Omitted lists are left unchanged.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub invocable_by: Option<AgentBlueprintsUpdateRequestInvocableBy>,
+    /// How sessions may be minted from this blueprint. Omitted lists are left unchanged.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub invocable_as: Option<AgentBlueprintsUpdateRequestInvocableAs>,
     /// Token and session lifetimes for sessions minted from this blueprint. Omitted fields are left unchanged.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub session_settings: Option<AgentBlueprintsUpdateRequestSessionSetting>,

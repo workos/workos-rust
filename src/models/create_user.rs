@@ -7,7 +7,7 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateUser {
-    /// The email address of the user.
+    /// The email address of the user. WorkOS trims whitespace and converts the address to lowercase before storing it.
     pub email: String,
     /// The first name of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]

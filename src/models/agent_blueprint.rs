@@ -20,6 +20,8 @@ pub struct AgentBlueprint {
     pub permissions: Vec<String>,
     /// Who may mint sessions from this blueprint.
     pub invocable_by: AgentBlueprintInvocableBy,
+    /// How sessions may be minted from this blueprint.
+    pub invocable_as: AgentBlueprintInvocableAs,
     /// Token and session lifetimes for sessions minted from this blueprint.
     pub session_settings: AgentBlueprintSessionSetting,
     /// Timestamp when the agent blueprint was created.
