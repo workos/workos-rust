@@ -17,8 +17,8 @@ pub struct SsoAuthorizationUrlParams {
     /// If empty, the client's configured `client_id` is used.
     pub client_id: Option<String>,
     pub provider: Option<String>,
-    pub connection_id: Option<String>,
-    pub organization_id: Option<String>,
+    pub connection: Option<String>,
+    pub organization: Option<String>,
     pub domain_hint: Option<String>,
     pub login_hint: Option<String>,
     pub state: Option<String>,
@@ -95,11 +95,11 @@ impl<'a> SsoHelper<'a> {
             if let Some(v) = &params.provider {
                 q.append_pair("provider", v);
             }
-            if let Some(v) = &params.connection_id {
-                q.append_pair("connection_id", v);
+            if let Some(v) = &params.connection {
+                q.append_pair("connection", v);
             }
-            if let Some(v) = &params.organization_id {
-                q.append_pair("organization_id", v);
+            if let Some(v) = &params.organization {
+                q.append_pair("organization", v);
             }
             if let Some(v) = &params.domain_hint {
                 q.append_pair("domain_hint", v);
@@ -219,6 +219,25 @@ mod tests {
                 .authorization_url(SsoAuthorizationUrlParams::default())
                 .is_err()
         );
+    }
+
+    #[test]
+    fn connection_and_organization_use_sso_param_names() {
+        // /sso/authorize expects `connection` and `organization`, not the
+        // `connection_id` / `organization_id` names used by /user_management/authorize.
+        let c = client_with("client_123", "https://api.workos.com");
+        let url = SsoHelper::new(&c)
+            .authorization_url(SsoAuthorizationUrlParams {
+                redirect_uri: "https://app.example/cb".to_string(),
+                connection: Some("conn_123".to_string()),
+                organization: Some("org_456".to_string()),
+                ..Default::default()
+            })
+            .unwrap();
+        assert!(url.contains("connection=conn_123"));
+        assert!(url.contains("organization=org_456"));
+        assert!(!url.contains("connection_id="));
+        assert!(!url.contains("organization_id="));
     }
 
     #[test]
