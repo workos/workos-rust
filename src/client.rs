@@ -7,7 +7,6 @@ use http::{
     HeaderMap, HeaderName, HeaderValue, Method,
     header::{AUTHORIZATION, RETRY_AFTER, USER_AGENT},
 };
-use rand::Rng;
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::error::{ApiError, Error};
@@ -544,7 +543,13 @@ fn backoff_delay(attempt: u32, jitter: bool) -> Duration {
     // Equal-jitter strategy: half deterministic + uniform up to the other half.
     // Prevents thundering-herd retries when many clients hit the same 429.
     let half = bounded / 2;
-    let rand_part: u64 = rand::rng().random_range(0..=half);
+    // If the OS CSPRNG is unavailable, fall back to the deterministic half:
+    // jitter is a scheduling nicety, not a security boundary.
+    let mut bytes = [0u8; 8];
+    let rand_part = match crate::helpers::util::random_bytes(&mut bytes) {
+        Ok(()) => u64::from_le_bytes(bytes) % (half + 1),
+        Err(_) => 0,
+    };
     Duration::from_millis(half + rand_part)
 }
 

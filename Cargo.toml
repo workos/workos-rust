@@ -44,15 +44,14 @@ http = "1"
 # and native AFIT (edition 2024) is not dyn-compatible.
 async-trait = "0.1"
 bytes = "1"
-# Hand-maintained helper layer (src/helpers/*).
-hmac = "0.12"
-sha2 = "0.10"
-aes-gcm = "0.10"
+# Hand-maintained helper layer (src/helpers/*). All crypto (AES-256-GCM,
+# HMAC-SHA256, SHA-256, the CSPRNG, constant-time compares, and JWT signature
+# verification through `jsonwebtoken`) goes through aws-lc-rs so the SDK links
+# exactly one crypto library.
 base64 = "0.22"
-rand = "0.9"
-subtle = "2.5"
 url = "2.5"
 hex = "0.4"
+aws-lc-rs = "1"
 jsonwebtoken = { version = "=10.3.0", default-features = false, features = ["aws_lc_rs"] }
 
 [dev-dependencies]

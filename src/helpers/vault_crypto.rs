@@ -5,13 +5,12 @@
 //! `LEB128(len(encryptedKeys)) || encryptedKeys || nonce(12) || ciphertext+tag`
 //! the whole thing then base64-encoded.
 
-use aes_gcm::aead::{Aead, KeyInit, Payload};
-use aes_gcm::{Aes256Gcm, Nonce};
+use aws_lc_rs::aead::{AES_256_GCM, Aad, LessSafeKey, NONCE_LEN, Nonce, UnboundKey};
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as B64_STANDARD;
-use rand::RngCore;
 
 use crate::error::Error;
+use crate::helpers::util::random_bytes;
 
 /// Result of [`crate::resources::VaultApi::encrypt`].
 #[derive(Debug, Clone)]
@@ -45,29 +44,25 @@ pub fn local_encrypt(
         .decode(encrypted_keys_b64)
         .map_err(|e| Error::VaultCrypto(format!("decode encrypted keys: {e}")))?;
 
-    let cipher = Aes256Gcm::new_from_slice(&raw_key)
-        .map_err(|e| Error::VaultCrypto(format!("init AES-GCM: {e}")))?;
-    let mut nonce_bytes = [0u8; 12];
-    rand::rng().fill_bytes(&mut nonce_bytes);
-    let nonce = Nonce::from_slice(&nonce_bytes);
-    let ciphertext = cipher
-        .encrypt(
-            nonce,
-            Payload {
-                msg: data.as_bytes(),
-                aad: associated_data.as_bytes(),
-            },
-        )
-        .map_err(|e| Error::VaultCrypto(format!("encrypt: {e}")))?;
+    let key = aead_key(&raw_key)?;
+    let mut nonce_bytes = [0u8; NONCE_LEN];
+    random_bytes(&mut nonce_bytes)?;
+    // `in_out` becomes ciphertext || 16-byte tag.
+    let mut in_out = data.as_bytes().to_vec();
+    key.seal_in_place_append_tag(
+        Nonce::assume_unique_for_key(nonce_bytes),
+        Aad::from(associated_data.as_bytes()),
+        &mut in_out,
+    )
+    .map_err(|_| Error::VaultCrypto("encrypt failed".to_string()))?;
 
     let prefix = encode_leb128(encrypted_keys.len() as u32);
-    let mut buf = Vec::with_capacity(
-        prefix.len() + encrypted_keys.len() + nonce_bytes.len() + ciphertext.len(),
-    );
+    let mut buf =
+        Vec::with_capacity(prefix.len() + encrypted_keys.len() + NONCE_LEN + in_out.len());
     buf.extend_from_slice(&prefix);
     buf.extend_from_slice(&encrypted_keys);
     buf.extend_from_slice(&nonce_bytes);
-    buf.extend_from_slice(&ciphertext);
+    buf.extend_from_slice(&in_out);
     Ok(B64_STANDARD.encode(buf))
 }
 
@@ -100,18 +95,20 @@ pub fn local_decrypt(
     let raw_key = B64_STANDARD
         .decode(data_key_b64)
         .map_err(|e| Error::VaultCrypto(format!("decode data key: {e}")))?;
-    let cipher = Aes256Gcm::new_from_slice(&raw_key)
-        .map_err(|e| Error::VaultCrypto(format!("init AES-GCM: {e}")))?;
-    let plaintext = cipher
-        .decrypt(
-            Nonce::from_slice(nonce),
-            Payload {
-                msg: ciphertext,
-                aad: associated_data.as_bytes(),
-            },
-        )
-        .map_err(|e| Error::VaultCrypto(format!("decrypt: {e}")))?;
-    String::from_utf8(plaintext).map_err(|e| Error::VaultCrypto(format!("utf-8: {e}")))
+    let key = aead_key(&raw_key)?;
+    let nonce = Nonce::try_assume_unique_for_key(nonce)
+        .map_err(|_| Error::VaultCrypto("invalid nonce".to_string()))?;
+    let mut in_out = ciphertext.to_vec();
+    let plaintext = key
+        .open_in_place(nonce, Aad::from(associated_data.as_bytes()), &mut in_out)
+        .map_err(|_| Error::VaultCrypto("decrypt failed".to_string()))?;
+    String::from_utf8(plaintext.to_vec()).map_err(|e| Error::VaultCrypto(format!("utf-8: {e}")))
+}
+
+fn aead_key(raw_key: &[u8]) -> Result<LessSafeKey, Error> {
+    UnboundKey::new(&AES_256_GCM, raw_key)
+        .map(LessSafeKey::new)
+        .map_err(|_| Error::VaultCrypto("init AES-GCM: key must be 32 bytes".to_string()))
 }
 
 /// Extract the base64-encoded encrypted-keys blob from a sealed envelope.
@@ -208,6 +205,20 @@ mod tests {
         let (data_key, encrypted_keys) = make_key_material();
         let sealed = local_encrypt("secret", &data_key, &encrypted_keys, "ctx-a").unwrap();
         assert!(local_decrypt(&sealed, &data_key, "ctx-b").is_err());
+    }
+
+    /// Envelope produced by the previous `aes-gcm` implementation; must still
+    /// decrypt so data encrypted before the aws-lc-rs switch stays readable.
+    #[test]
+    fn decrypts_envelope_from_previous_implementation() {
+        let (data_key, encrypted_keys) = make_key_material();
+        let sealed = "BQECAwQFPuJKtK12KHfl4S/9tiNbJWg3477CesWwFujheMicwDV7icOQr/8g";
+        assert_eq!(
+            local_decrypt(sealed, &data_key, "ctx:env_1").unwrap(),
+            "hello world"
+        );
+        assert_eq!(extract_encrypted_keys(sealed).unwrap(), encrypted_keys);
+        assert!(local_decrypt(sealed, &data_key, "ctx:other").is_err());
     }
 
     #[test]

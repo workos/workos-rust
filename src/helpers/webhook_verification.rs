@@ -3,14 +3,11 @@
 
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use hmac::{Hmac, Mac};
-use sha2::Sha256;
-use subtle::ConstantTimeEq;
+use aws_lc_rs::constant_time::verify_slices_are_equal;
+use aws_lc_rs::hmac;
 
 use crate::error::Error;
 use crate::models::EventSchema;
-
-type HmacSha256 = Hmac<Sha256>;
 
 const DEFAULT_TOLERANCE: Duration = Duration::from_secs(180);
 
@@ -65,7 +62,7 @@ impl WebhookVerifier {
         }
 
         let expected = compute_webhook_signature(&self.secret, &timestamp, body);
-        if expected.as_bytes().ct_eq(signature.as_bytes()).unwrap_u8() != 1 {
+        if verify_slices_are_equal(expected.as_bytes(), signature.as_bytes()).is_err() {
             return Err(Error::Webhook("no valid signature found".to_string()));
         }
 
@@ -81,16 +78,12 @@ impl WebhookVerifier {
 
 /// Computes the HMAC-SHA256 signature for a webhook payload.
 pub fn compute_webhook_signature(secret: &str, timestamp: &str, body: &str) -> String {
-    // HMAC accepts keys of any length (RFC 2104); `new_from_slice` only
-    // returns `Err` for fixed-size MACs, so this is infallible for HMAC.
-    let mut mac = match HmacSha256::new_from_slice(secret.as_bytes()) {
-        Ok(mac) => mac,
-        Err(_) => unreachable!(),
-    };
-    mac.update(timestamp.as_bytes());
-    mac.update(b".");
-    mac.update(body.as_bytes());
-    hex::encode(mac.finalize().into_bytes())
+    let key = hmac::Key::new(hmac::HMAC_SHA256, secret.as_bytes());
+    let mut ctx = hmac::Context::with_key(&key);
+    ctx.update(timestamp.as_bytes());
+    ctx.update(b".");
+    ctx.update(body.as_bytes());
+    hex::encode(ctx.sign().as_ref())
 }
 
 /// Parses a `t=<timestamp>, v1=<signature>` header into its components.
@@ -156,13 +149,13 @@ mod tests {
 
     #[test]
     fn compute_signature_matches_known_value() {
-        // Recomputable: hmac_sha256("secret", "1700000000000.body")
+        // hmac_sha256("secret", "1700000000000.body"), cross-checked against
+        // the previous RustCrypto implementation and `openssl dgst -hmac`.
         let sig = compute_webhook_signature("secret", "1700000000000", "body");
-        // Length sanity: hex of sha256 is always 64 chars.
-        assert_eq!(sig.len(), 64);
-        // Recompute and ensure stable.
-        let again = compute_webhook_signature("secret", "1700000000000", "body");
-        assert_eq!(sig, again);
+        assert_eq!(
+            sig,
+            "32850522003ebbce01a416e5d5df8ec8354a96e921cac7d0ebbaeef5732bdaea"
+        );
     }
 
     #[test]
