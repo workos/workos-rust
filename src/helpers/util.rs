@@ -7,6 +7,17 @@
 /// implementation.
 pub(crate) use crate::client::path_segment as percent_encode;
 
+use crate::error::Error;
+
+/// Fills `buf` with bytes from the operating-system CSPRNG (via aws-lc-rs).
+///
+/// Used for AEAD nonces, PKCE verifiers, OAuth `state` values, and retry
+/// jitter. Fails only if the OS random source is unavailable.
+pub(crate) fn random_bytes(buf: &mut [u8]) -> Result<(), Error> {
+    aws_lc_rs::rand::fill(buf)
+        .map_err(|_| Error::Crypto("operating-system CSPRNG unavailable".to_string()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -23,5 +34,15 @@ mod tests {
         assert_eq!(percent_encode("café"), "caf%C3%A9");
         assert_eq!(percent_encode("a?b#c&d=e"), "a%3Fb%23c%26d%3De");
         assert_eq!(percent_encode("already%20encoded"), "already%2520encoded");
+    }
+
+    #[test]
+    fn random_bytes_fills_and_varies() {
+        let mut a = [0u8; 32];
+        let mut b = [0u8; 32];
+        random_bytes(&mut a).unwrap();
+        random_bytes(&mut b).unwrap();
+        assert!(a.iter().any(|&x| x != 0));
+        assert_ne!(a, b);
     }
 }

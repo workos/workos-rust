@@ -1,12 +1,12 @@
 // @oagen-ignore-file
 //! PKCE utilities (H08).
 
+use aws_lc_rs::digest::{SHA256, digest};
 use base64::Engine;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
-use rand::RngCore;
-use sha2::{Digest, Sha256};
 
 use crate::error::Error;
+use crate::helpers::util::random_bytes;
 
 /// PKCE code verifier + challenge pair.
 #[derive(Debug, Clone)]
@@ -30,15 +30,15 @@ pub fn generate_code_verifier(length: Option<usize>) -> Result<String, Error> {
 
     let byte_len = (3 * n).div_ceil(4);
     let mut buf = vec![0u8; byte_len];
-    rand::rng().fill_bytes(&mut buf);
+    random_bytes(&mut buf)?;
     let encoded = URL_SAFE_NO_PAD.encode(&buf);
     Ok(encoded[..n].to_string())
 }
 
 /// Computes the S256 code challenge for a verifier.
 pub fn generate_code_challenge(verifier: &str) -> String {
-    let digest = Sha256::digest(verifier.as_bytes());
-    URL_SAFE_NO_PAD.encode(digest)
+    let hash = digest(&SHA256, verifier.as_bytes());
+    URL_SAFE_NO_PAD.encode(hash.as_ref())
 }
 
 /// Generates a complete PKCE pair (default verifier length 43).

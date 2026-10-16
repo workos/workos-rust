@@ -3,8 +3,8 @@
 
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use aws_lc_rs::constant_time::verify_slices_are_equal;
 use serde::{Deserialize, Serialize};
-use subtle::ConstantTimeEq;
 
 use crate::enums::AuthenticateResponseAuthenticationMethod;
 use crate::error::Error;
@@ -179,7 +179,7 @@ impl ActionsHelper {
             return Err(Error::Webhook("timestamp outside tolerance".to_string()));
         }
         let expected = compute_webhook_signature(secret, &timestamp, payload);
-        if expected.as_bytes().ct_eq(signature.as_bytes()).unwrap_u8() != 1 {
+        if verify_slices_are_equal(expected.as_bytes(), signature.as_bytes()).is_err() {
             return Err(Error::Webhook("no valid signature found".to_string()));
         }
         Ok(())
