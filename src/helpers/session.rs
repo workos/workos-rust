@@ -460,11 +460,15 @@ fn unseal_bytes(sealed: &str, password: &str) -> Result<Vec<u8>, Error> {
     let (nonce_bytes, ciphertext) = raw.split_at(NONCE_LEN);
     let nonce = Nonce::try_assume_unique_for_key(nonce_bytes)
         .map_err(|_| Error::Session("invalid nonce".to_string()))?;
+    // Decrypt in place, then drop the trailing tag so the buffer is the
+    // plaintext itself (no second copy).
     let mut in_out = ciphertext.to_vec();
-    let plaintext = key
+    let plaintext_len = key
         .open_in_place(nonce, Aad::empty(), &mut in_out)
-        .map_err(|_| Error::Session("decrypt failed".to_string()))?;
-    Ok(plaintext.to_vec())
+        .map_err(|_| Error::Session("decrypt failed".to_string()))?
+        .len();
+    in_out.truncate(plaintext_len);
+    Ok(in_out)
 }
 
 fn aead_key(raw_key: &[u8]) -> Result<LessSafeKey, Error> {

@@ -98,11 +98,15 @@ pub fn local_decrypt(
     let key = aead_key(&raw_key)?;
     let nonce = Nonce::try_assume_unique_for_key(nonce)
         .map_err(|_| Error::VaultCrypto("invalid nonce".to_string()))?;
+    // Decrypt in place, then drop the trailing tag so the buffer is the
+    // plaintext itself (no second copy).
     let mut in_out = ciphertext.to_vec();
-    let plaintext = key
+    let plaintext_len = key
         .open_in_place(nonce, Aad::from(associated_data.as_bytes()), &mut in_out)
-        .map_err(|_| Error::VaultCrypto("decrypt failed".to_string()))?;
-    String::from_utf8(plaintext.to_vec()).map_err(|e| Error::VaultCrypto(format!("utf-8: {e}")))
+        .map_err(|_| Error::VaultCrypto("decrypt failed".to_string()))?
+        .len();
+    in_out.truncate(plaintext_len);
+    String::from_utf8(in_out).map_err(|e| Error::VaultCrypto(format!("utf-8: {e}")))
 }
 
 fn aead_key(raw_key: &[u8]) -> Result<LessSafeKey, Error> {
