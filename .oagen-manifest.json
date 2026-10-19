@@ -592,6 +592,7 @@
     "src/models/flag_updated_context_actor.rs",
     "src/models/flag_updated_context_previous_attribute.rs",
     "src/models/flag_updated_context_previous_attribute_data.rs",
+    "src/models/flag_updated_context_previous_attribute_data_owner.rs",
     "src/models/flag_updated_data.rs",
     "src/models/flag_updated_data_owner.rs",
     "src/models/generate_link.rs",
@@ -1308,6 +1309,7 @@
     "tests/fixtures/flag_updated_context_actor.json",
     "tests/fixtures/flag_updated_context_previous_attribute.json",
     "tests/fixtures/flag_updated_context_previous_attribute_data.json",
+    "tests/fixtures/flag_updated_context_previous_attribute_data_owner.json",
     "tests/fixtures/flag_updated_data.json",
     "tests/fixtures/flag_updated_data_owner.json",
     "tests/fixtures/generate_link.json",
@@ -1654,6 +1656,10 @@
     },
     "GET /agents/registrations/{id}": {
       "sdkMethod": "get_registration",
+      "service": "agents"
+    },
+    "POST /agents/registrations/{id}/revoke": {
+      "sdkMethod": "revoke_registration",
       "service": "agents"
     },
     "GET /agents/instances": {

@@ -15,6 +15,9 @@ pub struct AgentRegistration {
     pub organization_id: String,
     /// The current verification status of the registration.
     pub status: AgentRegistrationStatus,
+    /// The timestamp when the registration was revoked, or `null` if it has not been revoked.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub revoked_at: Option<String>,
     /// The kind of agent registration.
     pub kind: AgentRegistrationKind,
     /// The claim associated with this registration, or `null` if the registration has no claim.

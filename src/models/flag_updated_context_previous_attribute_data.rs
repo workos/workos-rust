@@ -17,6 +17,9 @@ pub struct FlagUpdatedContextPreviousAttributeData {
     /// The previous tags of the flag.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub tags: Option<Vec<String>>,
+    /// The previous owner of the flag, or `null` if it had none.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub owner: Option<FlagUpdatedContextPreviousAttributeDataOwner>,
     /// Whether the flag was previously enabled.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub enabled: Option<bool>,
