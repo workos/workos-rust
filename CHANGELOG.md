@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.0](https://github.com/workos/workos-rust/compare/v3.4.1...v3.5.0) (2026-10-19)
+
+
+### Features
+
+* **admin_portal:** Update admin portal API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **audit_logs:** Update audit log API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **authorization:** Update authorization API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **feature_flags:** Update feature flag API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **generated:** AdminPortal, Agents, ApiKeys, AuditLogs, Authorization, ClientApi, Connect, DirectorySync, Events, FeatureFlags, Groups, MultiFactorAuth, OrganizationDomains, OrganizationMembership, Organizations, Pipes, PipesProvider, PlatformTeams, Radar, SSO, UserManagement, Vault, Webhooks, Widgets (batch aeefef11) ([#170](https://github.com/workos/workos-rust/issues/170)) ([dd1dfd5](https://github.com/workos/workos-rust/commit/dd1dfd5628e7286c7965e5be80fdf5201b5af587))
+* **generated:** Authorization (batch c64ce1e7) ([#160](https://github.com/workos/workos-rust/issues/160)) ([1b23e53](https://github.com/workos/workos-rust/commit/1b23e53150045b163a1da0a76815ed52ed6c2d2b))
+* **organizations:** Update organization API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **pipes:** Change Pipes API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **pipes:** Update Pipes API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **radar:** Update radar API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **user_management:** Update user management API surface ([#165](https://github.com/workos/workos-rust/issues/165)) ([93cdf95](https://github.com/workos/workos-rust/commit/93cdf95f29a855a675b9751491b773953ac06635))
+* **user_management:** Update user management API surface ([#167](https://github.com/workos/workos-rust/issues/167)) ([69ce06f](https://github.com/workos/workos-rust/commit/69ce06f727501c7a66a353f4ca3b65c6fb1d9c62))
+
+
+### Bug Fixes
+
+* **deps:** Consolidate crypto on aws-lc-rs and drop rsa ([#169](https://github.com/workos/workos-rust/issues/169)) ([91aed66](https://github.com/workos/workos-rust/commit/91aed666733d4de71785714640a39971becde32c))
+* **sso:** Correct authorize URL query param names ([#166](https://github.com/workos/workos-rust/issues/166)) ([317fe18](https://github.com/workos/workos-rust/commit/317fe18b2834a8a250b595e5ed65e5478d17f29f))
+* **user_management:** Change errors for endpoint `POST /user_management/authenticate` ([#167](https://github.com/workos/workos-rust/issues/167)) ([69ce06f](https://github.com/workos/workos-rust/commit/69ce06f727501c7a66a353f4ca3b65c6fb1d9c62))
+
 ## [3.4.1](https://github.com/workos/workos-rust/compare/v3.4.0...v3.4.1) (2026-09-18)
 
 ### Bug Fixes
