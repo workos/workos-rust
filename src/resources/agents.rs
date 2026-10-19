@@ -493,6 +493,27 @@ impl<'a> AgentsApi<'a> {
             .await
     }
 
+    /// Revoke an agent registration
+    ///
+    /// Revoke an agent registration by ID. Revocation is permanent: the registration, its identity assertions, and every access token or API key issued from it stop working, and the agent must register again. Revoking an already revoked registration succeeds and returns the original `revoked_at`. The registration is scoped to the environment of the API key used to authenticate the request.
+    pub async fn revoke_registration(&self, id: &str) -> Result<AgentRegistration, Error> {
+        self.revoke_registration_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::revoke_registration`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn revoke_registration_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<AgentRegistration, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/agents/registrations/{id}/revoke");
+        let method = http::Method::POST;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
     /// List agent instances
     ///
     /// Lists the agent instances in the current environment. Instances are created implicitly when tokens are minted.
