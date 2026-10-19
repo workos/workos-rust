@@ -3,12 +3,12 @@
 
 use base64::Engine;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
-use rand::RngCore;
 use serde::Serialize;
 
 use crate::client::Client;
 use crate::error::Error;
 use crate::helpers::pkce::generate_pkce_pair;
+use crate::helpers::util::random_bytes;
 
 /// Parameters for an SSO authorization URL.
 #[derive(Debug, Clone, Default)]
@@ -132,7 +132,7 @@ impl<'a> SsoHelper<'a> {
             Some(s) => s,
             None => {
                 let mut buf = [0u8; 32];
-                rand::rng().fill_bytes(&mut buf);
+                random_bytes(&mut buf)?;
                 URL_SAFE_NO_PAD.encode(buf)
             }
         };

@@ -11,16 +11,15 @@
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use aes_gcm::aead::{Aead, KeyInit};
-use aes_gcm::{Aes256Gcm, Nonce};
+use aws_lc_rs::aead::{AES_256_GCM, Aad, LessSafeKey, NONCE_LEN, Nonce, UnboundKey};
 use base64::Engine;
 use base64::engine::general_purpose::{STANDARD as B64_STANDARD, URL_SAFE_NO_PAD};
 use jsonwebtoken::{Algorithm, DecodingKey, Validation, decode, decode_header};
-use rand::RngCore;
 use serde::{Deserialize, Serialize};
 
 use crate::client::Client;
 use crate::error::Error;
+use crate::helpers::util::random_bytes;
 use crate::models::{AuthenticateResponseImpersonator, User};
 use crate::secret::SecretString;
 
@@ -433,18 +432,20 @@ pub fn seal_session_from_auth_response(
 }
 
 fn seal_bytes(plaintext: &[u8], password: &str) -> Result<String, Error> {
-    let key = derive_key(password)?;
-    let cipher = Aes256Gcm::new_from_slice(&key)
-        .map_err(|e| Error::Session(format!("init AES-GCM: {e}")))?;
-    let mut nonce_bytes = [0u8; 12];
-    rand::rng().fill_bytes(&mut nonce_bytes);
-    let nonce = Nonce::from_slice(&nonce_bytes);
-    let ciphertext = cipher
-        .encrypt(nonce, plaintext)
-        .map_err(|e| Error::Session(format!("encrypt: {e}")))?;
-    let mut buf = Vec::with_capacity(nonce_bytes.len() + ciphertext.len());
+    let key = aead_key(&derive_key(password)?)?;
+    let mut nonce_bytes = [0u8; NONCE_LEN];
+    random_bytes(&mut nonce_bytes)?;
+    // `in_out` becomes ciphertext || 16-byte tag; the nonce is prepended below.
+    let mut in_out = plaintext.to_vec();
+    key.seal_in_place_append_tag(
+        Nonce::assume_unique_for_key(nonce_bytes),
+        Aad::empty(),
+        &mut in_out,
+    )
+    .map_err(|_| Error::Session("encrypt failed".to_string()))?;
+    let mut buf = Vec::with_capacity(NONCE_LEN + in_out.len());
     buf.extend_from_slice(&nonce_bytes);
-    buf.extend_from_slice(&ciphertext);
+    buf.extend_from_slice(&in_out);
     Ok(B64_STANDARD.encode(buf))
 }
 
@@ -452,16 +453,28 @@ fn unseal_bytes(sealed: &str, password: &str) -> Result<Vec<u8>, Error> {
     let raw = B64_STANDARD
         .decode(sealed)
         .map_err(|e| Error::Session(format!("base64 decode: {e}")))?;
-    if raw.len() < 12 {
+    if raw.len() < NONCE_LEN {
         return Err(Error::Session("sealed data too short".to_string()));
     }
-    let key = derive_key(password)?;
-    let cipher = Aes256Gcm::new_from_slice(&key)
-        .map_err(|e| Error::Session(format!("init AES-GCM: {e}")))?;
-    let (nonce_bytes, ciphertext) = raw.split_at(12);
-    cipher
-        .decrypt(Nonce::from_slice(nonce_bytes), ciphertext)
-        .map_err(|e| Error::Session(format!("decrypt: {e}")))
+    let key = aead_key(&derive_key(password)?)?;
+    let (nonce_bytes, ciphertext) = raw.split_at(NONCE_LEN);
+    let nonce = Nonce::try_assume_unique_for_key(nonce_bytes)
+        .map_err(|_| Error::Session("invalid nonce".to_string()))?;
+    // Decrypt in place, then drop the trailing tag so the buffer is the
+    // plaintext itself (no second copy).
+    let mut in_out = ciphertext.to_vec();
+    let plaintext_len = key
+        .open_in_place(nonce, Aad::empty(), &mut in_out)
+        .map_err(|_| Error::Session("decrypt failed".to_string()))?
+        .len();
+    in_out.truncate(plaintext_len);
+    Ok(in_out)
+}
+
+fn aead_key(raw_key: &[u8]) -> Result<LessSafeKey, Error> {
+    UnboundKey::new(&AES_256_GCM, raw_key)
+        .map(LessSafeKey::new)
+        .map_err(|_| Error::Session("init AES-GCM: key must be 32 bytes".to_string()))
 }
 
 fn derive_key(password: &str) -> Result<[u8; 32], Error> {
@@ -529,6 +542,22 @@ mod tests {
     #[test]
     fn derive_key_rejects_short_password() {
         assert!(derive_key("short").is_err());
+    }
+
+    /// Sealed by the previous `aes-gcm` implementation; must still unseal so
+    /// cookies issued before the aws-lc-rs switch keep working.
+    #[test]
+    fn unseals_cookie_sealed_by_previous_implementation() {
+        let sealed = "ms90j8PXlOvPsTVmy5wo9CYORhGStOYteDBgDFe4/Opv3NEZWUACvlBE";
+        let back: String = unseal(sealed, pwd()).unwrap();
+        assert_eq!(back, "compat-check");
+
+        let sealed = "wAR4QhPUo3v2n7hGlDGSyMHGYuRzavYm74i9bHLuyaISPeMBWg6ZSbPDsRI3n2S0kSfpi2QaKlq0x0IxzHwdjzkzwxeOh2XmPW8=";
+        let session = unseal_session(sealed, pwd()).unwrap();
+        assert_eq!(session.access_token.expose(), "at_1");
+        assert_eq!(session.refresh_token.expose(), "rt_1");
+        assert!(session.user.is_none());
+        assert!(session.impersonator.is_none());
     }
 
     #[tokio::test]

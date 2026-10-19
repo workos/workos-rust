@@ -13,7 +13,7 @@ pub mod pkce;
 pub mod public_client;
 pub mod session;
 pub mod sso_helpers;
-mod util;
+pub(crate) mod util;
 pub mod vault_crypto;
 pub mod webhook_verification;
 
