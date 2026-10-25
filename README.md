@@ -255,6 +255,16 @@ Supported crate features:
 | ------------ | ------- | ------------------------------------------------------------------------------------ |
 | `rustls-tls` | yes     | Enables the bundled `reqwest` transport using `rustls` for TLS.                      |
 | `native-tls` | no      | Enables the bundled `reqwest` transport using the platform native TLS stack.         |
+| `helpers` | yes | Enables AuthKit, PKCE, JWKS, sessions, vault crypto and webhook helpers using AWS-LC. |
+| `wasm-js` | no | Enables Web Crypto randomness for API-only JavaScript/WASM clients. |
+
+Disabling default features also disables the helper APIs. Native applications
+using a custom transport can retain them with `features = ["helpers"]`.
+For API-only `wasm32-unknown-unknown` applications, use
+`default-features = false, features = ["wasm-js"]` and a custom transport.
+This does not provide a WASM implementation of the cryptographic helpers.
+SDK retries use Tokio timers; a host without a Tokio timer runtime should use
+`.max_retries(0)` and handle retry scheduling in its transport or application.
 
 ## More Information
 

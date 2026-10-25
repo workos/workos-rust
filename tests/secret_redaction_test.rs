@@ -14,6 +14,7 @@ fn secret_string_debug_redacts() {
 }
 
 #[test]
+#[cfg(feature = "helpers")]
 fn session_data_debug_redacts_tokens() {
     let session = workos::SessionData {
         access_token: "leaked-access-token".into(),

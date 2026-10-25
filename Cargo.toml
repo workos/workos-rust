@@ -23,7 +23,10 @@ exclude = [
 ]
 
 [features]
-default = ["rustls-tls"]
+default = ["rustls-tls", "helpers"]
+helpers = ["dep:aws-lc-rs", "dep:jsonwebtoken", "dep:base64", "dep:url", "dep:hex"]
+# Opt in to Web Crypto randomness for API-only wasm32-unknown-unknown clients.
+wasm-js = ["getrandom/wasm_js"]
 # Pick a TLS backend. Both pull in the bundled `reqwest` transport; disable
 # default features and supply your own `HttpTransport` impl (e.g. for WASM or
 # to share a request pipeline with the rest of your app) instead.
@@ -45,14 +48,15 @@ http = "1"
 async-trait = "0.1"
 bytes = "1"
 # Hand-maintained helper layer (src/helpers/*). All crypto (AES-256-GCM,
-# HMAC-SHA256, SHA-256, the CSPRNG, constant-time compares, and JWT signature
+# HMAC-SHA256, SHA-256, helper CSPRNG, constant-time compares, and JWT signature
 # verification through `jsonwebtoken`) goes through aws-lc-rs so the SDK links
-# exactly one crypto library.
-base64 = "0.22"
-url = "2.5"
-hex = "0.4"
-aws-lc-rs = "1"
-jsonwebtoken = { version = "=10.3.0", default-features = false, features = ["aws_lc_rs"] }
+# exactly one cryptography library when helpers are enabled.
+base64 = { version = "0.22", optional = true }
+url = { version = "2.5", optional = true }
+hex = { version = "0.4", optional = true }
+aws-lc-rs = { version = "1", optional = true }
+jsonwebtoken = { version = "=10.3.0", default-features = false, features = ["aws_lc_rs"], optional = true }
+getrandom = "0.3.4"
 
 [dev-dependencies]
 wiremock = "0.6"

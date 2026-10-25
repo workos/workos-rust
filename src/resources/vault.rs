@@ -408,6 +408,7 @@ impl<'a> VaultApi<'a> {
     /// substitute a separately-generated envelope — including their own
     /// `encrypted_keys` and ciphertext — under the same context, and
     /// `decrypt` will succeed against the attacker-controlled plaintext.
+    #[cfg(feature = "helpers")]
     pub async fn encrypt(
         &self,
         data: &str,
@@ -440,6 +441,7 @@ impl<'a> VaultApi<'a> {
     /// the full requirement. If the value passed here is not unique per
     /// record and unguessable, a successful return does **not** prove
     /// that the stored bytes were authored by this application.
+    #[cfg(feature = "helpers")]
     pub async fn decrypt(
         &self,
         encrypted_data: &str,

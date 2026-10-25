@@ -1,0 +1,17 @@
+# @oagen-ignore-file
+[package]
+name = "workos-wasm-api-probe"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+workos = { path = "../..", default-features = false, features = ["wasm-js"] }
+async-trait = "0.1"
+bytes = "1"
+http = "1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

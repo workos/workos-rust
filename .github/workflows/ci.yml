@@ -26,3 +26,13 @@ jobs:
         run: |
           cargo build --verbose
           cargo test --verbose
+
+      - name: Test API-only custom transport
+        run: |
+          cargo test --locked --no-default-features --test transport_test
+          cargo test --locked --manifest-path tests/wasm-api/Cargo.toml
+
+      - name: Check isolated WASM consumer
+        run: |
+          rustup target add wasm32-unknown-unknown
+          cargo check --locked --manifest-path tests/wasm-api/Cargo.toml --target wasm32-unknown-unknown

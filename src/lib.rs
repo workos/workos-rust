@@ -32,6 +32,9 @@
 //! For WASM, a shared connection pool, or custom retry/observability layers,
 //! disable default features and supply your own [`transport::HttpTransport`]
 //! via [`ClientBuilder::transport`].
+//! Native custom-transport clients that use the helper APIs must explicitly
+//! enable `helpers`. API-only JavaScript/WASM clients instead enable `wasm-js`
+//! for Web Crypto randomness; AWS-LC helper cryptography is not compiled.
 //!
 //! ```toml
 //! [dependencies]
@@ -47,11 +50,12 @@
 //! - [`error`] — [`Error`] and HTTP error variants.
 //! - [`pagination`] — [`Page`], [`ListMetadata`], and the [`auto_paginate`] stream helper.
 //! - [`transport`] — pluggable [`transport::HttpTransport`] trait.
-//! - [`helpers`] — hand-rolled extras: AuthKit, JWKS, PKCE, sessions, vault crypto, webhook verification.
+//! - `helpers` (default feature) — AuthKit, JWKS, PKCE, sessions, vault crypto, webhook verification.
 
 pub mod client;
 pub mod enums;
 pub mod error;
+#[cfg(feature = "helpers")]
 pub mod helpers;
 pub mod models;
 pub mod pagination;
@@ -64,6 +68,7 @@ pub mod transport;
 pub use client::{Client, ClientBuilder, DEFAULT_BASE_URL, RequestOptions, RequestStrategy};
 pub use enums::*;
 pub use error::{ApiError, Error};
+#[cfg(feature = "helpers")]
 pub use helpers::*;
 pub use models::*;
 pub use pagination::{ListMetadata, Page, auto_paginate};

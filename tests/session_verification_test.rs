@@ -1,4 +1,5 @@
 // @oagen-ignore-file
+#![cfg(feature = "helpers")]
 //! Regression coverage for VULN-1238. All signing keys are test-only fixtures.
 // Test fixture helpers intentionally panic on invalid setup.
 #![allow(clippy::unwrap_used)]

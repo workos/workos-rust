@@ -1,5 +1,7 @@
 // @oagen-ignore-file
-use std::sync::{Arc, OnceLock};
+use std::sync::Arc;
+#[cfg(feature = "helpers")]
+use std::sync::OnceLock;
 use std::time::Duration;
 
 use bytes::Bytes;
@@ -165,6 +167,7 @@ pub(crate) struct ClientInner {
     pub(crate) api_key: String,
     pub(crate) client_id: String,
     pub(crate) default_headers: HeaderMap,
+    #[cfg(feature = "helpers")]
     session_jwks: OnceLock<crate::helpers::JwksHelper>,
 }
 
@@ -300,31 +303,37 @@ impl Client {
     }
 
     /// Passwordless (magic-link) helper.
+    #[cfg(feature = "helpers")]
     pub fn passwordless(&self) -> crate::helpers::PasswordlessApi<'_> {
         crate::helpers::PasswordlessApi { client: self }
     }
 
     /// AuthKit helpers (URL builder, PKCE flows, device flow).
+    #[cfg(feature = "helpers")]
     pub fn authkit(&self) -> crate::helpers::AuthKitHelper<'_> {
         crate::helpers::AuthKitHelper { client: self }
     }
 
     /// SSO helpers (URL builder, PKCE flows, logout flow).
+    #[cfg(feature = "helpers")]
     pub fn sso_helpers(&self) -> crate::helpers::SsoHelper<'_> {
         crate::helpers::SsoHelper { client: self }
     }
 
     /// JWKS helper bound to this client's `client_id`.
+    #[cfg(feature = "helpers")]
     pub fn jwks(&self) -> crate::helpers::JwksHelper {
         crate::helpers::JwksHelper::from_client(self)
     }
 
+    #[cfg(feature = "helpers")]
     pub(crate) fn session_jwks(&self) -> &crate::helpers::JwksHelper {
         self.inner.session_jwks.get_or_init(|| self.jwks())
     }
 
     /// Construct a [`crate::helpers::SessionManager`] for an existing sealed
     /// session cookie.
+    #[cfg(feature = "helpers")]
     pub fn session<'a>(
         &'a self,
         sealed: impl Into<String>,
@@ -546,7 +555,7 @@ fn backoff_delay(attempt: u32, jitter: bool) -> Duration {
     // If the OS CSPRNG is unavailable, fall back to the deterministic half:
     // jitter is a scheduling nicety, not a security boundary.
     let mut bytes = [0u8; 8];
-    let rand_part = match crate::helpers::util::random_bytes(&mut bytes) {
+    let rand_part = match getrandom::fill(&mut bytes) {
         Ok(()) => u64::from_le_bytes(bytes) % (half + 1),
         Err(_) => 0,
     };
@@ -654,6 +663,7 @@ impl ClientBuilder {
                 api_key,
                 client_id: self.client_id.unwrap_or_default(),
                 default_headers: headers,
+                #[cfg(feature = "helpers")]
                 session_jwks: OnceLock::new(),
             }),
         })
