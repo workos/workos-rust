@@ -25,8 +25,14 @@ jobs:
       - name: Check formatting
         run: cargo fmt --check
 
+      - name: Check wasm API probe formatting
+        run: cargo fmt --manifest-path tests/wasm-api/Cargo.toml --check
+
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
+
+      - name: Clippy wasm API probe
+        run: cargo clippy --locked --manifest-path tests/wasm-api/Cargo.toml --all-targets -- -D warnings
 
       - name: Rustdoc (deny warnings)
         run: cargo doc --no-deps
