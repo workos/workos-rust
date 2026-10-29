@@ -30,7 +30,7 @@ pub struct CreateOrganizationConnectedAccount {
     pub state: Option<CreateOrganizationConnectedAccountState>,
     /// The [User](https://workos.com/docs/reference/authkit/user) identifier of the organization member on whose behalf the connected account is being imported or updated. The user must be an active member of the organization.
     pub user_id: String,
-    /// Set to `add` to create another connected account. Omit this field for permanent compatibility behavior. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+    /// Set to `add` to create another connected account. Omit this field for permanent compatibility behavior.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub connection_intent: Option<String>,
 }

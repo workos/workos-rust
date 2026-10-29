@@ -28,4 +28,10 @@ pub struct DataIntegrationsUpsertClientCredentialsRequest {
     /// Provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub config: Option<std::collections::HashMap<String, String>>,
+    /// Send `reauthorize` with `connected_account_id` to reauthorize one exact connection. Omit it to use the compatibility connection; creating another connection lives on the POST route.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connection_intent: Option<String>,
+    /// The exact connected account to reauthorize. Required with `connection_intent: reauthorize`; it may also be sent on its own to reauthorize that connection.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connected_account_id: Option<String>,
 }

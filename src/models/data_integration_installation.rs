@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataIntegrationInstallation {
     /// Unique identifier of the installation.

@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The OAuth definition when this is a custom provider; `null` for built-in providers.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataIntegrationCustomProvider {
     /// A descriptive name for the custom provider.

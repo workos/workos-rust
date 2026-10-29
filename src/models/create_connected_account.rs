@@ -28,7 +28,7 @@ pub struct CreateConnectedAccount {
     /// Explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub state: Option<CreateConnectedAccountState>,
-    /// Set to `add` to create another connected account. Omit this field for permanent compatibility behavior. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+    /// Set to `add` to create another connected account. Omit this field for permanent compatibility behavior.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub connection_intent: Option<String>,
 }

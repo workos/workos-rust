@@ -25,10 +25,10 @@ pub struct DataIntegrationVendedCredential {
     /// If the integration has requested scopes that aren't present on the access token, they're listed here. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub missing_scopes: Option<Vec<String>>,
+    /// Non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Captured on OAuth code exchange and refresh, and on each `client_credentials` mint. A field a later OAuth refresh omits keeps its stored value. Present for `oauth` and `client_credentials` credentials; absent for `api_key`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub metadata: Option<std::collections::HashMap<String, serde_json::Value>>,
     /// Provider-declared, non-secret config from the installation snapshot, with current defaults for unset fields. Includes both integration- and installation-scope fields; omits undeclared fields and fields marked secret. Use these values to address a per-tenant host, such as Snowflake's `account` or Zendesk's `subdomain`. Empty when no values are disclosable. Changes to integration or organization pins require reconnecting or explicitly rebinding the connection. Defaults are live and can differ from a cached token's audience until refresh or re-mint.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub config: Option<std::collections::HashMap<String, String>>,
-    /// Non-sensitive fields captured from the provider token response (e.g. Salesforce `instance_url`), as configured for the provider. Only present for `client_credentials` credentials.
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub metadata: Option<std::collections::HashMap<String, serde_json::Value>>,
 }

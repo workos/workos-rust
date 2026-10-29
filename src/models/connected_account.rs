@@ -60,4 +60,7 @@ pub struct ConnectedAccount {
     pub created_at: String,
     /// The timestamp when the connection was last updated.
     pub updated_at: String,
+    /// Non-blocking warnings about an explicitly supplied label. Only writes return it, and only when another connection already uses the label; reads omit it.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub warnings: Option<Vec<ConnectedAccountWarning>>,
 }
