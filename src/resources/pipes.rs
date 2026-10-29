@@ -66,6 +66,23 @@ impl CreateDataIntegrationParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct CreateFinishParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: DataIntegrationsFinishConnectionRequest,
+}
+
+impl CreateFinishParams {
+    /// Construct a new `CreateFinishParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: DataIntegrationsFinishConnectionRequest) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct UpdateDataIntegrationParams {
     /// Request body sent with this call.
     ///
@@ -105,13 +122,13 @@ pub struct UpdateDataIntegrationApiKeyParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: UpdateDataIntegrationApiKeyParamsBodyOneOf,
+    pub body: DataIntegrationsUpsertApiKeyRequest,
 }
 
 impl UpdateDataIntegrationApiKeyParams {
     /// Construct a new `UpdateDataIntegrationApiKeyParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: UpdateDataIntegrationApiKeyParamsBodyOneOf) -> Self {
+    pub fn new(body: DataIntegrationsUpsertApiKeyRequest) -> Self {
         Self { body }
     }
 }
@@ -122,13 +139,13 @@ pub struct AuthorizeDataIntegrationParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: AuthorizeDataIntegrationParamsBodyOneOf,
+    pub body: DataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
 }
 
 impl AuthorizeDataIntegrationParams {
     /// Construct a new `AuthorizeDataIntegrationParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: AuthorizeDataIntegrationParamsBodyOneOf) -> Self {
+    pub fn new(body: DataIntegrationsGetDataIntegrationAuthorizeUrlRequest) -> Self {
         Self { body }
     }
 }
@@ -156,13 +173,13 @@ pub struct UpdateDataIntegrationClientCredentialsParams {
     ///
     /// Required.
     #[serde(skip)]
-    pub body: UpdateDataIntegrationClientCredentialsParamsBodyOneOf,
+    pub body: DataIntegrationsUpsertClientCredentialsRequest,
 }
 
 impl UpdateDataIntegrationClientCredentialsParams {
     /// Construct a new `UpdateDataIntegrationClientCredentialsParams` with the required fields set.
     #[allow(deprecated)]
-    pub fn new(body: UpdateDataIntegrationClientCredentialsParamsBodyOneOf) -> Self {
+    pub fn new(body: DataIntegrationsUpsertClientCredentialsRequest) -> Self {
         Self { body }
     }
 }
@@ -459,6 +476,29 @@ impl<'a> PipesApi<'a> {
             .await
     }
 
+    /// Finish connection
+    ///
+    /// Saves a connection that was started with `code_challenge`. After the user authorizes, WorkOS redirects them to `return_to` with a `connect_code` and `state`. Call this endpoint from your server with that `connect_code` and the `code_verifier` behind the challenge to save the connected account.
+    pub async fn create_finish(
+        &self,
+        params: CreateFinishParams,
+    ) -> Result<DataIntegrationFinishConnectionResponse, Error> {
+        self.create_finish_with_options(params, None).await
+    }
+
+    /// Variant of [`Self::create_finish`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn create_finish_with_options(
+        &self,
+        params: CreateFinishParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DataIntegrationFinishConnectionResponse, Error> {
+        let path = "/data-integrations/finish".to_string();
+        let method = http::Method::POST;
+        self.client
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
     /// Get a data integration
     ///
     /// Retrieves the user-owned data integration by its slug.
@@ -530,12 +570,12 @@ impl<'a> PipesApi<'a> {
 
     /// Create another API key connected account
     ///
-    /// Creates another API key-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection. Creating an additional connection is not yet available: until it is, this endpoint succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+    /// Creates another API key-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection.
     pub async fn create_data_integration_api_key(
         &self,
         slug: &str,
         params: CreateDataIntegrationApiKeyParams,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         self.create_data_integration_api_key_with_options(slug, params, None)
             .await
     }
@@ -546,7 +586,7 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: CreateDataIntegrationApiKeyParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         let slug = crate::client::path_segment(slug);
         let path = format!("/data-integrations/{slug}/api-key");
         let method = http::Method::POST;
@@ -562,7 +602,7 @@ impl<'a> PipesApi<'a> {
         &self,
         slug: &str,
         params: UpdateDataIntegrationApiKeyParams,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         self.update_data_integration_api_key_with_options(slug, params, None)
             .await
     }
@@ -573,7 +613,7 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: UpdateDataIntegrationApiKeyParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         let slug = crate::client::path_segment(slug);
         let path = format!("/data-integrations/{slug}/api-key");
         let method = http::Method::PUT;
@@ -611,12 +651,12 @@ impl<'a> PipesApi<'a> {
 
     /// Create another client credentials connected account
     ///
-    /// Creates another client credentials-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection. Creating an additional connection is not yet available: until it is, this endpoint succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`.
+    /// Creates another client credentials-based connected account for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. Requires `connection_intent: add` and does not accept `connected_account_id`; use PUT to create or rotate the compatibility connection or to update an exact connection.
     pub async fn create_data_integration_client_credential(
         &self,
         slug: &str,
         params: CreateDataIntegrationClientCredentialParams,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         self.create_data_integration_client_credential_with_options(slug, params, None)
             .await
     }
@@ -627,7 +667,7 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: CreateDataIntegrationClientCredentialParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         let slug = crate::client::path_segment(slug);
         let path = format!("/data-integrations/{slug}/client-credentials");
         let method = http::Method::POST;
@@ -643,7 +683,7 @@ impl<'a> PipesApi<'a> {
         &self,
         slug: &str,
         params: UpdateDataIntegrationClientCredentialsParams,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         self.update_data_integration_client_credentials_with_options(slug, params, None)
             .await
     }
@@ -654,7 +694,7 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: UpdateDataIntegrationClientCredentialsParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         let slug = crate::client::path_segment(slug);
         let path = format!("/data-integrations/{slug}/client-credentials");
         let method = http::Method::PUT;
@@ -829,7 +869,7 @@ impl<'a> PipesApi<'a> {
         organization_id: &str,
         slug: &str,
         params: CreateOrganizationConnectedAccountParams,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         self.create_organization_connected_account_with_options(organization_id, slug, params, None)
             .await
     }
@@ -841,7 +881,7 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: CreateOrganizationConnectedAccountParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         let organization_id = crate::client::path_segment(organization_id);
         let slug = crate::client::path_segment(slug);
         let path = format!("/organizations/{organization_id}/connected_accounts/{slug}");
@@ -859,7 +899,7 @@ impl<'a> PipesApi<'a> {
         organization_id: &str,
         slug: &str,
         params: UpdateOrganizationConnectedAccountParams,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         self.update_organization_connected_account_with_options(organization_id, slug, params, None)
             .await
     }
@@ -871,7 +911,7 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: UpdateOrganizationConnectedAccountParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         let organization_id = crate::client::path_segment(organization_id);
         let slug = crate::client::path_segment(slug);
         let path = format!("/organizations/{organization_id}/connected_accounts/{slug}");
@@ -976,7 +1016,7 @@ impl<'a> PipesApi<'a> {
         user_id: &str,
         slug: &str,
         params: CreateUserConnectedAccountParams,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         self.create_user_connected_account_with_options(user_id, slug, params, None)
             .await
     }
@@ -988,7 +1028,7 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: CreateUserConnectedAccountParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         let user_id = crate::client::path_segment(user_id);
         let slug = crate::client::path_segment(slug);
         let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");
@@ -1006,7 +1046,7 @@ impl<'a> PipesApi<'a> {
         user_id: &str,
         slug: &str,
         params: UpdateUserConnectedAccountParams,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         self.update_user_connected_account_with_options(user_id, slug, params, None)
             .await
     }
@@ -1018,7 +1058,7 @@ impl<'a> PipesApi<'a> {
         slug: &str,
         params: UpdateUserConnectedAccountParams,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<ConnectedAccountWriteResponse, Error> {
+    ) -> Result<ConnectedAccount, Error> {
         let user_id = crate::client::path_segment(user_id);
         let slug = crate::client::path_segment(slug);
         let path = format!("/user_management/users/{user_id}/connected_accounts/{slug}");

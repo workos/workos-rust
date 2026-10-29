@@ -24,4 +24,7 @@ pub struct CreateMagicCodeAndReturn {
     /// An optional Radar signals ID to correlate client-side signals with this request.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub signals_id: Option<String>,
+    /// The locale to use when rendering the Magic Auth email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub locale: Option<CreateMagicCodeAndReturnLocale>,
 }

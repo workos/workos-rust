@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The completion record for the claim, or `null` if the claim has not been completed.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentRegistrationClaimClaimCompletion {
     /// Unique identifier of the claim completion.
