@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// Configuration for the new agent blueprint.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentBlueprintsCreateRequest {
     /// Human-readable name of the agent blueprint.

@@ -268,6 +268,23 @@ impl UpdateGroupRoleAssignmentsParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct PatchGroupRoleAssignmentsParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: PatchGroupRoleAssignments,
+}
+
+impl PatchGroupRoleAssignmentsParams {
+    /// Construct a new `PatchGroupRoleAssignmentsParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: PatchGroupRoleAssignments) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct DeleteGroupRoleAssignmentsParams {
     /// Request body sent with this call.
     ///
@@ -1083,6 +1100,33 @@ impl<'a> AuthorizationApi<'a> {
         let method = http::Method::PUT;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Update role assignments for a group
+    ///
+    /// Add and remove role assignments for a group in a single atomic operation. Additions that already exist and removals that match no assignment are skipped. An assignment in both lists is rejected. `add` and `remove` must contain between 1 and 100 entries combined.
+    pub async fn patch_group_role_assignments(
+        &self,
+        group_id: &str,
+        params: PatchGroupRoleAssignmentsParams,
+    ) -> Result<(), Error> {
+        self.patch_group_role_assignments_with_options(group_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::patch_group_role_assignments`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn patch_group_role_assignments_with_options(
+        &self,
+        group_id: &str,
+        params: PatchGroupRoleAssignmentsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let group_id = crate::client::path_segment(group_id);
+        let path = format!("/authorization/groups/{group_id}/role_assignments");
+        let method = http::Method::PATCH;
+        self.client
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
             .await
     }
 

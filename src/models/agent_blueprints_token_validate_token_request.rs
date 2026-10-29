@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The agent access token to validate.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentBlueprintsTokenValidateTokenRequest {
     /// The agent access token (a JWT) to validate.

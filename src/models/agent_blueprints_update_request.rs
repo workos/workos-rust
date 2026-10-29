@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// Fields to update on the agent blueprint. Omitted fields are left unchanged; provided lists replace the existing configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentBlueprintsUpdateRequest {
     /// Human-readable name of the agent blueprint.

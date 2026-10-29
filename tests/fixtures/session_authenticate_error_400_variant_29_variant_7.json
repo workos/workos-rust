@@ -1,0 +1,8 @@
+{
+  "error": "sso_required",
+  "error_description": "The request failed due to: sso_required.",
+  "connection_ids": [
+    "test_connection_ids"
+  ],
+  "email": "user@example.com"
+}

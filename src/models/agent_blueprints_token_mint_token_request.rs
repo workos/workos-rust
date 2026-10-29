@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// How to mint the agent session, discriminated by `type`. `intent` is optional on every variant.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentBlueprintsTokenMintTokenRequest {
     /// How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`.

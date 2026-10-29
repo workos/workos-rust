@@ -70,34 +70,7 @@ pub enum ApiKeyUpdatedDataOwnerOneOf {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum UpdateDataIntegrationApiKeyParamsBodyOneOf {
-    DataIntegrationsUpsertApiKeyRequest(DataIntegrationsUpsertApiKeyRequest),
-    ReauthorizeDataIntegrationsUpsertApiKeyRequest(ReauthorizeDataIntegrationsUpsertApiKeyRequest),
-    DataIntegrationsUpsertApiKeyRequest2(DataIntegrationsUpsertApiKeyRequest2),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum AuthorizeDataIntegrationParamsBodyOneOf {
-    DataIntegrationsGetDataIntegrationAuthorizeUrlRequest(
-        DataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
-    ),
-    AddDataIntegrationsGetDataIntegrationAuthorizeUrlRequest(
-        AddDataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
-    ),
-    ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequest(
-        ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
-    ),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum UpdateDataIntegrationClientCredentialsParamsBodyOneOf {
-    DataIntegrationsUpsertClientCredentialsRequest(DataIntegrationsUpsertClientCredentialsRequest),
-    ReauthorizeDataIntegrationsUpsertClientCredentialsRequest(
-        ReauthorizeDataIntegrationsUpsertClientCredentialsRequest,
-    ),
-    DataIntegrationsUpsertClientCredentialsRequest2(
-        DataIntegrationsUpsertClientCredentialsRequest2,
-    ),
+pub enum DataIntegrationsFinishConnectionError4002MessageOneOf {
+    String(String),
+    VecString(Vec<String>),
 }

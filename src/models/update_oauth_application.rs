@@ -19,4 +19,7 @@ pub struct UpdateOAuthApplication {
     /// Updated redirect URIs for the application. OAuth applications only.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub redirect_uris: Option<Vec<RedirectUriInput>>,
+    /// Updated origins allowed to call the OAuth token endpoint for this application from a browser. Replaces the existing list. OAuth applications only.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub cors_origins: Option<Vec<String>>,
 }

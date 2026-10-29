@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The group the role was derived from, or null if direct.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserRoleAssignmentSourceGroup {
     /// The unique ID of the Group the role was derived from.

@@ -20,6 +20,9 @@ pub struct CreateOAuthApplication {
     /// Redirect URIs for the application.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub redirect_uris: Option<Vec<RedirectUriInput>>,
+    /// Origins allowed to call the OAuth token endpoint for this application from a browser.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub cors_origins: Option<Vec<String>>,
     /// Whether the application uses PKCE (Proof Key for Code Exchange).
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub uses_pkce: Option<bool>,

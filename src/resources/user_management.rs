@@ -931,6 +931,23 @@ impl VerifyEmailParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct SendVerificationEmailParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: SendVerificationEmail,
+}
+
+impl SendVerificationEmailParams {
+    /// Construct a new `SendVerificationEmailParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: SendVerificationEmail) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct ListSessionsParams {
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2307,21 +2324,24 @@ impl<'a> UserManagementApi<'a> {
     pub async fn send_verification_email(
         &self,
         id: &str,
+        params: SendVerificationEmailParams,
     ) -> Result<SendVerificationEmailResponse, Error> {
-        self.send_verification_email_with_options(id, None).await
+        self.send_verification_email_with_options(id, params, None)
+            .await
     }
 
     /// Variant of [`Self::send_verification_email`] that accepts per-request [`crate::RequestOptions`].
     pub async fn send_verification_email_with_options(
         &self,
         id: &str,
+        params: SendVerificationEmailParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<SendVerificationEmailResponse, Error> {
         let id = crate::client::path_segment(id);
         let path = format!("/user_management/users/{id}/email_verification/send");
         let method = http::Method::POST;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_body_opts(method, &path, &params, Some(&params.body), options)
             .await
     }
 
@@ -2911,7 +2931,7 @@ impl<'a> UserManagementApi<'a> {
     /// List waitlists
     ///
     /// Get a list of the waitlists in the environment. All waitlists are returned in a single response — this endpoint is not paginated, so the `list_metadata` cursors are always `null`.
-    pub async fn list_waitlists(&self) -> Result<crate::pagination::Page<Waitlist>, Error> {
+    pub async fn list_waitlists(&self) -> Result<WaitlistListResponse, Error> {
         self.list_waitlists_with_options(None).await
     }
 
@@ -2919,7 +2939,7 @@ impl<'a> UserManagementApi<'a> {
     pub async fn list_waitlists_with_options(
         &self,
         options: Option<&crate::RequestOptions>,
-    ) -> Result<crate::pagination::Page<Waitlist>, Error> {
+    ) -> Result<WaitlistListResponse, Error> {
         let path = "/user_management/waitlists".to_string();
         let method = http::Method::GET;
         self.client

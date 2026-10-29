@@ -21,7 +21,7 @@ pub struct CreateUserInviteOptions {
     /// The ID of the [user](https://workos.com/docs/reference/authkit/user) who invites the recipient. The invitation email will mention the name of this user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub inviter_user_id: Option<String>,
-    /// The locale to use when rendering the invitation email. See [supported locales](https://workos.com/docs/authkit/hosted-ui/localization).
+    /// The locale to use when rendering the invitation email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub locale: Option<CreateUserInviteOptionsLocale>,
 }

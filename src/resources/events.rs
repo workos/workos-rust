@@ -35,10 +35,10 @@ pub struct ListEventsParams {
     /// Required.
     #[serde(serialize_with = "crate::query::serialize_comma_separated")]
     pub events: Vec<String>,
-    /// ISO-8601 date string to filter events created after this date.
+    /// ISO 8601 UTC timestamp with a `Z` suffix to filter events created after this date. Timezone offsets such as `+00:00` are not accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range_start: Option<String>,
-    /// ISO-8601 date string to filter events created before this date.
+    /// ISO 8601 UTC timestamp with a `Z` suffix to filter events created before this date. Timezone offsets such as `+00:00` are not accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range_end: Option<String>,
     /// Filter events by the [Organization](https://workos.com/docs/reference/organization) that the event is associated with.
