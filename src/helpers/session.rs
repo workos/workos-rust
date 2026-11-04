@@ -97,6 +97,9 @@ struct JwtClaims {
     #[serde(default)]
     entitlements: Vec<String>,
     exp: Option<i64>,
+    auth_time: Option<f64>,
+    sub_profile: Option<String>,
+    sub_type: Option<serde_json::Value>,
 }
 
 /// Wrapper for an existing sealed session cookie.
@@ -266,6 +269,15 @@ impl<'a> SessionManager<'a> {
             .map_err(|_| invalid())?
             .claims;
         if claims.sub.is_empty() {
+            return Err(invalid());
+        }
+        // Other token types signed by the same environment key (agent and
+        // widget tokens) must not authenticate a session cookie.
+        if claims.sid.is_empty()
+            || claims.auth_time.is_none()
+            || claims.sub_profile.as_deref().is_some_and(|p| p != "user")
+            || claims.sub_type.is_some()
+        {
             return Err(invalid());
         }
         Ok(claims)
