@@ -9,7 +9,8 @@ use serde::{Deserialize, Serialize};
 pub struct AuditLogEvent {
     /// Identifier of what happened.
     pub action: String,
-    /// ISO-8601 value of when the action occurred.
+    /// ISO-8601 value of when the action occurred. When omitted, defaults to the time WorkOS accepts the event.
+    #[serde(skip_serializing_if = "String::is_empty", default)]
     pub occurred_at: String,
     /// The entity that performed the action.
     pub actor: AuditLogEventActor,
