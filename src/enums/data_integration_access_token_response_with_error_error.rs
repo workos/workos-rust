@@ -6,9 +6,9 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
-pub enum ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner {
-    User,
-    Organization,
+pub enum DataIntegrationAccessTokenResponseWithErrorError {
+    NotInstalled,
+    NeedsReauthorization,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -16,50 +16,44 @@ pub enum ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnect
     Unknown(String),
 }
 
-impl ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner {
+impl DataIntegrationAccessTokenResponseWithErrorError {
     /// Canonical wire string for this value. For [`Self::Unknown`] returns the
     /// original wire value as received from the API.
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
-            Self::User => "user",
-            Self::Organization => "organization",
+            Self::NotInstalled => "not_installed",
+            Self::NeedsReauthorization => "needs_reauthorization",
             Self::Unknown(s) => s.as_str(),
         }
     }
 }
 
-impl fmt::Display
-    for ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner
-{
+impl fmt::Display for DataIntegrationAccessTokenResponseWithErrorError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl AsRef<str>
-    for ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner
-{
+impl AsRef<str> for DataIntegrationAccessTokenResponseWithErrorError {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl FromStr for ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner {
+impl FromStr for DataIntegrationAccessTokenResponseWithErrorError {
     type Err = std::convert::Infallible;
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "user" => Self::User,
-            "organization" => Self::Organization,
+            "not_installed" => Self::NotInstalled,
+            "needs_reauthorization" => Self::NeedsReauthorization,
             other => Self::Unknown(other.to_string()),
         })
     }
 }
 
-impl From<String>
-    for ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner
-{
+impl From<String> for DataIntegrationAccessTokenResponseWithErrorError {
     fn from(s: String) -> Self {
         // Reuse the original `String` allocation in the fallback branch.
         match Self::from_str(&s) {
@@ -69,23 +63,19 @@ impl From<String>
     }
 }
 
-impl From<&str>
-    for ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner
-{
+impl From<&str> for DataIntegrationAccessTokenResponseWithErrorError {
     fn from(s: &str) -> Self {
         Self::from_str(s).unwrap_or_else(|_| Self::Unknown(s.to_string()))
     }
 }
 
-impl Serialize for ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner {
+impl Serialize for DataIntegrationAccessTokenResponseWithErrorError {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
-impl<'de> Deserialize<'de>
-    for ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner
-{
+impl<'de> Deserialize<'de> for DataIntegrationAccessTokenResponseWithErrorError {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))

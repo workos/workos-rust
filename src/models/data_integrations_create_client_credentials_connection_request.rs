@@ -29,6 +29,6 @@ pub struct DataIntegrationsCreateClientCredentialsConnectionRequest {
     /// Provider-specific configuration values collected for this installation, keyed by the provider's config field descriptors.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub config: Option<std::collections::HashMap<String, String>>,
-    /// Must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`.
+    /// Must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard.
     pub connection_intent: String,
 }

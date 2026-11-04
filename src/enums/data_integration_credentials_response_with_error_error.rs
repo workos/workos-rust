@@ -6,9 +6,9 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
-pub enum ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner {
-    User,
-    Organization,
+pub enum DataIntegrationCredentialsResponseWithErrorError {
+    NotInstalled,
+    NeedsReauthorization,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values
     /// server-side; matching on this variant lets callers handle
@@ -16,44 +16,44 @@ pub enum ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwne
     Unknown(String),
 }
 
-impl ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner {
+impl DataIntegrationCredentialsResponseWithErrorError {
     /// Canonical wire string for this value. For [`Self::Unknown`] returns the
     /// original wire value as received from the API.
     #[allow(deprecated)]
     pub fn as_str(&self) -> &str {
         match self {
-            Self::User => "user",
-            Self::Organization => "organization",
+            Self::NotInstalled => "not_installed",
+            Self::NeedsReauthorization => "needs_reauthorization",
             Self::Unknown(s) => s.as_str(),
         }
     }
 }
 
-impl fmt::Display for ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner {
+impl fmt::Display for DataIntegrationCredentialsResponseWithErrorError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl AsRef<str> for ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner {
+impl AsRef<str> for DataIntegrationCredentialsResponseWithErrorError {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl FromStr for ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner {
+impl FromStr for DataIntegrationCredentialsResponseWithErrorError {
     type Err = std::convert::Infallible;
     #[allow(deprecated)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "user" => Self::User,
-            "organization" => Self::Organization,
+            "not_installed" => Self::NotInstalled,
+            "needs_reauthorization" => Self::NeedsReauthorization,
             other => Self::Unknown(other.to_string()),
         })
     }
 }
 
-impl From<String> for ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner {
+impl From<String> for DataIntegrationCredentialsResponseWithErrorError {
     fn from(s: String) -> Self {
         // Reuse the original `String` allocation in the fallback branch.
         match Self::from_str(&s) {
@@ -63,21 +63,19 @@ impl From<String> for ReauthorizeDataIntegrationsUpsertClientCredentialsRequestC
     }
 }
 
-impl From<&str> for ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner {
+impl From<&str> for DataIntegrationCredentialsResponseWithErrorError {
     fn from(s: &str) -> Self {
         Self::from_str(s).unwrap_or_else(|_| Self::Unknown(s.to_string()))
     }
 }
 
-impl Serialize for ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner {
+impl Serialize for DataIntegrationCredentialsResponseWithErrorError {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
-impl<'de> Deserialize<'de>
-    for ReauthorizeDataIntegrationsUpsertClientCredentialsRequestConnectionOwner
-{
+impl<'de> Deserialize<'de> for DataIntegrationCredentialsResponseWithErrorError {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))

@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The user's compatibility [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` when the compatibility slot is empty. This legacy field never selects a standard connection.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataIntegrationsListResponseDataConnectedAccount {
     /// Distinguishes the connected account object.
@@ -60,6 +61,9 @@ pub struct DataIntegrationsListResponseDataConnectedAccount {
     pub created_at: String,
     /// The timestamp when the connection was last updated.
     pub updated_at: String,
+    /// Non-blocking warnings about an explicitly supplied label. Only writes return it, and only when another connection already uses the label; reads omit it.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub warnings: Option<Vec<DataIntegrationsListResponseDataConnectedAccountWarning>>,
     /// Use `user_id` instead.
     #[serde(rename = "userlandUserId")]
     #[serde(skip_serializing_if = "Option::is_none", default)]
