@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The owner of the Feature Flag.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlagDeletedDataOwner {
     /// The email address of the flag owner.

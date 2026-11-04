@@ -15,6 +15,13 @@ pub enum AuditLogEventActorMetadataOneOf {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ErrorBodyWithMessageOrMessageListMessageOneOf {
+    String(String),
+    VecString(Vec<String>),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ApiKeyOwnerOneOf {
     #[serde(rename = "organization")]
@@ -66,38 +73,4 @@ pub enum ApiKeyUpdatedDataOwnerOneOf {
     ApiKeyUpdatedDataOwner(ApiKeyUpdatedDataOwner),
     #[serde(rename = "user")]
     UserApiKeyUpdatedDataOwner(UserApiKeyUpdatedDataOwner),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum UpdateDataIntegrationApiKeyParamsBodyOneOf {
-    DataIntegrationsUpsertApiKeyRequest(DataIntegrationsUpsertApiKeyRequest),
-    ReauthorizeDataIntegrationsUpsertApiKeyRequest(ReauthorizeDataIntegrationsUpsertApiKeyRequest),
-    DataIntegrationsUpsertApiKeyRequest2(DataIntegrationsUpsertApiKeyRequest2),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum AuthorizeDataIntegrationParamsBodyOneOf {
-    DataIntegrationsGetDataIntegrationAuthorizeUrlRequest(
-        DataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
-    ),
-    AddDataIntegrationsGetDataIntegrationAuthorizeUrlRequest(
-        AddDataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
-    ),
-    ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequest(
-        ReauthorizeDataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
-    ),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum UpdateDataIntegrationClientCredentialsParamsBodyOneOf {
-    DataIntegrationsUpsertClientCredentialsRequest(DataIntegrationsUpsertClientCredentialsRequest),
-    ReauthorizeDataIntegrationsUpsertClientCredentialsRequest(
-        ReauthorizeDataIntegrationsUpsertClientCredentialsRequest,
-    ),
-    DataIntegrationsUpsertClientCredentialsRequest2(
-        DataIntegrationsUpsertClientCredentialsRequest2,
-    ),
 }

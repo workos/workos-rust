@@ -9,4 +9,7 @@ use serde::{Deserialize, Serialize};
 pub struct SendEmailChange {
     /// The new email address to change to.
     pub new_email: String,
+    /// The locale to use when rendering the email change email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub locale: Option<SendEmailChangeLocale>,
 }

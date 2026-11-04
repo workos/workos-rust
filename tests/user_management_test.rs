@@ -5720,7 +5720,12 @@ async fn user_management_send_verification_email_round_trip() {
     let client = common::test_client(&server).await;
     let _ = client
         .user_management()
-        .send_verification_email("test_id")
+        .send_verification_email(
+            "test_id",
+            workos::user_management::SendVerificationEmailParams::new(
+                serde_json::from_str("{}").expect("parse stub for SendVerificationEmail"),
+            ),
+        )
         .await;
 }
 
@@ -5739,7 +5744,12 @@ async fn user_management_send_verification_email_unauthorized() {
     let client = common::test_client(&server).await;
     let err = client
         .user_management()
-        .send_verification_email("test_id")
+        .send_verification_email(
+            "test_id",
+            workos::user_management::SendVerificationEmailParams::new(
+                serde_json::from_str("{}").expect("parse stub for SendVerificationEmail"),
+            ),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -5764,7 +5774,12 @@ async fn user_management_send_verification_email_not_found() {
     let client = common::test_client(&server).await;
     let err = client
         .user_management()
-        .send_verification_email("test_id")
+        .send_verification_email(
+            "test_id",
+            workos::user_management::SendVerificationEmailParams::new(
+                serde_json::from_str("{}").expect("parse stub for SendVerificationEmail"),
+            ),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -5791,7 +5806,12 @@ async fn user_management_send_verification_email_rate_limited() {
     let client = common::test_client(&server).await;
     let err = client
         .user_management()
-        .send_verification_email("test_id")
+        .send_verification_email(
+            "test_id",
+            workos::user_management::SendVerificationEmailParams::new(
+                serde_json::from_str("{}").expect("parse stub for SendVerificationEmail"),
+            ),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -5817,7 +5837,12 @@ async fn user_management_send_verification_email_server_error() {
     let client = common::test_client(&server).await;
     let err = client
         .user_management()
-        .send_verification_email("test_id")
+        .send_verification_email(
+            "test_id",
+            workos::user_management::SendVerificationEmailParams::new(
+                serde_json::from_str("{}").expect("parse stub for SendVerificationEmail"),
+            ),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -5843,7 +5868,12 @@ async fn user_management_send_verification_email_bad_request() {
     let client = common::test_client(&server).await;
     let err = client
         .user_management()
-        .send_verification_email("test_id")
+        .send_verification_email(
+            "test_id",
+            workos::user_management::SendVerificationEmailParams::new(
+                serde_json::from_str("{}").expect("parse stub for SendVerificationEmail"),
+            ),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -5869,7 +5899,12 @@ async fn user_management_send_verification_email_unprocessable() {
     let client = common::test_client(&server).await;
     let err = client
         .user_management()
-        .send_verification_email("test_id")
+        .send_verification_email(
+            "test_id",
+            workos::user_management::SendVerificationEmailParams::new(
+                serde_json::from_str("{}").expect("parse stub for SendVerificationEmail"),
+            ),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -9114,9 +9149,10 @@ async fn user_management_list_waitlists_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/user_management/waitlists"))
-        .respond_with(ResponseTemplate::new(200).set_body_string(
-            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
-        ))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("fixtures/waitlist_list_response.json")),
+        )
         .expect(1)
         .mount(&server)
         .await;
@@ -9217,26 +9253,6 @@ async fn user_management_list_waitlists_server_error() {
         other => panic!("expected Error::Api, got {other:?}"),
     };
     assert_eq!(api.status, 500);
-}
-
-#[tokio::test]
-async fn user_management_list_waitlists_empty_page() {
-    let server = MockServer::start().await;
-    Mock::given(method("GET"))
-        .and(path_matcher("/user_management/waitlists"))
-        .respond_with(ResponseTemplate::new(200).set_body_string(
-            "{\"object\":\"list\",\"data\":[],\"list_metadata\":{\"before\":null,\"after\":null}}",
-        ))
-        .expect(1)
-        .mount(&server)
-        .await;
-    let client = common::test_client(&server).await;
-    let resp = client
-        .user_management()
-        .list_waitlists()
-        .await
-        .expect("expected success");
-    assert!(resp.data.is_empty(), "expected empty data array");
 }
 
 #[tokio::test]

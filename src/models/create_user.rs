@@ -27,7 +27,7 @@ pub struct CreateUser {
     /// The external ID of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub external_id: Option<String>,
-    /// The IP address of the user's request.
+    /// The IP address of the user's request. Required when Radar is in Decision mode.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub ip_address: Option<String>,
     /// The user agent string from the user's request.

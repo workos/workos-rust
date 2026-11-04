@@ -16,7 +16,7 @@ pub struct EmailCompletionSessionAuthenticateRequest {
     pub email_completion_token: crate::SecretString,
     /// The email address the user supplied for a profile the identity provider left without one.
     pub email: String,
-    /// The IP address of the user's request.
+    /// The IP address of the user's request. Required when Radar is in Decision mode.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub ip_address: Option<String>,
     /// A unique identifier for the device.

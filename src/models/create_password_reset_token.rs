@@ -9,4 +9,7 @@ use serde::{Deserialize, Serialize};
 pub struct CreatePasswordResetToken {
     /// The email address of the user requesting a password reset.
     pub email: String,
+    /// The locale to use when rendering the password reset email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub locale: Option<CreatePasswordResetTokenLocale>,
 }

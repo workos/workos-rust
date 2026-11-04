@@ -30,6 +30,9 @@ pub struct ConnectApplication {
     /// The redirect URIs configured for this application.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub redirect_uris: Option<Vec<ConnectApplicationRedirectUri>>,
+    /// The CORS origins allowed to call the OAuth token endpoint for this application from a browser.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub cors_origins: Option<Vec<String>>,
     /// Whether the application uses PKCE for authorization.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub uses_pkce: Option<bool>,

@@ -131,6 +131,23 @@ impl CreateGroupOrganizationMembershipParams {
     }
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct UpdateGroupOrganizationMembershipsParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: PatchGroupMemberships,
+}
+
+impl UpdateGroupOrganizationMembershipsParams {
+    /// Construct a new `UpdateGroupOrganizationMembershipsParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: PatchGroupMemberships) -> Self {
+        Self { body }
+    }
+}
+
 impl<'a> GroupsApi<'a> {
     /// List groups
     ///
@@ -403,6 +420,42 @@ impl<'a> GroupsApi<'a> {
         let method = http::Method::POST;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Update Group members
+    ///
+    /// Adds and removes organization memberships for a group in a single atomic operation. Organization memberships not listed in `add` or `remove` are left unchanged. Adding a member that is already in the group or removing a member that isn't in the group has no effect. A membership listed in both `add` and `remove` is rejected. `add` and `remove` must contain between 1 and 100 entries combined.
+    pub async fn update_group_organization_memberships(
+        &self,
+        organization_id: &str,
+        group_id: &str,
+        params: UpdateGroupOrganizationMembershipsParams,
+    ) -> Result<(), Error> {
+        self.update_group_organization_memberships_with_options(
+            organization_id,
+            group_id,
+            params,
+            None,
+        )
+        .await
+    }
+
+    /// Variant of [`Self::update_group_organization_memberships`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_group_organization_memberships_with_options(
+        &self,
+        organization_id: &str,
+        group_id: &str,
+        params: UpdateGroupOrganizationMembershipsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let organization_id = crate::client::path_segment(organization_id);
+        let group_id = crate::client::path_segment(group_id);
+        let path =
+            format!("/organizations/{organization_id}/groups/{group_id}/organization-memberships");
+        let method = http::Method::PATCH;
+        self.client
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
             .await
     }
 

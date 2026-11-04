@@ -28,6 +28,8 @@ pub struct ConnectApplicationOAuth {
     pub application_type: String,
     /// The redirect URIs configured for this application.
     pub redirect_uris: Vec<ConnectApplicationOAuthRedirectUris>,
+    /// The CORS origins allowed to call the OAuth token endpoint for this application from a browser.
+    pub cors_origins: Vec<String>,
     /// Whether the application uses PKCE for authorization.
     pub uses_pkce: bool,
     /// Whether the application is a first-party application.

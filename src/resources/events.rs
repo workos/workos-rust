@@ -14,9 +14,6 @@ pub struct EventsApi<'a> {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ListEventsParams {
-    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub before: Option<String>,
     /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
@@ -25,20 +22,15 @@ pub struct ListEventsParams {
     /// Defaults to `10`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
-    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
-    ///
-    /// Defaults to `desc`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub order: Option<PaginationOrder>,
     /// Filter events by one or more event types (e.g. `dsync.user.created`).
     ///
     /// Required.
     #[serde(serialize_with = "crate::query::serialize_comma_separated")]
     pub events: Vec<String>,
-    /// ISO-8601 date string to filter events created after this date.
+    /// ISO 8601 UTC timestamp with a `Z` suffix to filter events created after this date. Timezone offsets such as `+00:00` are not accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range_start: Option<String>,
-    /// ISO-8601 date string to filter events created before this date.
+    /// ISO 8601 UTC timestamp with a `Z` suffix to filter events created before this date. Timezone offsets such as `+00:00` are not accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range_end: Option<String>,
     /// Filter events by the [Organization](https://workos.com/docs/reference/organization) that the event is associated with.
@@ -51,10 +43,8 @@ impl ListEventsParams {
     #[allow(deprecated)]
     pub fn new(events: Vec<String>) -> Self {
         Self {
-            before: Default::default(),
             after: Default::default(),
             limit: Some(10),
-            order: Some(PaginationOrder::Desc),
             events,
             range_start: Default::default(),
             range_end: Default::default(),
@@ -66,7 +56,7 @@ impl ListEventsParams {
 impl<'a> EventsApi<'a> {
     /// List events
     ///
-    /// List events for the current environment.
+    /// List events for the current environment. Events are returned oldest first; use `after` to page forward.
     pub async fn list_events(&self, params: ListEventsParams) -> Result<EventList, Error> {
         self.list_events_with_options(params, None).await
     }

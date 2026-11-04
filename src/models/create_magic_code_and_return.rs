@@ -12,7 +12,7 @@ pub struct CreateMagicCodeAndReturn {
     /// The invitation token to associate with this magic code.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub invitation_token: Option<crate::SecretString>,
-    /// The IP address of the user's request.
+    /// The IP address of the user's request. Required when Radar is in Decision mode.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub ip_address: Option<String>,
     /// The user agent string from the user's request.
@@ -24,4 +24,7 @@ pub struct CreateMagicCodeAndReturn {
     /// An optional Radar signals ID to correlate client-side signals with this request.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub signals_id: Option<String>,
+    /// The locale to use when rendering the Magic Auth email. Defaults to the environment's default locale. See [supported locales](https://workos.com/docs/authkit/hosted-ui#localization).
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub locale: Option<CreateMagicCodeAndReturnLocale>,
 }
