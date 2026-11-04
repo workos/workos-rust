@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The claim associated with this registration, or `null` if the registration has no claim.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentRegistrationClaim {
     /// Unique identifier of the claim.

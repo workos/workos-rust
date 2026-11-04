@@ -19,10 +19,23 @@ pub struct DataIntegrationsGetDataIntegrationAuthorizeUrlRequest {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub connection_owner:
         Option<DataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionOwner>,
-    /// The URL to redirect the user to after authorization.
+    /// The URL to redirect the user to after authorization. Required with `code_challenge`, and must then exactly match a redirect URI registered on one of the environment's applications. Loopback URLs match on any port; wildcard redirect URIs are not honored, and a `return_to` with a query string or fragment never matches.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub return_to: Option<String>,
+    /// A PKCE-style code challenge: the base64url-encoded SHA-256 of a `code_verifier` your app keeps. When set, the connection isn't saved when the user finishes authorizing. Instead, the user is redirected to `return_to` with a `connect_code` and `state`, and your app must call [Finish connection](https://workos.com/docs/reference/pipes/connected-account/finish-connection) with the `connect_code` and `code_verifier` within 90 seconds to save it.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub code_challenge: Option<String>,
+    /// The method used to derive `code_challenge`. Only `S256` is supported, and it is the default. Requires `code_challenge`.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub code_challenge_method: Option<String>,
     /// Connect-time config values for the provider-declared `installation`-scope fields (e.g. a Zendesk `subdomain`), keyed by the config field. Only fields the provider declares may be supplied, and required fields must be provided unless already pinned on the integration.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub config: Option<std::collections::HashMap<String, String>>,
+    /// Which connection the request targets. Omit it to use the compatibility connection. Send `add` to create another connection: the first connection for an owner shape fills the compatibility slot, and later connections are standard. Send `reauthorize` with `connected_account_id` to reauthorize one exact connection.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connection_intent:
+        Option<DataIntegrationsGetDataIntegrationAuthorizeUrlRequestConnectionIntent>,
+    /// The exact connected account to reauthorize. Required with `connection_intent: reauthorize` and not accepted otherwise.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub connected_account_id: Option<String>,
 }

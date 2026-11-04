@@ -9,4 +9,9 @@ use serde::{Deserialize, Serialize};
 pub struct DataIntegrationAuthorizeUrlResponse {
     /// The OAuth authorization URL to redirect the user to.
     pub url: String,
+    /// Identifies this authorization. WorkOS adds it to `return_to` alongside `connect_code` or `error`. Store it in the user's session with the `code_verifier` and compare it when the user returns.
+    pub state: String,
+    /// `finish_required` when the request included `code_challenge`: the connection will be held until your app finishes it. Omitted otherwise. If you sent `code_challenge` and this is missing, don't redirect the user.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub completion: Option<String>,
 }

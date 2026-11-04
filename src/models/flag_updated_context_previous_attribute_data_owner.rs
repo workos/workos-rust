@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The previous owner of the flag, or `null` if it had none.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FlagUpdatedContextPreviousAttributeDataOwner {
     /// The email address of the flag owner.

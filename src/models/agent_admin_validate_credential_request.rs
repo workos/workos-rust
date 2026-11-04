@@ -5,6 +5,7 @@ use super::*;
 #[allow(unused_imports)]
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
+/// The agent credential to validate. Either an `api_key` or an `access_token`, discriminated by `type`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentAdminValidateCredentialRequest {
     /// The kind of credential being validated — an agent API key or an agent access token.

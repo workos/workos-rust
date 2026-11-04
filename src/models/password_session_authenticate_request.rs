@@ -19,7 +19,7 @@ pub struct PasswordSessionAuthenticateRequest {
     /// An invitation token to accept during authentication.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub invitation_token: Option<crate::SecretString>,
-    /// The IP address of the user's request.
+    /// The IP address of the user's request. Required when Radar is in Decision mode.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub ip_address: Option<String>,
     /// A unique identifier for the device.

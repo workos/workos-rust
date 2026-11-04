@@ -8,6 +8,8 @@ use std::str::FromStr;
 #[non_exhaustive]
 pub enum WidgetSessionTokenScopes {
     WidgetsUsersTableManage,
+    WidgetsUserApiKeysManageSelf,
+    WidgetsUserApiKeysManageAll,
     WidgetsDomainVerificationManage,
     WidgetsSSOManage,
     WidgetsApiKeysManage,
@@ -28,6 +30,8 @@ impl WidgetSessionTokenScopes {
     pub fn as_str(&self) -> &str {
         match self {
             Self::WidgetsUsersTableManage => "widgets:users-table:manage",
+            Self::WidgetsUserApiKeysManageSelf => "widgets:user-api-keys:manage-self",
+            Self::WidgetsUserApiKeysManageAll => "widgets:user-api-keys:manage-all",
             Self::WidgetsDomainVerificationManage => "widgets:domain-verification:manage",
             Self::WidgetsSSOManage => "widgets:sso:manage",
             Self::WidgetsApiKeysManage => "widgets:api-keys:manage",
@@ -57,6 +61,8 @@ impl FromStr for WidgetSessionTokenScopes {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "widgets:users-table:manage" => Self::WidgetsUsersTableManage,
+            "widgets:user-api-keys:manage-self" => Self::WidgetsUserApiKeysManageSelf,
+            "widgets:user-api-keys:manage-all" => Self::WidgetsUserApiKeysManageAll,
             "widgets:domain-verification:manage" => Self::WidgetsDomainVerificationManage,
             "widgets:sso:manage" => Self::WidgetsSSOManage,
             "widgets:api-keys:manage" => Self::WidgetsApiKeysManage,
