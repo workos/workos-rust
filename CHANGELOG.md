@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.0](https://github.com/workos/workos-rust/compare/v3.5.0...v3.6.0) (2026-11-04)
+
+
+### Features
+
+* **events:** Change events API surface ([#175](https://github.com/workos/workos-rust/issues/175)) ([3d278c2](https://github.com/workos/workos-rust/commit/3d278c20e2ebfb3bf2cec112d20f1ba4674f53ae))
+* **feature_flags:** Add feature flag API surface ([#175](https://github.com/workos/workos-rust/issues/175)) ([3d278c2](https://github.com/workos/workos-rust/commit/3d278c20e2ebfb3bf2cec112d20f1ba4674f53ae))
+* **pipes:** Change Pipes API surface ([#175](https://github.com/workos/workos-rust/issues/175)) ([3d278c2](https://github.com/workos/workos-rust/commit/3d278c20e2ebfb3bf2cec112d20f1ba4674f53ae))
+* **webhooks:** Add webhook API surface ([#175](https://github.com/workos/workos-rust/issues/175)) ([3d278c2](https://github.com/workos/workos-rust/commit/3d278c20e2ebfb3bf2cec112d20f1ba4674f53ae))
+
+
+### Bug Fixes
+
+* **events:** Updated model `EventSchema` ([#175](https://github.com/workos/workos-rust/issues/175)) ([3d278c2](https://github.com/workos/workos-rust/commit/3d278c20e2ebfb3bf2cec112d20f1ba4674f53ae))
+
 ## [3.5.0](https://github.com/workos/workos-rust/compare/v3.4.1...v3.5.0) (2026-10-19)
 
 ### Bug Fixes
