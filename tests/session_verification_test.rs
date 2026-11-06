@@ -28,7 +28,8 @@ fn keys() -> Value {
 
 fn claims() -> Value {
     json!({"sub":"user_1", "sid":"sess_1", "org_id":"org_1", "role":"admin",
-        "permissions":["read"], "entitlements":["enterprise"], "exp":9999999999u64})
+        "permissions":["read"], "entitlements":["enterprise"], "exp":9999999999u64,
+        "auth_time":1700000000u64})
 }
 
 fn token(claims: &Value, signer: &str, kid: Option<&str>) -> String {
@@ -258,6 +259,45 @@ async fn missing_or_invalid_exp_subject_and_future_nbf_are_rejected() {
             .await,
         );
     }
+}
+
+#[tokio::test]
+async fn tokens_without_user_access_token_claims_are_rejected() {
+    let (server, client) = setup().await;
+    serve_keys(&server, json!({"keys":[keys()["trusted"]["jwk"]]}), 1).await;
+    for (field, value) in [
+        ("sub_profile", Some(json!("ai_agent"))),
+        ("sub_type", Some(json!("authkit"))),
+        ("auth_time", None),
+        ("auth_time", Some(json!("1700000000"))),
+        ("sid", None),
+        ("sid", Some(json!(123))),
+    ] {
+        let mut claims = claims();
+        match value {
+            Some(value) => {
+                claims[field] = value;
+            }
+            None => {
+                claims.as_object_mut().unwrap().remove(field);
+            }
+        }
+        assert_rejected(
+            authenticate(
+                &client,
+                &session(token(&claims, "trusted", Some("trusted"))),
+            )
+            .await,
+        );
+    }
+    let mut claims = claims();
+    claims["sub_profile"] = json!("user");
+    let state = authenticate(
+        &client,
+        &session(token(&claims, "trusted", Some("trusted"))),
+    )
+    .await;
+    assert!(state.authenticated);
 }
 
 #[tokio::test]
