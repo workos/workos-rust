@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.1](https://github.com/workos/workos-rust/compare/v3.6.0...v3.6.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **session:** Reject non-user access tokens in session cookies ([#177](https://github.com/workos/workos-rust/issues/177)) ([dca45e4](https://github.com/workos/workos-rust/commit/dca45e400d65644625ec573ee16e0b387ff380fd))
+
 ## [3.6.0](https://github.com/workos/workos-rust/compare/v3.5.0...v3.6.0) (2026-11-04)
 
 * [#175](https://github.com/workos/workos-rust/pull/175) feat(generated)!: regenerate from spec (5 changes)
