@@ -285,7 +285,7 @@ mod tests {
     /// is made by a child process that starts with them set: this test binary
     /// again, running `child_requests_a_token` alone.
     #[tokio::test]
-    async fn the_request_never_goes_through_a_configured_proxy() {
+    async fn wif_gcp_03_the_request_never_goes_through_a_configured_proxy() {
         let metadata = metadata_server(ResponseTemplate::new(200).set_body_string("gcp-jwt")).await;
         let proxy = MockServer::start().await;
 
@@ -312,10 +312,11 @@ mod tests {
         assert!(proxy.received_requests().await.unwrap().is_empty());
     }
 
-    /// The child half of `the_request_never_goes_through_a_configured_proxy`.
-    /// It does nothing when it is run on its own.
+    /// The child half of the proxy test above. It does nothing when it is run
+    /// on its own. Its name and its ignore reason carry no case ID: an ignored
+    /// test must not count for one.
     #[tokio::test]
-    #[ignore = "run by the_request_never_goes_through_a_configured_proxy, in a child process"]
+    #[ignore = "run in a child process by the proxy test"]
     async fn child_requests_a_token() {
         let Ok(base_url) = std::env::var(CHILD_METADATA_URL) else {
             return;
