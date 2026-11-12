@@ -1,9 +1,49 @@
 {
+  "separate-pull-requests": true,
+  "always-update": true,
   "packages": {
     ".": {
       "release-type": "rust",
       "changelog-path": "CHANGELOG.md",
-      "include-component-in-tag": false
+      "include-component-in-tag": false,
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "crates/workos-workload-identity-github-actions/Cargo.toml",
+          "jsonpath": "$.dependencies.workos.version"
+        },
+        {
+          "type": "toml",
+          "path": "crates/workos-workload-identity-gcp/Cargo.toml",
+          "jsonpath": "$.dependencies.workos.version"
+        },
+        {
+          "type": "toml",
+          "path": "crates/workos-workload-identity-aws/Cargo.toml",
+          "jsonpath": "$.dependencies.workos.version"
+        }
+      ]
+    },
+    "crates/workos-workload-identity-github-actions": {
+      "release-type": "rust",
+      "component": "workos-workload-identity-github-actions",
+      "package-name": "workos-workload-identity-github-actions",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "crates/workos-workload-identity-gcp": {
+      "release-type": "rust",
+      "component": "workos-workload-identity-gcp",
+      "package-name": "workos-workload-identity-gcp",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "crates/workos-workload-identity-aws": {
+      "release-type": "rust",
+      "component": "workos-workload-identity-aws",
+      "package-name": "workos-workload-identity-aws",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
     }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"

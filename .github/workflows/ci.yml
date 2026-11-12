@@ -22,6 +22,41 @@ jobs:
           toolchain: 1.88.0
           components: cargo
 
+      # Release PRs get their Cargo.lock from a follow-up commit (see
+      # release-please.yml). Publishing uses --locked, so a release PR whose
+      # lockfile has not caught up must not look green.
+      - name: Check Cargo.lock is up to date
+        run: cargo metadata --locked --format-version 1 > /dev/null
+
+      - name: Run Tests
+        run: |
+          cargo build --verbose
+          cargo test --verbose
+
+  # The workload identity provider crates are released one at a time, so each
+  # is built and tested from its own directory, with only its own features.
+  test-providers:
+    name: Test ${{ matrix.crate }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        crate:
+          - workos-workload-identity-github-actions
+          - workos-workload-identity-gcp
+          - workos-workload-identity-aws
+    defaults:
+      run:
+        shell: bash
+        working-directory: crates/${{ matrix.crate }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@2b1f5e9b395427c92ee4e3331786ca3c37afe2d7 # v1.16.0
+        with:
+          toolchain: 1.88.0
+          components: cargo
+
       - name: Run Tests
         run: |
           cargo build --verbose

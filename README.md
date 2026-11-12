@@ -62,10 +62,109 @@ let client = workos::Client::new(std::env::var("WORKOS_API_KEY").unwrap());
 | `.max_retries(_)` | Retry budget for `429` and `5xx` responses. Defaults to 3.          |
 | `.user_agent(_)`  | Override the `User-Agent` header.                                   |
 | `.transport(_)`   | Plug in a custom `HttpTransport`.                                   |
+| `.credentials(_)` | Authenticate without an API key; see [Workload Identity](#workload-identity). |
 
-`build()` panics if the supplied API key or user-agent contains bytes that aren't valid in an HTTP header. Use `.try_build()` to surface those failures as `Err(workos::Error::Builder(_))` instead — useful when the API key comes from untrusted input.
+`build()` panics if the supplied API key or user-agent contains bytes that aren't valid in an HTTP header, or if both `.api_key(_)` and `.credentials(_)` are set. Use `.try_build()` to surface those failures as `Err(workos::Error::Builder(_))` instead — useful when the API key comes from untrusted input.
 
 The client is cheap to clone and can be shared across handlers and tasks.
+
+## Workload Identity
+
+A workload that runs on a platform which issues it an identity token (GitHub Actions, GCP, AWS, Kubernetes and others) can call WorkOS without a stored API key. The SDK exchanges the platform's token for a short-lived WorkOS access token, caches it, refreshes it shortly before it expires, and exchanges once more if the API answers `401`.
+
+Add `workos` and the provider crate for your platform:
+
+```bash
+cargo add workos
+cargo add workos-workload-identity-github-actions   # GitHub Actions
+cargo add workos-workload-identity-gcp              # GCP
+cargo add workos-workload-identity-aws              # AWS
+```
+
+The providers are separate crates, not Cargo features of `workos`. Each one depends on `workos` for the `IdentityTokenProvider` trait, so a feature such as `workos = { features = ["gcp"] }` would be a dependency cycle.
+
+Build the credentials and pass them to the client in place of an API key:
+
+```rust
+use workos::{Client, WorkloadIdentityCredentials};
+use workos_workload_identity_github_actions::github_actions;
+
+let credentials = WorkloadIdentityCredentials::builder()
+    .client_id("client_01...")                        // the M2M application
+    .token_url("https://<your token endpoint>/oauth2/token")
+    .environment_id("environment_01...")
+    .identity_token_provider(github_actions("https://api.workos.com"))
+    .build()?;
+
+let client = Client::builder().credentials(credentials).try_build()?;
+```
+
+The argument to each provider is the audience the identity token is requested with. It must match the audience of the trust rule configured in WorkOS.
+
+**GitHub Actions.** The workflow or job needs `permissions: id-token: write`.
+
+```rust
+use workos_workload_identity_github_actions::github_actions;
+
+let provider = github_actions("https://api.workos.com");
+```
+
+**GCP.** Uses the metadata server, so it works on Compute Engine, GKE, Cloud Run, Cloud Functions and App Engine.
+
+```rust
+use workos_workload_identity_gcp::gcp_metadata;
+
+let provider = gcp_metadata("https://api.workos.com");
+```
+
+**AWS.** Calls `sts:GetWebIdentityToken` with the AWS SDK's default credential chain. Pass a region, or `None` to use the one the AWS SDK resolves; the call needs a regional STS endpoint.
+
+```rust
+use workos_workload_identity_aws::aws_sts;
+
+let provider = aws_sts("https://api.workos.com", Some("us-east-1")).await?;
+```
+
+**Anything else.** `token_file` and `token_env` ship with `workos` and read the token again on every exchange. A closure works too:
+
+```rust
+use workos::{WorkloadIdentityCredentials, token_file};
+
+// A token the platform writes to disk, such as a projected Kubernetes
+// service account token.
+let from_file = WorkloadIdentityCredentials::builder()
+    .identity_token_provider(token_file("/var/run/secrets/workos/token"))
+    .build()?;
+
+// Or fetch it yourself.
+let from_callback = WorkloadIdentityCredentials::builder()
+    .identity_token_provider(|| async {
+        let jwt = fetch_identity_token().await?;
+        Ok::<_, std::io::Error>(jwt)
+    })
+    .build()?;
+```
+
+Those two examples set no other field, because the three required IDs and the scope fall back to environment variables:
+
+| Builder method                 | Required | Default                                  |
+| ------------------------------ | -------- | ---------------------------------------- |
+| `.client_id(_)`                | yes      | `WORKOS_CLIENT_ID`                       |
+| `.token_url(_)`                | yes      | `WORKOS_WIF_TOKEN_URL`                   |
+| `.environment_id(_)`           | yes      | `WORKOS_ENVIRONMENT_ID`                  |
+| `.scope(_)`                    | no       | `WORKOS_WIF_SCOPE`, otherwise not sent   |
+| `.resource(_)`                 | no       | `https://api.workos.com`                 |
+| `.identity_token_provider(_)`  | yes      | none                                     |
+
+A value set on the builder always wins. The variables only fill in credentials you construct: nothing in the environment turns workload identity on, and there is no provider auto-detection.
+
+Things to know:
+
+- `.api_key(_)` and `.credentials(_)` are mutually exclusive. A client built with credentials never sends an API key, and a failing exchange is an error, never a fallback to a key.
+- A failure surfaces as `workos::Error::WorkloadIdentity`. Its `code` is the OAuth error from the token endpoint (`invalid_grant`, `invalid_client`, ...) or one of `exchange_failed`, `invalid_response`, `provider_failed`, `invalid_configuration`; `hint` says what to check. Neither token ever appears in an error.
+- Cloning a `WorkloadIdentityCredentials` shares its token; share one instance between clients that use the same identity.
+- The exchange needs a Tokio runtime and the bundled `reqwest` transport (the `rustls-tls` or `native-tls` feature). It runs on the runtime of the request that started it, so use one credentials instance from one long-lived runtime.
+- Helpers that send the API key as an OAuth `client_secret` (AuthKit and SSO code exchange, session refresh) need a client built with `.api_key(_)`.
 
 ## API Access
 

@@ -6,17 +6,28 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cd "$ROOT_DIR"
 
-echo "==> cargo fmt --check"
-cargo fmt --check
+echo "==> cargo fmt --all --check"
+cargo fmt --all --check
 
-echo "==> cargo build --all-targets"
-cargo build --all-targets
+echo "==> cargo build --workspace --all-targets"
+cargo build --workspace --all-targets
 
-echo "==> cargo clippy --all-targets -- -D warnings"
-cargo clippy --all-targets -- -D warnings
+echo "==> cargo clippy --workspace --all-targets -- -D warnings"
+cargo clippy --workspace --all-targets -- -D warnings
 
-echo "==> cargo doc --no-deps (RUSTDOCFLAGS=-D warnings)"
-RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
+echo "==> cargo doc --workspace --no-deps (RUSTDOCFLAGS=-D warnings)"
+RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 
-echo "==> cargo test"
-cargo test
+echo "==> cargo test --workspace"
+cargo test --workspace
+
+# A workspace build unifies features across crates, which can hide a feature
+# one crate forgot to enable for itself. Every crate is published on its own,
+# so check the SDK and test each provider crate alone as well.
+echo "==> cargo check -p workos --lib"
+cargo check -p workos --lib
+
+for crate in crates/*/; do
+  echo "==> cargo test (in ${crate%/})"
+  (cd "$crate" && cargo test)
+done

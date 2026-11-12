@@ -4,13 +4,14 @@ use std::time::Duration;
 
 use bytes::Bytes;
 use http::{
-    HeaderMap, HeaderName, HeaderValue, Method,
+    HeaderMap, HeaderName, HeaderValue, Method, StatusCode,
     header::{AUTHORIZATION, RETRY_AFTER, USER_AGENT},
 };
 use serde::{Serialize, de::DeserializeOwned};
 
+use crate::credentials::{CredentialSnapshot, Credentials, StaticKeyCredentials};
 use crate::error::{ApiError, Error};
-use crate::transport::{HttpRequest, SharedTransport};
+use crate::transport::{HttpRequest, HttpResponse, SharedTransport, TransportError};
 
 /// Per-request retry/idempotency policy. Override via [`RequestOptions::strategy`].
 ///
@@ -146,7 +147,14 @@ pub fn path_segment(s: &str) -> String {
 pub const DEFAULT_BASE_URL: &str = "https://api.workos.com";
 
 /// Default request timeout (used by the built-in `reqwest` transport).
-const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
+pub(crate) const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
+
+/// Default retry budget. Override via [`ClientBuilder::max_retries`]. The
+/// workload identity token exchange always uses this value.
+pub(crate) const DEFAULT_MAX_RETRIES: u32 = 3;
+
+/// Default `User-Agent`. Override via [`ClientBuilder::user_agent`].
+pub(crate) const DEFAULT_USER_AGENT: &str = concat!("workos-rust/", env!("CARGO_PKG_VERSION"));
 
 /// Cheap-to-clone WorkOS API client.
 ///
@@ -164,7 +172,13 @@ pub(crate) struct ClientInner {
     pub(crate) max_retries: u32,
     pub(crate) api_key: String,
     pub(crate) client_id: String,
+    /// What [`Client::default_headers`] returns: `base_headers` plus the
+    /// static `Authorization` header when the client has an API key.
     pub(crate) default_headers: HeaderMap,
+    /// Headers every request starts from. Carries no `Authorization`; that
+    /// comes from `credentials`, resolved before each HTTP attempt.
+    base_headers: HeaderMap,
+    credentials: Arc<dyn Credentials>,
     session_jwks: OnceLock<crate::helpers::JwksHelper>,
 }
 
@@ -180,6 +194,7 @@ pub struct ClientBuilder {
     max_retries: Option<u32>,
     user_agent: Option<String>,
     transport: Option<SharedTransport>,
+    credentials: Option<Arc<dyn Credentials>>,
 }
 
 impl Client {
@@ -281,8 +296,9 @@ impl Client {
         &self.inner.client_id
     }
 
-    /// Configured API key (empty if not set). Used by helpers that send it as
-    /// `client_secret` in OAuth flows.
+    /// Configured API key (empty if not set, and always empty for a client
+    /// built with [`ClientBuilder::credentials`]). Used by helpers that send
+    /// it as `client_secret` in OAuth flows.
     pub fn api_key(&self) -> &str {
         &self.inner.api_key
     }
@@ -295,6 +311,10 @@ impl Client {
 
     /// Default headers (Authorization, User-Agent) — helpers building requests
     /// against the API base URL should attach these.
+    ///
+    /// A client built with [`ClientBuilder::credentials`] has no static
+    /// `Authorization` header: its token is resolved before each request, so
+    /// this map carries only the User-Agent.
     pub fn default_headers(&self) -> &HeaderMap {
         &self.inner.default_headers
     }
@@ -352,7 +372,8 @@ impl Client {
             }
         }
 
-        let mut headers = self.inner.default_headers.clone();
+        // No `Authorization` here: `execute_with_retry` resolves it per attempt.
+        let mut headers = self.inner.base_headers.clone();
         let body_bytes = if let Some(b) = body {
             let bytes = serde_json::to_vec(b).map_err(Error::from)?;
             headers.insert(
@@ -429,7 +450,7 @@ impl Client {
         req: HttpRequest,
         method: &Method,
         opts: Option<&RequestOptions>,
-    ) -> Result<crate::transport::HttpResponse, Error> {
+    ) -> Result<HttpResponse, Error> {
         // Resolve the effective retry policy for this request:
         //  - per-request strategy (`opts.strategy`) wins,
         //  - otherwise fall back to the client-level `max_retries` budget,
@@ -459,10 +480,43 @@ impl Client {
         let use_backoff = strategy.as_ref().is_none_or(|s| s.use_backoff());
         let jitter = strategy.as_ref().map(|s| s.jitter()).unwrap_or(true);
 
+        // An `Authorization` header supplied through `RequestOptions` keeps
+        // its precedence over the client's credentials (the SSO profile call
+        // sends the end user's access token this way). Such a request is
+        // sent as built and is never recovered.
+        let per_request_auth = req.headers.contains_key(AUTHORIZATION);
+        // One 401 recovery per logical request. Set once and never cleared,
+        // however many transport retries follow.
+        let mut recovery_used = false;
+
         let mut attempt: u32 = 0;
         loop {
-            let cloned = req.clone();
-            let result = self.inner.transport.execute(cloned).await;
+            // Resolve before every attempt, so a retry never sends an expired
+            // token. A failure here is terminal: it is returned as it is and
+            // never retried as a network error.
+            let snapshot = if per_request_auth {
+                None
+            } else {
+                Some(self.inner.credentials.resolve().await?)
+            };
+            let mut result = self.send_attempt(&req, snapshot.as_ref()).await;
+
+            if let (Some(used), Ok(resp)) = (&snapshot, &result)
+                && resp.status == StatusCode::UNAUTHORIZED
+                && used.recoverable
+                && !recovery_used
+            {
+                // Invalidate the generation this attempt used, never "the
+                // current one", then resend the same request once. The resend
+                // does not count against the retry budget and does not wait
+                // for a backoff. The body is `Bytes`, so it is always
+                // replayable.
+                recovery_used = true;
+                self.inner.credentials.invalidate(used.generation);
+                let fresh = self.inner.credentials.resolve().await?;
+                result = self.send_attempt(&req, Some(&fresh)).await;
+            }
+
             match result {
                 Ok(resp) => {
                     let status = resp.status.as_u16();
@@ -501,6 +555,22 @@ impl Client {
             }
         }
     }
+
+    /// Send one HTTP attempt with the snapshot's headers set on a copy of the
+    /// request. Snapshot headers overwrite headers of the same name.
+    async fn send_attempt(
+        &self,
+        req: &HttpRequest,
+        snapshot: Option<&CredentialSnapshot>,
+    ) -> Result<HttpResponse, TransportError> {
+        let mut attempt = req.clone();
+        if let Some(snapshot) = snapshot {
+            for (name, value) in &snapshot.headers {
+                attempt.headers.insert(name.clone(), value.clone());
+            }
+        }
+        self.inner.transport.execute(attempt).await
+    }
 }
 
 /// Reject segments that could retarget a request during URL normalization.
@@ -528,12 +598,12 @@ fn is_safe_method(m: &Method) -> bool {
 /// Parse a `Retry-After` header value into a [`Duration`]. Supports the
 /// integer-seconds form; HTTP-date is left to upstream callers (the API
 /// uses seconds in practice).
-fn retry_after(headers: &HeaderMap) -> Option<Duration> {
+pub(crate) fn retry_after(headers: &HeaderMap) -> Option<Duration> {
     let raw = headers.get(RETRY_AFTER)?.to_str().ok()?;
     raw.trim().parse::<u64>().ok().map(Duration::from_secs)
 }
 
-fn backoff_delay(attempt: u32, jitter: bool) -> Duration {
+pub(crate) fn backoff_delay(attempt: u32, jitter: bool) -> Duration {
     let base_ms: u64 = 100;
     let capped = base_ms.saturating_mul(1u64 << attempt.min(6));
     let bounded = capped.min(5_000);
@@ -601,6 +671,21 @@ impl ClientBuilder {
         self
     }
 
+    /// Authenticate with a [`Credentials`] object instead of an API key, for
+    /// example [`crate::WorkloadIdentityCredentials`].
+    ///
+    /// The credentials are resolved before every HTTP attempt. When the API
+    /// answers `401` to a token they supplied, that token is invalidated and
+    /// the request is resent once with a new one.
+    ///
+    /// Setting both this and a non-empty [`Self::api_key`] is a configuration
+    /// error, reported by [`Self::try_build`]. A client built with credentials
+    /// never sends an API key and never falls back to one.
+    pub fn credentials(mut self, credentials: impl Credentials + 'static) -> Self {
+        self.credentials = Some(Arc::new(credentials));
+        self
+    }
+
     /// Build the client. Without an explicit [`ClientBuilder::transport`] one
     /// of the bundled transport features (`rustls-tls`, enabled by default, or
     /// `native-tls`) must be enabled.
@@ -608,8 +693,9 @@ impl ClientBuilder {
     /// # Panics
     ///
     /// Panics if the API key or user-agent string cannot be turned into an
-    /// HTTP header value (e.g. it contains control bytes). Use
-    /// [`Self::try_build`] to surface those failures as errors instead.
+    /// HTTP header value (e.g. it contains control bytes), or if both an API
+    /// key and [`Self::credentials`] are set. Use [`Self::try_build`] to
+    /// surface those failures as errors instead.
     pub fn build(self) -> Client {
         // Re-use the validating path and unwrap unconditionally; previously
         // we accepted invalid header bytes silently and produced a client
@@ -623,24 +709,42 @@ impl ClientBuilder {
 
     /// Build the client, returning an [`Error::Builder`] if any caller-
     /// supplied value (API key, user-agent) cannot be encoded as an HTTP
-    /// header. Prefer this over [`Self::build`] when the API key comes from
-    /// untrusted input.
+    /// header, or if both an API key and [`Self::credentials`] are set.
+    /// Prefer this over [`Self::build`] when the API key comes from untrusted
+    /// input.
     pub fn try_build(self) -> Result<Client, Error> {
         let api_key = self.api_key.unwrap_or_default();
         let timeout = self.timeout.unwrap_or(DEFAULT_TIMEOUT);
-        let mut headers = HeaderMap::new();
-        if !api_key.is_empty() {
-            let v = HeaderValue::from_str(&format!("Bearer {api_key}"))
-                .map_err(|e| Error::Builder(format!("invalid API key: {e}")))?;
-            headers.insert(AUTHORIZATION, v);
+        if self.credentials.is_some() && !api_key.is_empty() {
+            return Err(Error::Builder(
+                "api_key and credentials are mutually exclusive: set one or the other".into(),
+            ));
         }
-        let ua = self
-            .user_agent
-            .as_deref()
-            .unwrap_or(concat!("workos-rust/", env!("CARGO_PKG_VERSION")));
+
+        let ua = self.user_agent.as_deref().unwrap_or(DEFAULT_USER_AGENT);
         let v = HeaderValue::from_str(ua)
             .map_err(|e| Error::Builder(format!("invalid user-agent: {e}")))?;
-        headers.insert(USER_AGENT, v);
+        let mut base_headers = HeaderMap::new();
+        base_headers.insert(USER_AGENT, v);
+
+        // `default_headers` keeps the static `Authorization` header it has
+        // always carried, because the accessor is public. Requests are built
+        // from `base_headers` and authorized through `credentials`.
+        let mut headers = base_headers.clone();
+        let credentials: Arc<dyn Credentials> = match self.credentials {
+            Some(credentials) => credentials,
+            None => {
+                let authorization = if api_key.is_empty() {
+                    None
+                } else {
+                    let v = HeaderValue::from_str(&format!("Bearer {api_key}"))
+                        .map_err(|e| Error::Builder(format!("invalid API key: {e}")))?;
+                    headers.insert(AUTHORIZATION, v.clone());
+                    Some(v)
+                };
+                Arc::new(StaticKeyCredentials::new(authorization))
+            }
+        };
 
         let transport = self.transport.unwrap_or_else(|| default_transport(timeout));
 
@@ -650,10 +754,12 @@ impl ClientBuilder {
                 base_url: self
                     .base_url
                     .unwrap_or_else(|| DEFAULT_BASE_URL.to_string()),
-                max_retries: self.max_retries.unwrap_or(3),
+                max_retries: self.max_retries.unwrap_or(DEFAULT_MAX_RETRIES),
                 api_key,
                 client_id: self.client_id.unwrap_or_default(),
                 default_headers: headers,
+                base_headers,
+                credentials,
                 session_jwks: OnceLock::new(),
             }),
         })

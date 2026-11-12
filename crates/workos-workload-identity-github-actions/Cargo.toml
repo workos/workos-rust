@@ -1,0 +1,45 @@
+[package]
+name = "workos-workload-identity-github-actions"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.88"
+description = "GitHub Actions identity token provider for WorkOS workload identity federation"
+license = "MIT"
+repository = "https://github.com/workos/workos-rust"
+homepage = "https://workos.com"
+documentation = "https://docs.rs/workos-workload-identity-github-actions"
+readme = "README.md"
+authors = ["WorkOS <sdk@workos.com>"]
+keywords = ["workos", "workload-identity", "oidc", "github-actions"]
+categories = ["authentication"]
+
+[features]
+default = ["rustls-tls"]
+# TLS backend for the request to GitHub's token endpoint. Mirrors the `workos`
+# features of the same names; pick one.
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
+
+[dependencies]
+# Only for the `IdentityTokenProvider` trait. Caret range: any release of the
+# same major from the lower bound up. Every `workos` release rewrites the
+# lower bound to its own version (`extra-files` in release-please-config.json).
+# Until the first release that contains `workos::workload_identity`, 3.6.0 is
+# a placeholder: do not publish this crate while it says 3.6.0.
+workos = { version = "3.6.0", path = "../..", default-features = false }
+reqwest = { version = "0.12", default-features = false }
+async-trait = "0.1"
+serde_json = "1"
+
+[dev-dependencies]
+wiremock = "0.6"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"
+dbg_macro = "warn"
+todo = "warn"

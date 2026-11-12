@@ -36,6 +36,17 @@ impl ReqwestTransport {
             .expect("reqwest client builder failed");
         Self { inner }
     }
+
+    /// Build a transport that never follows a redirect. Used for the workload
+    /// identity token exchange, which must not re-send its assertion to
+    /// wherever a `Location` header points.
+    pub(crate) fn without_redirects(timeout: Duration) -> Result<Self, reqwest::Error> {
+        let inner = reqwest::Client::builder()
+            .timeout(timeout)
+            .redirect(reqwest::redirect::Policy::none())
+            .build()?;
+        Ok(Self { inner })
+    }
 }
 
 impl Default for ReqwestTransport {
