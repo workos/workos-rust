@@ -33,8 +33,7 @@
       "include-component-in-tag": true,
       "changelog-path": "CHANGELOG.md",
       "initial-version": "0.1.0",
-      "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": true
+      "bump-minor-pre-major": true
     },
     "crates/workos-workload-identity-gcp": {
       "release-type": "rust",
@@ -43,8 +42,7 @@
       "include-component-in-tag": true,
       "changelog-path": "CHANGELOG.md",
       "initial-version": "0.1.0",
-      "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": true
+      "bump-minor-pre-major": true
     },
     "crates/workos-workload-identity-aws": {
       "release-type": "rust",
@@ -53,8 +51,7 @@
       "include-component-in-tag": true,
       "changelog-path": "CHANGELOG.md",
       "initial-version": "0.1.0",
-      "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": true
+      "bump-minor-pre-major": true
     }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
