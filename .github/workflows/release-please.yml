@@ -26,6 +26,26 @@ jobs:
   # The un-prefixed `release_created` and `tag_name` outputs belong to the root
   # package (`workos`) only; every other package's outputs are prefixed with
   # its path.
+  #
+  # Settings in release-please-config.json that keep the packages independent:
+  # - `exclude-paths: ["crates"]` on the root package. release-please gives the
+  #   root package every commit, so without it a provider-only commit would
+  #   also release `workos`. A commit is skipped only when every file it
+  #   changes is under `crates/`: one that also changes a root file, such as
+  #   `Cargo.lock`, still counts for `workos`.
+  # - `bootstrap-sha` (the 3.6.0 release commit). Until every provider crate
+  #   has its first release, release-please reads history back to this commit
+  #   and no further. Older history has empty commits, one with
+  #   `Release-As: 3.4.1`, that would otherwise set each provider's first
+  #   version and changelog. Ignored once all four packages have a release.
+  # - `initial-version: "0.1.0"` on each provider crate states the first
+  #   version. The `rust` release type already starts at 0.1.0 and does not
+  #   read the key, so it is there for readers and for other release types.
+  #
+  # To force a version, set `release-as` on that package in
+  # release-please-config.json and remove it after the release. Do not push an
+  # empty `Release-As:` commit: release-please applies an empty commit to every
+  # provider crate, and `exclude-paths` keeps it away from `workos`.
   release-please:
     runs-on: ubuntu-latest
     permissions:
