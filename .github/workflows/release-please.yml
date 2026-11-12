@@ -41,6 +41,10 @@ jobs:
   # - `initial-version: "0.1.0"` on each provider crate states the first
   #   version. The `rust` release type already starts at 0.1.0 and does not
   #   read the key, so it is there for readers and for other release types.
+  # - `bump-minor-pre-major` and `bump-patch-for-minor-pre-major` on each
+  #   provider crate. While a crate is below 1.0.0, a breaking change releases
+  #   the next minor (0.1.x to 0.2.0) and a feature releases the next patch.
+  #   Without them the first breaking change would release 1.0.0.
   #
   # To force a version, set `release-as` on that package in
   # release-please-config.json and remove it after the release. Do not push an
