@@ -46,6 +46,8 @@ const TIMEOUT: Duration = Duration::from_secs(10);
 /// The provider makes one GET to the metadata server with a 10-second
 /// timeout. It follows no redirects, keeps no cache and does not retry; the
 /// SDK retries a failed call as part of the token exchange.
+///
+/// The request never goes through a proxy, even when `HTTP_PROXY` is set.
 pub fn gcp_metadata(audience: impl Into<String>) -> GcpMetadata {
     GcpMetadata {
         audience: audience.into(),
@@ -66,9 +68,14 @@ impl GcpMetadata {
         if let Some(client) = self.http.get() {
             return Ok(client);
         }
+        // The metadata server is an address inside the workload's own VM or
+        // container. A proxy is another machine: it cannot reach that server,
+        // and it could answer with its own identity. reqwest takes a proxy
+        // from `HTTP_PROXY` unless it is told not to.
         let client = reqwest::Client::builder()
             .timeout(TIMEOUT)
             .redirect(reqwest::redirect::Policy::none())
+            .no_proxy()
             .build()
             .map_err(|e| Error::with_source("could not build the HTTP client", e))?;
         Ok(self.http.get_or_init(|| client))
@@ -196,6 +203,9 @@ mod tests {
 
     const AUDIENCE: &str = "https://api.workos.com";
 
+    /// Tells `child_requests_a_token` where its metadata server is.
+    const CHILD_METADATA_URL: &str = "WORKOS_TEST_GCP_METADATA_URL";
+
     /// A provider pointed at a mock in place of the metadata server.
     fn provider(server: &MockServer) -> GcpMetadata {
         GcpMetadata {
@@ -268,5 +278,53 @@ mod tests {
         assert!(provider(&redirect).token().await.is_err());
         assert_eq!(redirect.received_requests().await.unwrap().len(), 1);
         assert!(elsewhere.received_requests().await.unwrap().is_empty());
+    }
+
+    /// reqwest reads the proxy variables once per process, and this crate
+    /// forbids the `unsafe` that setting them here would take. So the request
+    /// is made by a child process that starts with them set: this test binary
+    /// again, running `child_requests_a_token` alone.
+    #[tokio::test]
+    async fn the_request_never_goes_through_a_configured_proxy() {
+        let metadata = metadata_server(ResponseTemplate::new(200).set_body_string("gcp-jwt")).await;
+        let proxy = MockServer::start().await;
+
+        let mut child = std::process::Command::new(std::env::current_exe().unwrap());
+        child
+            .args(["--exact", "tests::child_requests_a_token", "--ignored"])
+            .env(CHILD_METADATA_URL, metadata.uri())
+            .env_remove("NO_PROXY")
+            .env_remove("no_proxy");
+        for name in ["HTTP_PROXY", "http_proxy", "ALL_PROXY", "all_proxy"] {
+            child.env(name, proxy.uri());
+        }
+        let output = tokio::task::spawn_blocking(move || child.output())
+            .await
+            .unwrap()
+            .unwrap();
+
+        assert!(
+            output.status.success(),
+            "the child failed: {}",
+            String::from_utf8_lossy(&output.stdout)
+        );
+        assert_eq!(metadata.received_requests().await.unwrap().len(), 1);
+        assert!(proxy.received_requests().await.unwrap().is_empty());
+    }
+
+    /// The child half of `the_request_never_goes_through_a_configured_proxy`.
+    /// It does nothing when it is run on its own.
+    #[tokio::test]
+    #[ignore = "run by the_request_never_goes_through_a_configured_proxy, in a child process"]
+    async fn child_requests_a_token() {
+        let Ok(base_url) = std::env::var(CHILD_METADATA_URL) else {
+            return;
+        };
+        let provider = GcpMetadata {
+            base_url,
+            ..gcp_metadata(AUDIENCE)
+        };
+
+        assert_eq!(provider.token().await.unwrap(), "gcp-jwt");
     }
 }

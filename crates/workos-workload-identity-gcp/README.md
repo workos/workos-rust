@@ -24,6 +24,8 @@ The argument is the audience the identity token is requested with. It must match
 
 The token comes from the GCP metadata server, so this works on Compute Engine, GKE, Cloud Run, Cloud Functions and App Engine.
 
+The request to the metadata server never goes through a proxy, even when `HTTP_PROXY` is set. That server exists only inside the workload's own VM or container, so a proxy cannot reach it.
+
 See the [Workload Identity section of the `workos` README](https://github.com/workos/workos-rust#workload-identity) for the full guide.
 
 ## License
