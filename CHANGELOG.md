@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0](https://github.com/workos/workos-rust/compare/v3.6.0...v3.7.0) (2026-11-13)
+
+
+### Features
+
+* **pipes:** Update Pipes API surface ([#179](https://github.com/workos/workos-rust/issues/179)) ([d825601](https://github.com/workos/workos-rust/commit/d8256012ec6e9e8754db06dee85f174710e73d85))
+* **sso:** Update SSO API surface ([#180](https://github.com/workos/workos-rust/issues/180)) ([8a6d42b](https://github.com/workos/workos-rust/commit/8a6d42b70a668141a46116560bc5dae1b4af8aaa))
+
+
+### Bug Fixes
+
+* **session:** Reject non-user access tokens in session cookies ([#177](https://github.com/workos/workos-rust/issues/177)) ([dca45e4](https://github.com/workos/workos-rust/commit/dca45e400d65644625ec573ee16e0b387ff380fd))
+
 ## [3.6.0](https://github.com/workos/workos-rust/compare/v3.5.0...v3.6.0) (2026-11-04)
 
 * [#175](https://github.com/workos/workos-rust/pull/175) feat(generated)!: regenerate from spec (5 changes)
