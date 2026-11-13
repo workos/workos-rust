@@ -135,6 +135,9 @@ pub struct ListConnectionsParams {
     /// Searchable text to match against Connection names.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub search: Option<String>,
+    /// Filter Connections by their state.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<ConnectionsState>,
 }
 
 impl Default for ListConnectionsParams {
@@ -149,6 +152,7 @@ impl Default for ListConnectionsParams {
             domain: Default::default(),
             organization_id: Default::default(),
             search: Default::default(),
+            state: Default::default(),
         }
     }
 }
