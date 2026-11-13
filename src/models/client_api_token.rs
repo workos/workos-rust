@@ -7,8 +7,8 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClientApiToken {
-    /// The ID of the organization to scope the Client API token to.
+    /// The ID of the organization to scope the Widgets API token to.
     pub organization_id: String,
-    /// The ID of the user to issue the Client API token for.
+    /// The ID of the user to issue the Widgets API token for.
     pub user_id: String,
 }

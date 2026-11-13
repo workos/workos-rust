@@ -7,9 +7,13 @@ use std::str::FromStr;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum AgentBlueprintsTokenMintTokenRequestType {
+    /// How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`.
     UserDelegated,
+    /// How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`.
     Autonomous,
+    /// How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`.
     AgentDelegated,
+    /// How the session is minted: `user_delegated`, `autonomous`, `agent_delegated`, or `refresh`.
     Refresh,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values

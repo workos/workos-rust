@@ -30,9 +30,9 @@ impl CreateTokenParams {
 }
 
 impl<'a> ClientApi<'a> {
-    /// Generate a Client API token
+    /// Generate a Widgets API token
     ///
-    /// Generate a short-lived, session-bound token for the Client GraphQL API, scoped to an organization and user.
+    /// Generate a short-lived, session-bound token for the Widgets API, scoped to an organization and user.
     pub async fn create_token(
         &self,
         params: CreateTokenParams,

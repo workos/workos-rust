@@ -215,7 +215,7 @@ pub struct GetAuthorizationUrlParams {
     pub provider_query_params: Option<std::collections::HashMap<String, String>>,
     /// Deprecated. Use `connection` or `organization` instead. Used to initiate SSO for a connection by domain. The domain must be associated with a connection in your WorkOS environment.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[deprecated]
+    #[deprecated(note = "Deprecated. Use `connection` or `organization` instead.")]
     pub domain: Option<String>,
     /// Used to initiate OAuth authentication with various providers.
     #[serde(skip_serializing_if = "Option::is_none")]

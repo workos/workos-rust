@@ -7,6 +7,6 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClientApiTokenResponse {
-    /// The Client API token.
+    /// The Widgets API token.
     pub token: crate::SecretString,
 }

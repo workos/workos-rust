@@ -14,6 +14,9 @@ pub struct AgentRegistrationClaimCompletedData {
     pub id: String,
     /// The ID of the agent registration.
     pub agent_registration_id: String,
+    /// The ID of the organization the registration belongs to.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub organization_id: Option<String>,
     /// The ID of the claim attempt that completed the claim.
     pub completed_by_attempt_id: String,
     /// The user who completed the claim.

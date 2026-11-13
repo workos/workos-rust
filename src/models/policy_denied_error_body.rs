@@ -11,4 +11,7 @@ pub struct PolicyDeniedErrorBody {
     pub code: String,
     /// A human-readable description of the error.
     pub message: String,
+    /// The ID of the Radar detection that blocked the request. Only set when Radar blocked it.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub radar_detection_id: Option<String>,
 }

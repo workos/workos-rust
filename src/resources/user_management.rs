@@ -820,7 +820,7 @@ pub struct ListUsersParams {
     pub order: Option<PaginationOrder>,
     /// Filter users by the organization they are a member of. Deprecated in favor of `organization_id`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[deprecated]
+    #[deprecated(note = "This parameter is deprecated.")]
     pub organization: Option<String>,
     /// Filter users by the organization they are a member of.
     #[serde(skip_serializing_if = "Option::is_none")]

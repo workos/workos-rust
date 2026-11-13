@@ -32,20 +32,20 @@ pub struct DsyncUserUpdatedData {
     pub name: Option<String>,
     /// A list of email addresses for the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub emails: Option<Vec<DsyncUserUpdatedDataEmail>>,
     /// The job title of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub job_title: Option<String>,
     /// The username of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub username: Option<String>,
     /// The state of the user.
     pub state: DsyncUserUpdatedDataState,
     /// The raw attributes received from the directory provider.
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub raw_attributes: std::collections::HashMap<String, serde_json::Value>,
     /// An object containing the custom attribute mapping for the Directory Provider.
     pub custom_attributes: std::collections::HashMap<String, serde_json::Value>,
