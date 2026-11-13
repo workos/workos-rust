@@ -31,7 +31,7 @@ pub struct DataIntegrationsListResponseData {
     /// Who owns connections made through this provider: `user` for connections owned by individual users, or `organization` for a connection shared by every member of the organization. A provider row can exist before any connected account does.
     pub connection_owner: DataIntegrationsListResponseDataConnectionOwner,
     /// Use `connection_owner` instead. Legacy spelling of the same value: `userland_user` corresponds to `connection_owner: "user"` and `organization` to `connection_owner: "organization"`.
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `connection_owner` instead.")]
     pub ownership: DataIntegrationsListResponseDataOwnership,
     /// The timestamp when the provider was created.
     pub created_at: String,
@@ -39,19 +39,19 @@ pub struct DataIntegrationsListResponseData {
     pub updated_at: String,
     /// Use integration_type instead.
     #[serde(rename = "integrationType")]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `integration_type` instead.")]
     pub integration_type_2: String,
     /// Use credentials_type instead.
     #[serde(rename = "credentialsType")]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `credentials_type` instead.")]
     pub credentials_type_2: String,
     /// Use created_at instead.
     #[serde(rename = "createdAt")]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `created_at` instead.")]
     pub created_at_2: String,
     /// Use updated_at instead.
     #[serde(rename = "updatedAt")]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `updated_at` instead.")]
     pub updated_at_2: String,
     /// The user's compatibility [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` when the compatibility slot is empty. This legacy field never selects a standard connection.
     #[serde(skip_serializing_if = "Option::is_none", default)]

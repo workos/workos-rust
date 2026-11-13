@@ -7,7 +7,6 @@ use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataIntegrationCredentialsResponse {
-    /// Indicates credentials are available.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub active: Option<bool>,
     /// The credential object containing the vended secret.
