@@ -53,6 +53,7 @@
     "src/enums/connection_status.rs",
     "src/enums/connection_type.rs",
     "src/enums/connections_connection_type.rs",
+    "src/enums/connections_state.rs",
     "src/enums/create_connected_account_state.rs",
     "src/enums/create_connection_oidc_options_id_token_signature_algorithm.rs",
     "src/enums/create_connection_oidc_options_token_authentication_method.rs",
