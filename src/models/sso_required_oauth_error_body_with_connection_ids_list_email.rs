@@ -6,7 +6,7 @@ use super::*;
 use crate::enums::*;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SSORequiredOAuthErrorBodyWithConnectionIdsListEmailPendingAuthenticationToken {
+pub struct SSORequiredOAuthErrorBodyWithConnectionIdsListEmail {
     /// The OAuth error code.
     pub error: String,
     /// A human-readable description of the error.

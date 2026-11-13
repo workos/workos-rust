@@ -78,6 +78,7 @@
     "src/enums/data_integration_installation_connection_role.rs",
     "src/enums/data_integration_ownership.rs",
     "src/enums/data_integration_state.rs",
+    "src/enums/data_integration_vended_credential_auth_method.rs",
     "src/enums/data_integrations_create_api_key_connection_request_connection_owner.rs",
     "src/enums/data_integrations_create_client_credentials_connection_request_connection_owner.rs",
     "src/enums/data_integrations_get_data_integration_authorize_url_request_connection_intent.rs",
@@ -158,6 +159,7 @@
     "src/enums/pipe_connected_account_connection_role.rs",
     "src/enums/pipe_connected_account_state.rs",
     "src/enums/pipes_ownership.rs",
+    "src/enums/pipes_provider_ownership.rs",
     "src/enums/profile_connection_type.rs",
     "src/enums/radar_list_action.rs",
     "src/enums/radar_list_type.rs",
@@ -945,7 +947,7 @@
     "src/models/sso_device_authorization_request.rs",
     "src/models/sso_logout_authorize_request.rs",
     "src/models/sso_logout_authorize_response.rs",
-    "src/models/sso_required_oauth_error_body_with_connection_ids_list_email_pending_authentication_token.rs",
+    "src/models/sso_required_oauth_error_body_with_connection_ids_list_email.rs",
     "src/models/sso_token_response.rs",
     "src/models/sso_token_response_oauth_token.rs",
     "src/models/sub_resource_scoped_role_not_allowed_error_body_with_role_slug.rs",
@@ -1825,7 +1827,7 @@
     "tests/fixtures/sso_device_authorization_request.json",
     "tests/fixtures/sso_logout_authorize_request.json",
     "tests/fixtures/sso_logout_authorize_response.json",
-    "tests/fixtures/sso_required_oauth_error_body_with_connection_ids_list_email_pending_authentication_token.json",
+    "tests/fixtures/sso_required_oauth_error_body_with_connection_ids_list_email.json",
     "tests/fixtures/sso_token_response.json",
     "tests/fixtures/sso_token_response_oauth_token.json",
     "tests/fixtures/sub_resource_scoped_role_not_allowed_error_body_with_role_slug.json",
@@ -2475,6 +2477,22 @@
     },
     "POST /directories/{id}/sync": {
       "sdkMethod": "create_directory_sync",
+      "service": "directory_sync"
+    },
+    "GET /directories/{directoryId}/groups": {
+      "sdkMethod": "list_directory_groups",
+      "service": "directory_sync"
+    },
+    "GET /directories/{directoryId}/groups/{groupId}": {
+      "sdkMethod": "get_directory_group",
+      "service": "directory_sync"
+    },
+    "GET /directories/{directoryId}/users": {
+      "sdkMethod": "list_directory_users",
+      "service": "directory_sync"
+    },
+    "GET /directories/{directoryId}/users/{userId}": {
+      "sdkMethod": "get_directory_user",
       "service": "directory_sync"
     },
     "GET /directory_groups": {

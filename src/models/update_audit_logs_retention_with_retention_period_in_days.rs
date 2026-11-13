@@ -8,6 +8,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateAuditLogsRetentionWithRetentionPeriodInDays {
     /// The number of days Audit Log events will be retained. Valid values are `30` through `330` in 30-day increments and `365` through `3650` in 365-day increments. Deprecated: use `retention_period` instead. Mutually exclusive with `retention_period`.
-    #[deprecated]
+    #[deprecated(note = "Deprecated. use `retention_period` instead.")]
     pub retention_period_in_days: i64,
 }
