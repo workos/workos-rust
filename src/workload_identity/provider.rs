@@ -32,7 +32,7 @@ pub type ProviderError = Box<dyn StdError + Send + Sync + 'static>;
 ///     .environment_id("environment_123")
 ///     .identity_token_provider(|| async {
 ///         // Fetch the workload's JWT from wherever the platform keeps it.
-///         Ok::<_, std::io::Error>(std::fs::read_to_string("/var/run/token")?)
+///         Ok::<_, std::io::Error>(std::fs::read_to_string("/run/workos/identity-token")?)
 ///     })
 ///     .build()?;
 /// # let _ = credentials;

@@ -238,9 +238,11 @@ fn credentials(endpoint: &TokenEndpoint) -> WorkloadIdentityCredentialsBuilder {
         .sleeper(|_| async {}.boxed())
 }
 
-/// The SDK does not read this variable. Tests set it in the injected
-/// environment to show that it changes nothing.
+/// The SDK does not read these variables. Tests set them, in the injected
+/// environment or in a child process, to show that they change nothing.
 const UNREAD_ENVIRONMENT_ID_ENV: &str = "WORKOS_ENVIRONMENT_ID";
+const UNREAD_TOKEN_URL_ENV: &str = "WORKOS_WIF_TOKEN_URL";
+const UNREAD_SCOPE_ENV: &str = "WORKOS_WIF_SCOPE";
 
 /// An injected environment in which only that variable is set.
 fn environment_with_unread_variable(name: &str) -> Option<String> {
@@ -408,7 +410,12 @@ async fn wait_until_waiting(credentials: &WorkloadIdentityCredentials, callers: 
 /// themselves again in a child process whose environment is set up front.
 const CHILD_MARKER: &str = "WORKOS_WIF_TEST_CHILD";
 const TEST_MODULE: &str = "workload_identity::tests";
-const WIF_VARIABLES: [&str; 3] = [CLIENT_ID_ENV, TOKEN_URL_ENV, SCOPE_ENV];
+const WIF_VARIABLES: [&str; 4] = [
+    CLIENT_ID_ENV,
+    UNREAD_ENVIRONMENT_ID_ENV,
+    UNREAD_TOKEN_URL_ENV,
+    UNREAD_SCOPE_ENV,
+];
 
 fn is_child(test: &str) -> bool {
     std::env::var(CHILD_MARKER).as_deref() == Ok(test)
@@ -1133,7 +1140,7 @@ async fn wif_20_credentials_win_over_the_environment_api_key() {
     assert!(!sent_env_key(&api.requests().await));
     assert!(!sent_env_key(&endpoint.requests().await));
 
-    // (b) No token URL, explicitly or in the environment: construction fails.
+    // (b) No token URL: construction fails.
     let error = WorkloadIdentityCredentials::builder()
         .client_id(CLIENT_ID)
         .environment_id(ENVIRONMENT_ID)
@@ -1141,10 +1148,7 @@ async fn wif_20_credentials_win_over_the_environment_api_key() {
         .build()
         .unwrap_err();
     assert_eq!(error.code, "invalid_configuration");
-    assert_eq!(
-        error.description,
-        "token_url is required (or set WORKOS_WIF_TOKEN_URL)"
-    );
+    assert_eq!(error.description, "token_url is required");
 
     // (c) A failing exchange is an error, not a fallback to the key.
     let endpoint = TokenEndpoint::scripted(vec![oauth_error("invalid_client")]).await;
@@ -1215,8 +1219,12 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
             vec![
                 ("MY_JWT", "assertion-env".to_owned()),
                 (CLIENT_ID_ENV, "client_env".to_owned()),
-                (TOKEN_URL_ENV, endpoint.url()),
-                (SCOPE_ENV, "scope_env".to_owned()),
+                // The SDK reads neither of these two.
+                (
+                    UNREAD_TOKEN_URL_ENV,
+                    "https://ignored.example.test/oauth2/token".to_owned(),
+                ),
+                (UNREAD_SCOPE_ENV, "scope_env".to_owned()),
                 (TOKEN_URL, endpoint.url()),
                 (API_URL, api.server.uri()),
             ],
@@ -1230,10 +1238,12 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
         assert_eq!(field(0, "assertion").as_deref(), Some("assertion-env"));
         // (b) callback
         assert_eq!(field(1, "assertion").as_deref(), Some("assertion-cb"));
-        // (c) every omitted field came from the environment
+        // (c) Only the client ID came from the environment. The scope
+        // variable is ignored, and so is the token URL variable: the POST
+        // reached this mock, not the URL the variable names.
         assert_eq!(field(2, "client_id").as_deref(), Some("client_env"));
-        assert_eq!(field(2, "scope").as_deref(), Some("scope_env"));
-        // (d) explicit values win
+        assert_eq!(field(2, "scope"), None);
+        // (d) an explicit client ID wins
         assert_eq!(field(3, "client_id").as_deref(), Some("client_explicit"));
         assert_eq!(field(3, "scope").as_deref(), Some("scope_explicit"));
         return;
@@ -1251,7 +1261,6 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
             .client_id(CLIENT_ID)
             .token_url(std::env::var(TOKEN_URL).unwrap())
             .environment_id(ENVIRONMENT_ID)
-            .scope("")
     };
 
     // (a)
@@ -1266,8 +1275,9 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
         .build()
         .unwrap();
     list(&client(from_callback)).await.unwrap();
-    // (c) Only a provider; the POST reaching the mock proves the token URL.
+    // (c) Only a provider and the mock's token URL.
     let defaults = WorkloadIdentityCredentials::builder()
+        .token_url(std::env::var(TOKEN_URL).unwrap())
         .identity_token_provider(callback)
         .build()
         .unwrap();
@@ -1275,11 +1285,20 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
     // (d)
     let overridden = WorkloadIdentityCredentials::builder()
         .client_id("client_explicit")
+        .token_url(std::env::var(TOKEN_URL).unwrap())
         .scope("scope_explicit")
         .identity_token_provider(callback)
         .build()
         .unwrap();
     list(&client(overridden)).await.unwrap();
+    // (e) No token URL passed: construction fails, although the variable the
+    // SDK does not read is set.
+    let error = WorkloadIdentityCredentials::builder()
+        .identity_token_provider(callback)
+        .build()
+        .unwrap_err();
+    assert_eq!(error.code, "invalid_configuration");
+    assert_eq!(error.description, "token_url is required");
 
     // An unset variable is a provider failure.
     let unset = explicit()
@@ -1519,10 +1538,7 @@ fn missing_settings_are_errors_at_construction_and_name_the_variable() {
             complete().client_id(""),
             "client_id is required (or set WORKOS_CLIENT_ID)",
         ),
-        (
-            complete().token_url(""),
-            "token_url is required (or set WORKOS_WIF_TOKEN_URL)",
-        ),
+        (complete().token_url(""), "token_url is required"),
         (
             complete().token_url("auth.example.test/oauth2/token"),
             "token_url must be an absolute http or https URL",

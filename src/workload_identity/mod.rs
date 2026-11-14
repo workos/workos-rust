@@ -16,7 +16,7 @@
 //!     .client_id("client_123")
 //!     .token_url("https://auth.example.com/oauth2/token")
 //!     .environment_id("environment_123")
-//!     .identity_token_provider(token_file("/var/run/secrets/workos/token"))
+//!     .identity_token_provider(token_file("/run/workos/identity-token"))
 //!     .build()?;
 //!
 //! let client = Client::builder().credentials(credentials).try_build()?;
@@ -70,12 +70,9 @@ pub const ENVIRONMENT_ID_HEADER: &str = "x-url-environment-id";
 /// Default for the `resource` form field of the exchange.
 pub const DEFAULT_RESOURCE: &str = "https://api.workos.com";
 
-/// Environment variable that supplies `client_id` when it is not set.
+/// Environment variable that supplies `client_id` when it is not set. It is
+/// the only setting read from the environment.
 pub const CLIENT_ID_ENV: &str = "WORKOS_CLIENT_ID";
-/// Environment variable that supplies `token_url` when it is not set.
-pub const TOKEN_URL_ENV: &str = "WORKOS_WIF_TOKEN_URL";
-/// Environment variable that supplies `scope` when it is not set.
-pub const SCOPE_ENV: &str = "WORKOS_WIF_SCOPE";
 
 /// A token is refreshed once less than this much of its life remains...
 const REFRESH_THRESHOLD: Duration = Duration::from_secs(60);
@@ -339,12 +336,11 @@ impl fmt::Debug for WorkloadIdentityCredentials {
 
 /// Builder for [`WorkloadIdentityCredentials`].
 ///
-/// `client_id`, `token_url` and `scope` fall back to the environment
-/// variables `WORKOS_CLIENT_ID`, `WORKOS_WIF_TOKEN_URL` and `WORKOS_WIF_SCOPE`
-/// when they are not set here. A value set here always wins. The variables
-/// only fill in credentials you construct; nothing in the environment turns
-/// workload identity on. `environment_id` is set here or not at all; no
-/// environment variable supplies it.
+/// `client_id` falls back to the environment variable `WORKOS_CLIENT_ID` when
+/// it is not set here, and a value set here always wins. That is the only
+/// setting read from the environment: `token_url`, `environment_id` and
+/// `scope` are set here or not at all. The variable only fills in credentials
+/// you construct; nothing in the environment turns workload identity on.
 #[derive(Default)]
 pub struct WorkloadIdentityCredentialsBuilder {
     client_id: Option<String>,
@@ -367,8 +363,8 @@ impl WorkloadIdentityCredentialsBuilder {
         self
     }
 
-    /// The token exchange endpoint. Required; defaults to
-    /// `WORKOS_WIF_TOKEN_URL`. There is no built-in default.
+    /// The token exchange endpoint. Required, and set only here: there is no
+    /// built-in default and no environment variable supplies it.
     pub fn token_url(mut self, token_url: impl Into<String>) -> Self {
         self.token_url = Some(token_url.into());
         self
@@ -394,8 +390,8 @@ impl WorkloadIdentityCredentialsBuilder {
         self
     }
 
-    /// The `scope` form field. Defaults to `WORKOS_WIF_SCOPE`; left out of
-    /// the exchange when empty.
+    /// The `scope` form field. Optional, and set only here: no environment
+    /// variable supplies it. Left out of the exchange when not set or empty.
     pub fn scope(mut self, scope: impl Into<String>) -> Self {
         self.scope = Some(scope.into());
         self
@@ -450,23 +446,35 @@ impl WorkloadIdentityCredentialsBuilder {
     /// Validate the configuration and build the credentials.
     ///
     /// Fails with code `invalid_configuration` when a required setting is
-    /// missing after the environment is consulted. No request is sent; the
-    /// first exchange happens on the first API call.
+    /// missing; for `client_id` that is after `WORKOS_CLIENT_ID` is
+    /// consulted. No request is sent; the first exchange happens on the first
+    /// API call.
     pub fn build(self) -> Result<WorkloadIdentityCredentials, WorkloadIdentityError> {
         let env = self
             .env
             .unwrap_or_else(|| Arc::new(|name: &str| std::env::var(name).ok()));
 
-        let client_id = required(self.client_id, &env, "client_id", CLIENT_ID_ENV)?;
-        let token_url = required(self.token_url, &env, "token_url", TOKEN_URL_ENV)?;
-        // Set on the builder or not at all; no environment variable is read.
+        // An explicit client ID wins; otherwise the environment variable.
+        // Empty counts as missing.
+        let client_id = self
+            .client_id
+            .or_else(|| env(CLIENT_ID_ENV))
+            .filter(|client_id| !client_id.is_empty())
+            .ok_or_else(|| {
+                WorkloadIdentityError::invalid_configuration(&format!(
+                    "client_id is required (or set {CLIENT_ID_ENV})"
+                ))
+            })?;
+        // Every other setting is set on the builder or not at all; no
+        // environment variable is read for it.
+        let token_url = self
+            .token_url
+            .filter(|token_url| !token_url.is_empty())
+            .ok_or_else(|| WorkloadIdentityError::invalid_configuration("token_url is required"))?;
         let environment_id = self
             .environment_id
             .filter(|environment_id| !environment_id.is_empty());
-        let scope = self
-            .scope
-            .or_else(|| env(SCOPE_ENV))
-            .filter(|scope| !scope.is_empty());
+        let scope = self.scope.filter(|scope| !scope.is_empty());
         let resource = self
             .resource
             .filter(|resource| !resource.is_empty())
@@ -523,24 +531,6 @@ impl WorkloadIdentityCredentialsBuilder {
             }),
         })
     }
-}
-
-/// An explicit value wins; otherwise the environment variable. Empty counts
-/// as missing.
-fn required(
-    explicit: Option<String>,
-    env: &EnvLookup,
-    field: &str,
-    variable: &str,
-) -> Result<String, WorkloadIdentityError> {
-    explicit
-        .or_else(|| env(variable))
-        .filter(|value| !value.is_empty())
-        .ok_or_else(|| {
-            WorkloadIdentityError::invalid_configuration(&format!(
-                "{field} is required (or set {variable})"
-            ))
-        })
 }
 
 /// The exchange's own transport: the bundled `reqwest` client with redirects
