@@ -151,11 +151,11 @@ let from_callback = WorkloadIdentityCredentials::builder()
 
 The server accepts an identity token for one exchange only. The SDK exchanges again about every four minutes, and if the file or the variable still holds the same token then, that exchange fails with `invalid_grant`. So use `token_file` and `token_env` for a source that something rewrites before each exchange, or for a job shorter than four minutes. The platform providers (GitHub Actions, GCP, AWS) fetch a new token every time.
 
-The settings are builder methods. Only the client ID has an environment default: when it is not set on the builder, the SDK reads `WORKOS_CLIENT_ID`. The token URL, the environment ID and the scope are set in code; no environment variable supplies them.
+The settings are builder methods. The credentials read no environment variable: every setting is passed in code.
 
 | Builder method                 | Required | Default                        |
 | ------------------------------ | -------- | ------------------------------ |
-| `.client_id(_)`                | yes      | `WORKOS_CLIENT_ID`             |
+| `.client_id(_)`                | yes      | none                           |
 | `.token_url(_)`                | yes      | none                           |
 | `.environment_id(_)`           | no       | none; the header is not sent   |
 | `.scope(_)`                    | no       | none; the field is not sent    |
@@ -164,7 +164,7 @@ The settings are builder methods. Only the client ID has an environment default:
 
 The environment ID is optional. The server binds a workload identity client to exactly one environment and takes the environment from that binding, so the `x-url-environment-id` header selects nothing. When an environment ID is set, the SDK sends it in that header on every API request as a safety check: a value that names a different environment is refused with `403 environment_mismatch`. When it is not set, or is empty, the header is not sent.
 
-A client ID set on the builder always wins over `WORKOS_CLIENT_ID`. The variable only fills in credentials you construct: nothing in the environment turns workload identity on, and there is no provider auto-detection.
+Nothing in the environment turns workload identity on, and there is no provider auto-detection.
 
 Things to know:
 

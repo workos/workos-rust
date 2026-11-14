@@ -226,28 +226,23 @@ fn provider(
 }
 
 /// The fixture credentials: the case list's client ID and environment ID, a
-/// callback returning `assertion-1`, an empty environment, and no real sleep
-/// between exchange attempts.
+/// callback returning `assertion-1`, and no real sleep between exchange
+/// attempts.
 fn credentials(endpoint: &TokenEndpoint) -> WorkloadIdentityCredentialsBuilder {
     WorkloadIdentityCredentials::builder()
         .client_id(CLIENT_ID)
         .token_url(endpoint.url())
         .environment_id(ENVIRONMENT_ID)
         .identity_token_provider(provider("assertion-1", &Arc::default()))
-        .env(|_| None)
         .sleeper(|_| async {}.boxed())
 }
 
-/// The SDK does not read these variables. Tests set them, in the injected
-/// environment or in a child process, to show that they change nothing.
+/// The credentials read no environment variable. Tests set these four in a
+/// child process to show that they change nothing.
+const UNREAD_CLIENT_ID_ENV: &str = "WORKOS_CLIENT_ID";
 const UNREAD_ENVIRONMENT_ID_ENV: &str = "WORKOS_ENVIRONMENT_ID";
 const UNREAD_TOKEN_URL_ENV: &str = "WORKOS_WIF_TOKEN_URL";
 const UNREAD_SCOPE_ENV: &str = "WORKOS_WIF_SCOPE";
-
-/// An injected environment in which only that variable is set.
-fn environment_with_unread_variable(name: &str) -> Option<String> {
-    (name == UNREAD_ENVIRONMENT_ID_ENV).then(|| "environment_env".to_owned())
-}
 
 fn client(api: &Api, credentials: &WorkloadIdentityCredentials) -> Client {
     Client::builder()
@@ -411,7 +406,7 @@ async fn wait_until_waiting(credentials: &WorkloadIdentityCredentials, callers: 
 const CHILD_MARKER: &str = "WORKOS_WIF_TEST_CHILD";
 const TEST_MODULE: &str = "workload_identity::tests";
 const WIF_VARIABLES: [&str; 4] = [
-    CLIENT_ID_ENV,
+    UNREAD_CLIENT_ID_ENV,
     UNREAD_ENVIRONMENT_ID_ENV,
     UNREAD_TOKEN_URL_ENV,
     UNREAD_SCOPE_ENV,
@@ -513,6 +508,21 @@ async fn wif_01_first_request_sends_one_exchange_post() {
 
 #[tokio::test]
 async fn wif_02_api_request_carries_access_token_and_environment_header() {
+    const TEST: &str = "wif_02_api_request_carries_access_token_and_environment_header";
+    if !is_child(TEST) {
+        // Part (b) needs the variable in the real environment, so the whole
+        // case runs again in a child process that has it set.
+        return run_in_child(
+            TEST,
+            vec![(UNREAD_ENVIRONMENT_ID_ENV, "environment_env".to_owned())],
+        )
+        .await;
+    }
+    assert_eq!(
+        std::env::var(UNREAD_ENVIRONMENT_ID_ENV).as_deref(),
+        Ok("environment_env")
+    );
+
     // (a) With an environment ID: the access token and the environment header.
     let endpoint = TokenEndpoint::start().await;
     let api = Api::start().await;
@@ -531,16 +541,15 @@ async fn wif_02_api_request_carries_access_token_and_environment_header() {
         Some("environment_wif_test")
     );
 
-    // (b) A new instance with no environment ID, built while the injected
-    // environment sets the variable the SDK does not read: building it is
-    // not an error, and the header is not sent.
+    // (b) A new instance with no environment ID, built while the environment
+    // sets the variable the SDK does not read: building it is not an error,
+    // and the header is not sent.
     let endpoint = TokenEndpoint::start().await;
     let api = Api::start().await;
     let without_environment = WorkloadIdentityCredentials::builder()
         .client_id(CLIENT_ID)
         .token_url(endpoint.url())
         .identity_token_provider(provider("assertion-1", &Arc::default()))
-        .env(environment_with_unread_variable)
         .sleeper(|_| async {}.boxed())
         .build()
         .expect("credentials build without an environment ID");
@@ -1204,8 +1213,8 @@ async fn wif_21_token_file_is_read_again_on_every_exchange() {
 }
 
 #[tokio::test]
-async fn wif_22_env_and_callback_providers_and_environment_defaults() {
-    const TEST: &str = "wif_22_env_and_callback_providers_and_environment_defaults";
+async fn wif_22_env_and_callback_providers_and_no_environment_defaults() {
+    const TEST: &str = "wif_22_env_and_callback_providers_and_no_environment_defaults";
     const TOKEN_URL: &str = "WORKOS_WIF_TEST_TOKEN_URL";
     const API_URL: &str = "WORKOS_WIF_TEST_API_URL";
 
@@ -1218,8 +1227,8 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
             TEST,
             vec![
                 ("MY_JWT", "assertion-env".to_owned()),
-                (CLIENT_ID_ENV, "client_env".to_owned()),
-                // The SDK reads neither of these two.
+                // The SDK reads none of these three.
+                (UNREAD_CLIENT_ID_ENV, "client_env".to_owned()),
                 (
                     UNREAD_TOKEN_URL_ENV,
                     "https://ignored.example.test/oauth2/token".to_owned(),
@@ -1231,23 +1240,31 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
         )
         .await;
 
+        // (d) and (e) fail at construction, so they send nothing.
         let forms = endpoint.forms().await;
         let field = |run: usize, name: &str| forms[run].get(name).cloned();
-        assert_eq!(forms.len(), 4);
+        assert_eq!(forms.len(), 3);
         // (a) token_env
         assert_eq!(field(0, "assertion").as_deref(), Some("assertion-env"));
         // (b) callback
         assert_eq!(field(1, "assertion").as_deref(), Some("assertion-cb"));
-        // (c) Only the client ID came from the environment. The scope
-        // variable is ignored, and so is the token URL variable: the POST
-        // reached this mock, not the URL the variable names.
-        assert_eq!(field(2, "client_id").as_deref(), Some("client_env"));
+        // (c) None of the three variables is read: the client ID is the one
+        // passed in code, there is no scope, and the POST reached this mock,
+        // not the URL the variable names.
+        assert_eq!(field(2, "client_id").as_deref(), Some("client_explicit"));
         assert_eq!(field(2, "scope"), None);
-        // (d) an explicit client ID wins
-        assert_eq!(field(3, "client_id").as_deref(), Some("client_explicit"));
-        assert_eq!(field(3, "scope").as_deref(), Some("scope_explicit"));
         return;
     }
+
+    assert_eq!(
+        std::env::var(UNREAD_CLIENT_ID_ENV).as_deref(),
+        Ok("client_env")
+    );
+    assert_eq!(
+        std::env::var(UNREAD_TOKEN_URL_ENV).as_deref(),
+        Ok("https://ignored.example.test/oauth2/token")
+    );
+    assert_eq!(std::env::var(UNREAD_SCOPE_ENV).as_deref(), Ok("scope_env"));
 
     let callback = || async { Ok::<_, ProviderError>("assertion-cb".to_owned()) };
     let client = |credentials: WorkloadIdentityCredentials| {
@@ -1275,25 +1292,27 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
         .build()
         .unwrap();
     list(&client(from_callback)).await.unwrap();
-    // (c) Only a provider and the mock's token URL.
-    let defaults = WorkloadIdentityCredentials::builder()
-        .token_url(std::env::var(TOKEN_URL).unwrap())
-        .identity_token_provider(callback)
-        .build()
-        .unwrap();
-    list(&client(defaults)).await.unwrap();
-    // (d)
-    let overridden = WorkloadIdentityCredentials::builder()
+    // (c) A provider, the mock's token URL and a client ID, and nothing else.
+    let in_code = WorkloadIdentityCredentials::builder()
         .client_id("client_explicit")
         .token_url(std::env::var(TOKEN_URL).unwrap())
-        .scope("scope_explicit")
         .identity_token_provider(callback)
         .build()
         .unwrap();
-    list(&client(overridden)).await.unwrap();
+    list(&client(in_code)).await.unwrap();
+    // (d) No client ID passed: construction fails, although the variable the
+    // SDK does not read is set.
+    let error = WorkloadIdentityCredentials::builder()
+        .token_url(std::env::var(TOKEN_URL).unwrap())
+        .identity_token_provider(callback)
+        .build()
+        .unwrap_err();
+    assert_eq!(error.code, "invalid_configuration");
+    assert_eq!(error.description, "client_id is required");
     // (e) No token URL passed: construction fails, although the variable the
     // SDK does not read is set.
     let error = WorkloadIdentityCredentials::builder()
+        .client_id(CLIENT_ID)
         .identity_token_provider(callback)
         .build()
         .unwrap_err();
@@ -1521,7 +1540,7 @@ async fn an_unusable_expires_in_is_treated_as_300_seconds() {
 // ---------------------------------------------------------------------------
 
 #[test]
-fn missing_settings_are_errors_at_construction_and_name_the_variable() {
+fn missing_settings_are_errors_at_construction() {
     let provider = || async { Ok::<_, ProviderError>("assertion-1".to_owned()) };
     let complete = || {
         WorkloadIdentityCredentials::builder()
@@ -1529,15 +1548,11 @@ fn missing_settings_are_errors_at_construction_and_name_the_variable() {
             .token_url("https://auth.example.test/oauth2/token")
             .environment_id(ENVIRONMENT_ID)
             .identity_token_provider(provider)
-            .env(|_| None)
     };
     assert!(complete().build().is_ok());
 
     let cases: [(WorkloadIdentityCredentialsBuilder, &str); 5] = [
-        (
-            complete().client_id(""),
-            "client_id is required (or set WORKOS_CLIENT_ID)",
-        ),
+        (complete().client_id(""), "client_id is required"),
         (complete().token_url(""), "token_url is required"),
         (
             complete().token_url("auth.example.test/oauth2/token"),
@@ -1551,8 +1566,7 @@ fn missing_settings_are_errors_at_construction_and_name_the_variable() {
             WorkloadIdentityCredentials::builder()
                 .client_id(CLIENT_ID)
                 .token_url("https://auth.example.test/oauth2/token")
-                .environment_id(ENVIRONMENT_ID)
-                .env(|_| None),
+                .environment_id(ENVIRONMENT_ID),
             "identity_token_provider is required",
         ),
     ];
@@ -1576,11 +1590,9 @@ fn an_environment_id_that_is_left_out_or_empty_is_not_set() {
 
     for builder in [
         // Left out.
-        without_environment().env(|_| None),
-        // Left out, and the variable is set: it is ignored.
-        without_environment().env(environment_with_unread_variable),
+        without_environment(),
         // Set to an empty string.
-        without_environment().environment_id("").env(|_| None),
+        without_environment().environment_id(""),
     ] {
         let credentials = builder.build().unwrap();
         assert!(credentials.inner.environment_id.is_none());

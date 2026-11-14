@@ -70,10 +70,6 @@ pub const ENVIRONMENT_ID_HEADER: &str = "x-url-environment-id";
 /// Default for the `resource` form field of the exchange.
 pub const DEFAULT_RESOURCE: &str = "https://api.workos.com";
 
-/// Environment variable that supplies `client_id` when it is not set. It is
-/// the only setting read from the environment.
-pub const CLIENT_ID_ENV: &str = "WORKOS_CLIENT_ID";
-
 /// A token is refreshed once less than this much of its life remains...
 const REFRESH_THRESHOLD: Duration = Duration::from_secs(60);
 /// ...or less than this fraction of its lifetime, whichever is shorter.
@@ -82,7 +78,6 @@ const REFRESH_FRACTION: f64 = 0.2;
 const EXCHANGE_DEADLINE: Duration = Duration::from_secs(30);
 
 type Clock = Arc<dyn Fn() -> Instant + Send + Sync>;
-type EnvLookup = Arc<dyn Fn(&str) -> Option<String> + Send + Sync>;
 
 /// What every caller waiting on one exchange receives: the `Authorization`
 /// value and the generation it was stored under.
@@ -336,11 +331,9 @@ impl fmt::Debug for WorkloadIdentityCredentials {
 
 /// Builder for [`WorkloadIdentityCredentials`].
 ///
-/// `client_id` falls back to the environment variable `WORKOS_CLIENT_ID` when
-/// it is not set here, and a value set here always wins. That is the only
-/// setting read from the environment: `token_url`, `environment_id` and
-/// `scope` are set here or not at all. The variable only fills in credentials
-/// you construct; nothing in the environment turns workload identity on.
+/// Every setting is set here or not at all. The credentials read no
+/// environment variable, so nothing in the environment configures them or
+/// turns workload identity on.
 #[derive(Default)]
 pub struct WorkloadIdentityCredentialsBuilder {
     client_id: Option<String>,
@@ -352,12 +345,11 @@ pub struct WorkloadIdentityCredentialsBuilder {
     transport: Option<SharedTransport>,
     clock: Option<Clock>,
     sleeper: Option<Sleeper>,
-    env: Option<EnvLookup>,
 }
 
 impl WorkloadIdentityCredentialsBuilder {
-    /// The M2M application's client ID. Required; defaults to
-    /// `WORKOS_CLIENT_ID`.
+    /// The M2M application's client ID. Required, and set only here: no
+    /// environment variable supplies it.
     pub fn client_id(mut self, client_id: impl Into<String>) -> Self {
         self.client_id = Some(client_id.into());
         self
@@ -433,40 +425,18 @@ impl WorkloadIdentityCredentialsBuilder {
         self
     }
 
-    /// Replace the process environment the defaults are read from.
-    #[cfg(test)]
-    pub(crate) fn env(
-        mut self,
-        env: impl Fn(&str) -> Option<String> + Send + Sync + 'static,
-    ) -> Self {
-        self.env = Some(Arc::new(env));
-        self
-    }
-
     /// Validate the configuration and build the credentials.
     ///
     /// Fails with code `invalid_configuration` when a required setting is
-    /// missing; for `client_id` that is after `WORKOS_CLIENT_ID` is
-    /// consulted. No request is sent; the first exchange happens on the first
+    /// missing. No request is sent; the first exchange happens on the first
     /// API call.
     pub fn build(self) -> Result<WorkloadIdentityCredentials, WorkloadIdentityError> {
-        let env = self
-            .env
-            .unwrap_or_else(|| Arc::new(|name: &str| std::env::var(name).ok()));
-
-        // An explicit client ID wins; otherwise the environment variable.
-        // Empty counts as missing.
+        // Every setting is set on the builder or not at all; no environment
+        // variable is read. Empty counts as missing.
         let client_id = self
             .client_id
-            .or_else(|| env(CLIENT_ID_ENV))
             .filter(|client_id| !client_id.is_empty())
-            .ok_or_else(|| {
-                WorkloadIdentityError::invalid_configuration(&format!(
-                    "client_id is required (or set {CLIENT_ID_ENV})"
-                ))
-            })?;
-        // Every other setting is set on the builder or not at all; no
-        // environment variable is read for it.
+            .ok_or_else(|| WorkloadIdentityError::invalid_configuration("client_id is required"))?;
         let token_url = self
             .token_url
             .filter(|token_url| !token_url.is_empty())
