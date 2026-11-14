@@ -77,10 +77,10 @@ pub struct TokenFile {
 
 /// An [`IdentityTokenProvider`] that reads the token from `path`.
 ///
-/// The file is read again on every exchange, so a platform that rotates the
-/// file (a projected Kubernetes service account token, for example) is picked
-/// up without a restart. Surrounding whitespace is trimmed. A missing or empty
-/// file is an error.
+/// Use it for a file that another process writes, such as a sidecar or an
+/// earlier CI step that fetches a new token. The file is read again on every
+/// exchange, so a rewritten file is picked up without a restart. Surrounding
+/// whitespace is trimmed. A missing or empty file is an error.
 pub fn token_file(path: impl Into<PathBuf>) -> TokenFile {
     TokenFile { path: path.into() }
 }

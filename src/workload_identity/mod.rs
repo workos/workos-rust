@@ -76,8 +76,6 @@ pub const CLIENT_ID_ENV: &str = "WORKOS_CLIENT_ID";
 pub const TOKEN_URL_ENV: &str = "WORKOS_WIF_TOKEN_URL";
 /// Environment variable that supplies `scope` when it is not set.
 pub const SCOPE_ENV: &str = "WORKOS_WIF_SCOPE";
-/// Environment variable that supplies `environment_id` when it is not set.
-pub const ENVIRONMENT_ID_ENV: &str = "WORKOS_ENVIRONMENT_ID";
 
 /// A token is refreshed once less than this much of its life remains...
 const REFRESH_THRESHOLD: Duration = Duration::from_secs(60);
@@ -341,11 +339,12 @@ impl fmt::Debug for WorkloadIdentityCredentials {
 
 /// Builder for [`WorkloadIdentityCredentials`].
 ///
-/// `client_id`, `token_url`, `environment_id` and `scope` fall back to the
-/// environment variables `WORKOS_CLIENT_ID`, `WORKOS_WIF_TOKEN_URL`,
-/// `WORKOS_ENVIRONMENT_ID` and `WORKOS_WIF_SCOPE` when they are not set here.
-/// A value set here always wins. The variables only fill in credentials you
-/// construct; nothing in the environment turns workload identity on.
+/// `client_id`, `token_url` and `scope` fall back to the environment
+/// variables `WORKOS_CLIENT_ID`, `WORKOS_WIF_TOKEN_URL` and `WORKOS_WIF_SCOPE`
+/// when they are not set here. A value set here always wins. The variables
+/// only fill in credentials you construct; nothing in the environment turns
+/// workload identity on. `environment_id` is set here or not at all; no
+/// environment variable supplies it.
 #[derive(Default)]
 pub struct WorkloadIdentityCredentialsBuilder {
     client_id: Option<String>,
@@ -375,8 +374,8 @@ impl WorkloadIdentityCredentialsBuilder {
         self
     }
 
-    /// The environment the requests are meant for. Optional; defaults to
-    /// `WORKOS_ENVIRONMENT_ID`. When set, it is sent as the
+    /// The environment the requests are meant for. Optional, and set only
+    /// here: no environment variable supplies it. When set, it is sent as the
     /// `x-url-environment-id` header on every API request; when not set or
     /// empty, the header is left out.
     ///
@@ -460,9 +459,9 @@ impl WorkloadIdentityCredentialsBuilder {
 
         let client_id = required(self.client_id, &env, "client_id", CLIENT_ID_ENV)?;
         let token_url = required(self.token_url, &env, "token_url", TOKEN_URL_ENV)?;
+        // Set on the builder or not at all; no environment variable is read.
         let environment_id = self
             .environment_id
-            .or_else(|| env(ENVIRONMENT_ID_ENV))
             .filter(|environment_id| !environment_id.is_empty());
         let scope = self
             .scope

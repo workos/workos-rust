@@ -70,7 +70,7 @@ The client is cheap to clone and can be shared across handlers and tasks.
 
 ## Workload Identity
 
-A workload that runs on a platform which issues it an identity token (GitHub Actions, GCP, AWS, Kubernetes and others) can call WorkOS without a stored API key. The SDK exchanges the platform's token for a short-lived WorkOS access token, caches it, refreshes it shortly before it expires, and exchanges once more if the API answers `401`.
+A workload that runs on a platform which issues it an identity token (GitHub Actions, GCP and AWS) can call WorkOS without a stored API key. The SDK exchanges the platform's token for a short-lived WorkOS access token, caches it, refreshes it shortly before it expires, and exchanges once more if the API answers `401`.
 
 Add `workos` and the provider crate for your platform:
 
@@ -130,8 +130,8 @@ let provider = aws_sts("https://api.workos.com", Some("us-east-1")).await?;
 ```rust
 use workos::{WorkloadIdentityCredentials, token_file};
 
-// A token the platform writes to disk, such as a projected Kubernetes
-// service account token.
+// A file that another process writes, such as a sidecar or an earlier CI
+// step that fetches a new token.
 let from_file = WorkloadIdentityCredentials::builder()
     .identity_token_provider(token_file("/var/run/secrets/workos/token"))
     .build()?;
@@ -145,20 +145,20 @@ let from_callback = WorkloadIdentityCredentials::builder()
     .build()?;
 ```
 
-The server accepts an identity token for one exchange only. The SDK exchanges again about every four minutes, and if the file or the variable still holds the same token then, that exchange fails with `invalid_grant`. So use `token_file` and `token_env` for a source that something rewrites before each exchange, or for a job shorter than five minutes. The platform providers (GitHub Actions, GCP, AWS) fetch a new token every time.
+The server accepts an identity token for one exchange only. The SDK exchanges again about every four minutes, and if the file or the variable still holds the same token then, that exchange fails with `invalid_grant`. So use `token_file` and `token_env` for a source that something rewrites before each exchange, or for a job shorter than four minutes. The platform providers (GitHub Actions, GCP, AWS) fetch a new token every time.
 
-The two examples above set no other field, because the client ID, the token URL, the environment ID and the scope fall back to environment variables:
+The two examples above set no other field, because the client ID, the token URL and the scope fall back to environment variables:
 
-| Builder method                 | Required | Default                                     |
-| ------------------------------ | -------- | ------------------------------------------- |
-| `.client_id(_)`                | yes      | `WORKOS_CLIENT_ID`                          |
-| `.token_url(_)`                | yes      | `WORKOS_WIF_TOKEN_URL`                      |
-| `.environment_id(_)`           | no       | `WORKOS_ENVIRONMENT_ID`, otherwise not sent |
-| `.scope(_)`                    | no       | `WORKOS_WIF_SCOPE`, otherwise not sent      |
-| `.resource(_)`                 | no       | `https://api.workos.com`                    |
-| `.identity_token_provider(_)`  | yes      | none                                        |
+| Builder method                 | Required | Default                                  |
+| ------------------------------ | -------- | ---------------------------------------- |
+| `.client_id(_)`                | yes      | `WORKOS_CLIENT_ID`                       |
+| `.token_url(_)`                | yes      | `WORKOS_WIF_TOKEN_URL`                   |
+| `.environment_id(_)`           | no       | none                                     |
+| `.scope(_)`                    | no       | `WORKOS_WIF_SCOPE`, otherwise not sent   |
+| `.resource(_)`                 | no       | `https://api.workos.com`                 |
+| `.identity_token_provider(_)`  | yes      | none                                     |
 
-The environment ID is optional. The server binds a workload identity client to exactly one environment and takes the environment from that binding, so the `x-url-environment-id` header selects nothing. When an environment ID is set, the SDK sends it in that header on every API request as a safety check: a value that names a different environment is refused with `403 environment_mismatch`. When it is not set, or is empty, the header is not sent.
+The environment ID is optional, and is set only in code: no environment variable supplies it. The server binds a workload identity client to exactly one environment and takes the environment from that binding, so the `x-url-environment-id` header selects nothing. When an environment ID is set, the SDK sends it in that header on every API request as a safety check: a value that names a different environment is refused with `403 environment_mismatch`. When it is not set, or is empty, the header is not sent.
 
 A value set on the builder always wins. The variables only fill in credentials you construct: nothing in the environment turns workload identity on, and there is no provider auto-detection.
 

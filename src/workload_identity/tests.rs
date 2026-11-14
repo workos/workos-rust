@@ -238,6 +238,15 @@ fn credentials(endpoint: &TokenEndpoint) -> WorkloadIdentityCredentialsBuilder {
         .sleeper(|_| async {}.boxed())
 }
 
+/// The SDK does not read this variable. Tests set it in the injected
+/// environment to show that it changes nothing.
+const UNREAD_ENVIRONMENT_ID_ENV: &str = "WORKOS_ENVIRONMENT_ID";
+
+/// An injected environment in which only that variable is set.
+fn environment_with_unread_variable(name: &str) -> Option<String> {
+    (name == UNREAD_ENVIRONMENT_ID_ENV).then(|| "environment_env".to_owned())
+}
+
 fn client(api: &Api, credentials: &WorkloadIdentityCredentials) -> Client {
     Client::builder()
         .base_url(api.server.uri())
@@ -399,7 +408,7 @@ async fn wait_until_waiting(credentials: &WorkloadIdentityCredentials, callers: 
 /// themselves again in a child process whose environment is set up front.
 const CHILD_MARKER: &str = "WORKOS_WIF_TEST_CHILD";
 const TEST_MODULE: &str = "workload_identity::tests";
-const WIF_VARIABLES: [&str; 4] = [CLIENT_ID_ENV, TOKEN_URL_ENV, SCOPE_ENV, ENVIRONMENT_ID_ENV];
+const WIF_VARIABLES: [&str; 3] = [CLIENT_ID_ENV, TOKEN_URL_ENV, SCOPE_ENV];
 
 fn is_child(test: &str) -> bool {
     std::env::var(CHILD_MARKER).as_deref() == Ok(test)
@@ -515,15 +524,16 @@ async fn wif_02_api_request_carries_access_token_and_environment_header() {
         Some("environment_wif_test")
     );
 
-    // (b) A new instance with no environment ID, neither set here nor in the
-    // environment: building it is not an error, and the header is not sent.
+    // (b) A new instance with no environment ID, built while the injected
+    // environment sets the variable the SDK does not read: building it is
+    // not an error, and the header is not sent.
     let endpoint = TokenEndpoint::start().await;
     let api = Api::start().await;
     let without_environment = WorkloadIdentityCredentials::builder()
         .client_id(CLIENT_ID)
         .token_url(endpoint.url())
         .identity_token_provider(provider("assertion-1", &Arc::default()))
-        .env(|_| None)
+        .env(environment_with_unread_variable)
         .sleeper(|_| async {}.boxed())
         .build()
         .expect("credentials build without an environment ID");
@@ -1207,7 +1217,6 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
                 (CLIENT_ID_ENV, "client_env".to_owned()),
                 (TOKEN_URL_ENV, endpoint.url()),
                 (SCOPE_ENV, "scope_env".to_owned()),
-                (ENVIRONMENT_ID_ENV, "environment_env".to_owned()),
                 (TOKEN_URL, endpoint.url()),
                 (API_URL, api.server.uri()),
             ],
@@ -1216,12 +1225,6 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
 
         let forms = endpoint.forms().await;
         let field = |run: usize, name: &str| forms[run].get(name).cloned();
-        let environments: Vec<_> = api
-            .requests()
-            .await
-            .iter()
-            .map(|request| header(request, ENVIRONMENT_ID_HEADER).unwrap_or_default())
-            .collect();
         assert_eq!(forms.len(), 4);
         // (a) token_env
         assert_eq!(field(0, "assertion").as_deref(), Some("assertion-env"));
@@ -1230,11 +1233,9 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
         // (c) every omitted field came from the environment
         assert_eq!(field(2, "client_id").as_deref(), Some("client_env"));
         assert_eq!(field(2, "scope").as_deref(), Some("scope_env"));
-        assert_eq!(environments[2], "environment_env");
         // (d) explicit values win
         assert_eq!(field(3, "client_id").as_deref(), Some("client_explicit"));
         assert_eq!(field(3, "scope").as_deref(), Some("scope_explicit"));
-        assert_eq!(environments[3], "environment_explicit");
         return;
     }
 
@@ -1275,7 +1276,6 @@ async fn wif_22_env_and_callback_providers_and_environment_defaults() {
     let overridden = WorkloadIdentityCredentials::builder()
         .client_id("client_explicit")
         .scope("scope_explicit")
-        .environment_id("environment_explicit")
         .identity_token_provider(callback)
         .build()
         .unwrap();
@@ -1559,10 +1559,10 @@ fn an_environment_id_that_is_left_out_or_empty_is_not_set() {
     };
 
     for builder in [
-        // Left out, and the variable is unset.
+        // Left out.
         without_environment().env(|_| None),
-        // Left out, and the variable is empty.
-        without_environment().env(|name| (name == ENVIRONMENT_ID_ENV).then(String::new)),
+        // Left out, and the variable is set: it is ignored.
+        without_environment().env(environment_with_unread_variable),
         // Set to an empty string.
         without_environment().environment_id("").env(|_| None),
     ] {
