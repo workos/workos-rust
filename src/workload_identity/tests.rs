@@ -483,23 +483,21 @@ async fn wif_01_first_request_sends_one_exchange_post() {
 
     // Again on a new instance, with a scope.
     let endpoint = TokenEndpoint::start().await;
-    let scoped = credentials(&endpoint)
-        .scope("organizations:write")
-        .build()
-        .unwrap();
+    let scoped = credentials(&endpoint).scope("orgs:write").build().unwrap();
     list(&client(&api, &scoped)).await.unwrap();
 
     let forms = endpoint.forms().await;
     assert_eq!(forms.len(), 1);
     assert_eq!(
         forms[0].get("scope").map(String::as_str),
-        Some("organizations:write")
+        Some("orgs:write")
     );
     assert!(!forms[0].contains_key("client_secret"));
 }
 
 #[tokio::test]
 async fn wif_02_api_request_carries_access_token_and_environment_header() {
+    // (a) With an environment ID: the access token and the environment header.
     let endpoint = TokenEndpoint::start().await;
     let api = Api::start().await;
     let credentials = credentials(&endpoint).build().unwrap();
@@ -516,6 +514,29 @@ async fn wif_02_api_request_carries_access_token_and_environment_header() {
         header(&requests[0], "x-url-environment-id").as_deref(),
         Some("environment_wif_test")
     );
+
+    // (b) A new instance with no environment ID, neither set here nor in the
+    // environment: building it is not an error, and the header is not sent.
+    let endpoint = TokenEndpoint::start().await;
+    let api = Api::start().await;
+    let without_environment = WorkloadIdentityCredentials::builder()
+        .client_id(CLIENT_ID)
+        .token_url(endpoint.url())
+        .identity_token_provider(provider("assertion-1", &Arc::default()))
+        .env(|_| None)
+        .sleeper(|_| async {}.boxed())
+        .build()
+        .expect("credentials build without an environment ID");
+
+    list(&client(&api, &without_environment)).await.unwrap();
+
+    let requests = api.requests().await;
+    assert_eq!(requests.len(), 1);
+    assert_eq!(
+        header(&requests[0], "authorization").as_deref(),
+        Some("Bearer access-1")
+    );
+    assert_eq!(header(&requests[0], "x-url-environment-id"), None);
 }
 
 #[tokio::test]
@@ -1493,7 +1514,7 @@ fn missing_settings_are_errors_at_construction_and_name_the_variable() {
     };
     assert!(complete().build().is_ok());
 
-    let cases: [(WorkloadIdentityCredentialsBuilder, &str); 6] = [
+    let cases: [(WorkloadIdentityCredentialsBuilder, &str); 5] = [
         (
             complete().client_id(""),
             "client_id is required (or set WORKOS_CLIENT_ID)",
@@ -1501,10 +1522,6 @@ fn missing_settings_are_errors_at_construction_and_name_the_variable() {
         (
             complete().token_url(""),
             "token_url is required (or set WORKOS_WIF_TOKEN_URL)",
-        ),
-        (
-            complete().environment_id(""),
-            "environment_id is required (or set WORKOS_ENVIRONMENT_ID)",
         ),
         (
             complete().token_url("auth.example.test/oauth2/token"),
@@ -1528,6 +1545,29 @@ fn missing_settings_are_errors_at_construction_and_name_the_variable() {
         assert_eq!(error.code, "invalid_configuration");
         assert_eq!(error.description, description);
         assert!(!error.hint.is_empty());
+    }
+}
+
+#[test]
+fn an_environment_id_that_is_left_out_or_empty_is_not_set() {
+    let provider = || async { Ok::<_, ProviderError>("assertion-1".to_owned()) };
+    let without_environment = || {
+        WorkloadIdentityCredentials::builder()
+            .client_id(CLIENT_ID)
+            .token_url("https://auth.example.test/oauth2/token")
+            .identity_token_provider(provider)
+    };
+
+    for builder in [
+        // Left out, and the variable is unset.
+        without_environment().env(|_| None),
+        // Left out, and the variable is empty.
+        without_environment().env(|name| (name == ENVIRONMENT_ID_ENV).then(String::new)),
+        // Set to an empty string.
+        without_environment().environment_id("").env(|_| None),
+    ] {
+        let credentials = builder.build().unwrap();
+        assert!(credentials.inner.environment_id.is_none());
     }
 }
 

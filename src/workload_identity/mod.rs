@@ -62,8 +62,9 @@ pub use provider::{
 use error::Detail;
 use exchange::{DEFAULT_LIFETIME, ExchangeConfig, Sleeper};
 
-/// Header that tells the API which environment a workload identity token is
-/// for. Sent on every request a [`WorkloadIdentityCredentials`] client makes.
+/// Header that names the environment a workload identity request is meant
+/// for. Sent on every request a [`WorkloadIdentityCredentials`] client makes
+/// when an environment ID is set, and left out otherwise.
 pub const ENVIRONMENT_ID_HEADER: &str = "x-url-environment-id";
 
 /// Default for the `resource` form field of the exchange.
@@ -110,7 +111,8 @@ pub struct WorkloadIdentityCredentials {
 }
 
 struct Inner {
-    environment_id: HeaderValue,
+    /// `None` when no environment ID is set; the header is then not sent.
+    environment_id: Option<HeaderValue>,
     exchange: ExchangeConfig,
     clock: Clock,
     state: Mutex<State>,
@@ -300,10 +302,12 @@ impl Credentials for WorkloadIdentityCredentials {
         let (authorization, generation) = self.current_token().await?;
         let mut headers = HeaderMap::with_capacity(2);
         headers.insert(AUTHORIZATION, authorization);
-        headers.insert(
-            HeaderName::from_static(ENVIRONMENT_ID_HEADER),
-            self.inner.environment_id.clone(),
-        );
+        if let Some(environment_id) = &self.inner.environment_id {
+            headers.insert(
+                HeaderName::from_static(ENVIRONMENT_ID_HEADER),
+                environment_id.clone(),
+            );
+        }
         Ok(CredentialSnapshot {
             headers,
             generation,
@@ -371,9 +375,15 @@ impl WorkloadIdentityCredentialsBuilder {
         self
     }
 
-    /// The environment the access token is for, sent as the
-    /// `x-url-environment-id` header on every API request. Required; defaults
-    /// to `WORKOS_ENVIRONMENT_ID`.
+    /// The environment the requests are meant for. Optional; defaults to
+    /// `WORKOS_ENVIRONMENT_ID`. When set, it is sent as the
+    /// `x-url-environment-id` header on every API request; when not set or
+    /// empty, the header is left out.
+    ///
+    /// The server binds a workload identity client to exactly one environment
+    /// and takes the environment from that binding, so the header selects
+    /// nothing. Setting it is a safety check: a value that names a different
+    /// environment is refused with `403 environment_mismatch`.
     pub fn environment_id(mut self, environment_id: impl Into<String>) -> Self {
         self.environment_id = Some(environment_id.into());
         self
@@ -450,12 +460,10 @@ impl WorkloadIdentityCredentialsBuilder {
 
         let client_id = required(self.client_id, &env, "client_id", CLIENT_ID_ENV)?;
         let token_url = required(self.token_url, &env, "token_url", TOKEN_URL_ENV)?;
-        let environment_id = required(
-            self.environment_id,
-            &env,
-            "environment_id",
-            ENVIRONMENT_ID_ENV,
-        )?;
+        let environment_id = self
+            .environment_id
+            .or_else(|| env(ENVIRONMENT_ID_ENV))
+            .filter(|environment_id| !environment_id.is_empty());
         let scope = self
             .scope
             .or_else(|| env(SCOPE_ENV))
@@ -475,11 +483,15 @@ impl WorkloadIdentityCredentialsBuilder {
                 "token_url must be an absolute http or https URL",
             ));
         }
-        let environment_id = HeaderValue::from_str(&environment_id).map_err(|_| {
-            WorkloadIdentityError::invalid_configuration(
-                "environment_id cannot be sent as an HTTP header",
-            )
-        })?;
+        let environment_id = environment_id
+            .map(|environment_id| {
+                HeaderValue::from_str(&environment_id).map_err(|_| {
+                    WorkloadIdentityError::invalid_configuration(
+                        "environment_id cannot be sent as an HTTP header",
+                    )
+                })
+            })
+            .transpose()?;
 
         let transport = match self.transport {
             Some(transport) => transport,

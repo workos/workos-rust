@@ -92,7 +92,7 @@ use workos_workload_identity_github_actions::github_actions;
 let credentials = WorkloadIdentityCredentials::builder()
     .client_id("client_01...")                        // the M2M application
     .token_url("https://<your token endpoint>/oauth2/token")
-    .environment_id("environment_01...")
+    .environment_id("environment_01...")              // optional; see below
     .identity_token_provider(github_actions("https://api.workos.com"))
     .build()?;
 
@@ -145,16 +145,20 @@ let from_callback = WorkloadIdentityCredentials::builder()
     .build()?;
 ```
 
-Those two examples set no other field, because the three required IDs and the scope fall back to environment variables:
+The server accepts an identity token for one exchange only. The SDK exchanges again about every four minutes, and if the file or the variable still holds the same token then, that exchange fails with `invalid_grant`. So use `token_file` and `token_env` for a source that something rewrites before each exchange, or for a job shorter than five minutes. The platform providers (GitHub Actions, GCP, AWS) fetch a new token every time.
 
-| Builder method                 | Required | Default                                  |
-| ------------------------------ | -------- | ---------------------------------------- |
-| `.client_id(_)`                | yes      | `WORKOS_CLIENT_ID`                       |
-| `.token_url(_)`                | yes      | `WORKOS_WIF_TOKEN_URL`                   |
-| `.environment_id(_)`           | yes      | `WORKOS_ENVIRONMENT_ID`                  |
-| `.scope(_)`                    | no       | `WORKOS_WIF_SCOPE`, otherwise not sent   |
-| `.resource(_)`                 | no       | `https://api.workos.com`                 |
-| `.identity_token_provider(_)`  | yes      | none                                     |
+The two examples above set no other field, because the client ID, the token URL, the environment ID and the scope fall back to environment variables:
+
+| Builder method                 | Required | Default                                     |
+| ------------------------------ | -------- | ------------------------------------------- |
+| `.client_id(_)`                | yes      | `WORKOS_CLIENT_ID`                          |
+| `.token_url(_)`                | yes      | `WORKOS_WIF_TOKEN_URL`                      |
+| `.environment_id(_)`           | no       | `WORKOS_ENVIRONMENT_ID`, otherwise not sent |
+| `.scope(_)`                    | no       | `WORKOS_WIF_SCOPE`, otherwise not sent      |
+| `.resource(_)`                 | no       | `https://api.workos.com`                    |
+| `.identity_token_provider(_)`  | yes      | none                                        |
+
+The environment ID is optional. The server binds a workload identity client to exactly one environment and takes the environment from that binding, so the `x-url-environment-id` header selects nothing. When an environment ID is set, the SDK sends it in that header on every API request as a safety check: a value that names a different environment is refused with `403 environment_mismatch`. When it is not set, or is empty, the header is not sent.
 
 A value set on the builder always wins. The variables only fill in credentials you construct: nothing in the environment turns workload identity on, and there is no provider auto-detection.
 
