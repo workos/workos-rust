@@ -345,6 +345,10 @@ pub struct WorkloadIdentityCredentialsBuilder {
     transport: Option<SharedTransport>,
     clock: Option<Clock>,
     sleeper: Option<Sleeper>,
+    /// Set only by this crate's unit tests, which exchange with a plain-HTTP
+    /// mock server. The library is compiled without it.
+    #[cfg(test)]
+    allow_http_token_url: bool,
 }
 
 impl WorkloadIdentityCredentialsBuilder {
@@ -357,6 +361,12 @@ impl WorkloadIdentityCredentialsBuilder {
 
     /// The token exchange endpoint. Required, and set only here: there is no
     /// built-in default and no environment variable supplies it.
+    ///
+    /// It must be an absolute `https` URL with a host, because the request
+    /// carries the workload's identity token and the response carries the
+    /// access token. [`build`](Self::build) refuses anything else with code
+    /// `invalid_configuration`, and that includes an `http` URL for
+    /// `localhost` or a loopback address. Nothing turns the rule off.
     pub fn token_url(mut self, token_url: impl Into<String>) -> Self {
         self.token_url = Some(token_url.into());
         self
@@ -425,11 +435,20 @@ impl WorkloadIdentityCredentialsBuilder {
         self
     }
 
+    /// Accept an `http` token URL as well as an `https` one, so that a test
+    /// can exchange with a local mock server. This method and the field it
+    /// sets exist only in this crate's own unit tests.
+    #[cfg(test)]
+    pub(crate) fn allow_http_token_url(mut self) -> Self {
+        self.allow_http_token_url = true;
+        self
+    }
+
     /// Validate the configuration and build the credentials.
     ///
     /// Fails with code `invalid_configuration` when a required setting is
-    /// missing. No request is sent; the first exchange happens on the first
-    /// API call.
+    /// missing, or when the token URL is not an absolute `https` URL. No
+    /// request is sent; the first exchange happens on the first API call.
     pub fn build(self) -> Result<WorkloadIdentityCredentials, WorkloadIdentityError> {
         // Every setting is set on the builder or not at all; no environment
         // variable is read. Empty counts as missing.
@@ -453,11 +472,15 @@ impl WorkloadIdentityCredentialsBuilder {
             WorkloadIdentityError::invalid_configuration("identity_token_provider is required")
         })?;
 
-        let is_http_url =
-            url::Url::parse(&token_url).is_ok_and(|url| matches!(url.scheme(), "http" | "https"));
-        if !is_http_url {
+        // `https` only, with no exception for localhost: the POST carries the
+        // workload's identity token and the response carries the access token.
+        let accepted = is_absolute_url(&token_url, "https");
+        #[cfg(test)]
+        let accepted =
+            accepted || (self.allow_http_token_url && is_absolute_url(&token_url, "http"));
+        if !accepted {
             return Err(WorkloadIdentityError::invalid_configuration(
-                "token_url must be an absolute http or https URL",
+                "token_url must be an absolute https URL",
             ));
         }
         let environment_id = environment_id
@@ -501,6 +524,23 @@ impl WorkloadIdentityCredentialsBuilder {
             }),
         })
     }
+}
+
+/// Whether `value` is an absolute URL with the scheme `scheme`, written in
+/// any case, and a host.
+fn is_absolute_url(value: &str, scheme: &str) -> bool {
+    // `url` parses the way a browser does: it reads `https:host`,
+    // `https:/host` and `https:///host` as `https://host`. None of those has
+    // a host where a URL has one, so the string itself must be the scheme,
+    // then `://`, then the authority.
+    let Some((written_scheme, rest)) = value.split_once("://") else {
+        return false;
+    };
+    written_scheme.eq_ignore_ascii_case(scheme)
+        // What the parser would skip to find a host further along: slashes,
+        // backslashes, and the tabs and line breaks it drops from any URL.
+        && !rest.starts_with(['/', '\\', '\t', '\n', '\r'])
+        && url::Url::parse(value).is_ok_and(|url| url.scheme() == scheme && url.has_host())
 }
 
 /// The exchange's own transport: the bundled `reqwest` client with redirects

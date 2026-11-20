@@ -228,10 +228,15 @@ fn provider(
 /// The fixture credentials: the case list's client ID and environment ID, a
 /// callback returning `assertion-1`, and no real sleep between exchange
 /// attempts.
+///
+/// The mock token endpoint is plain HTTP, which `build` refuses. Every
+/// builder that is given a mock's URL calls `allow_http_token_url`, a switch
+/// that exists only in these tests.
 fn credentials(endpoint: &TokenEndpoint) -> WorkloadIdentityCredentialsBuilder {
     WorkloadIdentityCredentials::builder()
         .client_id(CLIENT_ID)
         .token_url(endpoint.url())
+        .allow_http_token_url()
         .environment_id(ENVIRONMENT_ID)
         .identity_token_provider(provider("assertion-1", &Arc::default()))
         .sleeper(|_| async {}.boxed())
@@ -549,6 +554,7 @@ async fn wif_02_api_request_carries_access_token_and_environment_header() {
     let without_environment = WorkloadIdentityCredentials::builder()
         .client_id(CLIENT_ID)
         .token_url(endpoint.url())
+        .allow_http_token_url()
         .identity_token_provider(provider("assertion-1", &Arc::default()))
         .sleeper(|_| async {}.boxed())
         .build()
@@ -1140,6 +1146,7 @@ async fn wif_20_credentials_win_over_the_environment_api_key() {
     let valid = WorkloadIdentityCredentials::builder()
         .client_id(CLIENT_ID)
         .token_url(endpoint.url())
+        .allow_http_token_url()
         .environment_id(ENVIRONMENT_ID)
         .identity_token_provider(provider("assertion-1", &Arc::default()))
         .build()
@@ -1165,6 +1172,7 @@ async fn wif_20_credentials_win_over_the_environment_api_key() {
     let failing = WorkloadIdentityCredentials::builder()
         .client_id(CLIENT_ID)
         .token_url(endpoint.url())
+        .allow_http_token_url()
         .environment_id(ENVIRONMENT_ID)
         .identity_token_provider(provider("assertion-1", &Arc::default()))
         .build()
@@ -1277,6 +1285,7 @@ async fn wif_22_env_and_callback_providers_and_no_environment_defaults() {
         WorkloadIdentityCredentials::builder()
             .client_id(CLIENT_ID)
             .token_url(std::env::var(TOKEN_URL).unwrap())
+            .allow_http_token_url()
             .environment_id(ENVIRONMENT_ID)
     };
 
@@ -1296,6 +1305,7 @@ async fn wif_22_env_and_callback_providers_and_no_environment_defaults() {
     let in_code = WorkloadIdentityCredentials::builder()
         .client_id("client_explicit")
         .token_url(std::env::var(TOKEN_URL).unwrap())
+        .allow_http_token_url()
         .identity_token_provider(callback)
         .build()
         .unwrap();
@@ -1556,7 +1566,7 @@ fn missing_settings_are_errors_at_construction() {
         (complete().token_url(""), "token_url is required"),
         (
             complete().token_url("auth.example.test/oauth2/token"),
-            "token_url must be an absolute http or https URL",
+            "token_url must be an absolute https URL",
         ),
         (
             complete().environment_id("bad\nvalue"),
@@ -1575,6 +1585,156 @@ fn missing_settings_are_errors_at_construction() {
         assert_eq!(error.code, "invalid_configuration");
         assert_eq!(error.description, description);
         assert!(!error.hint.is_empty());
+    }
+}
+
+/// Credentials that are complete apart from the token URL, built the way an
+/// application builds them: without the tests' own `allow_http_token_url`.
+fn with_token_url(token_url: &str) -> Result<WorkloadIdentityCredentials, WorkloadIdentityError> {
+    WorkloadIdentityCredentials::builder()
+        .client_id(CLIENT_ID)
+        .token_url(token_url)
+        .environment_id(ENVIRONMENT_ID)
+        .identity_token_provider(|| async { Ok::<_, ProviderError>("assertion-1".to_owned()) })
+        .build()
+}
+
+fn assert_token_url_is_refused(token_url: &str) {
+    let error = match with_token_url(token_url) {
+        Err(error) => error,
+        Ok(_) => panic!("{token_url:?} was accepted"),
+    };
+    assert_eq!(error.code, "invalid_configuration", "{token_url:?}");
+    assert_eq!(
+        error.description, "token_url must be an absolute https URL",
+        "{token_url:?}"
+    );
+}
+
+#[test]
+fn an_http_token_url_is_refused() {
+    assert_token_url_is_refused("http://example.com/oauth2/token");
+    assert_token_url_is_refused("HTTP://example.com/oauth2/token");
+
+    // The message is `<code>: <hint> <description>`, and it does not repeat
+    // the URL, which can hold a user name and password.
+    let message = with_token_url("http://user:secret@example.com/oauth2/token")
+        .unwrap_err()
+        .to_string();
+    assert!(message.starts_with("invalid_configuration: "), "{message}");
+    assert!(
+        message.ends_with(" token_url must be an absolute https URL"),
+        "{message}"
+    );
+    assert!(!message.contains("example.com"), "{message}");
+    assert!(!message.contains("secret"), "{message}");
+}
+
+#[test]
+fn an_http_token_url_is_refused_for_localhost_and_loopback_addresses_too() {
+    for token_url in [
+        "http://localhost:8080/oauth2/token",
+        "http://localhost/oauth2/token",
+        "http://127.0.0.1/oauth2/token",
+        "http://127.0.0.1:8080/oauth2/token",
+        "http://[::1]/oauth2/token",
+        "http://[::1]:8080/oauth2/token",
+    ] {
+        assert_token_url_is_refused(token_url);
+    }
+}
+
+#[tokio::test]
+async fn a_mock_token_url_is_refused_without_the_test_only_switch() {
+    let endpoint = TokenEndpoint::start().await;
+
+    assert_token_url_is_refused(&endpoint.url());
+
+    assert_eq!(endpoint.count().await, 0);
+}
+
+#[test]
+fn a_token_url_with_no_host_is_refused() {
+    for token_url in [
+        "https://",
+        "https:",
+        "https://:443/oauth2/token",
+        "https://?audience=workos",
+        // The `url` crate reads each of these four as `https://oauth2/token`.
+        "https:///oauth2/token",
+        "https:////oauth2/token",
+        "https:/oauth2/token",
+        "https:oauth2/token",
+        // And these two as `https://auth.example.test/oauth2/token`.
+        "https://\\auth.example.test/oauth2/token",
+        "https://\t/auth.example.test/oauth2/token",
+    ] {
+        assert_token_url_is_refused(token_url);
+    }
+}
+
+#[test]
+fn a_token_url_with_no_scheme_or_another_scheme_is_refused() {
+    for token_url in [
+        "auth.example.test/oauth2/token",
+        "//auth.example.test/oauth2/token",
+        "/oauth2/token",
+        "localhost:8080/oauth2/token",
+        "ftp://auth.example.test/oauth2/token",
+        "ws://auth.example.test/oauth2/token",
+        "wss://auth.example.test/oauth2/token",
+        "file:///run/workos/token-url",
+        "httpss://auth.example.test/oauth2/token",
+        " https://auth.example.test/oauth2/token",
+    ] {
+        assert_token_url_is_refused(token_url);
+    }
+}
+
+#[test]
+fn an_https_token_url_is_accepted_whatever_the_case_of_the_scheme() {
+    for token_url in [
+        "https://auth.example.test/oauth2/token",
+        "HTTPS://auth.example.test/oauth2/token",
+        "HttpS://AUTH.example.test/oauth2/token",
+        "https://auth.example.test:8443/oauth2/token?audience=workos",
+        "https://localhost:8443/oauth2/token",
+        "https://127.0.0.1/oauth2/token",
+        "https://[::1]:8443/oauth2/token",
+    ] {
+        let credentials = match with_token_url(token_url) {
+            Ok(credentials) => credentials,
+            Err(error) => panic!("{token_url:?} was refused: {error}"),
+        };
+        // Kept as written. The HTTP client is what reads it.
+        assert_eq!(credentials.inner.exchange.token_url, token_url);
+    }
+}
+
+#[test]
+fn the_test_only_switch_lets_through_http_and_nothing_else() {
+    let allowing_http = |token_url: &str| {
+        WorkloadIdentityCredentials::builder()
+            .client_id(CLIENT_ID)
+            .token_url(token_url)
+            .allow_http_token_url()
+            .identity_token_provider(|| async { Ok::<_, ProviderError>("assertion-1".to_owned()) })
+            .build()
+    };
+
+    assert!(allowing_http("http://127.0.0.1:8080/oauth2/token").is_ok());
+    assert!(allowing_http("https://auth.example.test/oauth2/token").is_ok());
+    for token_url in [
+        "127.0.0.1:8080/oauth2/token",
+        "http:///oauth2/token",
+        "http://",
+        "ftp://127.0.0.1/oauth2/token",
+    ] {
+        let error = match allowing_http(token_url) {
+            Err(error) => error,
+            Ok(_) => panic!("{token_url:?} was accepted"),
+        };
+        assert_eq!(error.description, "token_url must be an absolute https URL");
     }
 }
 

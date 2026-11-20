@@ -162,6 +162,8 @@ The settings are builder methods. The credentials read no environment variable: 
 | `.resource(_)`                 | no       | `https://api.workos.com`       |
 | `.identity_token_provider(_)`  | yes      | none                           |
 
+The token URL must be an absolute `https` URL. The exchange request carries the workload's identity token and the response carries the access token, so `build()` refuses any other URL with `invalid_configuration`. That includes `http://localhost` and loopback addresses, and no setting turns the rule off.
+
 The environment ID is optional. The server binds a workload identity client to exactly one environment and takes the environment from that binding, so the `x-url-environment-id` header selects nothing. When an environment ID is set, the SDK sends it in that header on every API request as a safety check: a value that names a different environment is refused with `403 environment_mismatch`. When it is not set, or is empty, the header is not sent.
 
 Nothing in the environment turns workload identity on, and there is no provider auto-detection.
