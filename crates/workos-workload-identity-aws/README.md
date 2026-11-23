@@ -24,6 +24,8 @@ The argument is the audience the identity token is requested with. It must match
 
 The token comes from `sts:GetWebIdentityToken`, called with the AWS SDK's default credential chain on a regional STS endpoint. The AWS account needs outbound web identity federation enabled.
 
+Each call to the provider makes one request to STS, with a 10-second limit on connecting and a 10-second limit on the whole request. The AWS SDK's own retries are off for this client: `workos` retries a failed call as part of the token exchange.
+
 See the [Workload Identity section of the `workos` README](https://github.com/workos/workos-rust#workload-identity) for the full guide.
 
 ## License

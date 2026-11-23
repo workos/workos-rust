@@ -27,10 +27,12 @@
 use std::error::Error as StdError;
 use std::fmt;
 use std::sync::Arc;
+use std::time::Duration;
 
 use async_trait::async_trait;
 use aws_config::{BehaviorVersion, Region, SdkConfig};
 use aws_sdk_sts::config::retry::RetryConfig;
+use aws_sdk_sts::config::timeout::TimeoutConfig;
 use aws_sdk_sts::error::{DisplayErrorContext, ProvideErrorMetadata, SdkError};
 use workos::workload_identity::{IdentityTokenProvider, ProviderError};
 
@@ -38,6 +40,9 @@ use workos::workload_identity::{IdentityTokenProvider, ProviderError};
 const SIGNING_ALGORITHM: &str = "RS256";
 /// The pseudo-region that selects the global STS endpoint.
 const GLOBAL_REGION: &str = "aws-global";
+/// How long connecting to STS may take, and how long the one request may
+/// take from start to finish.
+const TIMEOUT: Duration = Duration::from_secs(10);
 
 /// An identity token provider for workloads running on AWS.
 ///
@@ -51,9 +56,11 @@ const GLOBAL_REGION: &str = "aws-global";
 /// `GetWebIdentityToken` is not served by the global STS endpoint.
 ///
 /// The STS client is built once, here, from the AWS SDK's default credential
-/// chain, with the AWS SDK's own retries switched off. The provider keeps no
-/// cache and does not retry; the WorkOS SDK retries a failed call as part of
-/// the token exchange.
+/// chain, with the AWS SDK's own retries switched off. One call to the
+/// provider is one request to STS, with a 10-second limit on connecting and
+/// a 10-second limit on the whole request. The provider keeps no cache and
+/// does not retry; the WorkOS SDK retries a failed call as part of the token
+/// exchange.
 pub async fn aws_sts(audience: impl Into<String>, region: Option<&str>) -> Result<AwsSts, Error> {
     let mut loader = aws_config::defaults(BehaviorVersion::latest());
     if let Some(region) = region.filter(|region| !region.is_empty()) {
@@ -67,9 +74,10 @@ pub async fn aws_sts(audience: impl Into<String>, region: Option<&str>) -> Resul
     })
 }
 
-/// The STS client configuration: the shared AWS configuration as it is, once
-/// it is known to name a region. With a region the AWS SDK resolves the
-/// regional endpoint (`sts.<region>.amazonaws.com`), never the global one.
+/// The STS client configuration: the shared AWS configuration, once it is
+/// known to name a region, with this client's own retry and timeout settings.
+/// With a region the AWS SDK resolves the regional endpoint
+/// (`sts.<region>.amazonaws.com`), never the global one.
 fn sts_config(config: &SdkConfig) -> Result<aws_sdk_sts::Config, Error> {
     let region = config.region().map(Region::as_ref).unwrap_or_default();
     if region.is_empty() {
@@ -86,6 +94,15 @@ fn sts_config(config: &SdkConfig) -> Result<aws_sdk_sts::Config, Error> {
         // Providers do not retry: the WorkOS SDK retries the provider call as
         // part of the token exchange, and the two would multiply.
         .retry_config(RetryConfig::disabled())
+        // The AWS SDK sets no limit on a whole request. The token exchange
+        // that calls the provider has a deadline, and a stalled STS must not
+        // hold a caller past it.
+        .timeout_config(
+            TimeoutConfig::builder()
+                .connect_timeout(TIMEOUT)
+                .operation_timeout(TIMEOUT)
+                .build(),
+        )
         .build())
 }
 
@@ -204,6 +221,9 @@ mod tests {
     use std::sync::Mutex;
 
     use aws_sdk_sts::config::endpoint::{DefaultResolver, Params, ResolveEndpoint};
+    use aws_sdk_sts::config::{Credentials, SharedCredentialsProvider};
+    use wiremock::matchers::any;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     use super::*;
 
@@ -315,6 +335,90 @@ mod tests {
         );
         assert!(!format!("{message} {error:?}").contains("aws-jwt"));
         assert_eq!(stub.calls().len(), 1);
+    }
+
+    /// A shared AWS configuration that sends requests to `endpoint` instead
+    /// of AWS, over plain HTTP and signed with made-up credentials.
+    fn sdk_config_for(endpoint: &str) -> SdkConfig {
+        SdkConfig::builder()
+            .behavior_version(BehaviorVersion::latest())
+            .region(Region::new("us-east-1"))
+            .endpoint_url(endpoint)
+            .http_client(aws_smithy_http_client::Builder::new().build_http())
+            .credentials_provider(SharedCredentialsProvider::new(Credentials::new(
+                "test-access-key-id",
+                "test-secret-access-key",
+                None,
+                None,
+                "test",
+            )))
+            .build()
+    }
+
+    /// A provider with the real STS client, configured the way `aws_sts`
+    /// configures it.
+    fn provider_calling(endpoint: &str) -> AwsSts {
+        let config = sts_config(&sdk_config_for(endpoint)).unwrap();
+        AwsSts {
+            audience: AUDIENCE.to_owned(),
+            sts: Arc::new(aws_sdk_sts::Client::from_conf(config)),
+        }
+    }
+
+    /// An STS error response with the given status and AWS error code.
+    fn sts_error(status: u16, code: &str) -> ResponseTemplate {
+        let body = format!(
+            "<ErrorResponse xmlns=\"https://sts.amazonaws.com/doc/2011-06-15/\">\
+             <Error><Type>Sender</Type><Code>{code}</Code><Message>try again later</Message></Error>\
+             <RequestId>00000000-0000-0000-0000-000000000000</RequestId>\
+             </ErrorResponse>"
+        );
+        ResponseTemplate::new(status).set_body_raw(body, "text/xml")
+    }
+
+    #[tokio::test]
+    async fn one_provider_call_is_one_sts_request_when_sts_throttles_or_fails() {
+        // Both are answers the AWS SDK retries by default.
+        for (status, code) in [(400, "Throttling"), (503, "ServiceUnavailable")] {
+            let sts = MockServer::start().await;
+            Mock::given(any())
+                .respond_with(sts_error(status, code))
+                .mount(&sts)
+                .await;
+
+            let error = provider_calling(&sts.uri()).token().await.unwrap_err();
+
+            assert!(
+                error
+                    .to_string()
+                    .contains(&format!("sts:GetWebIdentityToken failed ({code})")),
+                "unexpected message: {error}"
+            );
+            assert_eq!(sts.received_requests().await.unwrap().len(), 1);
+        }
+    }
+
+    #[test]
+    fn the_sts_client_has_ten_second_connect_and_request_limits() {
+        // The shared configuration `aws_sts` loads brings the AWS SDK's
+        // defaults: a 3.1-second connect limit and no limit on the request.
+        let shared = SdkConfig::builder()
+            .behavior_version(BehaviorVersion::latest())
+            .region(Region::new("us-east-1"))
+            .timeout_config(
+                TimeoutConfig::builder()
+                    .connect_timeout(Duration::from_millis(3100))
+                    .build(),
+            )
+            .build();
+
+        for shared in [shared, sdk_config(Some("us-east-1"))] {
+            let config = sts_config(&shared).unwrap();
+
+            let timeouts = config.timeout_config().unwrap();
+            assert_eq!(timeouts.connect_timeout(), Some(Duration::from_secs(10)));
+            assert_eq!(timeouts.operation_timeout(), Some(Duration::from_secs(10)));
+        }
     }
 
     #[tokio::test]
