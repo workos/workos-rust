@@ -285,6 +285,11 @@ impl<'a> SessionManager<'a> {
 
     /// Refreshes the session by exchanging the refresh token. Re-seals the
     /// new session and returns it.
+    ///
+    /// The request sends the API key as the client secret, or an empty secret
+    /// when the client has no API key. A client built with
+    /// [`crate::ClientBuilder::credentials`] gets an [`Error::Builder`] and
+    /// nothing is sent.
     pub async fn refresh(
         &self,
         opts: SessionRefreshOptions,
@@ -319,6 +324,7 @@ impl<'a> SessionManager<'a> {
         let client = self
             .client
             .ok_or_else(|| Error::Builder("client is required for session refresh".to_string()))?;
+        let client_secret = client.client_secret("refresh")?;
 
         let org_id = opts.organization_id.or_else(|| {
             parse_jwt_payload(session.access_token.expose())
@@ -329,7 +335,7 @@ impl<'a> SessionManager<'a> {
         let body = serde_json::json!({
             "grant_type": "refresh_token",
             "client_id": client.client_id(),
-            "client_secret": client.api_key(),
+            "client_secret": client_secret.unwrap_or_default(),
             "refresh_token": session.refresh_token,
             "organization_id": org_id,
         });

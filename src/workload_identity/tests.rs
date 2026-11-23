@@ -18,10 +18,14 @@ use async_trait::async_trait;
 use futures_util::FutureExt;
 use http::Method;
 use serde_json::json;
-use wiremock::matchers::any;
+use wiremock::matchers::{any, path};
 use wiremock::{Mock, MockServer, Request, Respond, ResponseTemplate};
 
 use super::*;
+use crate::helpers::{
+    AuthKitPkceCodeExchangeParams, PublicClient, SessionData, SessionRefreshOptions,
+    SsoPkceCodeExchangeParams, seal_session,
+};
 use crate::transport::{HttpRequest, HttpResponse, HttpTransport, TransportError};
 use crate::{Client, RequestOptions};
 
@@ -1813,4 +1817,306 @@ async fn a_retried_status_reports_the_oauth_code_from_its_body() {
     assert_eq!(error.code, "temporarily_unavailable");
     assert_eq!(error.hint, error::DEFAULT_HINT);
     assert_eq!(error.description.chars().count(), 500);
+}
+
+// ---------------------------------------------------------------------------
+// Calls that send the API key as the OAuth client secret
+// ---------------------------------------------------------------------------
+
+/// 64 hex characters: a 32-byte key for sealing a session.
+const SESSION_PASSWORD: &str = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
+/// What a call that needs an API key tells a workload identity client.
+fn needs_an_api_key(method: &str) -> String {
+    format!(
+        "{method} needs an API key: this request sends it as the client secret. \
+         A client that authenticates with workload identity has no API key, \
+         so use a client built with one for this call."
+    )
+}
+
+/// A workload identity client, with everything a request from it would
+/// touch.
+struct WorkloadClient {
+    client: Client,
+    provider_calls: Arc<AtomicUsize>,
+    endpoint: TokenEndpoint,
+    api: Api,
+}
+
+impl WorkloadClient {
+    async fn start() -> Self {
+        let endpoint = TokenEndpoint::start().await;
+        let api = Api::start().await;
+        let provider_calls = Arc::new(AtomicUsize::new(0));
+        let credentials = credentials(&endpoint)
+            .identity_token_provider(provider("assertion-1", &provider_calls))
+            .build()
+            .unwrap();
+        Self {
+            client: client(&api, &credentials),
+            provider_calls,
+            endpoint,
+            api,
+        }
+    }
+
+    /// Checks that `result` is the refusal naming `method`, and that nothing
+    /// was sent on the way to it: no identity token was fetched, no exchange
+    /// ran and the API received no request.
+    async fn assert_refused(&self, method: &str, result: Result<(), Error>) {
+        match result {
+            Err(Error::Builder(message)) => assert_eq!(message, needs_an_api_key(method)),
+            other => panic!("expected a configuration error, got {other:?}"),
+        }
+        assert_eq!(self.provider_calls.load(Ordering::SeqCst), 0);
+        assert_eq!(self.endpoint.count().await, 0);
+        assert!(self.api.requests().await.is_empty());
+    }
+}
+
+/// A sealed session cookie that holds a refresh token.
+fn sealed_session() -> String {
+    let session = SessionData {
+        access_token: "session-access".into(),
+        refresh_token: "session-refresh".into(),
+        user: None,
+        impersonator: None,
+    };
+    seal_session(&session, SESSION_PASSWORD).unwrap()
+}
+
+/// A mock API that answers the sign-in and SSO token endpoints.
+async fn sign_in_api() -> MockServer {
+    let server = MockServer::start().await;
+    Mock::given(path("/user_management/authenticate"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(include_str!(
+            "../../tests/fixtures/authenticate_response.json"
+        )))
+        .mount(&server)
+        .await;
+    Mock::given(path("/sso/token"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_string(include_str!("../../tests/fixtures/sso_token_response.json")),
+        )
+        .mount(&server)
+        .await;
+    server
+}
+
+fn json_body(request: &Request) -> serde_json::Value {
+    serde_json::from_slice(&request.body).unwrap()
+}
+
+#[test]
+fn client_secret_is_the_api_key_for_a_client_built_with_one() {
+    let client = Client::builder().api_key("sk_test_static").build();
+
+    assert_eq!(
+        client.client_secret("authenticate_with_password").unwrap(),
+        Some("sk_test_static")
+    );
+}
+
+#[test]
+fn client_secret_is_left_out_for_a_public_client() {
+    // No API key and no credentials: the request carries no secret.
+    let client = Client::builder().client_id("client_public").build();
+    assert_eq!(
+        client.client_secret("authenticate_with_code").unwrap(),
+        None
+    );
+
+    let public = PublicClient::new("client_public");
+    assert_eq!(
+        public
+            .client()
+            .client_secret("authenticate_with_code")
+            .unwrap(),
+        None
+    );
+}
+
+#[tokio::test]
+async fn client_secret_is_refused_for_a_workload_identity_client() {
+    let workload = WorkloadClient::start().await;
+
+    let result = workload.client.client_secret("authenticate_with_password");
+
+    // The whole message, written out once.
+    match &result {
+        Err(Error::Builder(message)) => assert_eq!(
+            message,
+            "authenticate_with_password needs an API key: this request sends it as the \
+             client secret. A client that authenticates with workload identity has no API \
+             key, so use a client built with one for this call."
+        ),
+        other => panic!("expected a configuration error, got {other:?}"),
+    }
+    workload
+        .assert_refused("authenticate_with_password", result.map(|_| ()))
+        .await;
+}
+
+#[tokio::test]
+async fn authkit_pkce_code_exchange_is_refused_for_a_workload_identity_client() {
+    let workload = WorkloadClient::start().await;
+
+    let result = workload
+        .client
+        .authkit()
+        .pkce_code_exchange(AuthKitPkceCodeExchangeParams {
+            code: "code_1".into(),
+            code_verifier: "verifier_1".into(),
+        })
+        .await;
+
+    workload
+        .assert_refused("pkce_code_exchange", result.map(|_| ()))
+        .await;
+}
+
+#[tokio::test]
+async fn sso_pkce_code_exchange_is_refused_for_a_workload_identity_client() {
+    let workload = WorkloadClient::start().await;
+
+    let result = workload
+        .client
+        .sso_helpers()
+        .pkce_code_exchange(SsoPkceCodeExchangeParams {
+            code: "code_1".into(),
+            code_verifier: "verifier_1".into(),
+        })
+        .await;
+
+    workload
+        .assert_refused("pkce_code_exchange", result.map(|_| ()))
+        .await;
+}
+
+#[tokio::test]
+async fn session_refresh_is_refused_for_a_workload_identity_client() {
+    let workload = WorkloadClient::start().await;
+
+    let result = workload
+        .client
+        .session(sealed_session(), SESSION_PASSWORD)
+        .refresh(SessionRefreshOptions::default())
+        .await;
+
+    workload.assert_refused("refresh", result.map(|_| ())).await;
+}
+
+#[tokio::test]
+async fn a_public_client_still_exchanges_a_pkce_code_and_refreshes_a_session() {
+    let server = sign_in_api().await;
+    let public = PublicClient::with_base_url("client_public", server.uri());
+    let client = public.client();
+
+    let authkit = client
+        .authkit()
+        .pkce_code_exchange(AuthKitPkceCodeExchangeParams {
+            code: "code_1".into(),
+            code_verifier: "verifier_1".into(),
+        })
+        .await
+        .unwrap();
+    let sso = client
+        .sso_helpers()
+        .pkce_code_exchange(SsoPkceCodeExchangeParams {
+            code: "code_2".into(),
+            code_verifier: "verifier_2".into(),
+        })
+        .await
+        .unwrap();
+    let refreshed = client
+        .session(sealed_session(), SESSION_PASSWORD)
+        .refresh(SessionRefreshOptions::default())
+        .await
+        .unwrap();
+
+    assert_eq!(authkit.user.id, "user_01E4ZCR3C56J083X43JQXF3JK5");
+    assert_eq!(sso.profile.id, "prof_01DMC79VCBZ0NY2099737PSVF1");
+    assert!(refreshed.authenticated);
+
+    // The bodies are the ones a client with no API key has always sent: the
+    // secret is there and empty.
+    let requests = server.received_requests().await.unwrap();
+    assert_eq!(requests.len(), 3);
+    assert_eq!(requests[0].url.path(), "/user_management/authenticate");
+    assert_eq!(
+        json_body(&requests[0]),
+        json!({
+            "grant_type": "authorization_code",
+            "client_id": "client_public",
+            "client_secret": "",
+            "code": "code_1",
+            "code_verifier": "verifier_1",
+        })
+    );
+    assert_eq!(requests[1].url.path(), "/sso/token");
+    assert_eq!(
+        json_body(&requests[1]),
+        json!({
+            "grant_type": "authorization_code",
+            "client_id": "client_public",
+            "client_secret": "",
+            "code": "code_2",
+            "code_verifier": "verifier_2",
+        })
+    );
+    assert_eq!(requests[2].url.path(), "/user_management/authenticate");
+    assert_eq!(
+        json_body(&requests[2]),
+        json!({
+            "grant_type": "refresh_token",
+            "client_id": "client_public",
+            "client_secret": "",
+            "refresh_token": "session-refresh",
+            "organization_id": null,
+        })
+    );
+    for request in &requests {
+        assert_eq!(header(request, "authorization"), None);
+    }
+}
+
+#[tokio::test]
+async fn a_client_with_an_api_key_still_sends_it_as_the_client_secret() {
+    let server = sign_in_api().await;
+    let client = Client::builder()
+        .api_key("sk_test_static")
+        .client_id("client_key")
+        .base_url(server.uri())
+        .build();
+
+    client
+        .authkit()
+        .pkce_code_exchange(AuthKitPkceCodeExchangeParams {
+            code: "code_1".into(),
+            code_verifier: "verifier_1".into(),
+        })
+        .await
+        .unwrap();
+    client
+        .sso_helpers()
+        .pkce_code_exchange(SsoPkceCodeExchangeParams {
+            code: "code_2".into(),
+            code_verifier: "verifier_2".into(),
+        })
+        .await
+        .unwrap();
+    let refreshed = client
+        .session(sealed_session(), SESSION_PASSWORD)
+        .refresh(SessionRefreshOptions::default())
+        .await
+        .unwrap();
+    assert!(refreshed.authenticated);
+
+    let requests = server.received_requests().await.unwrap();
+    assert_eq!(requests.len(), 3);
+    for request in &requests {
+        assert_eq!(json_body(request)["client_secret"], "sk_test_static");
+    }
 }

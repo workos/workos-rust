@@ -174,7 +174,7 @@ Things to know:
 - A failure surfaces as `workos::Error::WorkloadIdentity`. Its `code` is the OAuth error from the token endpoint (`invalid_grant`, `invalid_client`, ...) or one of `exchange_failed`, `invalid_response`, `provider_failed`, `invalid_configuration`; `hint` says what to check. Neither token ever appears in an error.
 - Cloning a `WorkloadIdentityCredentials` shares its token; share one instance between clients that use the same identity.
 - The exchange needs a Tokio runtime and the bundled `reqwest` transport (the `rustls-tls` or `native-tls` feature). It runs on the runtime of the request that started it, so use one credentials instance from one long-lived runtime.
-- Helpers that send the API key as an OAuth `client_secret` (AuthKit and SSO code exchange, session refresh) need a client built with `.api_key(_)`.
+- Calls that send the API key as an OAuth `client_secret` still need a client built with `.api_key(_)`: the `authenticate_with_*` sign-in calls on `user_management()` (all but `authenticate_with_device_code`), the AuthKit and SSO `pkce_code_exchange` helpers, and session `refresh`.
 
 ## API Access
 

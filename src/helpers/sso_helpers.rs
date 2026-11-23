@@ -146,14 +146,20 @@ impl<'a> SsoHelper<'a> {
     }
 
     /// Exchanges an SSO authorization code with PKCE — `POST /sso/token`.
+    ///
+    /// The request sends the API key as the client secret, or an empty secret
+    /// when the client has no API key. A client built with
+    /// [`crate::ClientBuilder::credentials`] gets an [`Error::Builder`] and
+    /// nothing is sent.
     pub async fn pkce_code_exchange(
         &self,
         params: SsoPkceCodeExchangeParams,
     ) -> Result<crate::models::SSOTokenResponse, Error> {
+        let client_secret = self.client.client_secret("pkce_code_exchange")?;
         let body = SsoTokenBody {
             grant_type: "authorization_code",
             client_id: self.client.client_id(),
-            client_secret: self.client.api_key(),
+            client_secret: client_secret.unwrap_or_default(),
             code: params.code,
             code_verifier: params.code_verifier,
         };

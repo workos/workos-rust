@@ -179,6 +179,10 @@ pub(crate) struct ClientInner {
     /// comes from `credentials`, resolved before each HTTP attempt.
     base_headers: HeaderMap,
     credentials: Arc<dyn Credentials>,
+    /// `true` when the client was built with [`ClientBuilder::credentials`].
+    /// `credentials` cannot answer that: it is always set, to a static-key
+    /// value when the builder was given none.
+    credentials_supplied: bool,
     session_jwks: OnceLock<crate::helpers::JwksHelper>,
 }
 
@@ -301,6 +305,28 @@ impl Client {
     /// it as `client_secret` in OAuth flows.
     pub fn api_key(&self) -> &str {
         &self.inner.api_key
+    }
+
+    /// The API key, for a request that sends it as the OAuth `client_secret`.
+    /// `method` names the calling method in the error.
+    ///
+    /// `Ok(None)` for a client with no API key and no credentials, such as a
+    /// public client running a PKCE flow: the request carries no secret. A
+    /// client built with [`ClientBuilder::credentials`] has no API key to
+    /// send, so it gets an [`Error::Builder`] before any request is made and
+    /// before any token is fetched.
+    pub(crate) fn client_secret(&self, method: &str) -> Result<Option<&str>, Error> {
+        if !self.inner.api_key.is_empty() {
+            return Ok(Some(&self.inner.api_key));
+        }
+        if self.inner.credentials_supplied {
+            return Err(Error::Builder(format!(
+                "{method} needs an API key: this request sends it as the client secret. \
+                 A client that authenticates with workload identity has no API key, \
+                 so use a client built with one for this call."
+            )));
+        }
+        Ok(None)
     }
 
     /// Shared transport handle — exposed for helper modules that issue
@@ -731,6 +757,7 @@ impl ClientBuilder {
         // always carried, because the accessor is public. Requests are built
         // from `base_headers` and authorized through `credentials`.
         let mut headers = base_headers.clone();
+        let credentials_supplied = self.credentials.is_some();
         let credentials: Arc<dyn Credentials> = match self.credentials {
             Some(credentials) => credentials,
             None => {
@@ -760,6 +787,7 @@ impl ClientBuilder {
                 default_headers: headers,
                 base_headers,
                 credentials,
+                credentials_supplied,
                 session_jwks: OnceLock::new(),
             }),
         })
