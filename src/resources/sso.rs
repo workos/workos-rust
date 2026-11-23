@@ -135,6 +135,9 @@ pub struct ListConnectionsParams {
     /// Searchable text to match against Connection names.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub search: Option<String>,
+    /// Filter Connections by their state.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<ConnectionsState>,
 }
 
 impl Default for ListConnectionsParams {
@@ -149,6 +152,7 @@ impl Default for ListConnectionsParams {
             domain: Default::default(),
             organization_id: Default::default(),
             search: Default::default(),
+            state: Default::default(),
         }
     }
 }
@@ -215,7 +219,7 @@ pub struct GetAuthorizationUrlParams {
     pub provider_query_params: Option<std::collections::HashMap<String, String>>,
     /// Deprecated. Use `connection` or `organization` instead. Used to initiate SSO for a connection by domain. The domain must be associated with a connection in your WorkOS environment.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[deprecated]
+    #[deprecated(note = "Deprecated. Use `connection` or `organization` instead.")]
     pub domain: Option<String>,
     /// Used to initiate OAuth authentication with various providers.
     #[serde(skip_serializing_if = "Option::is_none")]

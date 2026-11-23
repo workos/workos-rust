@@ -7,7 +7,9 @@ use std::str::FromStr;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum AgentAdminValidateCredentialRequestType {
+    /// The kind of credential being validated — an agent API key or an agent access token.
     ApiKey,
+    /// The kind of credential being validated — an agent API key or an agent access token.
     AccessToken,
     /// Wire value not recognized by this SDK version. The original
     /// string is preserved verbatim. WorkOS may add new enum values

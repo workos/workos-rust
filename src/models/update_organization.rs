@@ -15,7 +15,7 @@ pub struct UpdateOrganization {
     pub allow_profiles_outside_organization: Option<bool>,
     /// The domains associated with the organization. Deprecated in favor of `domain_data`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub domains: Option<Vec<String>>,
     /// The domains associated with the organization, including verification state.
     #[serde(skip_serializing_if = "Option::is_none", default)]

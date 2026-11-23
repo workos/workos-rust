@@ -12,4 +12,7 @@ pub struct AuthenticationSSOFailedDataError {
     pub code: String,
     /// A human-readable error message.
     pub message: String,
+    /// The ID of the Radar detection that blocked the authentication. Only set on `policy_denied` errors.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub radar_detection_id: Option<String>,
 }

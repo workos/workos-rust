@@ -21,7 +21,7 @@ pub struct Connection {
     /// Indicates whether a Connection is able to authenticate users.
     pub state: ConnectionState,
     /// Deprecated. Use `state` instead.
-    #[deprecated]
+    #[deprecated(note = "Deprecated. Use `state` instead.")]
     pub status: ConnectionStatus,
     /// List of Organization Domains.
     pub domains: Vec<ConnectionDomain>,

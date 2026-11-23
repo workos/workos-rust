@@ -893,7 +893,7 @@ impl<'a> PipesApi<'a> {
 
     /// Update an organization connected account
     ///
-    /// Updates an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
+    /// Updates an organization's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, state, or provider configuration for a specific provider.
     pub async fn update_organization_connected_account(
         &self,
         organization_id: &str,
@@ -1040,7 +1040,7 @@ impl<'a> PipesApi<'a> {
 
     /// Update a connected account
     ///
-    /// Updates a user's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, or state for a specific provider.
+    /// Updates a user's [connected account](https://workos.com/docs/reference/pipes/connected-account) tokens, scopes, state, or provider configuration for a specific provider.
     pub async fn update_user_connected_account(
         &self,
         user_id: &str,

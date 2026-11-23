@@ -29,6 +29,6 @@ pub struct Organization {
     pub updated_at: String,
     /// Whether the Organization allows profiles outside of its managed domains.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub allow_profiles_outside_organization: Option<bool>,
 }

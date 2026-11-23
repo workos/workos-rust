@@ -67,19 +67,19 @@ pub struct DataIntegrationsListResponseDataConnectedAccount {
     /// Use `user_id` instead.
     #[serde(rename = "userlandUserId")]
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `user_id` instead.")]
     pub userland_user_id: Option<String>,
     /// Use `organization_id` instead.
     #[serde(rename = "organizationId")]
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `organization_id` instead.")]
     pub organization_id_2: Option<String>,
     /// Use `created_at` instead.
     #[serde(rename = "createdAt")]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `created_at` instead.")]
     pub created_at_2: String,
     /// Use `updated_at` instead.
     #[serde(rename = "updatedAt")]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated. Use `updated_at` instead.")]
     pub updated_at_2: String,
 }

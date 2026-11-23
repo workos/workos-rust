@@ -13,6 +13,9 @@ pub struct CreateOrganizationConnectedAccount {
     /// A developer-attested account identifier; null clears it.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub account_identifier: Option<String>,
+    /// Installation-scoped provider configuration for this connection, such as Salesforce salesforce_host. Imports apply supplied values over installation-scoped integration pins and inherit other config from the credential source. Credential-bearing imports must satisfy required configuration even when config is omitted or {}. On update, a supplied object replaces installation-scoped values; omitted config preserves the stored snapshot. Stored integration-scoped values remain bound to the OAuth client and cannot be overridden or replaced with current integration pins. Replacements must satisfy required configuration; {} and empty-string values clear installation-scoped values only when the result is valid. Provider defaults count toward completeness but are resolved at read time, not stored. Only tokenless needs_reauthorization placeholders may remain incomplete; attaching their first tokens validates configuration even when config is omitted. Unrelated updates do not revalidate unchanged configuration. Clearing salesforce_host falls back to login.salesforce.com, which may not work for sandbox or My Domain-only connections.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub config: Option<std::collections::HashMap<String, String>>,
     /// The OAuth access token for the connected account.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub access_token: Option<crate::SecretString>,
@@ -30,6 +33,9 @@ pub struct CreateOrganizationConnectedAccount {
     pub state: Option<CreateOrganizationConnectedAccountState>,
     /// The [User](https://workos.com/docs/reference/authkit/user) identifier of the organization member on whose behalf the connected account is being imported or updated. The user must be an active member of the organization.
     pub user_id: String,
+    /// Provider token-response metadata to preserve during import, such as Salesforce instance_url. Only allowlisted, non-sensitive scalar fields from this provider are accepted, including nested fields. Provider refresh responses can update these values. Not accepted on update.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub metadata: Option<std::collections::HashMap<String, serde_json::Value>>,
     /// Set to `add` to create another connected account. Omit this field for permanent compatibility behavior.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub connection_intent: Option<String>,

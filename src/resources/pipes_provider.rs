@@ -13,7 +13,30 @@ pub struct PipesProviderApi<'a> {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct ListOrganizationDataIntegrationConfigurationsParams {
+    /// Select the provider configuration for `user` connections or `organization` shared connections. Defaults to `user`; never falls back to the other ownership.
+    ///
+    /// Defaults to `user`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ownership: Option<PipesProviderOwnership>,
+}
+
+impl Default for ListOrganizationDataIntegrationConfigurationsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            ownership: Some(PipesProviderOwnership::User),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct UpdateOrganizationDataIntegrationConfigurationParams {
+    /// Select the provider configuration for `user` connections or `organization` shared connections. Defaults to `user`; never falls back to the other ownership.
+    ///
+    /// Defaults to `user`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ownership: Option<PipesProviderOwnership>,
     /// Request body sent with this call.
     ///
     /// Required.
@@ -25,7 +48,10 @@ impl UpdateOrganizationDataIntegrationConfigurationParams {
     /// Construct a new `UpdateOrganizationDataIntegrationConfigurationParams` with the required fields set.
     #[allow(deprecated)]
     pub fn new(body: ConfigureDataIntegrationBody) -> Self {
-        Self { body }
+        Self {
+            ownership: Some(PipesProviderOwnership::User),
+            body,
+        }
     }
 }
 
@@ -36,22 +62,28 @@ impl<'a> PipesProviderApi<'a> {
     pub async fn list_organization_data_integration_configurations(
         &self,
         organization_id: &str,
+        params: ListOrganizationDataIntegrationConfigurationsParams,
     ) -> Result<DataIntegrationConfigurationListResponse, Error> {
-        self.list_organization_data_integration_configurations_with_options(organization_id, None)
-            .await
+        self.list_organization_data_integration_configurations_with_options(
+            organization_id,
+            params,
+            None,
+        )
+        .await
     }
 
     /// Variant of [`Self::list_organization_data_integration_configurations`] that accepts per-request [`crate::RequestOptions`].
     pub async fn list_organization_data_integration_configurations_with_options(
         &self,
         organization_id: &str,
+        params: ListOrganizationDataIntegrationConfigurationsParams,
         options: Option<&crate::RequestOptions>,
     ) -> Result<DataIntegrationConfigurationListResponse, Error> {
         let organization_id = crate::client::path_segment(organization_id);
         let path = format!("/organizations/{organization_id}/data_integration_configurations");
         let method = http::Method::GET;
         self.client
-            .request_with_query_opts(method, &path, &(), options)
+            .request_with_query_opts(method, &path, &params, options)
             .await
     }
 

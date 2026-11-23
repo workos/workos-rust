@@ -31,20 +31,20 @@ pub struct DirectoryUserWithGroups {
     pub name: Option<String>,
     /// A list of email addresses for the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub emails: Option<Vec<DirectoryUserWithGroupsEmail>>,
     /// The job title of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub job_title: Option<String>,
     /// The username of the user.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub username: Option<String>,
     /// The state of the user.
     pub state: DirectoryUserWithGroupsState,
     /// The raw attributes received from the directory provider.
-    #[deprecated]
+    #[deprecated(note = "This field is deprecated.")]
     pub raw_attributes: std::collections::HashMap<String, serde_json::Value>,
     /// An object containing the custom attribute mapping for the Directory Provider.
     pub custom_attributes: std::collections::HashMap<String, serde_json::Value>,
@@ -57,7 +57,9 @@ pub struct DirectoryUserWithGroups {
     pub created_at: String,
     /// An ISO 8601 timestamp.
     pub updated_at: String,
-    /// The directory groups the user belongs to. Deprecated: starting May 1, 2026, this field returns an empty array by default for newly created teams. Existing teams currently depending on this field should migrate to the new access pattern for better throughput performance — the field is unbounded by user, so users with many group memberships produce large, slow response payloads. Use the List Directory Groups endpoint with a `user` filter to fetch a user's group memberships.
-    #[deprecated]
+    /// The directory groups the user belongs to. Deprecated: use `GET /directories/{directoryId}/groups?user={userId}` instead.
+    #[deprecated(
+        note = "Deprecated. use `GET /directories/{directoryId}/groups?user={userId}` instead."
+    )]
     pub groups: Vec<DirectoryGroup>,
 }

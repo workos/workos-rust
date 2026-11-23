@@ -9,16 +9,16 @@ use serde::{Deserialize, Serialize};
 pub struct AuditLogExportCreation {
     /// The unique ID of the Organization.
     pub organization_id: String,
-    /// ISO-8601 value for start of the export range.
+    /// ISO-8601 value for start of the export range. The range must span no more than 31 days.
     pub range_start: String,
-    /// ISO-8601 value for end of the export range.
+    /// ISO-8601 value for end of the export range. Must be no more than 31 days after the start.
     pub range_end: String,
     /// List of actions to filter against.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub actions: Option<Vec<String>>,
     /// Deprecated. Use `actor_names` instead.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "Deprecated. Use `actor_names` instead.")]
     pub actors: Option<Vec<String>>,
     /// List of actor names to filter against.
     #[serde(skip_serializing_if = "Option::is_none", default)]

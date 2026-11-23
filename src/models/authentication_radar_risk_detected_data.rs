@@ -27,4 +27,7 @@ pub struct AuthenticationRadarRiskDetectedData {
     pub user_id: String,
     /// The email address of the user.
     pub email: String,
+    /// The ID of the Radar detection that challenged the authentication.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub radar_detection_id: Option<String>,
 }

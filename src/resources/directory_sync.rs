@@ -38,7 +38,7 @@ pub struct ListDirectoriesParams {
     pub search: Option<String>,
     /// Filter Directories by their associated domain.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[deprecated]
+    #[deprecated(note = "This parameter is deprecated.")]
     pub domain: Option<String>,
 }
 
@@ -53,6 +53,86 @@ impl Default for ListDirectoriesParams {
             organization_id: Default::default(),
             search: Default::default(),
             domain: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ListDirectoryGroupsParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+    /// Filter Directory Groups to those this Directory User belongs to.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<String>,
+}
+
+impl Default for ListDirectoryGroupsParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            user: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ListDirectoryUsersParams {
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `before="obj_123"` to fetch a new batch of objects before `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub before: Option<String>,
+    /// An object ID that defines your place in the list. When the ID is not present, you are at the end of the list. For example, if you make a list request and receive 100 objects, ending with `"obj_123"`, your subsequent call can include `after="obj_123"` to fetch a new batch of objects after `"obj_123"`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Upper limit on the number of objects to return, between `1` and `100`.
+    ///
+    /// Defaults to `10`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i64>,
+    /// Order the results by the creation time. Supported values are `"asc"` (ascending), `"desc"` (descending), and `"normal"` (descending with reversed cursor semantics where `before` fetches older records and `after` fetches newer records).
+    ///
+    /// Defaults to `desc`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<PaginationOrder>,
+    /// Filter Directory Users to the members of this Directory Group.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub group: Option<String>,
+    /// Filter Directory Users by the identity provider's unique identifier (`idp_id`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub idp_id: Option<String>,
+    /// Filter Directory Users by their primary email address.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+}
+
+impl Default for ListDirectoryUsersParams {
+    #[allow(deprecated)]
+    fn default() -> Self {
+        Self {
+            before: Default::default(),
+            after: Default::default(),
+            limit: Some(10),
+            order: Some(PaginationOrder::Desc),
+            group: Default::default(),
+            idp_id: Default::default(),
+            email: Default::default(),
         }
     }
 }
@@ -256,14 +336,181 @@ impl<'a> DirectorySyncApi<'a> {
             .await
     }
 
+    /// List Groups for a Directory
+    ///
+    /// Get a list of the Directory Groups in a Directory, optionally filtered to the groups a Directory User belongs to.
+    pub async fn list_directory_groups(
+        &self,
+        directory_id: &str,
+        params: ListDirectoryGroupsParams,
+    ) -> Result<crate::pagination::Page<DirectoryGroup>, Error> {
+        self.list_directory_groups_with_options(directory_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_directory_groups`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_directory_groups_with_options(
+        &self,
+        directory_id: &str,
+        params: ListDirectoryGroupsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<DirectoryGroup>, Error> {
+        let directory_id = crate::client::path_segment(directory_id);
+        let path = format!("/directories/{directory_id}/groups");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `DirectoryGroup`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<DirectoryGroup> = self
+    ///     .list_directory_groups_auto_paging(directory_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_directory_groups_auto_paging(
+        &self,
+        directory_id: impl Into<String>,
+        params: ListDirectoryGroupsParams,
+    ) -> impl futures_util::Stream<Item = Result<DirectoryGroup, Error>> + '_ {
+        let directory_id: String = directory_id.into();
+        crate::pagination::auto_paginate_pages(move |after| {
+            let directory_id = directory_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_directory_groups(&directory_id, params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Get a Group for a Directory
+    ///
+    /// Get the details of a Directory Group in a Directory.
+    pub async fn get_directory_group(
+        &self,
+        directory_id: &str,
+        group_id: &str,
+    ) -> Result<DirectoryGroup, Error> {
+        self.get_directory_group_with_options(directory_id, group_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_directory_group`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_directory_group_with_options(
+        &self,
+        directory_id: &str,
+        group_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DirectoryGroup, Error> {
+        let directory_id = crate::client::path_segment(directory_id);
+        let group_id = crate::client::path_segment(group_id);
+        let path = format!("/directories/{directory_id}/groups/{group_id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
+    /// List Users for a Directory
+    ///
+    /// Get a list of the Directory Users in a Directory, optionally filtered to the members of a Directory Group.
+    pub async fn list_directory_users(
+        &self,
+        directory_id: &str,
+        params: ListDirectoryUsersParams,
+    ) -> Result<crate::pagination::Page<DirectoryUser>, Error> {
+        self.list_directory_users_with_options(directory_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::list_directory_users`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn list_directory_users_with_options(
+        &self,
+        directory_id: &str,
+        params: ListDirectoryUsersParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<crate::pagination::Page<DirectoryUser>, Error> {
+        let directory_id = crate::client::path_segment(directory_id);
+        let path = format!("/directories/{directory_id}/users");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &params, options)
+            .await
+    }
+
+    /// Returns an async [`futures_util::Stream`] that yields every `DirectoryUser`
+    /// across all pages, advancing the `after` cursor under the hood.
+    ///
+    /// ```ignore
+    /// use futures_util::TryStreamExt;
+    /// let all: Vec<DirectoryUser> = self
+    ///     .list_directory_users_auto_paging(directory_id, params)
+    ///     .try_collect()
+    ///     .await?;
+    /// ```
+    pub fn list_directory_users_auto_paging(
+        &self,
+        directory_id: impl Into<String>,
+        params: ListDirectoryUsersParams,
+    ) -> impl futures_util::Stream<Item = Result<DirectoryUser, Error>> + '_ {
+        let directory_id: String = directory_id.into();
+        crate::pagination::auto_paginate_pages(move |after| {
+            let directory_id = directory_id.clone();
+            let mut params = params.clone();
+            params.after = after;
+            async move {
+                let page = self.list_directory_users(&directory_id, params).await?;
+                Ok((page.data, page.list_metadata.after))
+            }
+        })
+    }
+
+    /// Get a User for a Directory
+    ///
+    /// Get the details of a Directory User in a Directory.
+    pub async fn get_directory_user(
+        &self,
+        directory_id: &str,
+        user_id: &str,
+    ) -> Result<DirectoryUser, Error> {
+        self.get_directory_user_with_options(directory_id, user_id, None)
+            .await
+    }
+
+    /// Variant of [`Self::get_directory_user`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_directory_user_with_options(
+        &self,
+        directory_id: &str,
+        user_id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<DirectoryUser, Error> {
+        let directory_id = crate::client::path_segment(directory_id);
+        let user_id = crate::client::path_segment(user_id);
+        let path = format!("/directories/{directory_id}/users/{user_id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
     /// List Directory Groups
     ///
-    /// Get a list of all of existing directory groups matching the criteria specified.
+    /// Get a list of all of existing directory groups matching the criteria specified. Deprecated: use `GET /directories/{directoryId}/groups` instead.
+    #[deprecated(note = "Deprecated. use `GET /directories/{directoryId}/groups` instead.")]
+    #[allow(deprecated)]
     pub async fn list_groups(&self, params: ListGroupsParams) -> Result<DirectoryGroupList, Error> {
         self.list_groups_with_options(params, None).await
     }
 
     /// Variant of [`Self::list_groups`] that accepts per-request [`crate::RequestOptions`].
+    #[deprecated(note = "Deprecated. use `GET /directories/{directoryId}/groups` instead.")]
     pub async fn list_groups_with_options(
         &self,
         params: ListGroupsParams,
@@ -286,6 +533,8 @@ impl<'a> DirectorySyncApi<'a> {
     ///     .try_collect()
     ///     .await?;
     /// ```
+    #[deprecated(note = "Deprecated. use `GET /directories/{directoryId}/groups` instead.")]
+    #[allow(deprecated)]
     pub fn list_groups_auto_paging(
         &self,
         params: ListGroupsParams,
@@ -302,12 +551,19 @@ impl<'a> DirectorySyncApi<'a> {
 
     /// Get a Directory Group
     ///
-    /// Get the details of an existing Directory Group.
+    /// Get the details of an existing Directory Group. Deprecated: use `GET /directories/{directoryId}/groups/{groupId}` instead.
+    #[deprecated(
+        note = "Deprecated. use `GET /directories/{directoryId}/groups/{groupId}` instead."
+    )]
+    #[allow(deprecated)]
     pub async fn get_group(&self, id: &str) -> Result<DirectoryGroup, Error> {
         self.get_group_with_options(id, None).await
     }
 
     /// Variant of [`Self::get_group`] that accepts per-request [`crate::RequestOptions`].
+    #[deprecated(
+        note = "Deprecated. use `GET /directories/{directoryId}/groups/{groupId}` instead."
+    )]
     pub async fn get_group_with_options(
         &self,
         id: &str,
@@ -323,12 +579,15 @@ impl<'a> DirectorySyncApi<'a> {
 
     /// List Directory Users
     ///
-    /// Get a list of all of existing Directory Users matching the criteria specified.
+    /// Get a list of all of existing Directory Users matching the criteria specified. Deprecated: use `GET /directories/{directoryId}/users` instead.
+    #[deprecated(note = "Deprecated. use `GET /directories/{directoryId}/users` instead.")]
+    #[allow(deprecated)]
     pub async fn list_users(&self, params: ListUsersParams) -> Result<DirectoryUserList, Error> {
         self.list_users_with_options(params, None).await
     }
 
     /// Variant of [`Self::list_users`] that accepts per-request [`crate::RequestOptions`].
+    #[deprecated(note = "Deprecated. use `GET /directories/{directoryId}/users` instead.")]
     pub async fn list_users_with_options(
         &self,
         params: ListUsersParams,
@@ -351,6 +610,8 @@ impl<'a> DirectorySyncApi<'a> {
     ///     .try_collect()
     ///     .await?;
     /// ```
+    #[deprecated(note = "Deprecated. use `GET /directories/{directoryId}/users` instead.")]
+    #[allow(deprecated)]
     pub fn list_users_auto_paging(
         &self,
         params: ListUsersParams,
@@ -367,12 +628,15 @@ impl<'a> DirectorySyncApi<'a> {
 
     /// Get a Directory User
     ///
-    /// Get the details of an existing Directory User.
+    /// Get the details of an existing Directory User. Deprecated: use `GET /directories/{directoryId}/users/{userId}` instead.
+    #[deprecated(note = "Deprecated. use `GET /directories/{directoryId}/users/{userId}` instead.")]
+    #[allow(deprecated)]
     pub async fn get_user(&self, id: &str) -> Result<DirectoryUserWithGroups, Error> {
         self.get_user_with_options(id, None).await
     }
 
     /// Variant of [`Self::get_user`] that accepts per-request [`crate::RequestOptions`].
+    #[deprecated(note = "Deprecated. use `GET /directories/{directoryId}/users/{userId}` instead.")]
     pub async fn get_user_with_options(
         &self,
         id: &str,

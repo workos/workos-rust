@@ -22,7 +22,10 @@ async fn pipes_provider_list_organization_data_integration_configurations_round_
     let client = common::test_client(&server).await;
     let _ = client
         .pipes_provider()
-        .list_organization_data_integration_configurations("test_id")
+        .list_organization_data_integration_configurations(
+            "test_id",
+            workos::pipes_provider::ListOrganizationDataIntegrationConfigurationsParams::default(),
+        )
         .await;
 }
 
@@ -41,7 +44,10 @@ async fn pipes_provider_list_organization_data_integration_configurations_unauth
     let client = common::test_client(&server).await;
     let err = client
         .pipes_provider()
-        .list_organization_data_integration_configurations("test_id")
+        .list_organization_data_integration_configurations(
+            "test_id",
+            workos::pipes_provider::ListOrganizationDataIntegrationConfigurationsParams::default(),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -66,7 +72,10 @@ async fn pipes_provider_list_organization_data_integration_configurations_not_fo
     let client = common::test_client(&server).await;
     let err = client
         .pipes_provider()
-        .list_organization_data_integration_configurations("test_id")
+        .list_organization_data_integration_configurations(
+            "test_id",
+            workos::pipes_provider::ListOrganizationDataIntegrationConfigurationsParams::default(),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -93,7 +102,10 @@ async fn pipes_provider_list_organization_data_integration_configurations_rate_l
     let client = common::test_client(&server).await;
     let err = client
         .pipes_provider()
-        .list_organization_data_integration_configurations("test_id")
+        .list_organization_data_integration_configurations(
+            "test_id",
+            workos::pipes_provider::ListOrganizationDataIntegrationConfigurationsParams::default(),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -119,7 +131,10 @@ async fn pipes_provider_list_organization_data_integration_configurations_server
     let client = common::test_client(&server).await;
     let err = client
         .pipes_provider()
-        .list_organization_data_integration_configurations("test_id")
+        .list_organization_data_integration_configurations(
+            "test_id",
+            workos::pipes_provider::ListOrganizationDataIntegrationConfigurationsParams::default(),
+        )
         .await
         .expect_err("expected error");
     let api = match &err {

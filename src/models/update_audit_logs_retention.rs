@@ -12,6 +12,6 @@ pub struct UpdateAuditLogsRetention {
     pub retention_period: Option<UpdateAuditLogsRetentionRetentionPeriod>,
     /// The number of days Audit Log events will be retained. Valid values are `30` through `330` in 30-day increments and `365` through `3650` in 365-day increments. Deprecated: use `retention_period` instead. Mutually exclusive with `retention_period`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    #[deprecated]
+    #[deprecated(note = "Deprecated. use `retention_period` instead.")]
     pub retention_period_in_days: Option<i64>,
 }
