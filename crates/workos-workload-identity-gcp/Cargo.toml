@@ -18,7 +18,8 @@ categories = ["authentication"]
 # same major from the lower bound up. Every `workos` release rewrites the
 # lower bound to its own version (`extra-files` in release-please-config.json).
 # Until the first release that contains `workos::workload_identity`, 3.6.0 is
-# a placeholder: do not publish this crate while it says 3.6.0.
+# a placeholder: this crate must not be published while it says 3.6.0, and
+# script/check-provider-release stops the publish job if it does.
 workos = { version = "3.6.0", path = "../..", default-features = false }
 # The metadata server is plain HTTP on a link-local address, so no TLS backend
 # is enabled here and none is forced on the application.

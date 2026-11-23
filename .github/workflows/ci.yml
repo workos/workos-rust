@@ -33,6 +33,11 @@ jobs:
           cargo build --verbose
           cargo test --verbose
 
+      # The check that keeps a provider crate from being published before the
+      # `workos` release it needs (see release-please.yml).
+      - name: Test the provider release check
+        run: script/test-check-provider-release
+
   # The workload identity provider crates are released one at a time, so each
   # is built and tested from its own directory, with only its own features.
   test-providers:
@@ -56,6 +61,14 @@ jobs:
         with:
           toolchain: 1.88.0
           components: cargo
+
+      # On this crate's own release PR only. Merging it tags the release, and
+      # the publish job then refuses a crate whose `workos` requirement is not
+      # a published `workos` release with workload identity (see
+      # release-please.yml). So that PR must not look green before then.
+      - name: Check the workos release this crate needs
+        if: github.head_ref == format('release-please--branches--main--components--{0}', matrix.crate)
+        run: ../../script/check-provider-release ${{ matrix.crate }}
 
       - name: Run Tests
         run: |

@@ -31,3 +31,6 @@ for crate in crates/*/; do
   echo "==> cargo test (in ${crate%/})"
   (cd "$crate" && cargo test)
 done
+
+echo "==> script/test-check-provider-release"
+script/test-check-provider-release

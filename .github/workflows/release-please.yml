@@ -299,6 +299,14 @@ jobs:
   # version the crate was built against is on crates.io first. When `workos`
   # was not released in this run its publish job is skipped, and the provider
   # job still runs.
+  #
+  # That order covers only releases made in the same run. A provider release
+  # can also merge before the `workos` release it needs: the first one can,
+  # while the crate's `workos` requirement is still a placeholder that older
+  # releases satisfy. So each job first runs script/check-provider-release,
+  # which refuses to publish unless the requirement names the `workos` version
+  # in this checkout and that version is on crates.io. CI runs the same check
+  # on a provider's release PR, so the PR is red until then.
 
   publish-github-actions:
     name: Publish workos-workload-identity-github-actions
@@ -321,6 +329,9 @@ jobs:
         with:
           toolchain: stable
           components: cargo
+
+      - name: Check the workos release this crate needs
+        run: script/check-provider-release workos-workload-identity-github-actions
 
       - name: Authenticate with crates.io
         id: auth
@@ -353,6 +364,9 @@ jobs:
           toolchain: stable
           components: cargo
 
+      - name: Check the workos release this crate needs
+        run: script/check-provider-release workos-workload-identity-gcp
+
       - name: Authenticate with crates.io
         id: auth
         uses: rust-lang/crates-io-auth-action@v1
@@ -383,6 +397,9 @@ jobs:
         with:
           toolchain: stable
           components: cargo
+
+      - name: Check the workos release this crate needs
+        run: script/check-provider-release workos-workload-identity-aws
 
       - name: Authenticate with crates.io
         id: auth
