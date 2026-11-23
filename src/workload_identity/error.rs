@@ -17,6 +17,10 @@ pub(crate) const CODE_INVALID_CONFIGURATION: &str = "invalid_configuration";
 /// Longest `description` kept from a server response, in characters.
 const DESCRIPTION_LIMIT: usize = 500;
 
+/// What stands in for the identity token where the token endpoint repeated
+/// it in an error.
+const REDACTED: &str = "[redacted]";
+
 /// The one place hint wording lives. The wording is pending the server team's
 /// final error codes; change it here and nowhere else.
 const HINTS: &[(&str, &str)] = &[
@@ -73,12 +77,23 @@ fn hint_for(code: &str) -> &'static str {
         .unwrap_or(DEFAULT_HINT)
 }
 
+/// `text` with every occurrence of `assertion` replaced by [`REDACTED`].
+fn without_assertion(text: &str, assertion: &str) -> String {
+    if assertion.is_empty() {
+        // An empty pattern matches between every two characters.
+        return text.to_string();
+    }
+    text.replace(assertion, REDACTED)
+}
+
 /// A workload identity failure: bad configuration, a failing identity token
 /// provider, or a token exchange the endpoint rejected.
 ///
 /// Surfaces from API calls as [`crate::Error::WorkloadIdentity`]. The message
 /// is `<code>: <hint>`, followed by the description when there is one. It
-/// never contains the identity token or the access token.
+/// never contains the identity token or the access token: where the token
+/// endpoint repeats the identity token it was sent, the error says
+/// `[redacted]` in its place.
 #[derive(Clone)]
 pub struct WorkloadIdentityError {
     /// The OAuth error code from the token endpoint (`invalid_grant`,
@@ -86,9 +101,9 @@ pub struct WorkloadIdentityError {
     /// `exchange_failed`, `invalid_response`, `provider_failed`,
     /// `invalid_configuration`.
     pub code: String,
-    /// The server's `error_description`, cut to 500 characters. For
-    /// `invalid_configuration` it names the missing setting. Empty when there
-    /// is none.
+    /// The server's `error_description`, with the identity token taken out
+    /// and then cut to 500 characters. For `invalid_configuration` it names
+    /// the missing setting. Empty when there is none.
     pub description: String,
     /// One sentence on what to check. Never empty.
     pub hint: String,
@@ -102,6 +117,24 @@ impl WorkloadIdentityError {
             description: description.chars().take(DESCRIPTION_LIMIT).collect(),
             hint: hint_for(code).to_string(),
             source: None,
+        }
+    }
+
+    /// An OAuth error the token endpoint answered with, to a request that
+    /// carried `assertion`.
+    ///
+    /// The endpoint may repeat the assertion in its `error` or its
+    /// `error_description`, so every occurrence is replaced with `[redacted]`
+    /// before either string is kept. The description is cut to 500
+    /// characters after that, so the cut cannot leave the start of a token
+    /// behind. The hint is the one for the code as the server sent it.
+    pub(crate) fn from_token_endpoint(code: &str, description: &str, assertion: &str) -> Self {
+        Self {
+            hint: hint_for(code).to_string(),
+            ..Self::new(
+                &without_assertion(code, assertion),
+                &without_assertion(description, assertion),
+            )
         }
     }
 

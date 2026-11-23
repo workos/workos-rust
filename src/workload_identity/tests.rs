@@ -1070,6 +1070,46 @@ async fn wif_17_tokens_never_appear_in_errors() {
         snapshot.headers
     ));
 
+    // The token endpoint repeats the assertion in a 400.
+    let repeats_assertion = |status: u16| {
+        Reply::Raw(ResponseTemplate::new(status).set_body_json(json!({
+            "error": "invalid_grant",
+            "error_description": format!("JWT {ASSERTION} failed validation"),
+        })))
+    };
+    let endpoint = TokenEndpoint::scripted(vec![repeats_assertion(400)]).await;
+    let api = Api::start().await;
+    let credentials_f = credentials(&endpoint)
+        .identity_token_provider(secret_provider)
+        .build()
+        .unwrap();
+    let error = list(&client(&api, &credentials_f)).await.unwrap_err();
+    let exchange_error = error.workload_identity().unwrap();
+    assert_eq!(exchange_error.code, "invalid_grant");
+    assert_eq!(
+        exchange_error.description,
+        "JWT [redacted] failed validation"
+    );
+    assert_eq!(endpoint.count().await, 1);
+    rendered.push_str(&every_rendering(&error));
+
+    // The same body with a 503 until the retries run out. The last failure
+    // keeps the server's text, so that text is cleaned as well.
+    let endpoint = TokenEndpoint::scripted((0..10).map(|_| repeats_assertion(503)).collect()).await;
+    let credentials_g = credentials(&endpoint)
+        .identity_token_provider(secret_provider)
+        .build()
+        .unwrap();
+    let error = list(&client(&api, &credentials_g)).await.unwrap_err();
+    let exchange_error = error.workload_identity().unwrap();
+    assert_eq!(exchange_error.code, "invalid_grant");
+    assert_eq!(
+        exchange_error.description,
+        "JWT [redacted] failed validation"
+    );
+    assert_eq!(endpoint.count().await, 4);
+    rendered.push_str(&every_rendering(&error));
+
     assert!(!rendered.is_empty());
     assert!(
         !rendered.contains(ASSERTION),
@@ -1079,6 +1119,104 @@ async fn wif_17_tokens_never_appear_in_errors() {
         !rendered.contains(ACCESS_TOKEN),
         "the access token leaked:\n{rendered}"
     );
+}
+
+#[tokio::test]
+async fn the_assertion_is_taken_out_of_the_server_text_before_it_is_cut() {
+    const ASSERTION: &str = "SECRET-ASSERTION-VALUE";
+    let api = Api::start().await;
+    let error_for = async |body: serde_json::Value| {
+        let endpoint = TokenEndpoint::scripted(vec![Reply::Raw(
+            ResponseTemplate::new(400).set_body_json(body),
+        )])
+        .await;
+        let credentials = credentials(&endpoint)
+            .identity_token_provider(|| async { Ok::<_, ProviderError>(ASSERTION.to_owned()) })
+            .build()
+            .unwrap();
+        list(&client(&api, &credentials)).await.unwrap_err()
+    };
+
+    // The assertion starts at character 496. Cut first, and its first five
+    // characters would stay; replaced first, the cut goes through the marker.
+    let error = error_for(json!({
+        "error": "invalid_grant",
+        "error_description": format!("{}{ASSERTION} failed validation", "x".repeat(495)),
+    }))
+    .await;
+    let description = &error.workload_identity().unwrap().description;
+    assert_eq!(description, &format!("{}[reda", "x".repeat(495)));
+    assert!(!every_rendering(&error).contains("SECRE"));
+
+    // Every occurrence goes, in `error` as well as in `error_description`.
+    // The hint is the one for the code the server sent.
+    let error = error_for(json!({
+        "error": ASSERTION,
+        "error_description": format!("{ASSERTION} is not {ASSERTION}"),
+    }))
+    .await;
+    let exchange_error = error.workload_identity().unwrap();
+    assert_eq!(exchange_error.code, "[redacted]");
+    assert_eq!(exchange_error.description, "[redacted] is not [redacted]");
+    assert_eq!(exchange_error.hint, error::DEFAULT_HINT);
+    assert!(!every_rendering(&error).contains(ASSERTION));
+
+    // Nothing is replaced when there is no assertion to look for.
+    let unchanged = WorkloadIdentityError::from_token_endpoint("invalid_grant", "abc", "");
+    assert_eq!(unchanged.code, "invalid_grant");
+    assert_eq!(unchanged.description, "abc");
+}
+
+/// Answers every exchange with a 503 and an OAuth error that repeats the
+/// assertion it was sent.
+struct RepeatsTheAssertion;
+
+impl Respond for RepeatsTheAssertion {
+    fn respond(&self, request: &Request) -> ResponseTemplate {
+        let assertion = url::form_urlencoded::parse(&request.body)
+            .find(|(name, _)| name == "assertion")
+            .map(|(_, value)| value.into_owned())
+            .unwrap_or_default();
+        ResponseTemplate::new(503).set_body_json(json!({
+            "error": "temporarily_unavailable",
+            "error_description": format!("cannot validate {assertion} now"),
+        }))
+    }
+}
+
+#[tokio::test]
+async fn each_attempt_takes_out_the_assertion_it_sent() {
+    let server = MockServer::start().await;
+    Mock::given(any())
+        .respond_with(RepeatsTheAssertion)
+        .mount(&server)
+        .await;
+    let endpoint = TokenEndpoint { server };
+    let api = Api::start().await;
+    // A new assertion on every call, as a platform provider returns.
+    let calls = Arc::new(AtomicUsize::new(0));
+    let new_assertion_each_time = {
+        let calls = calls.clone();
+        move || {
+            let n = calls.fetch_add(1, Ordering::SeqCst) + 1;
+            async move { Ok::<_, ProviderError>(format!("SECRET-ASSERTION-{n}")) }
+        }
+    };
+    let credentials = credentials(&endpoint)
+        .identity_token_provider(new_assertion_each_time)
+        .build()
+        .unwrap();
+
+    let error = list(&client(&api, &credentials)).await.unwrap_err();
+
+    // Four attempts, four assertions. The error is the last attempt's, with
+    // the fourth assertion taken out.
+    assert_eq!(calls.load(Ordering::SeqCst), 4);
+    assert_eq!(endpoint.count().await, 4);
+    let exchange_error = error.workload_identity().unwrap();
+    assert_eq!(exchange_error.code, "temporarily_unavailable");
+    assert_eq!(exchange_error.description, "cannot validate [redacted] now");
+    assert!(!every_rendering(&error).contains("SECRET-ASSERTION"));
 }
 
 #[tokio::test]

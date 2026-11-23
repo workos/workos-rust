@@ -171,7 +171,7 @@ Nothing in the environment turns workload identity on, and there is no provider 
 Things to know:
 
 - `.api_key(_)` and `.credentials(_)` are mutually exclusive. A client built with credentials never sends an API key, and a failing exchange is an error, never a fallback to a key.
-- A failure surfaces as `workos::Error::WorkloadIdentity`. Its `code` is the OAuth error from the token endpoint (`invalid_grant`, `invalid_client`, ...) or one of `exchange_failed`, `invalid_response`, `provider_failed`, `invalid_configuration`; `hint` says what to check. Neither token ever appears in an error.
+- A failure surfaces as `workos::Error::WorkloadIdentity`. Its `code` is the OAuth error from the token endpoint (`invalid_grant`, `invalid_client`, ...) or one of `exchange_failed`, `invalid_response`, `provider_failed`, `invalid_configuration`; `hint` says what to check. Neither token ever appears in an error: where the token endpoint repeats the identity token it was sent, the error has `[redacted]` in its place.
 - Cloning a `WorkloadIdentityCredentials` shares its token; share one instance between clients that use the same identity.
 - The exchange needs a Tokio runtime and the bundled `reqwest` transport (the `rustls-tls` or `native-tls` feature). It runs on the runtime of the request that started it, so use one credentials instance from one long-lived runtime.
 - Calls that send the API key as an OAuth `client_secret` still need a client built with `.api_key(_)`: the `authenticate_with_*` sign-in calls on `user_management()` (all but `authenticate_with_device_code`), the AuthKit and SSO `pkce_code_exchange` helpers, and session `refresh`.

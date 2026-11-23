@@ -93,7 +93,7 @@ pub(crate) async fn exchange(
         // when its body carries an OAuth error.
         let status = response.status.as_u16();
         let body = serde_json::from_slice::<serde_json::Value>(&response.body).ok();
-        let oauth_error = body.as_ref().and_then(oauth_error);
+        let oauth_error = body.as_ref().and_then(|body| oauth_error(body, &assertion));
 
         if status == 429 || (500..=599).contains(&status) {
             server_delay = retry_after(&response.headers);
@@ -151,7 +151,10 @@ fn request(config: &ExchangeConfig, assertion: &str) -> HttpRequest {
 }
 
 /// An OAuth error body: a JSON object with a non-empty string `error`.
-fn oauth_error(body: &serde_json::Value) -> Option<WorkloadIdentityError> {
+///
+/// `assertion` is the identity token the attempt sent. The endpoint may
+/// repeat it in either string, so the error is built without it.
+fn oauth_error(body: &serde_json::Value, assertion: &str) -> Option<WorkloadIdentityError> {
     let code = body
         .get("error")?
         .as_str()
@@ -160,7 +163,11 @@ fn oauth_error(body: &serde_json::Value) -> Option<WorkloadIdentityError> {
         .get("error_description")
         .and_then(|d| d.as_str())
         .unwrap_or_default();
-    Some(WorkloadIdentityError::new(code, description))
+    Some(WorkloadIdentityError::from_token_endpoint(
+        code,
+        description,
+        assertion,
+    ))
 }
 
 fn parse_success(
