@@ -16,6 +16,7 @@ use crate::resources::MultiFactorAuthApi;
 use crate::resources::OrganizationDomainsApi;
 use crate::resources::OrganizationMembershipApi;
 use crate::resources::OrganizationsApi;
+use crate::resources::OrganizationsIssuerTrustsApi;
 use crate::resources::PipesApi;
 use crate::resources::PipesProviderApi;
 use crate::resources::PlatformTeamsApi;
@@ -100,6 +101,11 @@ impl Client {
     /// Access the `organizations` resource.
     pub fn organizations(&self) -> OrganizationsApi<'_> {
         OrganizationsApi { client: self }
+    }
+
+    /// Access the `organizations_issuer_trusts` resource.
+    pub fn organizations_issuer_trusts(&self) -> OrganizationsIssuerTrustsApi<'_> {
+        OrganizationsIssuerTrustsApi { client: self }
     }
 
     /// Access the `pipes` resource.

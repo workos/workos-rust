@@ -11,7 +11,7 @@ pub struct AuthenticationRadarRiskDetectedData {
     /// The authentication method used.
     pub auth_method: String,
     pub action: AuthenticationRadarRiskDetectedDataAction,
-    /// The control action taken for the detected risk.
+    /// The Radar control that detected the risk.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub control: Option<String>,
     /// The type of blocklist that triggered the risk detection.
@@ -27,7 +27,7 @@ pub struct AuthenticationRadarRiskDetectedData {
     pub user_id: String,
     /// The email address of the user.
     pub email: String,
-    /// The ID of the Radar detection that challenged the authentication.
+    /// The ID of the Radar detection that challenged the authentication. Retrieve the detection with `GET /radar/detections/:id` to see why Radar acted.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub radar_detection_id: Option<String>,
 }

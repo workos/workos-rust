@@ -126,6 +126,27 @@ impl<'a> RadarApi<'a> {
             .await
     }
 
+    /// Get a Radar detection
+    ///
+    /// Get a Radar detection from the last 30 days, including the evidence for why Radar fired.
+    pub async fn get_detection(&self, id: &str) -> Result<RadarDetection, Error> {
+        self.get_detection_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_detection`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_detection_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<RadarDetection, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/radar/detections/{id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
     /// Add an entry to a Radar list
     ///
     /// Add an entry to a Radar list.

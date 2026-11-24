@@ -14,9 +14,9 @@ pub struct AgentBlueprintsUpdateRequest {
     /// Human-readable description of the agent blueprint. Pass `null` to clear it.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub description: Option<String>,
-    /// Permission slugs forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment.
+    /// Permissions forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment and may appear once.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub permissions: Option<Vec<String>>,
+    pub permissions: Option<Vec<AgentBlueprintsUpdateRequestPermissionsOneOf>>,
     /// Who may mint sessions from this blueprint. Omitted lists are left unchanged.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub invocable_by: Option<AgentBlueprintsUpdateRequestInvocableBy>,

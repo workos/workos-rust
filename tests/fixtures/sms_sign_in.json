@@ -1,0 +1,4 @@
+{
+  "type": "sms_sign_in",
+  "trigger": "country_mismatch"
+}

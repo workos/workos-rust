@@ -2001,6 +2001,27 @@ impl<'a> UserManagementApi<'a> {
             .await
     }
 
+    /// Delete a CORS origin
+    ///
+    /// Deletes a CORS origin from the API key's application.
+    pub async fn delete_cors_origin(&self, id: &str) -> Result<(), Error> {
+        self.delete_cors_origin_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::delete_cors_origin`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn delete_cors_origin_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/user_management/cors_origins/{id}");
+        let method = http::Method::DELETE;
+        self.client
+            .request_with_query_opts_empty(method, &path, &(), options)
+            .await
+    }
+
     /// Get an email verification code
     ///
     /// Get the details of an existing email verification code that can be used to send an email to a user for verification.

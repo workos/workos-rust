@@ -570,7 +570,7 @@ async fn directory_sync_create_directory_sync_unprocessable() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_groups_round_trip() {
+async fn directory_sync_list_groups_for_directory_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directories/test_id/groups"))
@@ -583,15 +583,15 @@ async fn directory_sync_list_directory_groups_round_trip() {
     let client = common::test_client(&server).await;
     let _ = client
         .directory_sync()
-        .list_directory_groups(
+        .list_groups_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryGroupsParams::default(),
+            workos::directory_sync::ListGroupsForDirectoryParams::default(),
         )
         .await;
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_groups_unauthorized() {
+async fn directory_sync_list_groups_for_directory_unauthorized() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
     Mock::given(method("GET"))
@@ -603,9 +603,9 @@ async fn directory_sync_list_directory_groups_unauthorized() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .list_directory_groups(
+        .list_groups_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryGroupsParams::default(),
+            workos::directory_sync::ListGroupsForDirectoryParams::default(),
         )
         .await
         .expect_err("expected error");
@@ -617,7 +617,7 @@ async fn directory_sync_list_directory_groups_unauthorized() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_groups_not_found() {
+async fn directory_sync_list_groups_for_directory_not_found() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
     Mock::given(method("GET"))
@@ -629,9 +629,9 @@ async fn directory_sync_list_directory_groups_not_found() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .list_directory_groups(
+        .list_groups_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryGroupsParams::default(),
+            workos::directory_sync::ListGroupsForDirectoryParams::default(),
         )
         .await
         .expect_err("expected error");
@@ -643,7 +643,7 @@ async fn directory_sync_list_directory_groups_not_found() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_groups_rate_limited() {
+async fn directory_sync_list_groups_for_directory_rate_limited() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(429)
         .insert_header("retry-after", "1")
@@ -657,9 +657,9 @@ async fn directory_sync_list_directory_groups_rate_limited() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .list_directory_groups(
+        .list_groups_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryGroupsParams::default(),
+            workos::directory_sync::ListGroupsForDirectoryParams::default(),
         )
         .await
         .expect_err("expected error");
@@ -672,7 +672,7 @@ async fn directory_sync_list_directory_groups_rate_limited() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_groups_server_error() {
+async fn directory_sync_list_groups_for_directory_server_error() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
     Mock::given(method("GET"))
@@ -684,9 +684,9 @@ async fn directory_sync_list_directory_groups_server_error() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .list_directory_groups(
+        .list_groups_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryGroupsParams::default(),
+            workos::directory_sync::ListGroupsForDirectoryParams::default(),
         )
         .await
         .expect_err("expected error");
@@ -698,7 +698,7 @@ async fn directory_sync_list_directory_groups_server_error() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_groups_empty_page() {
+async fn directory_sync_list_groups_for_directory_empty_page() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directories/test_id/groups"))
@@ -711,9 +711,9 @@ async fn directory_sync_list_directory_groups_empty_page() {
     let client = common::test_client(&server).await;
     let resp = client
         .directory_sync()
-        .list_directory_groups(
+        .list_groups_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryGroupsParams::default(),
+            workos::directory_sync::ListGroupsForDirectoryParams::default(),
         )
         .await
         .expect("expected success");
@@ -721,7 +721,7 @@ async fn directory_sync_list_directory_groups_empty_page() {
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_group_round_trip() {
+async fn directory_sync_get_group_for_directory_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directories/test_id/groups/test_id"))
@@ -735,12 +735,12 @@ async fn directory_sync_get_directory_group_round_trip() {
     let client = common::test_client(&server).await;
     let _ = client
         .directory_sync()
-        .get_directory_group("test_id", "test_id")
+        .get_group_for_directory("test_id", "test_id")
         .await;
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_group_unauthorized() {
+async fn directory_sync_get_group_for_directory_unauthorized() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
     Mock::given(method("GET"))
@@ -752,7 +752,7 @@ async fn directory_sync_get_directory_group_unauthorized() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .get_directory_group("test_id", "test_id")
+        .get_group_for_directory("test_id", "test_id")
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -763,7 +763,7 @@ async fn directory_sync_get_directory_group_unauthorized() {
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_group_not_found() {
+async fn directory_sync_get_group_for_directory_not_found() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
     Mock::given(method("GET"))
@@ -775,7 +775,7 @@ async fn directory_sync_get_directory_group_not_found() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .get_directory_group("test_id", "test_id")
+        .get_group_for_directory("test_id", "test_id")
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -786,7 +786,7 @@ async fn directory_sync_get_directory_group_not_found() {
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_group_rate_limited() {
+async fn directory_sync_get_group_for_directory_rate_limited() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(429)
         .insert_header("retry-after", "1")
@@ -800,7 +800,7 @@ async fn directory_sync_get_directory_group_rate_limited() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .get_directory_group("test_id", "test_id")
+        .get_group_for_directory("test_id", "test_id")
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -812,7 +812,7 @@ async fn directory_sync_get_directory_group_rate_limited() {
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_group_server_error() {
+async fn directory_sync_get_group_for_directory_server_error() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
     Mock::given(method("GET"))
@@ -824,7 +824,7 @@ async fn directory_sync_get_directory_group_server_error() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .get_directory_group("test_id", "test_id")
+        .get_group_for_directory("test_id", "test_id")
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -835,7 +835,7 @@ async fn directory_sync_get_directory_group_server_error() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_users_round_trip() {
+async fn directory_sync_list_users_for_directory_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directories/test_id/users"))
@@ -848,15 +848,15 @@ async fn directory_sync_list_directory_users_round_trip() {
     let client = common::test_client(&server).await;
     let _ = client
         .directory_sync()
-        .list_directory_users(
+        .list_users_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryUsersParams::default(),
+            workos::directory_sync::ListUsersForDirectoryParams::default(),
         )
         .await;
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_users_unauthorized() {
+async fn directory_sync_list_users_for_directory_unauthorized() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
     Mock::given(method("GET"))
@@ -868,9 +868,9 @@ async fn directory_sync_list_directory_users_unauthorized() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .list_directory_users(
+        .list_users_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryUsersParams::default(),
+            workos::directory_sync::ListUsersForDirectoryParams::default(),
         )
         .await
         .expect_err("expected error");
@@ -882,7 +882,7 @@ async fn directory_sync_list_directory_users_unauthorized() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_users_not_found() {
+async fn directory_sync_list_users_for_directory_not_found() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
     Mock::given(method("GET"))
@@ -894,9 +894,9 @@ async fn directory_sync_list_directory_users_not_found() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .list_directory_users(
+        .list_users_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryUsersParams::default(),
+            workos::directory_sync::ListUsersForDirectoryParams::default(),
         )
         .await
         .expect_err("expected error");
@@ -908,7 +908,7 @@ async fn directory_sync_list_directory_users_not_found() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_users_rate_limited() {
+async fn directory_sync_list_users_for_directory_rate_limited() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(429)
         .insert_header("retry-after", "1")
@@ -922,9 +922,9 @@ async fn directory_sync_list_directory_users_rate_limited() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .list_directory_users(
+        .list_users_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryUsersParams::default(),
+            workos::directory_sync::ListUsersForDirectoryParams::default(),
         )
         .await
         .expect_err("expected error");
@@ -937,7 +937,7 @@ async fn directory_sync_list_directory_users_rate_limited() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_users_server_error() {
+async fn directory_sync_list_users_for_directory_server_error() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
     Mock::given(method("GET"))
@@ -949,9 +949,9 @@ async fn directory_sync_list_directory_users_server_error() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .list_directory_users(
+        .list_users_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryUsersParams::default(),
+            workos::directory_sync::ListUsersForDirectoryParams::default(),
         )
         .await
         .expect_err("expected error");
@@ -963,7 +963,7 @@ async fn directory_sync_list_directory_users_server_error() {
 }
 
 #[tokio::test]
-async fn directory_sync_list_directory_users_empty_page() {
+async fn directory_sync_list_users_for_directory_empty_page() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directories/test_id/users"))
@@ -976,9 +976,9 @@ async fn directory_sync_list_directory_users_empty_page() {
     let client = common::test_client(&server).await;
     let resp = client
         .directory_sync()
-        .list_directory_users(
+        .list_users_for_directory(
             "test_id",
-            workos::directory_sync::ListDirectoryUsersParams::default(),
+            workos::directory_sync::ListUsersForDirectoryParams::default(),
         )
         .await
         .expect("expected success");
@@ -986,7 +986,7 @@ async fn directory_sync_list_directory_users_empty_page() {
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_user_round_trip() {
+async fn directory_sync_get_user_for_directory_round_trip() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path_matcher("/directories/test_id/users/test_id"))
@@ -1000,12 +1000,12 @@ async fn directory_sync_get_directory_user_round_trip() {
     let client = common::test_client(&server).await;
     let _ = client
         .directory_sync()
-        .get_directory_user("test_id", "test_id")
+        .get_user_for_directory("test_id", "test_id")
         .await;
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_user_unauthorized() {
+async fn directory_sync_get_user_for_directory_unauthorized() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(401).set_body_string("{\"message\":\"Unauthorized\"}");
     Mock::given(method("GET"))
@@ -1017,7 +1017,7 @@ async fn directory_sync_get_directory_user_unauthorized() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .get_directory_user("test_id", "test_id")
+        .get_user_for_directory("test_id", "test_id")
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -1028,7 +1028,7 @@ async fn directory_sync_get_directory_user_unauthorized() {
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_user_not_found() {
+async fn directory_sync_get_user_for_directory_not_found() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(404).set_body_string("{\"message\":\"Not found\"}");
     Mock::given(method("GET"))
@@ -1040,7 +1040,7 @@ async fn directory_sync_get_directory_user_not_found() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .get_directory_user("test_id", "test_id")
+        .get_user_for_directory("test_id", "test_id")
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -1051,7 +1051,7 @@ async fn directory_sync_get_directory_user_not_found() {
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_user_rate_limited() {
+async fn directory_sync_get_user_for_directory_rate_limited() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(429)
         .insert_header("retry-after", "1")
@@ -1065,7 +1065,7 @@ async fn directory_sync_get_directory_user_rate_limited() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .get_directory_user("test_id", "test_id")
+        .get_user_for_directory("test_id", "test_id")
         .await
         .expect_err("expected error");
     let api = match &err {
@@ -1077,7 +1077,7 @@ async fn directory_sync_get_directory_user_rate_limited() {
 }
 
 #[tokio::test]
-async fn directory_sync_get_directory_user_server_error() {
+async fn directory_sync_get_user_for_directory_server_error() {
     let server = MockServer::start().await;
     let template = ResponseTemplate::new(500).set_body_string("{\"message\":\"Internal error\"}");
     Mock::given(method("GET"))
@@ -1089,7 +1089,7 @@ async fn directory_sync_get_directory_user_server_error() {
     let client = common::test_client(&server).await;
     let err = client
         .directory_sync()
-        .get_directory_user("test_id", "test_id")
+        .get_user_for_directory("test_id", "test_id")
         .await
         .expect_err("expected error");
     let api = match &err {
