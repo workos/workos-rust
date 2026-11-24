@@ -150,6 +150,27 @@ impl<'a> WebhooksApi<'a> {
             .await
     }
 
+    /// Get a Webhook Endpoint
+    ///
+    /// Get the details of an existing webhook endpoint.
+    pub async fn get_webhook_endpoint(&self, id: &str) -> Result<WebhookEndpoint, Error> {
+        self.get_webhook_endpoint_with_options(id, None).await
+    }
+
+    /// Variant of [`Self::get_webhook_endpoint`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn get_webhook_endpoint_with_options(
+        &self,
+        id: &str,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<WebhookEndpoint, Error> {
+        let id = crate::client::path_segment(id);
+        let path = format!("/webhook_endpoints/{id}");
+        let method = http::Method::GET;
+        self.client
+            .request_with_query_opts(method, &path, &(), options)
+            .await
+    }
+
     /// Update a Webhook Endpoint
     ///
     /// Update the properties of an existing webhook endpoint.
