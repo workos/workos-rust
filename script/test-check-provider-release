@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Tests script/check-provider-release.
+#
+# Each case runs the check in a throwaway workspace: a `workos` crate at one
+# version and a provider crate with one requirement on it. Nothing is built.
+# Like the check, the cases read the crates.io index.
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+WORK_DIR="$(mktemp -d)"
+trap 'rm -rf "$WORK_DIR"' EXIT
+
+# A `workos` version that is on crates.io, and one that never will be.
+PUBLISHED="3.7.0"
+UNPUBLISHED="999.0.0"
+
+failures=0
+
+# run_case <name> <workos version> <provider's workos requirement> <crate to check>
+#          <expected exit status> <text the output must contain>
+run_case() {
+  local name="$1" sdk_version="$2" requirement="$3" crate="$4" expected_status="$5" expected_text="$6"
+  local dir="$WORK_DIR/$name"
+
+  mkdir -p "$dir/script" "$dir/src" "$dir/crates/provider/src"
+  cp "$ROOT_DIR/script/check-provider-release" "$dir/script/"
+  touch "$dir/src/lib.rs" "$dir/crates/provider/src/lib.rs"
+  cat >"$dir/Cargo.toml" <<EOF
+[package]
+name = "workos"
+version = "$sdk_version"
+edition = "2021"
+
+[workspace]
+members = ["crates/*"]
+EOF
+  cat >"$dir/crates/provider/Cargo.toml" <<EOF
+[package]
+name = "provider"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+workos = { version = "$requirement", path = "../.." }
+EOF
+
+  local output status=0
+  output="$("$dir/script/check-provider-release" "$crate" 2>&1)" || status=$?
+  if [ "$status" -eq "$expected_status" ] && grep -qF -- "$expected_text" <<<"$output"; then
+    echo "ok: $name"
+  else
+    echo "FAILED: $name: expected exit status $expected_status and output containing \"$expected_text\"; got exit status $status and:"
+    echo "$output"
+    failures=$((failures + 1))
+  fi
+}
+
+# The state the provider crates start in: the requirement is a placeholder
+# that an older `workos` release, already on crates.io, satisfies.
+run_case placeholder "$PUBLISHED" "3.6.0" provider 1 \
+  "it requires workos ^3.6.0, which is not the workos version here (^$PUBLISHED)"
+
+# A `workos` release set the requirement to its own version and is published.
+run_case released "$PUBLISHED" "$PUBLISHED" provider 0 \
+  "provider may be released"
+
+# A `workos` release set the requirement, but is not on crates.io yet.
+run_case unpublished "$UNPUBLISHED" "$UNPUBLISHED" provider 1 \
+  "workos $UNPUBLISHED is not on crates.io"
+
+# A crate name the workspace does not have is an error of the check itself,
+# not a refusal.
+run_case unknown-crate "$PUBLISHED" "$PUBLISHED" no-such-crate 2 \
+  "no-such-crate is not a crate of this workspace"
+
+if [ "$failures" -ne 0 ]; then
+  echo "$failures case(s) failed"
+  exit 1
+fi

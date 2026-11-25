@@ -6,6 +6,7 @@ use http::HeaderMap;
 use thiserror::Error;
 
 use crate::transport::TransportError;
+use crate::workload_identity::WorkloadIdentityError;
 
 /// Structured WorkOS API error response. Populated for every non-2xx response.
 #[derive(Debug, Clone)]
@@ -132,6 +133,13 @@ pub enum Error {
     /// Crypto primitive (HMAC/AES/PKCE) failed.
     #[error("crypto error: {0}")]
     Crypto(String),
+
+    /// Workload identity credentials could not supply an access token: the
+    /// configuration is incomplete, the identity token provider failed, or
+    /// the token endpoint rejected the exchange. The request was not sent
+    /// with any other credential.
+    #[error("workload identity error: {0}")]
+    WorkloadIdentity(#[from] WorkloadIdentityError),
 }
 
 impl Error {
@@ -144,6 +152,15 @@ impl Error {
     pub fn api(&self) -> Option<&ApiError> {
         match self {
             Error::Api(e) => Some(e),
+            _ => None,
+        }
+    }
+
+    /// Returns the workload identity failure when this is
+    /// [`Error::WorkloadIdentity`], with its `code`, `description` and `hint`.
+    pub fn workload_identity(&self) -> Option<&WorkloadIdentityError> {
+        match self {
+            Error::WorkloadIdentity(e) => Some(e),
             _ => None,
         }
     }

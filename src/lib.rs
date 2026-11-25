@@ -41,6 +41,9 @@
 //! # Modules
 //!
 //! - [`client`] — [`Client`] and [`ClientBuilder`].
+//! - [`credentials`] — the [`Credentials`] contract a client authenticates through.
+//! - [`workload_identity`] — [`WorkloadIdentityCredentials`]: authenticate with a
+//!   platform-issued identity token instead of an API key.
 //! - [`resources`] — generated resource APIs, one per WorkOS service.
 //! - [`models`] — request/response types.
 //! - [`enums`] — generated enum types.
@@ -50,6 +53,7 @@
 //! - [`helpers`] — hand-rolled extras: AuthKit, JWKS, PKCE, sessions, vault crypto, webhook verification.
 
 pub mod client;
+pub mod credentials;
 pub mod enums;
 pub mod error;
 pub mod helpers;
@@ -60,8 +64,10 @@ pub mod resources;
 pub mod resources_api;
 pub mod secret;
 pub mod transport;
+pub mod workload_identity;
 
 pub use client::{Client, ClientBuilder, DEFAULT_BASE_URL, RequestOptions, RequestStrategy};
+pub use credentials::{CredentialSnapshot, Credentials};
 pub use enums::*;
 pub use error::{ApiError, Error};
 pub use helpers::*;
@@ -69,3 +75,7 @@ pub use models::*;
 pub use pagination::{ListMetadata, Page, auto_paginate};
 pub use resources::*;
 pub use secret::SecretString;
+pub use workload_identity::{
+    IdentityTokenProvider, WorkloadIdentityCredentials, WorkloadIdentityCredentialsBuilder,
+    WorkloadIdentityError, token_env, token_file,
+};

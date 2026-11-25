@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Refuses to release a workload identity provider crate before the `workos`
+# release it needs.
+#
+# A provider crate depends on `workos` for `workos::workload_identity`. Every
+# `workos` release rewrites that requirement to its own version (`extra-files`
+# in release-please-config.json). So a requirement that names the `workos`
+# version in this checkout was written by a release that has the module. Any
+# other requirement is the placeholder the crate started with, which older
+# `workos` releases satisfy too: a crate published with it does not build.
+#
+# The crate may be released when both hold:
+#   1. its `workos` requirement is `^<the workos version in this checkout>`;
+#   2. that `workos` version is on crates.io.
+#
+# Usage: script/check-provider-release <crate name>
+# Exit status: 0 the crate may be released, 1 it may not, 2 the check itself
+# could not run.
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# The sparse index has one JSON object per published version of `workos`.
+INDEX_URL="https://index.crates.io/wo/rk/workos"
+# A `workos` release from the same workflow run can take a moment to show.
+INDEX_ATTEMPTS=3
+INDEX_WAIT_SECONDS=5
+
+broken() {
+  echo "error: $1" >&2
+  exit 2
+}
+
+[ "$#" -eq 1 ] || broken "usage: script/check-provider-release <crate name>"
+crate="$1"
+
+refuse() {
+  echo "error: $crate must not be released yet: $1" >&2
+  exit 1
+}
+
+cd "$ROOT_DIR"
+metadata="$(cargo metadata --no-deps --format-version 1)" || broken "cargo metadata failed"
+
+sdk_version="$(jq -r '.packages[] | select(.name == "workos") | .version' <<<"$metadata")"
+[ -n "$sdk_version" ] || broken "this workspace has no workos crate"
+
+requirement="$(jq -r --arg crate "$crate" '
+  .packages[] | select(.name == $crate)
+  | .dependencies[] | select(.name == "workos" and .kind == null) | .req
+' <<<"$metadata")"
+[ -n "$requirement" ] || broken "$crate is not a crate of this workspace that depends on workos"
+
+if [ "$requirement" != "^$sdk_version" ]; then
+  refuse "it requires workos $requirement, which is not the workos version here (^$sdk_version). No workos release has set the requirement, so older workos releases without workload identity satisfy it. Release workos first."
+fi
+
+index_read=false
+for attempt in $(seq "$INDEX_ATTEMPTS"); do
+  if index="$(curl --fail --silent --show-error --location "$INDEX_URL")"; then
+    index_read=true
+    if jq -e -s --arg version "$sdk_version" 'any(.[]; .vers == $version)' <<<"$index" >/dev/null; then
+      echo "$crate may be released: it requires workos $requirement, and workos $sdk_version is on crates.io."
+      exit 0
+    fi
+  fi
+  [ "$attempt" -eq "$INDEX_ATTEMPTS" ] || sleep "$INDEX_WAIT_SECONDS"
+done
+"$index_read" || broken "could not read the crates.io index at $INDEX_URL"
+
+refuse "it requires workos $requirement, and workos $sdk_version is not on crates.io ($INDEX_URL). Wait until that release is published, then run this check again."

@@ -37,7 +37,9 @@ reqwest = { version = "0.12", default-features = false, features = [
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-tokio = { version = "1", features = ["time", "sync"] }
+# `rt` is for workload identity: the shared token exchange runs on a spawned
+# task so that a caller who gives up does not cancel it for the other callers.
+tokio = { version = "1", features = ["time", "sync", "rt"] }
 futures-util = { version = "0.3", default-features = false, features = ["std"] }
 http = "1"
 # Retained because `HttpTransport` is consumed as `Arc<dyn HttpTransport>`,
@@ -70,3 +72,14 @@ todo = "warn"
 [package.metadata.docs.rs]
 features = ["rustls-tls"]
 rustdoc-args = ["--cfg", "docsrs"]
+
+# The workload identity provider crates. Each one is published on its own and
+# depends on `workos` for the `IdentityTokenProvider` trait, so `workos` cannot
+# re-export them behind a feature (that would be a dependency cycle).
+#
+# Keep `members` a glob. release-please's Rust strategy reads this list when it
+# releases `workos`: it cannot expand a glob, so it leaves the provider crates
+# alone, but given literal paths it would overwrite each provider's version
+# with the `workos` version.
+[workspace]
+members = ["crates/*"]
