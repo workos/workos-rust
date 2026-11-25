@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.0](https://github.com/workos/workos-rust/compare/v3.7.0...v3.8.0) (2026-11-25)
+
+
+### Features
+
+* **sso:** Add SSO API surface ([#182](https://github.com/workos/workos-rust/issues/182)) ([88642f3](https://github.com/workos/workos-rust/commit/88642f3ffe45e6f9340c01d7985e5b1cd3785f40))
+* **webhooks:** Add webhook API surface ([#182](https://github.com/workos/workos-rust/issues/182)) ([88642f3](https://github.com/workos/workos-rust/commit/88642f3ffe45e6f9340c01d7985e5b1cd3785f40))
+
+
+### Bug Fixes
+
+* **events:** Updated model `EventSchema` ([#182](https://github.com/workos/workos-rust/issues/182)) ([88642f3](https://github.com/workos/workos-rust/commit/88642f3ffe45e6f9340c01d7985e5b1cd3785f40))
+
 ## [3.7.0](https://github.com/workos/workos-rust/compare/v3.6.0...v3.7.0) (2026-11-13)
 
 ### Bug Fixes
