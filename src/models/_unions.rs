@@ -74,3 +74,17 @@ pub enum ApiKeyUpdatedDataOwnerOneOf {
     #[serde(rename = "user")]
     UserApiKeyUpdatedDataOwner(UserApiKeyUpdatedDataOwner),
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum AgentBlueprintsCreateRequestPermissionsOneOf {
+    AgentBlueprintsCreateRequestPermission(AgentBlueprintsCreateRequestPermission),
+    String(String),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum AgentBlueprintsUpdateRequestPermissionsOneOf {
+    AgentBlueprintsUpdateRequestPermission(AgentBlueprintsUpdateRequestPermission),
+    String(String),
+}

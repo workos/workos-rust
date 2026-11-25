@@ -485,6 +485,23 @@ impl AssignRoleParams {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct UpdateRoleAssignmentsParams {
+    /// Request body sent with this call.
+    ///
+    /// Required.
+    #[serde(skip)]
+    pub body: PatchRoleAssignments,
+}
+
+impl UpdateRoleAssignmentsParams {
+    /// Construct a new `UpdateRoleAssignmentsParams` with the required fields set.
+    #[allow(deprecated)]
+    pub fn new(body: PatchRoleAssignments) -> Self {
+        Self { body }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct RemoveRoleParams {
     /// Request body sent with this call.
     ///
@@ -1513,7 +1530,7 @@ impl<'a> AuthorizationApi<'a> {
 
     /// Assign a role
     ///
-    /// Assign a role to an organization membership on a specific resource.
+    /// Assign a role to an organization membership on a specific resource. If the role is already assigned to the membership on that resource, the existing role assignment is returned and no changes are made.
     pub async fn assign_role(
         &self,
         organization_membership_id: &str,
@@ -1537,6 +1554,35 @@ impl<'a> AuthorizationApi<'a> {
         let method = http::Method::POST;
         self.client
             .request_with_body_opts(method, &path, &params, Some(&params.body), options)
+            .await
+    }
+
+    /// Update role assignments for an organization membership
+    ///
+    /// Add and remove role assignments for an organization membership in a single atomic operation. Each entry identifies a role and a resource, either by `resource_id` or by `resource_type_slug` and `resource_external_id`; to change an organization-level role, target the organization resource. Additions that already exist and removals that match no assignment are skipped. An assignment in both lists is rejected, as is a removal of a role granted only through a group. `add` and `remove` must contain between 1 and 100 entries combined.
+    pub async fn update_role_assignments(
+        &self,
+        organization_membership_id: &str,
+        params: UpdateRoleAssignmentsParams,
+    ) -> Result<(), Error> {
+        self.update_role_assignments_with_options(organization_membership_id, params, None)
+            .await
+    }
+
+    /// Variant of [`Self::update_role_assignments`] that accepts per-request [`crate::RequestOptions`].
+    pub async fn update_role_assignments_with_options(
+        &self,
+        organization_membership_id: &str,
+        params: UpdateRoleAssignmentsParams,
+        options: Option<&crate::RequestOptions>,
+    ) -> Result<(), Error> {
+        let organization_membership_id = crate::client::path_segment(organization_membership_id);
+        let path = format!(
+            "/authorization/organization_memberships/{organization_membership_id}/role_assignments"
+        );
+        let method = http::Method::PATCH;
+        self.client
+            .request_with_body_opts_empty(method, &path, &params, Some(&params.body), options)
             .await
     }
 

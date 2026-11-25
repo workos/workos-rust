@@ -12,7 +12,7 @@ pub struct AuthenticationMagicAuthFailedDataError {
     pub code: String,
     /// A human-readable error message.
     pub message: String,
-    /// The ID of the Radar detection that blocked the authentication. Only set on `policy_denied` errors.
+    /// The ID of the Radar detection that blocked the authentication. Retrieve the detection with `GET /radar/detections/:id` to see why Radar acted. Only set on `policy_denied` errors that a Radar detection caused.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub radar_detection_id: Option<String>,
 }

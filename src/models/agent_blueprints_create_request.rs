@@ -13,11 +13,11 @@ pub struct AgentBlueprintsCreateRequest {
     /// Human-readable description of the agent blueprint.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub description: Option<String>,
-    /// Permission slugs forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment.
+    /// Permissions forming the ceiling on what sessions minted from this blueprint may do. Each slug must exist in the environment and may appear once.
     ///
     /// Defaults to `[]`.
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub permissions: Option<Vec<String>>,
+    pub permissions: Option<Vec<AgentBlueprintsCreateRequestPermissionsOneOf>>,
     /// Who may mint sessions from this blueprint.
     ///
     /// Defaults to `{}`.

@@ -1,0 +1,9 @@
+{
+  "summary": "Sign-up from a Tor exit node with an email format shared by many recent sign-ups. The action was decided by the risky IP. The email pattern would also have challenged.",
+  "control": "repeat_sign_up",
+  "details": {
+    "matched_on": "email",
+    "prior_sign_ups": 8,
+    "window_days": 60
+  }
+}

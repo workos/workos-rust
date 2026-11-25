@@ -17,8 +17,12 @@ pub struct AgentBlueprintUpdatedData {
     /// Human-readable description of the agent blueprint.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub description: Option<String>,
-    /// Permission slugs forming the ceiling on what sessions minted from this blueprint may do.
+    /// Deprecated: use `scoped_permissions`. Slugs of every permission in the ceiling, across all instance types.
+    #[deprecated(note = "Deprecated. use `scoped_permissions`.")]
     pub permissions: Vec<String>,
+    /// Permissions forming the ceiling on what sessions minted from this blueprint may do, with the instance types that receive each one. Absent from events emitted before this field was added.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub scoped_permissions: Option<Vec<AgentBlueprintUpdatedDataScopedPermission>>,
     /// Who may mint sessions from this blueprint.
     pub invocable_by: AgentBlueprintUpdatedDataInvocableBy,
     /// How sessions may be minted from this blueprint.
